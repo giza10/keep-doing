@@ -7,7 +7,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class DatabaseHelper extends SQLiteOpenHelper {
+class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "keepdo_tracker.db";
     private static final int DATABASE_VERSION = 1;
