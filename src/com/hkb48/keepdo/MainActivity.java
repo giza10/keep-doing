@@ -36,6 +36,13 @@ public class MainActivity extends Activity {
                 String item = (String) listView.getItemAtPosition(position);
                 //Log出力
                 Log.v("tag", String.format("onItemClick: %s", item));
+
+                // Calendar View表示
+                Intent intent = new Intent(MainActivity.this, CalendarActivity.class);
+//                intent.putExtra("int Value", -123);	// Parameter
+//                intent.putExtra("String Value", "abc");
+//                intent.putExtra("Person Object", new Person("gudon", 99));
+                startActivity(intent);
             }
         });
           
@@ -48,11 +55,6 @@ public class MainActivity extends Activity {
                 //クリックされたものを取得
                 String item = (String) listView.getSelectedItem();
                 Log.v("tag", String.format("onItemSelected: %s", item));
-
-                Intent intent = new Intent();
-                intent.setClassName("com.hkb48.keepdo.MainActivity","com.hkb48.keepdo.CalendarActivity");
-                //intent.putExtra("org.jpn.techbooster.demo.intent.testString", "!TEST STRING!");
-                startActivity(intent);
             }
             //何も選択さてないときに実行
             public void onNothingSelected(AdapterView<?> parent) {
