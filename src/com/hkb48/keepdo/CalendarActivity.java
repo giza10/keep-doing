@@ -3,7 +3,6 @@ package com.hkb48.keepdo;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -11,7 +10,7 @@ import android.view.View;
 import android.widget.GridLayout;
 import android.widget.TextView;
 
-public class CalendarActivity extends Activity {
+public class CalendarActivity extends MainActivity {
 	private GridLayout mGridLayout;
     private int mPosition = 0;
 	
@@ -27,7 +26,7 @@ public class CalendarActivity extends Activity {
     }
 
     /***
-     * <年4桁>/<月２桁>のフォーマットで文字列を作成し月表示用のTextViewに設定
+     * <蟷ｴ4譯�/<譛茨ｼ呈｡�縺ｮ繝輔か繝ｼ繝槭ャ繝医〒譁�ｭ怜�繧剃ｽ懈�縺玲怦陦ｨ遉ｺ逕ｨ縺ｮTextView縺ｫ險ｭ螳�
      * 
      * @param calendar
      */
@@ -38,44 +37,44 @@ public class CalendarActivity extends Activity {
     }
     
     /***
-     * カレンダーデータを設定
+     * 繧ｫ繝ｬ繝ｳ繝��繝��繧ｿ繧定ｨｭ螳�
      */
     private void buildCalendar() {
-        // 表示する月のポジションを用いてカレンダーを生成
+        // 陦ｨ遉ｺ縺吶ｋ譛医�繝昴ず繧ｷ繝ｧ繝ｳ繧堤畑縺�※繧ｫ繝ｬ繝ｳ繝��繧堤函謌�
         Calendar current = Calendar.getInstance();
         current.add(Calendar.MONTH, mPosition);
         current.set(Calendar.DAY_OF_MONTH, 1);
 
-        // タイトルを設定
+        // 繧ｿ繧､繝医Ν繧定ｨｭ螳�
         setTitle(current);
 
-        // カレンダーデータをリセット
+        // 繧ｫ繝ｬ繝ｳ繝��繝��繧ｿ繧偵Μ繧ｻ繝�ヨ
         mGridLayout.removeAllViews();
 
-        // 曜日を設定
+        // 譖懈律繧定ｨｭ螳�
         addDayOfWeek();
 
-        // 日毎のデータを設定
+        // 譌･豈弱�繝��繧ｿ繧定ｨｭ螳�
         addDayOfMonth(current);
     }
 
     /***
-     * 曜日を設定
+     * 譖懈律繧定ｨｭ螳�
      */
     private void addDayOfWeek() {    	
-        // 日～土の曜日の文字列を取得
+        // 譌･�槫悄縺ｮ譖懈律縺ｮ譁�ｭ怜�繧貞叙蠕�
         String[] weeks = getResources().getStringArray(R.array.week_names);
         for (int i = 0; i < weeks.length; i++) {
-            // 曜日のレイアウトを生成
+            // 譖懈律縺ｮ繝ｬ繧､繧｢繧ｦ繝医ｒ逕滓�
             View child = getLayoutInflater().inflate(R.layout.calendar_week, null);
-            // 曜日を設定するTextViewのインスタンスを取得
+            // 譖懈律繧定ｨｭ螳壹☆繧亀extView縺ｮ繧､繝ｳ繧ｹ繧ｿ繝ｳ繧ｹ繧貞叙蠕�
             TextView textView1 = (TextView) child.findViewById(R.id.textView1);
-            // 曜日をTextViewに設定
+            // 譖懈律繧探extView縺ｫ險ｭ螳�
             textView1.setText(weeks[i]);
-            // 曜日が日曜日なら赤、そうでなければ黒のテキストカラーを設定
+            // 譖懈律縺梧律譖懈律縺ｪ繧芽ｵ､縲√◎縺�〒縺ｪ縺代ｌ縺ｰ鮟偵�繝�く繧ｹ繝医き繝ｩ繝ｼ繧定ｨｭ螳�
             textView1.setTextColor(i == 0 ? Color.RED : Color.BLACK);
 
-            // 作成された曜日のレイアウトをGridLayoutに追加
+            // 菴懈�縺輔ｌ縺滓屆譌･縺ｮ繝ｬ繧､繧｢繧ｦ繝医ｒGridLayout縺ｫ霑ｽ蜉�
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.setGravity(Gravity.FILL_HORIZONTAL);
             mGridLayout.addView(child);
@@ -83,48 +82,48 @@ public class CalendarActivity extends Activity {
     }
 
     /***
-     * 日毎のデータを設定
+     * 譌･豈弱�繝��繧ｿ繧定ｨｭ螳�
      * 
      * @param calendar
      */
     private void addDayOfMonth(Calendar calendar) {
-        // 表示月の最大日数を取得
+        // 陦ｨ遉ｺ譛医�譛�､ｧ譌･謨ｰ繧貞叙蠕�
         int maxdate = calendar.getMaximum(Calendar.DAY_OF_MONTH);
 
-        // 最大日数分繰り返し処理を行う
+        // 譛�､ｧ譌･謨ｰ蛻�ｹｰ繧願ｿ斐＠蜃ｦ逅�ｒ陦後≧
         for (int i = 0; i < maxdate; i++) {
-            // 日毎のレイアウトを生成
+            // 譌･豈弱�繝ｬ繧､繧｢繧ｦ繝医ｒ逕滓�
             View child = getLayoutInflater().inflate(R.layout.calendar_date, null);
-            // 日毎のレイアウトから各Viewのインスタンスを取得
+            // 譌･豈弱�繝ｬ繧､繧｢繧ｦ繝医°繧牙推View縺ｮ繧､繝ｳ繧ｹ繧ｿ繝ｳ繧ｹ繧貞叙蠕�
             TextView textView1 = (TextView) child.findViewById(R.id.textView1);
             TextView textView2 = (TextView) child.findViewById(R.id.textView2);
             TextView textView3 = (TextView) child.findViewById(R.id.textView3);
-            // 作成する日の曜日を取得
+            // 菴懈�縺吶ｋ譌･縺ｮ譖懈律繧貞叙蠕�
             int week = calendar.get(Calendar.DAY_OF_WEEK);
 
-            // 作成する日の日付をTextViewに設定
+            // 菴懈�縺吶ｋ譌･縺ｮ譌･莉倥ｒTextView縺ｫ險ｭ螳�
             textView1.setText(Integer.toString(i + 1));
-            // 作成する日が日曜日なら赤、そうでなければ黒のテキストカラーを設定
+            // 菴懈�縺吶ｋ譌･縺梧律譖懈律縺ｪ繧芽ｵ､縲√◎縺�〒縺ｪ縺代ｌ縺ｰ鮟偵�繝�く繧ｹ繝医き繝ｩ繝ｼ繧定ｨｭ螳�
             textView1.setTextColor(week == Calendar.SUNDAY ? Color.RED : Color.BLACK);
 
-            // 作成する日のイベントを全て取得
+            // 菴懈�縺吶ｋ譌･縺ｮ繧､繝吶Φ繝医ｒ蜈ｨ縺ｦ蜿門ｾ�
 //            List<CalendarEvent> events = queryEvent(calendar);
 //            if (events != null && events.size() > 0) {
-//                // イベントがあれば一つ目のイベントのタイトルを取得しTextViewに設定
+//                // 繧､繝吶Φ繝医′縺ゅｌ縺ｰ荳�▽逶ｮ縺ｮ繧､繝吶Φ繝医�繧ｿ繧､繝医Ν繧貞叙蠕励＠TextView縺ｫ險ｭ螳�
 //                textView2.setText(events.get(0).getTitle());
-//                // 複数のイベントがあれば「・・・」を表示
+//                // 隍�焚縺ｮ繧､繝吶Φ繝医′縺ゅｌ縺ｰ縲後�繝ｻ繝ｻ縲阪ｒ陦ｨ遉ｺ
 //                if (events.size() > 1) {
 //                    textView3.setVisibility(View.VISIBLE);
 //                }
 //                child.setTag(events);
 //            }
 //            else {
-                // イベントがない場合はブランクを設定
+                // 繧､繝吶Φ繝医′縺ｪ縺��蜷医�繝悶Λ繝ｳ繧ｯ繧定ｨｭ螳�
                 textView2.setText("");
                 textView3.setVisibility(View.GONE);
 //            }
 
-            // 作成された日のレイアウトをGridLayoutに追加
+            // 菴懈�縺輔ｌ縺滓律縺ｮ繝ｬ繧､繧｢繧ｦ繝医ｒGridLayout縺ｫ霑ｽ蜉�
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             if (i == 0) {
                 params.rowSpec = GridLayout.spec(1);
@@ -133,7 +132,7 @@ public class CalendarActivity extends Activity {
             params.setGravity(Gravity.FILL_HORIZONTAL);
             mGridLayout.addView(child, params);
 
-            // 日にちを１日進める
+            // 譌･縺ｫ縺｡繧抵ｼ第律騾ｲ繧√ｋ
             calendar.add(Calendar.DAY_OF_MONTH, 1);
         }
     }
