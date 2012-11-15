@@ -8,13 +8,13 @@
     <string name="btn_month_next">Next</string>
 	<string name="btn_month_prev">Prev</string>
 	<string-array name="week_names">
-        <item>日</item>
-        <item>月</item>
-        <item>火</item>
-        <item>水</item>
-        <item>木</item>
-        <item>金</item>
-        <item>土</item>
+        <item>SUN</item>
+        <item>MON</item>
+        <item>TUE</item>
+        <item>WED</item>
+        <item>THU</item>
+        <item>FRI</item>
+        <item>SAT</item>
     </string-array>
 
 </resources>
