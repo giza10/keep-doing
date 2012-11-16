@@ -75,9 +75,12 @@ public class CalendarActivity extends MainActivity {
         String[] weeks = getResources().getStringArray(R.array.week_names);
         for (int i = 0; i < weeks.length; i++) {
             View child = getLayoutInflater().inflate(R.layout.calendar_week, null);
+            int dayOfWeek = getDayOfWeek(i);
+            int fontColorOfWeek = getFontColorOfWeek(dayOfWeek);
+
             TextView textView1 = (TextView) child.findViewById(R.id.textView1);
             textView1.setText(weeks[i]);
-            textView1.setTextColor(i == 0 ? Color.RED : Color.BLACK);
+            textView1.setTextColor(fontColorOfWeek);
 
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.setGravity(Gravity.FILL_HORIZONTAL);
@@ -99,9 +102,10 @@ public class CalendarActivity extends MainActivity {
             TextView textView2 = (TextView) child.findViewById(R.id.textView2);
             TextView textView3 = (TextView) child.findViewById(R.id.textView3);
             int week = calendar.get(Calendar.DAY_OF_WEEK);
+            int fontColorOfWeek = getFontColorOfWeek(week);
 
             textView1.setText(Integer.toString(i + 1));
-            textView1.setTextColor(week == Calendar.SUNDAY ? Color.RED : Color.BLACK);
+            textView1.setTextColor(fontColorOfWeek);
 
             textView2.setText("");
             textView3.setVisibility(View.GONE);
@@ -115,6 +119,32 @@ public class CalendarActivity extends MainActivity {
             mGridLayout.addView(child, params);
 
             calendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+    }
+
+    /***
+     * Get dayOfWeek value from index of week.
+     *
+     * @param indexOfWeek
+     * @return dayOfWeek value defined in Calendar class
+     */
+    private int getDayOfWeek(int indexOfWeek) {
+        return Calendar.SUNDAY + indexOfWeek;
+    }
+
+    /***
+     * Get font color for day of the week
+     *
+     * @param color font color for day of the week
+     */
+    private int getFontColorOfWeek(int dayOfWeek) {
+        switch(dayOfWeek) {
+        case Calendar.SUNDAY:
+            return Color.RED;
+        case Calendar.SATURDAY:
+            return Color.BLUE;
+        default:
+            return Color.BLACK;
         }
     }
 }
