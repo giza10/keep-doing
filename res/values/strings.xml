@@ -7,6 +7,7 @@
 
     <string name="btn_month_next">Next</string>
 	<string name="btn_month_prev">Prev</string>
+	<string name="image_description">Done mark</string>
 	<string-array name="week_names">
         <item>SUN</item>
         <item>MON</item>

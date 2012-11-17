@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class CalendarActivity extends MainActivity {
@@ -99,16 +100,17 @@ public class CalendarActivity extends MainActivity {
         for (int i = 0; i < maxdate; i++) {
             View child = getLayoutInflater().inflate(R.layout.calendar_date, null);
             TextView textView1 = (TextView) child.findViewById(R.id.textView1);
-            TextView textView2 = (TextView) child.findViewById(R.id.textView2);
-            TextView textView3 = (TextView) child.findViewById(R.id.textView3);
+            ImageView imageView1 = (ImageView) child.findViewById(R.id.imageView1);
             int week = calendar.get(Calendar.DAY_OF_WEEK);
             int fontColorOfWeek = getFontColorOfWeek(week);
 
             textView1.setText(Integer.toString(i + 1));
             textView1.setTextColor(fontColorOfWeek);
 
-            textView2.setText("");
-            textView3.setVisibility(View.GONE);
+            // Tentative
+            if (i%10 != 1) {
+                imageView1.setVisibility(View.GONE);
+            }
 
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             if (i == 0) {
