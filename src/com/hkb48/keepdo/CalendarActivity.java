@@ -24,14 +24,14 @@ public class CalendarActivity extends MainActivity {
 
         mGridLayout = (GridLayout) findViewById(R.id.gridLayout);
 
-        findViewById(R.id.button1).setOnClickListener(new OnClickListener() {
+        findViewById(R.id.button_prev).setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 mPosition--;
                 buildCalendar();
             }
         });
 
-        findViewById(R.id.button2).setOnClickListener(new OnClickListener() {
+        findViewById(R.id.button_next).setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 mPosition++;
                 buildCalendar();
@@ -77,11 +77,21 @@ public class CalendarActivity extends MainActivity {
         for (int i = 0; i < weeks.length; i++) {
             View child = getLayoutInflater().inflate(R.layout.calendar_week, null);
             int dayOfWeek = getDayOfWeek(i);
-            int fontColorOfWeek = getFontColorOfWeek(dayOfWeek);
 
             TextView textView1 = (TextView) child.findViewById(R.id.textView1);
             textView1.setText(weeks[i]);
-            textView1.setTextColor(fontColorOfWeek);
+            textView1.setTextColor(Color.WHITE);
+            switch(dayOfWeek) {
+            case Calendar.SUNDAY:
+                textView1.setBackgroundResource(R.drawable.bg_calendar_sunday);
+                break;
+            case Calendar.SATURDAY:
+                textView1.setBackgroundResource(R.drawable.bg_calendar_saturday);
+                break;
+            default:
+                textView1.setBackgroundResource(R.drawable.bg_calendar_weekday);
+                break;
+            }
 
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.setGravity(Gravity.FILL_HORIZONTAL);
