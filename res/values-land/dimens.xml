@@ -1,0 +1,5 @@
+<resources>
+
+    <dimen name="calendar_date_height">25dp</dimen>
+
+</resources>
