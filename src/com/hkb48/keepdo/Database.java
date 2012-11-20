@@ -6,9 +6,9 @@ public final class Database {
 	private Database() {}
 	
 	// Task table
-	public static final class Tasks implements BaseColumns {
+	public static final class TasksToday implements BaseColumns {
 
-        private Tasks() {}
+        private TasksToday() {}
 
         public static final String TASKS_TABLE_NAME = "table_tasks";
         
