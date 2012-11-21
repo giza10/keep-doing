@@ -3,7 +3,7 @@
     android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/item_background"
+    android:background="@drawable/bg_calendar_day_normal"
     android:gravity="center_horizontal"
     android:orientation="vertical" >
 
@@ -30,6 +30,7 @@
             android:layout_height="wrap_content"
             android:padding="5dip"
             android:src="@drawable/done_mark"
+            android:visibility="gone"
             android:contentDescription="@string/image_description" />
 
     </LinearLayout>
