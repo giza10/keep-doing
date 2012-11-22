@@ -36,11 +36,12 @@ public class TasksActivity extends MainActivity {
                 //LogèoóÕ
                 Log.v("tag", String.format("onItemClick: %s", item));
 
-                // Calendar Viewï\é¶
+                // TODO
+                int taskId = 10;
+
+                // Show calendar view
                 Intent intent = new Intent(TasksActivity.this, CalendarActivity.class);
-//                intent.putExtra("int Value", -123);	// Parameter
-//                intent.putExtra("String Value", "abc");
-//                intent.putExtra("Person Object", new Person("gudon", 99));
+                intent.putExtra("TASK-ID", taskId);
                 startActivity(intent);
             }
         });

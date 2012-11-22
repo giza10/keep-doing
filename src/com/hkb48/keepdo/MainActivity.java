@@ -83,4 +83,9 @@ public class MainActivity extends Activity {
 			//@Todo.
 		}
 	}
+
+    protected Task getTask(Long taskID) {
+        // TODO
+        return new Task("Task xxx", new Recurrence());
+    }
 }

@@ -3,6 +3,7 @@ package com.hkb48.keepdo;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -19,8 +20,14 @@ public class CalendarActivity extends MainActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
         setContentView(R.layout.calendar_activity);
+
+        Intent intent = getIntent();
+        int taskId = intent.getIntExtra("TASK-ID", -1);
+        Task task = getTask((long)taskId);
+        if (task != null) {
+            setTitle(task.getName());
+        }
 
         mGridLayout = (GridLayout) findViewById(R.id.gridLayout);
 
@@ -46,7 +53,7 @@ public class CalendarActivity extends MainActivity {
      * 
      * @param calendar
      */
-    private void setTitle(Calendar calendar) {
+    private void setCalendarTitle(Calendar calendar) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM");
         TextView textView1 = (TextView) findViewById(R.id.textView1);
         textView1.setText(sdf.format(calendar.getTime()));
@@ -60,7 +67,7 @@ public class CalendarActivity extends MainActivity {
         current.add(Calendar.MONTH, mPosition);
         current.set(Calendar.DAY_OF_MONTH, 1);
 
-        setTitle(current);
+        setCalendarTitle(current);
 
         mGridLayout.removeAllViews();
 
@@ -128,7 +135,7 @@ public class CalendarActivity extends MainActivity {
             textView1.setText(Integer.toString(date));
             textView1.setTextColor(fontColorOfWeek);
 
-            // Tentative
+            // TODO
             if (date%10 == 1) {
                 imageView1.setVisibility(View.VISIBLE);
             }
