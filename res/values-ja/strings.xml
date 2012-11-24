@@ -1,4 +1,5 @@
 <resources>
+    <string name="menu_add_task">新規追加</string>
 
     <string name="btn_month_next">翌月</string>
 	<string name="btn_month_prev">先月</string>

@@ -7,7 +7,6 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
-import android.view.Menu;
 
 import com.hkb48.keepdo.Database.TaskCompletions;
 import com.hkb48.keepdo.Database.TasksToday;
@@ -21,12 +20,6 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 		mDatabaseHelper = new DatabaseHelper(this.getApplicationContext());
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main, menu);
-        return true;
     }
 
 	@Override

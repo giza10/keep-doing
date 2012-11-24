@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.GridLayout;
@@ -22,12 +23,7 @@ public class CalendarActivity extends MainActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.calendar_activity);
 
-        Intent intent = getIntent();
-        int taskId = intent.getIntExtra("TASK-ID", -1);
-        Task task = getTask((long)taskId);
-        if (task != null) {
-            setTitle(task.getName());
-        }
+        setActionBar();
 
         mGridLayout = (GridLayout) findViewById(R.id.gridLayout);
 
@@ -46,6 +42,31 @@ public class CalendarActivity extends MainActivity {
         });
 
         buildCalendar();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case android.R.id.home:
+            finish();
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /***
+     * Set action bar
+     */
+    private void setActionBar() {
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+
+        Intent intent = getIntent();
+        int taskId = intent.getIntExtra("TASK-ID", -1);
+        Task task = getTask((long)taskId);
+        if (task != null) {
+            setTitle(task.getName());
+        }
     }
 
     /***
