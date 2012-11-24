@@ -1,0 +1,43 @@
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <TextView
+        android:text="@string/task_name"
+        android:textAppearance="@android:style/TextAppearance.Large"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content" >
+    </TextView>
+
+    <EditText
+        android:inputType="text"
+        android:id="@+id/editText1"
+        android:hint="@string/hint_task_name"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content" >
+    </EditText>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@android:drawable/bottom_bar"
+        android:gravity="bottom">
+
+        <Button
+            android:onClick="onCancelClicked"
+            android:layout_width="0dip"
+            android:layout_weight="1.0"
+            android:layout_height="wrap_content"
+            android:text="@string/task_cancel" />
+
+        <Button
+            android:onClick="onSaveClicked"
+            android:layout_width="0dip"
+            android:layout_weight="1.0"
+            android:layout_height="wrap_content"
+            android:text="@string/task_save" />
+    </LinearLayout>
+
+</LinearLayout>

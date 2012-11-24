@@ -1,7 +1,14 @@
 <resources>
 
     <string name="app_name">KeepDoing</string>
-    <string name="menu_add_task">New task</string>
+
+    <string name="add_task">New task</string>
+    <string name="edit_task">Edit task</string>
+    <string name="task_name">Task name</string>
+    <string name="hint_task_name">Input task name</string>
+    <string name="recurrence">Recurrence</string>
+    <string name="task_save">Save</string>
+    <string name="task_cancel">Cancel</string>
 
     <string name="btn_month_next">Next</string>
 	<string name="btn_month_prev">Prev</string>

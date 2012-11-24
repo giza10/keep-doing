@@ -1,5 +1,11 @@
 <resources>
-    <string name="menu_add_task">新規追加</string>
+    <string name="add_task">新規タスク追加</string>
+    <string name="edit_task">タスク編集</string>
+    <string name="task_name">タスク名</string>
+    <string name="hint_task_name">タスク名</string>
+    <string name="recurrence">実行頻度</string>
+    <string name="task_save">保存</string>
+    <string name="task_cancel">キャンセル</string>
 
     <string name="btn_month_next">翌月</string>
 	<string name="btn_month_prev">先月</string>

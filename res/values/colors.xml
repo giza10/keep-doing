@@ -1,0 +1,9 @@
+<resources>
+
+    <color name="calendar_grid_color">#808080</color>
+    <color name="calendar_bg_day_off_color">#C0C0C0</color>
+    <color name="calendar_bg_weekday_color">#606060</color>
+    <color name="calendar_bg_saturday_color">#0080FF</color>
+    <color name="calendar_bg_sunday_color">#FF60C0</color>
+
+</resources>
