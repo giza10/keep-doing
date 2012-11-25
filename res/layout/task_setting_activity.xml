@@ -1,27 +1,72 @@
 <LinearLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
-
-    <TextView
-        android:text="@string/task_name"
-        android:textAppearance="@android:style/TextAppearance.Large"
-        android:layout_width="fill_parent" 
-        android:layout_height="wrap_content" >
-    </TextView>
-
-    <EditText
-        android:inputType="text"
-        android:id="@+id/editText1"
-        android:hint="@string/hint_task_name"
-        android:layout_width="fill_parent" 
-        android:layout_height="wrap_content" >
-    </EditText>
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dip"
+        android:layout_marginRight="16dip"
+        android:divider="?android:attr/dividerHorizontal"
+        android:showDividers="middle" >
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:layout_marginBottom="10dip" >
+            <TextView
+                android:id="@+id/textView1"
+                android:text="@string/task_name"
+                android:textAppearance="@android:style/TextAppearance.Large"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+            </TextView>
+
+            <EditText
+                android:id="@+id/editText1"
+                android:inputType="text"
+                android:hint="@string/hint_task_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip" >
+            </EditText>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/recurrenceLayout"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:layout_marginBottom="10dip" >
+            <TextView
+                android:id="@+id/textView2"
+                android:text="@string/recurrence"
+                android:textAppearance="@android:style/TextAppearance.Large"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+            </TextView>
+            <LinearLayout
+                android:id="@+id/recurrenceChildLayout"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip" >
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:background="@android:drawable/bottom_bar"
         android:gravity="bottom">
 

@@ -1,5 +1,7 @@
 <resources>
 
+    <color name="recurrence_off_day">#C0C0C0</color>
+
     <color name="calendar_grid_color">#808080</color>
     <color name="calendar_bg_day_off_color">#C0C0C0</color>
     <color name="calendar_bg_weekday_color">#606060</color>
