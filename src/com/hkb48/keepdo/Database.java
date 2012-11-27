@@ -13,8 +13,14 @@ public final class Database {
         public static final String TASKS_TABLE_NAME = "table_tasks";
         
         public static final String TASK_NAME = "task_name";
-        public static final String TASK_FREQUENCY = "task_frequency";
-
+        public static final String FREQUENCY_MON = "mon_frequency";
+        public static final String FREQUENCY_TUE = "tue_frequency";
+        public static final String FREQUENCY_WEN = "wen_frequency";
+        public static final String FREQUENCY_THR = "thr_frequency";
+        public static final String FREQUENCY_FRI = "fri_frequency";
+        public static final String FREQUENCY_SAT = "sat_frequency";
+        public static final String FREQUENCY_SUN = "sun_frequency";
+        
         public static final String DEFAULT_SORT_ORDER = "task_name ASC";
     }
     
