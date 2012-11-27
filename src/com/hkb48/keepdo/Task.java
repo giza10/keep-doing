@@ -1,6 +1,9 @@
 package com.hkb48.keepdo;
 
-public class Task {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class Task implements Serializable {
 	private long identifier;
 	private String name;
     private Recurrence recurrence;

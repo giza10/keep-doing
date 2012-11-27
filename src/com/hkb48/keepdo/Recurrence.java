@@ -1,7 +1,10 @@
 
 package com.hkb48.keepdo;
 
-public class Recurrence {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class Recurrence implements Serializable {
 	private boolean monday;
 	private boolean tuesday;
 	private boolean wednesday;

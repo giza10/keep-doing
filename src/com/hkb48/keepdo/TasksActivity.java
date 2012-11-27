@@ -1,5 +1,8 @@
 package com.hkb48.keepdo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,9 +14,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 public class TasksActivity extends MainActivity {
-
-	private String[] mStrings ={ "Action1", "Action2", "Action3", "Action4" };
-	ListView listView1;
+    private static final int SUB_ACTIVITY = 1001;
+    ArrayAdapter<String> adapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -21,11 +23,12 @@ public class TasksActivity extends MainActivity {
         setContentView(R.layout.activity_main);
 
         //リストビューを作成
-        listView1 = (ListView)findViewById(R.id.listView1);
+        ListView listView1 = (ListView)findViewById(R.id.listView1);
   
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.main_list, R.id.list_textview1, mStrings);
+        ArrayList<String> items = new ArrayList<String>();
+        adapter = new ArrayAdapter<String>(this, R.layout.main_list, R.id.list_textview1, items);
         listView1.setAdapter(adapter);
-   
+
         //クリックイベントを検出
         listView1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
@@ -76,10 +79,24 @@ public class TasksActivity extends MainActivity {
         case R.id.menu_add_task:
             Intent intent = new Intent(TasksActivity.this, TaskSettingActivity.class);
             intent.setAction("com.hkb48.keepdo.NEW_TASK");
-            startActivity(intent);
+            startActivityForResult(intent, SUB_ACTIVITY);
             return true;
         default:
             return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == SUB_ACTIVITY) {
+            if(resultCode == RESULT_OK) {
+                Task task = (Task) data.getSerializableExtra("NEW-TASK");
+                addTask(task.getName(), task.getRecurrence());
+                List<Task> taskList = getTaskList();
+                for(int i=0; i<taskList.size(); i++) {
+                    adapter.add(task.getName());
+                }
+            }
         }
     }
 }

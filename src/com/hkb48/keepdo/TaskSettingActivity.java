@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -66,6 +67,12 @@ public class TaskSettingActivity extends Activity {
      * @param view
      */
     public void onSaveClicked(View view) {
+        EditText edit = (EditText) findViewById(R.id.editText1);
+        Recurrence recurrence = new Recurrence(recurrenceFlags[0], recurrenceFlags[1], recurrenceFlags[2], recurrenceFlags[3], recurrenceFlags[4], recurrenceFlags[5], recurrenceFlags[6]);
+        Task task = new Task(edit.getText().toString(), recurrence);
+        Intent data = new Intent();
+        data.putExtra("NEW-TASK", task);
+        setResult(RESULT_OK, data);
     	finish();
     }
 

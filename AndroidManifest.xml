@@ -27,10 +27,6 @@
             android:name=".TaskSettingActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" >
-            <intent-filter>
-                <action android:name="com.hkb48.keepdo.NEW_TASK" />
-                <action android:name="com.hkb48.keepdo.EDIT_TASK" />
-            </intent-filter>
         </activity>
 
         <activity android:name=".CalendarActivity" />
