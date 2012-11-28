@@ -78,7 +78,7 @@ public class MainActivity extends Activity {
 			contentValues.put(TasksToday.FREQUENCY_SAT, String.valueOf(recurrence.getSaturday()));
 			contentValues.put(TasksToday.FREQUENCY_SUN, String.valueOf(recurrence.getSunday()));
 			
-			rowID = mDatabaseHelper.getWritableDatabase().insert(TasksToday.TASKS_TABLE_NAME, null, contentValues);
+			rowID = mDatabaseHelper.getWritableDatabase().insertOrThrow(TasksToday.TASKS_TABLE_NAME, null, contentValues);
 
 			contentValues.clear();
 			contentValues.put(TaskCompletions.TASK_NAME_ID, rowID);

@@ -23,10 +23,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
                                                      + TasksToday.FREQUENCY_SUN + " TEXT" + ");";
 
     private static final String STRING_CREATE_COMPLETION = "CREATE TABLE " + TaskCompletions.TASK_COMPLETION_TABLE_NAME + " ("
-    												 + TaskCompletions._ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
-    												 + TaskCompletions.TASK_NAME_ID + " INTEGER,"
-    												 + TaskCompletions.TASK_COMPLETION_DATE + " DATE"
-    												 + ");";
+    												 + TaskCompletions._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+    												 + TaskCompletions.TASK_NAME_ID + " INTEGER NOT NULL CONSTRAINT " + TaskCompletions.TASK_NAME_ID + " REFERENCES " + TasksToday.TASKS_TABLE_NAME+"("+TasksToday._ID+")" + " ON DELETE CASCADE),"
+    												 + TaskCompletions.TASK_COMPLETION_DATE + " DATE" + ");";
     
 	DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
