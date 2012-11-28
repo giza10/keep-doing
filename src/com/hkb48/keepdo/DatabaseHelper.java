@@ -12,15 +12,15 @@ class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "keepdo_tracker.db";
     private static final int DATABASE_VERSION = 1;
     private static final String STRING_CREATE_TASK = "CREATE TABLE " + TasksToday.TASKS_TABLE_NAME + " ("
-    												 + TasksToday._ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
-    												 + TasksToday.TASK_NAME + " TEXT"
-    												 + TasksToday.FREQUENCY_MON + " TEXT"
-    												 + TasksToday.FREQUENCY_TUE + " TEXT"
-    												 + TasksToday.FREQUENCY_WEN + " TEXT"
-    												 + TasksToday.FREQUENCY_THR + " TEXT"
-    												 + TasksToday.FREQUENCY_FRI + " TEXT"
-    												 + TasksToday.FREQUENCY_SAT + " TEXT"
-    												 + TasksToday.FREQUENCY_SUN + " TEXT" + ");";
+                                                     + TasksToday._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                                                     + TasksToday.TASK_NAME + " TEXT,"
+                                                     + TasksToday.FREQUENCY_MON + " TEXT,"
+                                                     + TasksToday.FREQUENCY_TUE + " TEXT,"
+                                                     + TasksToday.FREQUENCY_WEN + " TEXT,"
+                                                     + TasksToday.FREQUENCY_THR + " TEXT,"
+                                                     + TasksToday.FREQUENCY_FRI + " TEXT,"
+                                                     + TasksToday.FREQUENCY_SAT + " TEXT,"
+                                                     + TasksToday.FREQUENCY_SUN + " TEXT" + ");";
 
     private static final String STRING_CREATE_COMPLETION = "CREATE TABLE " + TaskCompletions.TASK_COMPLETION_TABLE_NAME + " ("
     												 + TaskCompletions._ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"

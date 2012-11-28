@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
 		try {
 			ContentValues contentValues = new ContentValues();
 			contentValues.put(TasksToday.TASK_NAME, taskName);
-			contentValues.put(TasksToday.FREQUENCY_MON, recurrence.toString());
+			contentValues.put(TasksToday.FREQUENCY_MON, String.valueOf(recurrence.getMonday()));
 			contentValues.put(TasksToday.FREQUENCY_TUE, String.valueOf(recurrence.getTuesday()));
 			contentValues.put(TasksToday.FREQUENCY_WEN, String.valueOf(recurrence.getWednesday()));
 			contentValues.put(TasksToday.FREQUENCY_THR, String.valueOf(recurrence.getThurday()));
@@ -78,7 +78,7 @@ public class MainActivity extends Activity {
 			contentValues.put(TasksToday.FREQUENCY_SAT, String.valueOf(recurrence.getSaturday()));
 			contentValues.put(TasksToday.FREQUENCY_SUN, String.valueOf(recurrence.getSunday()));
 			
-			rowID = mDatabaseHelper.getWritableDatabase().insert(TasksToday.TASK_NAME, null, contentValues);
+			rowID = mDatabaseHelper.getWritableDatabase().insert(TasksToday.TASKS_TABLE_NAME, null, contentValues);
 
 			contentValues.clear();
 			contentValues.put(TaskCompletions.TASK_NAME_ID, rowID);
