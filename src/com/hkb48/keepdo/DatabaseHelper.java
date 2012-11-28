@@ -2,7 +2,9 @@ package com.hkb48.keepdo;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.hkb48.keepdo.Database.TaskCompletions;
 import com.hkb48.keepdo.Database.TasksToday;
@@ -12,21 +14,21 @@ class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "keepdo_tracker.db";
     private static final int DATABASE_VERSION = 1;
     private static final String STRING_CREATE_TASK = "CREATE TABLE " + TasksToday.TASKS_TABLE_NAME + " ("
-                                                     + TasksToday._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                                                     + TasksToday.TASK_NAME + " TEXT,"
-                                                     + TasksToday.FREQUENCY_MON + " TEXT,"
-                                                     + TasksToday.FREQUENCY_TUE + " TEXT,"
-                                                     + TasksToday.FREQUENCY_WEN + " TEXT,"
-                                                     + TasksToday.FREQUENCY_THR + " TEXT,"
-                                                     + TasksToday.FREQUENCY_FRI + " TEXT,"
-                                                     + TasksToday.FREQUENCY_SAT + " TEXT,"
+                                                     + TasksToday._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                                                     + TasksToday.TASK_NAME + " TEXT, "
+                                                     + TasksToday.FREQUENCY_MON + " TEXT, "
+                                                     + TasksToday.FREQUENCY_TUE + " TEXT, "
+                                                     + TasksToday.FREQUENCY_WEN + " TEXT, "
+                                                     + TasksToday.FREQUENCY_THR + " TEXT, "
+                                                     + TasksToday.FREQUENCY_FRI + " TEXT, "
+                                                     + TasksToday.FREQUENCY_SAT + " TEXT, "
                                                      + TasksToday.FREQUENCY_SUN + " TEXT" + ");";
 
     private static final String STRING_CREATE_COMPLETION = "CREATE TABLE " + TaskCompletions.TASK_COMPLETION_TABLE_NAME + " ("
-    												 + TaskCompletions._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-    												 + TaskCompletions.TASK_NAME_ID + " INTEGER NOT NULL CONSTRAINT " + TaskCompletions.TASK_NAME_ID + " REFERENCES " + TasksToday.TASKS_TABLE_NAME+"("+TasksToday._ID+")" + " ON DELETE CASCADE),"
+    												 + TaskCompletions._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+    												 + TaskCompletions.TASK_NAME_ID + " INTEGER NOT NULL CONSTRAINT " + TaskCompletions.TASK_NAME_ID + " REFERENCES " + TasksToday.TASKS_TABLE_NAME+"("+TasksToday._ID+")" + " ON DELETE CASCADE, "
     												 + TaskCompletions.TASK_COMPLETION_DATE + " DATE" + ");";
-    
+
 	DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
@@ -34,10 +36,14 @@ class DatabaseHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		// Create the Tasks table
-		db.execSQL(STRING_CREATE_TASK);
-
-		// Create the Completion table
-		db.execSQL(STRING_CREATE_COMPLETION);
+		try {
+			db.execSQL(STRING_CREATE_TASK);
+	
+			// Create the Completion table
+			db.execSQL(STRING_CREATE_COMPLETION);
+		} catch (SQLiteException e) {
+			Log.e("_KEEPDOLOG: ", e.getMessage());
+		}
 	}
 
 	@Override

@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.hkb48.keepdo.Database.TaskCompletions;
 import com.hkb48.keepdo.Database.TasksToday;
@@ -50,7 +51,7 @@ public class MainActivity extends Activity {
 	    		Task task = new Task(cursor.getString(0),recurrence);
 	    		task.setTaskID(Integer.parseInt(cursor.getString(0)));
 	    		tasks.add(task);
-	    		//TODO: add Recurrency
+	    		//TODO: add Recurrence
     		} while (cursor.moveToNext());
 
 	    	cursor.close();
@@ -86,7 +87,7 @@ public class MainActivity extends Activity {
 
 			mDatabaseHelper.close();
 		} catch (SQLiteException e) {
-			//@ToDo.
+			Log.e("_KEEPDOLOG: ", e.getMessage());
 		}
 
 		return rowID;
@@ -112,7 +113,7 @@ public class MainActivity extends Activity {
 		    mDatabaseHelper.getWritableDatabase().update(TaskCompletions.TASK_COMPLETION_TABLE_NAME, contentValues, "id=?", new String[] {taskID.toString()});
 		    mDatabaseHelper.getWritableDatabase().close();
 		} catch (SQLiteException e) {
-			//@Todo.
+			Log.e("_KEEPDOLOG: ", e.getMessage());
 		}
 	}
 
