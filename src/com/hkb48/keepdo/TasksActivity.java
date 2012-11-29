@@ -65,6 +65,8 @@ public class TasksActivity extends MainActivity {
                 Log.v("tag", "onNothingSelected");
             }
         });
+
+        updateTaskList();
     }
 
     @Override
@@ -92,11 +94,21 @@ public class TasksActivity extends MainActivity {
             if(resultCode == RESULT_OK) {
                 Task task = (Task) data.getSerializableExtra("NEW-TASK");
                 addTask(task.getName(), task.getRecurrence());
-                List<Task> taskList = getTaskList();
-                for(int i=0; i<taskList.size(); i++) {
-                    adapter.add(task.getName());
-                }
+                updateTaskList();
             }
         }
+    }
+
+    /**
+     * Update the task list view with latest DB information.
+     */
+    private void updateTaskList() {
+        adapter.clear();
+
+        List<Task> taskList = getTaskList();
+        for(int i=0; i<taskList.size(); i++) {
+            adapter.add(taskList.get(i).getName());
+        }
+        adapter.notifyDataSetChanged();
     }
 }

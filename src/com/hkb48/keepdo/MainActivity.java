@@ -46,12 +46,12 @@ public class MainActivity extends Activity {
 		// looping through all rows and adding to list
 	    if (cursor.moveToFirst()) {
 	    	do {
-	    		Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(1)), Boolean.valueOf(cursor.getString(2)),
-	    				Boolean.valueOf(cursor.getString(3)),Boolean.valueOf(cursor.getString(4)), Boolean.valueOf(cursor.getString(5)), Boolean.valueOf(cursor.getString(6)),Boolean.valueOf(cursor.getString(7)));
-	    		Task task = new Task(cursor.getString(0),recurrence);
-	    		task.setTaskID(Integer.parseInt(cursor.getString(0)));
-	    		tasks.add(task);
-	    		//TODO: add Recurrence
+                Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(4)),
+                        Boolean.valueOf(cursor.getString(4)),Boolean.valueOf(cursor.getString(5)), Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)),Boolean.valueOf(cursor.getString(8)));
+                Task task = new Task(cursor.getString(1),recurrence);
+                task.setTaskID(Integer.parseInt(cursor.getString(0)));
+                tasks.add(task);
+                //TODO: add Recurrence
     		} while (cursor.moveToNext());
 
 	    	cursor.close();
