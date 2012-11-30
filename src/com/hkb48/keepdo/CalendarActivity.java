@@ -17,11 +17,16 @@ import android.widget.TextView;
 public class CalendarActivity extends MainActivity {
 	private GridLayout mGridLayout;
     private int mPosition = 0;
+    private Task task;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.calendar_activity);
+
+        Intent intent = getIntent();
+        long taskId = intent.getLongExtra("TASK-ID", -1);
+        task = getTask(taskId);
 
         setActionBar();
 
@@ -29,6 +34,7 @@ public class CalendarActivity extends MainActivity {
 
         findViewById(R.id.button_prev).setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
+                // Go to last month
                 mPosition--;
                 buildCalendar();
             }
@@ -36,6 +42,7 @@ public class CalendarActivity extends MainActivity {
 
         findViewById(R.id.button_next).setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
+                // Go to next month
                 mPosition++;
                 buildCalendar();
             }
@@ -61,9 +68,6 @@ public class CalendarActivity extends MainActivity {
     private void setActionBar() {
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Intent intent = getIntent();
-        int taskId = intent.getIntExtra("TASK-ID", -1);
-        Task task = getTask((long)taskId);
         if (task != null) {
             setTitle(task.getName());
         }
@@ -160,7 +164,7 @@ public class CalendarActivity extends MainActivity {
             if (date%10 == 1) {
                 imageView1.setVisibility(View.VISIBLE);
             }
-            if (week == Calendar.WEDNESDAY) {
+            if (! task.getRecurrence().isValidDay(week)) {
                 child.setBackgroundResource(R.drawable.bg_calendar_day_off);
             }
 

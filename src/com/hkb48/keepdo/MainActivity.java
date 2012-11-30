@@ -118,7 +118,26 @@ public class MainActivity extends Activity {
 	}
 
     protected Task getTask(Long taskID) {
-        // TODO
-        return new Task("Task xxx", new Recurrence(false, false, false, false, false, false, false));
+        Task task = null;
+        String selectQuery = "SELECT  * FROM " + TasksToday.TASKS_TABLE_NAME;
+        SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                if (Integer.parseInt(cursor.getString(0)) == taskID) {
+                    Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(4)),
+                            Boolean.valueOf(cursor.getString(4)),Boolean.valueOf(cursor.getString(5)), Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)),Boolean.valueOf(cursor.getString(8)));
+                    task = new Task(cursor.getString(1),recurrence);
+                    task.setTaskID(taskID);
+                }
+            } while (cursor.moveToNext());
+
+            cursor.close();
+        }
+
+        // return contact list
+        return task;
     }    
 }

@@ -7,8 +7,11 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -29,6 +32,26 @@ public class TaskSettingActivity extends Activity {
         } else {
         	setTitle(R.string.edit_task);
         }
+
+        ((EditText) findViewById(R.id.editText1)).addTextChangedListener( new TextWatcher() {
+
+			public void afterTextChanged(Editable s) {
+		        Button okButton = (Button) findViewById(R.id.okButton);
+                if (s.length() > 0) {
+	                okButton.setEnabled(true);
+                } else {
+                    okButton.setEnabled(false);
+                }
+            }
+
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+			}
+        } );
 
         weeks = getResources().getStringArray(R.array.week_names);
         recurrenceChildLayout = (LinearLayout) findViewById(R.id.recurrenceChildLayout);
@@ -68,7 +91,7 @@ public class TaskSettingActivity extends Activity {
      */
     public void onSaveClicked(View view) {
         EditText edit = (EditText) findViewById(R.id.editText1);
-        Recurrence recurrence = new Recurrence(recurrenceFlags[0], recurrenceFlags[1], recurrenceFlags[2], recurrenceFlags[3], recurrenceFlags[4], recurrenceFlags[5], recurrenceFlags[6]);
+        Recurrence recurrence = new Recurrence(recurrenceFlags[1], recurrenceFlags[2], recurrenceFlags[3], recurrenceFlags[4], recurrenceFlags[5], recurrenceFlags[6], recurrenceFlags[0]);
         Task task = new Task(edit.getText().toString(), recurrence);
         Intent data = new Intent();
         data.putExtra("NEW-TASK", task);

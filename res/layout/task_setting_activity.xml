@@ -71,6 +71,7 @@
         android:gravity="bottom">
 
         <Button
+            android:id="@+id/cancelButton"
             android:onClick="onCancelClicked"
             android:layout_width="0dip"
             android:layout_weight="1.0"
@@ -78,7 +79,9 @@
             android:text="@string/task_cancel" />
 
         <Button
+            android:id="@+id/okButton"
             android:onClick="onSaveClicked"
+            android:enabled="false"
             android:layout_width="0dip"
             android:layout_weight="1.0"
             android:layout_height="wrap_content"

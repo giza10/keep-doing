@@ -33,17 +33,8 @@ public class TasksActivity extends MainActivity {
         listView1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                     int position, long id) {
-                //listViewを指定
-                ListView listView = (ListView) parent;
-                //クリックされたものを取得
-                String item = (String) listView.getItemAtPosition(position);
-                //Log出力
-                Log.v("tag", String.format("onItemClick: %s", item));
-
-                // TODO
-                int taskId = 10;
-
                 // Show calendar view
+                Long taskId =  getTaskList().get(position).getTaskID();
                 Intent intent = new Intent(TasksActivity.this, CalendarActivity.class);
                 intent.putExtra("TASK-ID", taskId);
                 startActivity(intent);

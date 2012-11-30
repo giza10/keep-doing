@@ -2,6 +2,7 @@
 package com.hkb48.keepdo;
 
 import java.io.Serializable;
+import java.util.Calendar;
 
 @SuppressWarnings("serial")
 public class Recurrence implements Serializable {
@@ -13,15 +14,15 @@ public class Recurrence implements Serializable {
 	private boolean saturday;
 	private boolean sunday;
 
-	public Recurrence (boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday) {
-		this.monday = monday;
-		this.tuesday = tuesday;
-		this.wednesday = wednesday;
-		this.thursday = thursday;
-		this.friday = friday;
-		this.saturday = saturday;
-		this.sunday = sunday;
-	}
+    public Recurrence (boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday) {
+        this.monday = monday;
+        this.tuesday = tuesday;
+        this.wednesday = wednesday;
+        this.thursday = thursday;
+        this.friday = friday;
+        this.saturday = saturday;
+        this.sunday = sunday;
+    }
 	
 	public boolean getMonday(){
 		return this.monday;
@@ -50,6 +51,19 @@ public class Recurrence implements Serializable {
 	public boolean getSunday() {
 		return this.sunday;
 	}
+
+    public boolean isValidDay(int week) {
+        switch(week) {
+        case Calendar.MONDAY: return monday;
+        case Calendar.TUESDAY: return tuesday;
+        case Calendar.WEDNESDAY: return wednesday;
+        case Calendar.THURSDAY: return thursday;
+        case Calendar.FRIDAY: return friday;
+        case Calendar.SATURDAY: return saturday;
+        case Calendar.SUNDAY: return sunday;
+        default: return false;
+        }
+    }
 	
 	private void setMonday(boolean setValue){
 		this.monday = setValue;
