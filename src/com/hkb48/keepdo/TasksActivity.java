@@ -1,35 +1,38 @@
 package com.hkb48.keepdo;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class TasksActivity extends MainActivity {
     private static final int SUB_ACTIVITY = 1001;
-    ArrayAdapter<String> adapter;
+    private TaskAdapter adapter;
+    private List<Task> dataList = new ArrayList<Task>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //リストビューを作成
         ListView listView1 = (ListView)findViewById(R.id.listView1);
-  
-        ArrayList<String> items = new ArrayList<String>();
-        adapter = new ArrayAdapter<String>(this, R.layout.main_list, R.id.list_textview1, items);
+        adapter = new TaskAdapter();
         listView1.setAdapter(adapter);
 
-        //クリックイベントを検出
         listView1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                     int position, long id) {
@@ -40,18 +43,15 @@ public class TasksActivity extends MainActivity {
                 startActivity(intent);
             }
         });
-          
-        //セレクトされたときに実行される
+
         listView1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view,
                     int position, long id) {
-                //listViewを指定
                 ListView listView = (ListView) parent;
-                //クリックされたものを取得
                 String item = (String) listView.getSelectedItem();
                 Log.v("tag", String.format("onItemSelected: %s", item));
             }
-            //何も選択さてないときに実行
+
             public void onNothingSelected(AdapterView<?> parent) {
                 Log.v("tag", "onNothingSelected");
             }
@@ -94,12 +94,64 @@ public class TasksActivity extends MainActivity {
      * Update the task list view with latest DB information.
      */
     private void updateTaskList() {
-        adapter.clear();
-
-        List<Task> taskList = getTaskList();
-        for(int i=0; i<taskList.size(); i++) {
-            adapter.add(taskList.get(i).getName());
-        }
+        dataList = getTaskList();
         adapter.notifyDataSetChanged();
+    }
+
+    private class TaskAdapter extends BaseAdapter {
+
+		public int getCount() {
+			return dataList.size();
+		}
+
+		public Object getItem(int position) {
+			return dataList.get(position);
+		}
+
+		public long getItemId(int position) {
+			return position;
+		}
+
+		public View getView(int position, View convertView, ViewGroup parent) {
+            View view = convertView;
+
+            if (view == null) {
+                LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                view = inflater.inflate(R.layout.task_list_row, null);
+            }
+
+            Task task = (Task) getItem(position);
+            if (task != null) {
+                TextView textView1 = (TextView) view.findViewById(R.id.taskName);
+                textView1.setText(task.getName());
+            }
+
+            ImageView imageView = (ImageView) view.findViewById(R.id.taskListItemCheck);
+            boolean checked = task.ifChecked();
+            if (checked) {
+                imageView.setImageResource(R.drawable.done_mark);
+            } else {
+                imageView.setImageResource(R.drawable.not_done);
+            }
+            imageView.setTag(Integer.valueOf(position));
+            imageView.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    ImageView imageView = (ImageView) v;
+                    int position = (Integer) v.getTag();
+                    Task task = (Task) getItem(position);
+                    boolean checked = task.ifChecked();
+                    checked = ! checked;
+                    task.setChecked(checked);
+                    setDoneStatus(task.getTaskID(), new Date(), checked);
+                    if (checked) {
+                        imageView.setImageResource(R.drawable.done_mark);
+                    } else {
+                        imageView.setImageResource(R.drawable.not_done);
+                    }
+                }
+            });
+
+            return view;
+		}
     }
 }
