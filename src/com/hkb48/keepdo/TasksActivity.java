@@ -194,9 +194,9 @@ public class TasksActivity extends MainActivity {
             ImageView imageView = (ImageView) view.findViewById(R.id.taskListItemCheck);
             boolean checked = task.ifChecked();
             if (checked) {
-                imageView.setImageResource(R.drawable.done_mark);
+                imageView.setImageResource(R.drawable.ic_done);
             } else {
-                imageView.setImageResource(R.drawable.not_done);
+                imageView.setImageResource(R.drawable.ic_not_done);
             }
             imageView.setTag(Integer.valueOf(position));
             imageView.setOnClickListener(new View.OnClickListener() {
@@ -209,9 +209,9 @@ public class TasksActivity extends MainActivity {
                     task.setChecked(checked);
                     setDoneStatus(task.getTaskID(), new Date(), checked);
                     if (checked) {
-                        imageView.setImageResource(R.drawable.done_mark);
+                        imageView.setImageResource(R.drawable.ic_done);
                     } else {
-                        imageView.setImageResource(R.drawable.not_done);
+                        imageView.setImageResource(R.drawable.ic_not_done);
                     }
                 }
             });
