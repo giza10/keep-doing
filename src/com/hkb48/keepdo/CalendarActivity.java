@@ -1,7 +1,9 @@
 package com.hkb48.keepdo;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -140,6 +142,9 @@ public class CalendarActivity extends MainActivity {
         int maxdate = calendar.getMaximum(Calendar.DAY_OF_MONTH);
         int week = calendar.get(Calendar.DAY_OF_WEEK);
 
+        ArrayList<Date> doneDateList = getHistory(task.getTaskID(), calendar.getTime());
+        SimpleDateFormat sdf_d = new SimpleDateFormat("dd");
+
         // Fill the days of previous month in the first week with blank rectangle
         for (int i = 0; i < (week - Calendar.SUNDAY); i++) {
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
@@ -160,10 +165,14 @@ public class CalendarActivity extends MainActivity {
             textView1.setText(Integer.toString(date));
             textView1.setTextColor(fontColorOfWeek);
 
-            // TODO
-            if (date%10 == 1) {
-                imageView1.setVisibility(View.VISIBLE);
+            // Put done mark
+            for (Date doneDate : doneDateList) {
+                if (date == Integer.parseInt(sdf_d.format(doneDate))) {
+                    imageView1.setVisibility(View.VISIBLE);
+                    break;
+                }
             }
+
             if (! task.getRecurrence().isValidDay(week)) {
                 child.setBackgroundResource(R.drawable.bg_calendar_day_off);
             }
