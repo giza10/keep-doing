@@ -4,23 +4,36 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class TasksActivity extends MainActivity {
-    private static final int SUB_ACTIVITY = 1001;
+    // Request code when launching sub-activity
+    private final static int REQUEST_ADD = 0;
+    private final static int REQUEST_EDIT = 1;
+
+    // ID of context menu items
+    private final static int CONTEXT_MENU_EDIT = 0;
+    private final static int CONTEXT_MENU_DELETE = 1;
+
     private TaskAdapter adapter;
     private List<Task> dataList = new ArrayList<Task>();
 
@@ -57,6 +70,8 @@ public class TasksActivity extends MainActivity {
             }
         });
 
+        registerForContextMenu(listView1);
+
         updateTaskList();
     }
 
@@ -71,8 +86,7 @@ public class TasksActivity extends MainActivity {
         switch (item.getItemId()) {
         case R.id.menu_add_task:
             Intent intent = new Intent(TasksActivity.this, TaskSettingActivity.class);
-            intent.setAction("com.hkb48.keepdo.NEW_TASK");
-            startActivityForResult(intent, SUB_ACTIVITY);
+            startActivityForResult(intent, REQUEST_ADD);
             return true;
         default:
             return super.onOptionsItemSelected(item);
@@ -81,12 +95,58 @@ public class TasksActivity extends MainActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == SUB_ACTIVITY) {
-            if(resultCode == RESULT_OK) {
-                Task task = (Task) data.getSerializableExtra("NEW-TASK");
+        if (resultCode == RESULT_OK) {
+            Task task = (Task) data.getSerializableExtra("TASK-INFO");
+            if (requestCode == 0) {
                 addTask(task.getName(), task.getRecurrence());
                 updateTaskList();
+            } else {
+                editTask(task.getTaskID(), task.getName(), task.getRecurrence());
+                updateTaskList();
             }
+        }
+    }
+
+    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, view, menuInfo);
+        AdapterContextMenuInfo adapterinfo = (AdapterContextMenuInfo)menuInfo;
+        ListView listView = (ListView)view;
+        Task task = (Task) listView.getItemAtPosition(adapterinfo.position);
+        menu.setHeaderTitle(task.getName());
+        menu.add(0, CONTEXT_MENU_EDIT, 0, R.string.edit_task);
+        menu.add(0, CONTEXT_MENU_DELETE, 1, R.string.delete_task);
+    }
+
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
+        Task task = (Task) adapter.getItem(info.position);
+        switch (item.getItemId()) {
+        case CONTEXT_MENU_EDIT:
+            Intent intent = new Intent(TasksActivity.this, TaskSettingActivity.class);
+            intent.putExtra("TASK-INFO", task);
+            startActivityForResult(intent, REQUEST_EDIT);
+            return true;
+        case CONTEXT_MENU_DELETE:
+            final Long taskId = task.getTaskID();
+            new AlertDialog.Builder(this)
+            .setMessage(R.string.delete_confirmation)
+            .setPositiveButton(R.string.dialog_ok ,new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                    deleteTask(taskId);
+                    adapter.notifyDataSetChanged();
+                }
+            })
+            .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            })
+            .setCancelable(true)
+            .create()
+            .show();
+            return true;
+        default:
+            Toast.makeText(this, "default", Toast.LENGTH_SHORT).show();
+            return super.onContextItemSelected(item);
         }
     }
 

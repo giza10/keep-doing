@@ -26,15 +26,29 @@ public class TaskSettingActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.task_setting_activity);
 
+        EditText editText = (EditText) findViewById(R.id.editText1);
+
         Intent intent = getIntent();
-        if(intent.getAction().equals("com.hkb48.keepdo.NEW_TASK")) {
-        	setTitle(R.string.add_task);
+        Task task = (Task) intent.getSerializableExtra("TASK-INFO");
+        if (task == null) {
+            setTitle(R.string.add_task);
         } else {
-        	setTitle(R.string.edit_task);
+            setTitle(R.string.edit_task);
+            editText.setText(task.getName());
+
+            Recurrence recurrence = task.getRecurrence();
+            recurrenceFlags[0] = recurrence.getSunday();
+            recurrenceFlags[1] = recurrence.getMonday();
+            recurrenceFlags[2] = recurrence.getTuesday();
+            recurrenceFlags[3] = recurrence.getWednesday();
+            recurrenceFlags[4] = recurrence.getThurday();
+            recurrenceFlags[5] = recurrence.getFriday();
+            recurrenceFlags[6] = recurrence.getSaturday();
+
+            ((Button) findViewById(R.id.okButton)).setEnabled(true);
         }
 
-        ((EditText) findViewById(R.id.editText1)).addTextChangedListener( new TextWatcher() {
-
+        editText.addTextChangedListener( new TextWatcher() {
 			public void afterTextChanged(Editable s) {
 		        Button okButton = (Button) findViewById(R.id.okButton);
                 if (s.length() > 0) {
@@ -94,7 +108,7 @@ public class TaskSettingActivity extends Activity {
         Recurrence recurrence = new Recurrence(recurrenceFlags[1], recurrenceFlags[2], recurrenceFlags[3], recurrenceFlags[4], recurrenceFlags[5], recurrenceFlags[6], recurrenceFlags[0]);
         Task task = new Task(edit.getText().toString(), recurrence);
         Intent data = new Intent();
-        data.putExtra("NEW-TASK", task);
+        data.putExtra("TASK-INFO", task);
         setResult(RESULT_OK, data);
     	finish();
     }
@@ -107,6 +121,9 @@ public class TaskSettingActivity extends Activity {
     	finish();
     }
 
+    /**
+     * Update the display of recurrence status on the recurrence setting
+     */
     private void updateRecurrence() {
         String separator = getString(R.string.recurrence_separator);
         recurrenceChildLayout.removeAllViews();

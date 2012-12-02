@@ -93,6 +93,14 @@ public class MainActivity extends Activity {
 		return rowID;
 	}
 
+    protected void editTask(Long taskID, String taskName, Recurrence recurrence) {
+        // TODO Implement
+    }
+
+    protected void deleteTask(Long taskID) {
+        // TODO Implement
+    }
+
 	protected void setDoneStatus(Long taskID, Date date, Boolean doneSwitch) {
 		if (taskID ==null) {
 			return;
@@ -118,6 +126,7 @@ public class MainActivity extends Activity {
 	}
 
     protected Task getTask(Long taskID) {
+        // TODO Implement (Current implementation is tentative)
         Task task = null;
         String selectQuery = "SELECT  * FROM " + TasksToday.TASKS_TABLE_NAME;
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
