@@ -19,6 +19,7 @@ import android.widget.TextView;
 public class TaskSettingActivity extends Activity {
     private boolean[] recurrenceFlags = {true,true,true,true,true,true,true};
     private String[] weeks;
+    private Task task;
     private LinearLayout recurrenceChildLayout;
 
 	@Override
@@ -29,7 +30,7 @@ public class TaskSettingActivity extends Activity {
         EditText editText = (EditText) findViewById(R.id.editText1);
 
         Intent intent = getIntent();
-        Task task = (Task) intent.getSerializableExtra("TASK-INFO");
+        task = (Task) intent.getSerializableExtra("TASK-INFO");
         if (task == null) {
             setTitle(R.string.add_task);
         } else {
@@ -106,7 +107,12 @@ public class TaskSettingActivity extends Activity {
     public void onSaveClicked(View view) {
         EditText edit = (EditText) findViewById(R.id.editText1);
         Recurrence recurrence = new Recurrence(recurrenceFlags[1], recurrenceFlags[2], recurrenceFlags[3], recurrenceFlags[4], recurrenceFlags[5], recurrenceFlags[6], recurrenceFlags[0]);
-        Task task = new Task(edit.getText().toString(), recurrence);
+        if (task == null) {
+            task = new Task(edit.getText().toString(), recurrence);
+        } else {
+            task.setName(edit.getText().toString());
+            task.setRecurrence(recurrence);
+        }
         Intent data = new Intent();
         data.putExtra("TASK-INFO", task);
         setResult(RESULT_OK, data);

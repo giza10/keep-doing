@@ -97,12 +97,17 @@ public class TasksActivity extends MainActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             Task task = (Task) data.getSerializableExtra("TASK-INFO");
-            if (requestCode == 0) {
+            switch(requestCode) {
+            case REQUEST_ADD:
                 addTask(task.getName(), task.getRecurrence());
                 updateTaskList();
-            } else {
+                break;
+            case REQUEST_EDIT:
                 editTask(task.getTaskID(), task.getName(), task.getRecurrence());
                 updateTaskList();
+                break;
+            default:
+                break;
             }
         }
     }
@@ -133,7 +138,7 @@ public class TasksActivity extends MainActivity {
             .setPositiveButton(R.string.dialog_ok ,new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                     deleteTask(taskId);
-                    adapter.notifyDataSetChanged();
+                    updateTaskList();
                 }
             })
             .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {

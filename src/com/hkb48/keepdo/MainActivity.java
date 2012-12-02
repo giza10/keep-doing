@@ -94,11 +94,47 @@ public class MainActivity extends Activity {
 	}
 
     protected void editTask(Long taskID, String taskName, Recurrence recurrence) {
-        // TODO Implement
+        // TODO Implement (Current implementation is tentative)
+        if ((taskName ==null) || (taskName.isEmpty()) || (recurrence == null)) {
+            return;
+        }
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(TasksToday.TASK_NAME, taskName);
+        contentValues.put(TasksToday.FREQUENCY_MON, String.valueOf(recurrence.getMonday()));
+        contentValues.put(TasksToday.FREQUENCY_TUE, String.valueOf(recurrence.getTuesday()));
+        contentValues.put(TasksToday.FREQUENCY_WEN, String.valueOf(recurrence.getWednesday()));
+        contentValues.put(TasksToday.FREQUENCY_THR, String.valueOf(recurrence.getThurday()));
+        contentValues.put(TasksToday.FREQUENCY_FRI, String.valueOf(recurrence.getFriday()));
+        contentValues.put(TasksToday.FREQUENCY_SAT, String.valueOf(recurrence.getSaturday()));
+        contentValues.put(TasksToday.FREQUENCY_SUN, String.valueOf(recurrence.getSunday()));
+        String whereClause = TasksToday._ID + "=?";
+        String whereArgs[] = new String[1];
+        whereArgs[0] = taskID.toString();
+
+		try {
+			mDatabaseHelper.getWritableDatabase().update(TasksToday.TASKS_TABLE_NAME, contentValues, whereClause, whereArgs);
+		} catch (SQLiteException e) {
+			Log.e("_KEEPDOLOG: ", e.getMessage());
+		} finally {
+			mDatabaseHelper.close();
+		}
     }
 
     protected void deleteTask(Long taskID) {
-        // TODO Implement
+        // TODO Implement (Current implementation is tentative)
+        String whereClause = TasksToday._ID + "=?";
+        String whereArgs[] = new String[1];
+        whereArgs[0] = taskID.toString();
+
+		try {
+			mDatabaseHelper.getWritableDatabase().delete(TasksToday.TASKS_TABLE_NAME, whereClause, whereArgs);
+			// TODO also need to remove relevant rows from TASK_COMPLETION_DATE table.
+		} catch (SQLiteException e) {
+			Log.e("_KEEPDOLOG: ", e.getMessage());
+		} finally {
+			mDatabaseHelper.close();
+		}
     }
 
 	protected void setDoneStatus(Long taskID, Date date, Boolean doneSwitch) {

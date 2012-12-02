@@ -19,7 +19,7 @@ public class Task implements Serializable {
 	public long getTaskID() {
 		return identifier;
 	}
-    
+
 	public String getName() {
 		return name;
 	}
@@ -27,13 +27,21 @@ public class Task implements Serializable {
     public Recurrence getRecurrence() {
         return recurrence;
     }
-    
+
     public boolean ifChecked() {
     	return this.isChecked;
     }
-    
+
     protected void setTaskID(long id) {
     	this.identifier = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setRecurrence(Recurrence recurrence) {
+        this.recurrence = recurrence;
     }
 
     protected void setChecked(boolean checked) {
