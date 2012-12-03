@@ -82,17 +82,18 @@ public class MainActivity extends Activity {
 			
 			rowID = mDatabaseHelper.getWritableDatabase().insertOrThrow(TasksToday.TASKS_TABLE_NAME, null, contentValues);
 
-			if (rowID > 0) {
-				contentValues.clear();
-				contentValues.put(TaskCompletions.TASK_NAME_ID, rowID);
-				mDatabaseHelper.getWritableDatabase().insert(TaskCompletions.TASK_COMPLETION_TABLE_NAME, null, contentValues);
-				mDatabaseHelper.close();
-			}
-			mDatabaseHelper.close();
+//			if (rowID > 0) {
+//				contentValues.clear();
+//				contentValues.put(TaskCompletions.TASK_NAME_ID, rowID);
+//				mDatabaseHelper.getWritableDatabase().insert(TaskCompletions.TASK_COMPLETION_TABLE_NAME, null, contentValues);
+//				mDatabaseHelper.close();
+//			}
 
 		} catch (SQLiteException e) {
 			Log.e("_KEEPDOLOG: ", e.getMessage());
-		}
+        } finally {
+            mDatabaseHelper.close();
+        }
 
 		return rowID;
 	}
@@ -137,22 +138,29 @@ public class MainActivity extends Activity {
             return;
         }
 
-        ContentValues contentValues = new ContentValues();
-        String whereClause = TaskCompletions.TASK_NAME_ID + "=?";
-        String whereArgs[] = {taskID.toString()};
-
         if (doneSwitch == true) {
+            ContentValues contentValues = new ContentValues();
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+            contentValues.put(TaskCompletions.TASK_NAME_ID, taskID);
             if (date == null) {
                 contentValues.put(TaskCompletions.TASK_COMPLETION_DATE, dateFormat.format(new Date())); //Insert 'now' as the date
             } else {
                 contentValues.put(TaskCompletions.TASK_COMPLETION_DATE, dateFormat.format(date));
             }           
 
-            mDatabaseHelper.getWritableDatabase().update(TaskCompletions.TASK_COMPLETION_TABLE_NAME, contentValues, whereClause, whereArgs);
+//            mDatabaseHelper.getWritableDatabase().update(TaskCompletions.TASK_COMPLETION_TABLE_NAME, contentValues, whereClause, whereArgs);
+            try {
+                mDatabaseHelper.getWritableDatabase().insertOrThrow(TaskCompletions.TASK_COMPLETION_TABLE_NAME, null, contentValues);
+            } catch (SQLiteException e) {
+                Log.e("_KEEPDOLOG: ", e.getMessage());
+            } finally {
+                mDatabaseHelper.close();
+            }
         } else {
-            contentValues.putNull(TaskCompletions.TASK_COMPLETION_DATE);
+//            contentValues.putNull(TaskCompletions.TASK_COMPLETION_DATE);
+            String whereClause = TaskCompletions.TASK_NAME_ID + "=?";
+            String whereArgs[] = {taskID.toString()};
             mDatabaseHelper.getWritableDatabase().delete(TaskCompletions.TASK_COMPLETION_TABLE_NAME, whereClause, whereArgs);
         }
 
