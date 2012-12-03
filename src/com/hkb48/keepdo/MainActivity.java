@@ -125,10 +125,15 @@ public class MainActivity extends Activity {
     }
 
     protected void deleteTask(Long taskID) {
+        // Delete task from TASKS_TABLE_NAME
         String whereClause = TasksToday._ID + "=?";
         String whereArgs[] = {taskID.toString()};
-
         mDatabaseHelper.getWritableDatabase().delete(TasksToday.TASKS_TABLE_NAME, whereClause, whereArgs);
+
+        // Delete records of deleted task from TASK_COMPLETION_TABLE_NAME
+        whereClause = TaskCompletions.TASK_NAME_ID + "=?";
+        mDatabaseHelper.getWritableDatabase().delete(TaskCompletions.TASK_COMPLETION_TABLE_NAME, whereClause, whereArgs);
+
         mDatabaseHelper.close();
     }
 
@@ -138,9 +143,10 @@ public class MainActivity extends Activity {
             return;
         }
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
         if (doneSwitch == true) {
             ContentValues contentValues = new ContentValues();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
             contentValues.put(TaskCompletions.TASK_NAME_ID, taskID);
             if (date == null) {
@@ -159,8 +165,8 @@ public class MainActivity extends Activity {
             }
         } else {
 //            contentValues.putNull(TaskCompletions.TASK_COMPLETION_DATE);
-            String whereClause = TaskCompletions.TASK_NAME_ID + "=?";
-            String whereArgs[] = {taskID.toString()};
+            String whereClause = TaskCompletions.TASK_NAME_ID + "=? and " + TaskCompletions.TASK_COMPLETION_DATE + "=?";
+            String whereArgs[] = {taskID.toString(), dateFormat.format(date)};
             mDatabaseHelper.getWritableDatabase().delete(TaskCompletions.TASK_COMPLETION_TABLE_NAME, whereClause, whereArgs);
         }
 
