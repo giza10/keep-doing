@@ -43,7 +43,7 @@ public class MainActivity extends Activity {
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        // looping through all rows and adding to list
+        // Looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
                 Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(4)),
@@ -54,12 +54,11 @@ public class MainActivity extends Activity {
                 task.setTaskID(taskID);
                 task.setChecked(checked);
                 tasks.add(task);
-                //TODO: add Recurrence
             } while (cursor.moveToNext());
             cursor.close();
         }
+        db.close();
 
-        // return contact list
         return tasks;
     }
 
@@ -83,11 +82,14 @@ public class MainActivity extends Activity {
 			
 			rowID = mDatabaseHelper.getWritableDatabase().insertOrThrow(TasksToday.TASKS_TABLE_NAME, null, contentValues);
 
-			contentValues.clear();
-			contentValues.put(TaskCompletions.TASK_NAME_ID, rowID);
-			mDatabaseHelper.getWritableDatabase().insert(TaskCompletions.TASK_COMPLETION_TABLE_NAME, null, contentValues);
-
+			if (rowID > 0) {
+				contentValues.clear();
+				contentValues.put(TaskCompletions.TASK_NAME_ID, rowID);
+				mDatabaseHelper.getWritableDatabase().insert(TaskCompletions.TASK_COMPLETION_TABLE_NAME, null, contentValues);
+				mDatabaseHelper.close();
+			}
 			mDatabaseHelper.close();
+
 		} catch (SQLiteException e) {
 			Log.e("_KEEPDOLOG: ", e.getMessage());
 		}
@@ -96,7 +98,6 @@ public class MainActivity extends Activity {
 	}
 
     protected void editTask(Long taskID, String taskName, Recurrence recurrence) {
-        // TODO Implement (Current implementation is tentative)
         if ((taskName ==null) || (taskName.isEmpty()) || (recurrence == null)) {
             return;
         }
@@ -111,8 +112,7 @@ public class MainActivity extends Activity {
         contentValues.put(TasksToday.FREQUENCY_SAT, String.valueOf(recurrence.getSaturday()));
         contentValues.put(TasksToday.FREQUENCY_SUN, String.valueOf(recurrence.getSunday()));
         String whereClause = TasksToday._ID + "=?";
-        String whereArgs[] = new String[1];
-        whereArgs[0] = taskID.toString();
+        String whereArgs[] = {taskID.toString()};
 
         try {
             mDatabaseHelper.getWritableDatabase().update(TasksToday.TASKS_TABLE_NAME, contentValues, whereClause, whereArgs);
@@ -124,59 +124,47 @@ public class MainActivity extends Activity {
     }
 
     protected void deleteTask(Long taskID) {
-        // TODO Implement (Current implementation is tentative)
         String whereClause = TasksToday._ID + "=?";
-        String whereArgs[] = new String[1];
-        whereArgs[0] = taskID.toString();
+        String whereArgs[] = {taskID.toString()};
 
-        try {
-            mDatabaseHelper.getWritableDatabase().delete(TasksToday.TASKS_TABLE_NAME, whereClause, whereArgs);
-            // TODO also need to remove relevant rows from TASK_COMPLETION_DATE table.
-        } catch (SQLiteException e) {
-            Log.e("_KEEPDOLOG: ", e.getMessage());
-        } finally {
-            mDatabaseHelper.close();
-        }
+        mDatabaseHelper.getWritableDatabase().delete(TasksToday.TASKS_TABLE_NAME, whereClause, whereArgs);
+        mDatabaseHelper.close();
     }
 
+    //TODO: ROID v.s _ID to be validated.
 	protected void setDoneStatus(Long taskID, Date date, Boolean doneSwitch) {
         if (taskID ==null) {
             return;
         }
 
         ContentValues contentValues = new ContentValues();
+        String whereClause = TaskCompletions.TASK_NAME_ID + "=?";
+        String whereArgs[] = {taskID.toString()};
+
         if (doneSwitch == true) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
             if (date == null) {
                 contentValues.put(TaskCompletions.TASK_COMPLETION_DATE, dateFormat.format(new Date())); //Insert 'now' as the date
             } else {
-                contentValues.put(TaskCompletions.TASK_COMPLETION_DATE, dateFormat.format(date)); //Insert 'now' as the date			    	
-            }
-        } else {
-            // TODO should be removed from table ?
-            contentValues.putNull(TaskCompletions.TASK_COMPLETION_DATE);
-        }
-        String whereClause = TasksToday._ID + "=?";
-        String whereArgs[] = new String[1];
-        whereArgs[0] = taskID.toString();
+                contentValues.put(TaskCompletions.TASK_COMPLETION_DATE, dateFormat.format(date));
+            }           
 
-        try {
             mDatabaseHelper.getWritableDatabase().update(TaskCompletions.TASK_COMPLETION_TABLE_NAME, contentValues, whereClause, whereArgs);
-        } catch (SQLiteException e) {
-            Log.e("_KEEPDOLOG: ", e.getMessage());
-        } finally {
-            mDatabaseHelper.close();
+        } else {
+            contentValues.putNull(TaskCompletions.TASK_COMPLETION_DATE);
+            mDatabaseHelper.getWritableDatabase().delete(TaskCompletions.TASK_COMPLETION_TABLE_NAME, whereClause, whereArgs);
         }
+
+         mDatabaseHelper.close();
     }
 
     protected Task getTask(Long taskID) {
-        // TODO Implement (Current implementation is tentative)
         Task task = null;
         String selectQuery = "SELECT * FROM " + TasksToday.TASKS_TABLE_NAME;
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
                 if (Long.parseLong(cursor.getString(0)) == taskID) {
@@ -187,11 +175,10 @@ public class MainActivity extends Activity {
                     break;
                 }
             } while (cursor.moveToNext());
-
             cursor.close();
         }
+        db.close();
 
-        // return contact list
         return task;
     }
 
@@ -203,7 +190,7 @@ public class MainActivity extends Activity {
         SimpleDateFormat sdf_ymd = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat sdf_ym = new SimpleDateFormat("yyyy-MM");
 
-        // looping through all rows and adding to list
+        // Looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
                 if ((Long.parseLong(cursor.getString(1)) == taskID) &&
@@ -212,6 +199,7 @@ public class MainActivity extends Activity {
                     try {
                         date = sdf_ymd.parse(cursor.getString(2));
                     } catch (ParseException e) {
+                        Log.e("_KEEPDOLOG: ", e.getMessage());
                     }
                     if (date != null) {
                         if (sdf_ym.format(date).equals(sdf_ym.format(month))) {
@@ -220,9 +208,9 @@ public class MainActivity extends Activity {
                     }
                 }
             } while (cursor.moveToNext());
-
             cursor.close();
         }
+        db.close();
 
         return dateList;
     }
@@ -234,7 +222,6 @@ public class MainActivity extends Activity {
         Cursor cursor = db.rawQuery(selectQuery, null);
         SimpleDateFormat sdf_ymd = new SimpleDateFormat("yyyy-MM-dd");
 
-        // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
                 if ((Long.parseLong(cursor.getString(1)) == taskID) &&
@@ -243,6 +230,7 @@ public class MainActivity extends Activity {
                     try {
                         date = sdf_ymd.parse(cursor.getString(2));
                     } catch (ParseException e) {
+                        Log.e("_KEEPDOLOG: ", e.getMessage());
                     }
                     if (date != null) {
                         if (sdf_ymd.format(date).equals(sdf_ymd.format(day))) {
@@ -252,9 +240,10 @@ public class MainActivity extends Activity {
                     }
                 }
             } while (cursor.moveToNext());
-
             cursor.close();
         }
+        db.close();
+   
         return isChecked;
     }
 }
