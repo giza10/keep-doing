@@ -46,7 +46,7 @@ public class MainActivity extends Activity {
         // Looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(4)),
+                Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(3)),
                         Boolean.valueOf(cursor.getString(4)),Boolean.valueOf(cursor.getString(5)), Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)),Boolean.valueOf(cursor.getString(8)));
                 Task task = new Task(cursor.getString(1),recurrence);
                 Long taskID = Long.parseLong(cursor.getString(0));
@@ -168,7 +168,7 @@ public class MainActivity extends Activity {
         if (cursor.moveToFirst()) {
             do {
                 if (Long.parseLong(cursor.getString(0)) == taskID) {
-                    Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(4)),
+                    Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(3)),
                             Boolean.valueOf(cursor.getString(4)),Boolean.valueOf(cursor.getString(5)), Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)),Boolean.valueOf(cursor.getString(8)));
                     task = new Task(cursor.getString(1),recurrence);
                     task.setTaskID(taskID);
