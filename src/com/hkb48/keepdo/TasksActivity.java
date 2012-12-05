@@ -1,6 +1,7 @@
 package com.hkb48.keepdo;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -34,6 +35,8 @@ public class TasksActivity extends MainActivity {
     private final static int CONTEXT_MENU_EDIT = 0;
     private final static int CONTEXT_MENU_DELETE = 1;
 
+    private final static int TASKID_FOR_LISTHEADER = -1;
+
     private TaskAdapter adapter;
     private List<Task> dataList = new ArrayList<Task>();
 
@@ -50,7 +53,7 @@ public class TasksActivity extends MainActivity {
             public void onItemClick(AdapterView<?> parent, View view,
                     int position, long id) {
                 // Show calendar view
-                Long taskId =  getTaskList().get(position).getTaskID();
+                Long taskId =  dataList.get(position).getTaskID();
                 Intent intent = new Intent(TasksActivity.this, CalendarActivity.class);
                 intent.putExtra("TASK-ID", taskId);
                 startActivity(intent);
@@ -159,64 +162,133 @@ public class TasksActivity extends MainActivity {
      * Update the task list view with latest DB information.
      */
     private void updateTaskList() {
-        dataList = getTaskList();
+        List<Task> taskList = getTaskList();
+        List<Task> taskListToday =  new ArrayList<Task>();
+        List<Task> taskListNotToday = new ArrayList<Task>();
+        int dayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+
+        dataList.clear();
+        for (Task task : taskList) {
+            if (task.getRecurrence().isValidDay(dayOfWeek) ) {
+                taskListToday.add(task);
+            } else {
+                taskListNotToday.add(task);
+            }
+        }
+
+        if (taskListToday.size() > 0) {
+            // Dummy Task for header on the ListView
+            Task dummyTask = new Task(getString(R.string.tasklist_header_today_task), null);
+            dummyTask.setTaskID(TASKID_FOR_LISTHEADER);
+            dataList.add(dummyTask);
+
+            for (Task task : taskListToday) {
+                dataList.add(task);
+            }
+        }
+        if (taskListNotToday.size() > 0) {
+            // Dummy Task for header on the ListView
+            Task dummyTask = new Task(getString(R.string.tasklist_header_other_task), null);
+            dummyTask.setTaskID(TASKID_FOR_LISTHEADER);
+            dataList.add(dummyTask);
+
+            for (Task task : taskListNotToday) {
+                dataList.add(task);
+            }
+        }
         adapter.notifyDataSetChanged();
     }
 
     private class TaskAdapter extends BaseAdapter {
+        private static final int TYPE_HEADER = 0;
+        private static final int TYPE_ITEM = 1;
 
-		public int getCount() {
-			return dataList.size();
-		}
+        public int getCount() {
+            return dataList.size();
+        }
 
-		public Object getItem(int position) {
-			return dataList.get(position);
-		}
+        public Object getItem(int position) {
+            return dataList.get(position);
+        }
 
-		public long getItemId(int position) {
-			return position;
-		}
+        public long getItemId(int position) {
+            return position;
+        }
 
-		public View getView(int position, View convertView, ViewGroup parent) {
-            View view = convertView;
-
-            if (view == null) {
-                LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                view = inflater.inflate(R.layout.task_list_row, null);
-            }
-
+        public int getItemViewType(int position) {
             Task task = (Task) getItem(position);
-            if (task != null) {
-                TextView textView1 = (TextView) view.findViewById(R.id.taskName);
-                textView1.setText(task.getName());
+            if (task.getTaskID() == TASKID_FOR_LISTHEADER) {
+                return TYPE_HEADER;
+            } else {
+                return TYPE_ITEM;
+            }
+        }
+
+        public boolean isEnabled(int position) {
+            return (getItemViewType(position) == TYPE_ITEM);
+        }
+
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = convertView;
+            Task task = (Task) getItem(position);
+            boolean isTask = isEnabled(position);
+            boolean createView = false;
+
+            // Check if it's necessary to create view or re-use
+            if (view == null ) {
+                createView = true;
+            } else {
+                int viewType = (Integer) view.getTag();
+                if (viewType != getItemViewType(position)) {
+                    createView = true;
+                }
             }
 
-            ImageView imageView = (ImageView) view.findViewById(R.id.taskListItemCheck);
-            boolean checked = task.ifChecked();
-            if (checked) {
-                imageView.setImageResource(R.drawable.ic_done);
-            } else {
-                imageView.setImageResource(R.drawable.ic_not_done);
-            }
-            imageView.setTag(Integer.valueOf(position));
-            imageView.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    ImageView imageView = (ImageView) v;
-                    int position = (Integer) v.getTag();
-                    Task task = (Task) getItem(position);
-                    boolean checked = task.ifChecked();
-                    checked = ! checked;
-                    task.setChecked(checked);
-                    setDoneStatus(task.getTaskID(), new Date(), checked);
-                    if (checked) {
-                        imageView.setImageResource(R.drawable.ic_done);
-                    } else {
-                        imageView.setImageResource(R.drawable.ic_not_done);
-                    }
+            if (createView) {
+                if (isTask) {
+                    view = inflater.inflate(R.layout.task_list_row, null);
+                    view.setTag(TYPE_ITEM);
+                } else {
+                    view = inflater.inflate(R.layout.task_list_header, null);
+                    view.setTag(TYPE_HEADER);
+                    TextView listHeader = (TextView) view.findViewById(R.id.listHeader);
+                    listHeader.setText(task.getName());
                 }
-            });
+            }
+
+            if (isTask) {
+                TextView textView1 = (TextView) view.findViewById(R.id.taskName);
+                String taskName = task.getName();
+                textView1.setText(taskName);
+
+                ImageView imageView = (ImageView) view.findViewById(R.id.taskListItemCheck);
+                boolean checked = task.ifChecked();
+                if (checked) {
+                    imageView.setImageResource(R.drawable.ic_done);
+                } else {
+                    imageView.setImageResource(R.drawable.ic_not_done);
+                }
+                imageView.setTag(Integer.valueOf(position));
+                imageView.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        ImageView imageView = (ImageView) v;
+                        int position = (Integer) v.getTag();
+                        Task task = (Task) getItem(position);
+                        boolean checked = task.ifChecked();
+                        checked = ! checked;
+                        task.setChecked(checked);
+                        setDoneStatus(task.getTaskID(), new Date(), checked);
+                        if (checked) {
+                            imageView.setImageResource(R.drawable.ic_done);
+                        } else {
+                            imageView.setImageResource(R.drawable.ic_not_done);
+                        }
+                    }
+                });
+            }
 
             return view;
-		}
+        }
     }
 }

@@ -1,7 +1,9 @@
 <resources>
 
-    <string name="app_name">KeepDoing</string>
+    <string name="app_name">Keep Do!</string>
 
+    <string name="tasklist_header_today_task">Today\'s tasks</string>
+    <string name="tasklist_header_other_task">Other tasks</string>
     <string name="add_task">New task</string>
     <string name="edit_task">Edit task</string>
     <string name="delete_task">Delete task</string>
