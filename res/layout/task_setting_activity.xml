@@ -8,23 +8,23 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dip"
-        android:layout_marginRight="16dip"
         android:divider="?android:attr/dividerHorizontal"
         android:showDividers="middle" >
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dip"
-            android:layout_marginBottom="10dip" >
+            android:layout_height="wrap_content" >
+
             <TextView
                 android:id="@+id/textView1"
                 android:text="@string/task_name"
                 android:textAppearance="@android:style/TextAppearance.Large"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dip"
+                android:layout_marginLeft="16dip"
+                android:layout_marginRight="16dip" >
             </TextView>
 
             <EditText
@@ -33,8 +33,9 @@
                 android:hint="@string/hint_task_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dip"
-                android:layout_marginRight="10dip" >
+                android:layout_marginLeft="26dip"
+                android:layout_marginRight="26dip"
+                android:layout_marginBottom="10dip" >
             </EditText>
         </LinearLayout>
 
@@ -43,22 +44,25 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dip"
-            android:layout_marginBottom="10dip" >
+            android:background="?android:attr/selectableItemBackground" >
             <TextView
                 android:id="@+id/textView2"
                 android:text="@string/recurrence"
                 android:textAppearance="@android:style/TextAppearance.Large"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dip"
+                android:layout_marginLeft="16dip"
+                android:layout_marginRight="16dip" >
             </TextView>
             <LinearLayout
                 android:id="@+id/recurrenceChildLayout"
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dip"
-                android:layout_marginRight="10dip" >
+                android:layout_marginLeft="26dip"
+                android:layout_marginRight="26dip"
+                android:layout_marginBottom="10dip" >
             </LinearLayout>
         </LinearLayout>
 
