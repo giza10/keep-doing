@@ -9,6 +9,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -39,6 +41,9 @@ public class TasksActivity extends MainActivity {
 
     private TaskAdapter adapter;
     private List<Task> dataList = new ArrayList<Task>();
+
+    private SoundPool soundPool;
+    private int soundId;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,6 +81,19 @@ public class TasksActivity extends MainActivity {
         registerForContextMenu(listView1);
 
         updateTaskList();
+    }
+
+    @Override
+    public void onResume() {
+        soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+        soundId = soundPool.load(this, R.raw.done_pressed, 1);
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        soundPool.release();
+        super.onPause();
     }
 
     @Override
@@ -281,6 +299,7 @@ public class TasksActivity extends MainActivity {
                         setDoneStatus(task.getTaskID(), new Date(), checked);
                         if (checked) {
                             imageView.setImageResource(R.drawable.ic_done);
+                            soundPool.play(soundId, 1.0f, 1.0f, 0, 0, 1.0f);
                         } else {
                             imageView.setImageResource(R.drawable.ic_not_done);
                         }

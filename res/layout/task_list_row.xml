@@ -10,6 +10,7 @@
         android:layout_height="100dip"
         android:padding="5dip"
         android:visibility="visible"
+        android:soundEffectsEnabled="false"
         android:contentDescription="@string/image_description" />
     <LinearLayout
         android:id="@+id/taskListItemMain"
