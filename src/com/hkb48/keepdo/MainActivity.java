@@ -18,6 +18,9 @@ import com.hkb48.keepdo.Database.TaskCompletions;
 import com.hkb48.keepdo.Database.TasksToday;
 
 public class MainActivity extends Activity {
+    private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";
+    private static final String SDF_PATTERN_YMD = "yyyy-MM-dd"; 
+    private static final String SDF_PATTERN_YM = "yyyy-MM"; 
 
 	// Our application database
 	protected DatabaseHelper mDatabaseHelper = null; 
@@ -55,16 +58,17 @@ public class MainActivity extends Activity {
                 task.setChecked(checked);
                 tasks.add(task);
             } while (cursor.moveToNext());
-            cursor.close();
         }
+
+        cursor.close();
         db.close();
 
         return tasks;
     }
 
 	protected long addTask(String taskName, Recurrence recurrence) {
-		long rowID = 0;
-		
+		long rowID = -0xFF;
+
 		if ((taskName ==null) || (taskName.isEmpty()) || (recurrence == null)) {
 			return rowID;
 		}
@@ -82,20 +86,12 @@ public class MainActivity extends Activity {
 			
 			rowID = mDatabaseHelper.getWritableDatabase().insertOrThrow(TasksToday.TASKS_TABLE_NAME, null, contentValues);
 
-//			if (rowID > 0) {
-//				contentValues.clear();
-//				contentValues.put(TaskCompletions.TASK_NAME_ID, rowID);
-//				mDatabaseHelper.getWritableDatabase().insert(TaskCompletions.TASK_COMPLETION_TABLE_NAME, null, contentValues);
-//				mDatabaseHelper.close();
-//			}
-
 		} catch (SQLiteException e) {
-			Log.e("_KEEPDOLOG: ", e.getMessage());
-        } finally {
-            mDatabaseHelper.close();
+			Log.e(TAG_KEEPDO, e.getMessage());
         }
+        mDatabaseHelper.close();
 
-		return rowID;
+        return rowID;
 	}
 
     protected void editTask(Long taskID, String taskName, Recurrence recurrence) {
@@ -118,10 +114,9 @@ public class MainActivity extends Activity {
         try {
             mDatabaseHelper.getWritableDatabase().update(TasksToday.TASKS_TABLE_NAME, contentValues, whereClause, whereArgs);
         } catch (SQLiteException e) {
-            Log.e("_KEEPDOLOG: ", e.getMessage());
-        } finally {
-            mDatabaseHelper.close();
+            Log.e(TAG_KEEPDO, e.getMessage());
         }
+        mDatabaseHelper.close();
     }
 
     protected void deleteTask(Long taskID) {
@@ -143,7 +138,7 @@ public class MainActivity extends Activity {
             return;
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(SDF_PATTERN_YMD);
 
         if (doneSwitch == true) {
             ContentValues contentValues = new ContentValues();
@@ -155,22 +150,19 @@ public class MainActivity extends Activity {
                 contentValues.put(TaskCompletions.TASK_COMPLETION_DATE, dateFormat.format(date));
             }           
 
-//            mDatabaseHelper.getWritableDatabase().update(TaskCompletions.TASK_COMPLETION_TABLE_NAME, contentValues, whereClause, whereArgs);
             try {
                 mDatabaseHelper.getWritableDatabase().insertOrThrow(TaskCompletions.TASK_COMPLETION_TABLE_NAME, null, contentValues);
             } catch (SQLiteException e) {
-                Log.e("_KEEPDOLOG: ", e.getMessage());
-            } finally {
-                mDatabaseHelper.close();
+                Log.e(TAG_KEEPDO, e.getMessage());
             }
+
         } else {
-//            contentValues.putNull(TaskCompletions.TASK_COMPLETION_DATE);
             String whereClause = TaskCompletions.TASK_NAME_ID + "=? and " + TaskCompletions.TASK_COMPLETION_DATE + "=?";
             String whereArgs[] = {taskID.toString(), dateFormat.format(date)};
             mDatabaseHelper.getWritableDatabase().delete(TaskCompletions.TASK_COMPLETION_TABLE_NAME, whereClause, whereArgs);
         }
 
-         mDatabaseHelper.close();
+        mDatabaseHelper.close();
     }
 
     protected Task getTask(Long taskID) {
@@ -189,8 +181,9 @@ public class MainActivity extends Activity {
                     break;
                 }
             } while (cursor.moveToNext());
-            cursor.close();
         }
+
+        cursor.close();
         db.close();
 
         return task;
@@ -201,8 +194,8 @@ public class MainActivity extends Activity {
         String selectQuery = "SELECT * FROM " + TaskCompletions.TASK_COMPLETION_TABLE_NAME;
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
-        SimpleDateFormat sdf_ymd = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat sdf_ym = new SimpleDateFormat("yyyy-MM");
+        SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD);
+        SimpleDateFormat sdf_ym = new SimpleDateFormat(SDF_PATTERN_YM);
 
         // Looping through all rows and adding to list
         if (cursor.moveToFirst()) {
@@ -213,7 +206,7 @@ public class MainActivity extends Activity {
                     try {
                         date = sdf_ymd.parse(cursor.getString(2));
                     } catch (ParseException e) {
-                        Log.e("_KEEPDOLOG: ", e.getMessage());
+                        Log.e(TAG_KEEPDO, e.getMessage());
                     }
                     if (date != null) {
                         if (sdf_ym.format(date).equals(sdf_ym.format(month))) {
@@ -222,8 +215,9 @@ public class MainActivity extends Activity {
                     }
                 }
             } while (cursor.moveToNext());
-            cursor.close();
         }
+
+        cursor.close();
         db.close();
 
         return dateList;
@@ -234,7 +228,7 @@ public class MainActivity extends Activity {
         String selectQuery = "SELECT * FROM " + TaskCompletions.TASK_COMPLETION_TABLE_NAME;
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
-        SimpleDateFormat sdf_ymd = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD);
 
         if (cursor.moveToFirst()) {
             do {
@@ -244,7 +238,7 @@ public class MainActivity extends Activity {
                     try {
                         date = sdf_ymd.parse(cursor.getString(2));
                     } catch (ParseException e) {
-                        Log.e("_KEEPDOLOG: ", e.getMessage());
+                        Log.e(TAG_KEEPDO, e.getMessage());
                     }
                     if (date != null) {
                         if (sdf_ymd.format(date).equals(sdf_ymd.format(day))) {
@@ -254,8 +248,9 @@ public class MainActivity extends Activity {
                     }
                 }
             } while (cursor.moveToNext());
-            cursor.close();
         }
+
+        cursor.close();
         db.close();
    
         return isChecked;

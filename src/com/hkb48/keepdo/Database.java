@@ -31,7 +31,7 @@ public final class Database {
         private TaskCompletions() {}
         
         public static final String TASK_COMPLETION_TABLE_NAME = "table_completions";
-        
+
         public static final String TASK_NAME_ID = "task_id";
         public static final String TASK_COMPLETION_DATE = "completion_date";
         
