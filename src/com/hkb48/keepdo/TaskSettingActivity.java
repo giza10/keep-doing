@@ -35,7 +35,11 @@ public class TaskSettingActivity extends Activity {
             setTitle(R.string.add_task);
         } else {
             setTitle(R.string.edit_task);
-            editText.setText(task.getName());
+            String taskName = task.getName();
+            if (taskName != null) {
+                editText.setText(taskName);
+                editText.setSelection(taskName.length());
+            }
 
             Recurrence recurrence = task.getRecurrence();
             recurrenceFlags[0] = recurrence.getSunday();
