@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:background="@color/tasklist_bg_header"
-        android:textSize="20sp"
-        android:padding="10dip"
+        android:textSize="15sp"
+        android:padding="5dp"
     />
 </LinearLayout>
