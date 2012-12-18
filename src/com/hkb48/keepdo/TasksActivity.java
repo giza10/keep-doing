@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -24,6 +23,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,19 +62,6 @@ public class TasksActivity extends MainActivity {
                 Intent intent = new Intent(TasksActivity.this, CalendarActivity.class);
                 intent.putExtra("TASK-ID", taskId);
                 startActivity(intent);
-            }
-        });
-
-        listView1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> parent, View view,
-                    int position, long id) {
-                ListView listView = (ListView) parent;
-                String item = (String) listView.getSelectedItem();
-                Log.v("tag", String.format("onItemSelected: %s", item));
-            }
-
-            public void onNothingSelected(AdapterView<?> parent) {
-                Log.v("tag", "onNothingSelected");
             }
         });
 
@@ -280,6 +267,10 @@ public class TasksActivity extends MainActivity {
                 String taskName = task.getName();
                 textView1.setText(taskName);
 
+                LinearLayout recurrenceChildLayout = (LinearLayout) view.findViewById(R.id.recurrenceChildLayout);
+                recurrenceChildLayout.removeAllViewsInLayout();
+                setRecurrence(recurrenceChildLayout, task.getRecurrence());
+
                 ImageView imageView = (ImageView) view.findViewById(R.id.taskListItemCheck);
                 boolean checked = task.ifChecked();
                 if (checked) {
@@ -308,6 +299,35 @@ public class TasksActivity extends MainActivity {
             }
 
             return view;
+        }
+    }
+
+    /**
+     * Update the display of recurrence status on the recurrence setting
+     */
+    private void setRecurrence(LinearLayout layout, Recurrence recurrence) {
+        String separator = getString(R.string.recurrence_separator);
+        String[] weeks = getResources().getStringArray(R.array.week_names);
+        boolean[] recurrenceFlags = new boolean[7];
+        recurrenceFlags[0] = recurrence.getSunday();
+        recurrenceFlags[1] = recurrence.getMonday();
+        recurrenceFlags[2] = recurrence.getTuesday();
+        recurrenceFlags[3] = recurrence.getWednesday();
+        recurrenceFlags[4] = recurrence.getThurday();
+        recurrenceFlags[5] = recurrence.getFriday();
+        recurrenceFlags[6] = recurrence.getSaturday();
+
+        for (int i = 0; i < weeks.length; i++) {
+            TextView week = new TextView(this);
+            week.setTextSize(12.0f);
+            week.setText(weeks[i]);
+            if( recurrenceFlags[i] == false ) {
+                week.setTextColor(getResources().getColor(R.color.recurrence_off_day));
+            }
+            if( i != weeks.length - 1) {
+                week.append(separator);
+            }
+            layout.addView(week);
         }
     }
 }
