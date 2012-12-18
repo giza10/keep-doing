@@ -20,7 +20,7 @@
         <TextView
             android:id="@+id/taskName"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0dip"
             android:layout_weight="1"
             android:textSize="18sp"
             android:paddingTop="5dp"
@@ -28,14 +28,14 @@
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
         />
-        <LinearLayout
-            android:id="@+id/recurrenceChildLayout"
+        <com.hkb48.keepdo.RecurrenceView
+            android:id="@+id/recurrenceView"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dip"
             android:layout_marginRight="26dip"
-            android:layout_marginBottom="10dip" >
-        </LinearLayout>
+            android:layout_marginBottom="10dip">
+        </com.hkb48.keepdo.RecurrenceView>
     </LinearLayout>
 </LinearLayout>

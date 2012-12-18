@@ -13,14 +13,12 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 public class TaskSettingActivity extends Activity {
     private boolean[] recurrenceFlags = {true,true,true,true,true,true,true};
     private String[] weeks;
     private Task task;
-    private LinearLayout recurrenceChildLayout;
+    private RecurrenceView recurrenceView;
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -28,11 +26,13 @@ public class TaskSettingActivity extends Activity {
         setContentView(R.layout.task_setting_activity);
 
         EditText editText = (EditText) findViewById(R.id.editText1);
+        Recurrence recurrence;
 
         Intent intent = getIntent();
         task = (Task) intent.getSerializableExtra("TASK-INFO");
         if (task == null) {
             setTitle(R.string.add_task);
+            recurrence = new Recurrence(true, true, true, true, true, true, true);
         } else {
             setTitle(R.string.edit_task);
             String taskName = task.getName();
@@ -41,7 +41,7 @@ public class TaskSettingActivity extends Activity {
                 editText.setSelection(taskName.length());
             }
 
-            Recurrence recurrence = task.getRecurrence();
+            recurrence = task.getRecurrence();
             recurrenceFlags[0] = recurrence.getSunday();
             recurrenceFlags[1] = recurrence.getMonday();
             recurrenceFlags[2] = recurrence.getTuesday();
@@ -73,8 +73,8 @@ public class TaskSettingActivity extends Activity {
         } );
 
         weeks = getResources().getStringArray(R.array.week_names);
-        recurrenceChildLayout = (LinearLayout) findViewById(R.id.recurrenceChildLayout);
-        updateRecurrence();
+        recurrenceView = (RecurrenceView) findViewById(R.id.recurrenceView);
+        recurrenceView.update(recurrence);
 
         findViewById(R.id.recurrenceLayout).setOnClickListener(new OnClickListener() {
             boolean tmpRecurrenceFlags[];
@@ -91,7 +91,7 @@ public class TaskSettingActivity extends Activity {
                 })
                 .setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        updateRecurrence();
+                    recurrenceView.update(recurrenceFlags);
                     }
                 })
                 .setNegativeButton(getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
@@ -129,25 +129,5 @@ public class TaskSettingActivity extends Activity {
      */
     public void onCancelClicked(View view) {
     	finish();
-    }
-
-    /**
-     * Update the display of recurrence status on the recurrence setting
-     */
-    private void updateRecurrence() {
-        String separator = getString(R.string.recurrence_separator);
-        recurrenceChildLayout.removeAllViews();
-
-        for (int i = 0; i < weeks.length; i++) {
-            TextView week = new TextView(this);
-            week.setText(weeks[i]);
-            if( recurrenceFlags[i] == false ) {
-                week.setTextColor(getResources().getColor(R.color.recurrence_off_day));
-            }
-            if( i != weeks.length - 1) {
-                week.append(separator);
-            }
-            recurrenceChildLayout.addView(week);
-        }
     }
 }

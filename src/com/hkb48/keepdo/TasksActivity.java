@@ -23,7 +23,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -267,9 +266,9 @@ public class TasksActivity extends MainActivity {
                 String taskName = task.getName();
                 textView1.setText(taskName);
 
-                LinearLayout recurrenceChildLayout = (LinearLayout) view.findViewById(R.id.recurrenceChildLayout);
-                recurrenceChildLayout.removeAllViewsInLayout();
-                setRecurrence(recurrenceChildLayout, task.getRecurrence());
+                RecurrenceView recurrenceView = (RecurrenceView) view.findViewById(R.id.recurrenceView);
+                recurrenceView.setTextSize(12.0f);
+                recurrenceView.update(task.getRecurrence());
 
                 ImageView imageView = (ImageView) view.findViewById(R.id.taskListItemCheck);
                 boolean checked = task.ifChecked();
@@ -299,35 +298,6 @@ public class TasksActivity extends MainActivity {
             }
 
             return view;
-        }
-    }
-
-    /**
-     * Update the display of recurrence status on the recurrence setting
-     */
-    private void setRecurrence(LinearLayout layout, Recurrence recurrence) {
-        String separator = getString(R.string.recurrence_separator);
-        String[] weeks = getResources().getStringArray(R.array.week_names);
-        boolean[] recurrenceFlags = new boolean[7];
-        recurrenceFlags[0] = recurrence.getSunday();
-        recurrenceFlags[1] = recurrence.getMonday();
-        recurrenceFlags[2] = recurrence.getTuesday();
-        recurrenceFlags[3] = recurrence.getWednesday();
-        recurrenceFlags[4] = recurrence.getThurday();
-        recurrenceFlags[5] = recurrence.getFriday();
-        recurrenceFlags[6] = recurrence.getSaturday();
-
-        for (int i = 0; i < weeks.length; i++) {
-            TextView week = new TextView(this);
-            week.setTextSize(12.0f);
-            week.setText(weeks[i]);
-            if( recurrenceFlags[i] == false ) {
-                week.setTextColor(getResources().getColor(R.color.recurrence_off_day));
-            }
-            if( i != weeks.length - 1) {
-                week.append(separator);
-            }
-            layout.addView(week);
         }
     }
 }
