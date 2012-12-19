@@ -18,6 +18,7 @@ public class RecurrenceView extends LinearLayout {
 
     public void update(boolean[] recurrenceFlags) {
         String separator = context.getString(R.string.recurrence_separator);
+        int calorOffDay = getResources().getColor(R.color.recurrence_off_day);
         removeAllViewsInLayout();
 
         for (int i = 0; i < weekName.length; i++) {
@@ -25,7 +26,7 @@ public class RecurrenceView extends LinearLayout {
             week.setText(weekName[i]);
             week.setTextSize(textSize);
             if( recurrenceFlags[i] == false ) {
-                week.setTextColor(getResources().getColor(R.color.recurrence_off_day));
+                week.setTextColor(calorOffDay);
             }
             if( i != weekName.length - 1) {
                 week.append(separator);
