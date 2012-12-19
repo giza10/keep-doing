@@ -1,4 +1,6 @@
 <resources>
+    <string name="app_name">Keep Do!</string>
+
     <string name="tasklist_header_today_task">今日のタスク</string>
     <string name="tasklist_header_other_task">その他のタスク</string>
     <string name="add_task">新規タスク追加</string>
@@ -16,6 +18,7 @@
 
     <string name="btn_month_next">翌月</string>
 	<string name="btn_month_prev">先月</string>
+	<string name="image_description">Done mark</string>
 	<string-array name="week_names">
         <item>日</item>
         <item>月</item>
