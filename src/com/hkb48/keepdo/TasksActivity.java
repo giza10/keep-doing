@@ -256,8 +256,6 @@ public class TasksActivity extends MainActivity {
                 } else {
                     view = inflater.inflate(R.layout.task_list_header, null);
                     view.setTag(TYPE_HEADER);
-                    TextView listHeader = (TextView) view.findViewById(R.id.listHeader);
-                    listHeader.setText(task.getName());
                 }
             }
 
@@ -295,6 +293,9 @@ public class TasksActivity extends MainActivity {
                         }
                     }
                 });
+            } else {
+                TextView listHeader = (TextView) view.findViewById(R.id.listHeader);
+                listHeader.setText(task.getName());
             }
 
             return view;
