@@ -1,5 +1,6 @@
 package com.hkb48.keepdo;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.List;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
@@ -28,7 +30,7 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-		mDatabaseHelper = new DatabaseHelper(this.getApplicationContext());
+        setDatabase();
     }
 
 	@Override
@@ -39,6 +41,18 @@ public class MainActivity extends Activity {
 			mDatabaseHelper.close();
 		}
 	}
+
+    private void setDatabase() {
+		mDatabaseHelper = new DatabaseHelper(this.getApplicationContext());
+        try {
+            mDatabaseHelper.createDataBase();
+            mDatabaseHelper.openDataBase();
+        } catch (IOException ioe) {
+            throw new Error("Unable to create database");
+        } catch(SQLException sqle){
+            throw sqle;
+        }
+    }
 
     protected List<Task> getTaskList() {
         List<Task> tasks = new ArrayList<Task>();

@@ -6,29 +6,32 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class RecurrenceView extends LinearLayout {
-    final Context context;
-    final String[] weekName;
-    float textSize = 16.0f;
+    private static final float DEFAULT_TEXT_SIZE = 16.0f;
+
+    private final Context mContext;
+    private final String[] mWeekName;
+    private float mTextSize;
 
     public RecurrenceView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.context = context;
-        weekName = getResources().getStringArray(R.array.week_names);
+        mContext = context;
+        mWeekName = getResources().getStringArray(R.array.week_names);
+        mTextSize = DEFAULT_TEXT_SIZE;
     }
 
     public void update(boolean[] recurrenceFlags) {
-        String separator = context.getString(R.string.recurrence_separator);
+        String separator = mContext.getString(R.string.recurrence_separator);
         int calorOffDay = getResources().getColor(R.color.recurrence_off_day);
         removeAllViewsInLayout();
 
-        for (int i = 0; i < weekName.length; i++) {
-            TextView week = new TextView(context);
-            week.setText(weekName[i]);
-            week.setTextSize(textSize);
-            if( recurrenceFlags[i] == false ) {
+        for (int i = 0; i < mWeekName.length; i++) {
+            TextView week = new TextView(mContext);
+            week.setText(mWeekName[i]);
+            week.setTextSize(mTextSize);
+            if (recurrenceFlags[i] == false) {
                 week.setTextColor(calorOffDay);
             }
-            if( i != weekName.length - 1) {
+            if (i != (mWeekName.length - 1)) {
                 week.append(separator);
             }
             addView(week);
@@ -49,6 +52,6 @@ public class RecurrenceView extends LinearLayout {
     }
 
     public void setTextSize(float size) {
-        textSize = size;
+        mTextSize = size;
     }
 }
