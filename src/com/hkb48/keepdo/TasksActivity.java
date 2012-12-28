@@ -206,6 +206,7 @@ public class TasksActivity extends MainActivity {
     private class TaskAdapter extends BaseAdapter {
         private static final int TYPE_HEADER = 0;
         private static final int TYPE_ITEM = 1;
+        private ViewHolder viewHolder;
 
         public int getCount() {
             return dataList.size();
@@ -243,32 +244,39 @@ public class TasksActivity extends MainActivity {
             if (view == null ) {
                 createView = true;
             } else {
-                int viewType = (Integer) view.getTag();
-                if (viewType != getItemViewType(position)) {
+                viewHolder = (ViewHolder) view.getTag();
+                if (viewHolder.viewType != getItemViewType(position)) {
                     createView = true;
                 }
             }
 
             if (createView) {
+                viewHolder = new ViewHolder();
                 if (isTask) {
                     view = inflater.inflate(R.layout.task_list_row, null);
-                    view.setTag(TYPE_ITEM);
+                    viewHolder.viewType = TYPE_ITEM;
+                    viewHolder.imageView = (ImageView) view.findViewById(R.id.taskListItemCheck);
+                    viewHolder.textView = (TextView) view.findViewById(R.id.taskName);
+                    viewHolder.recurrenceView = (RecurrenceView) view.findViewById(R.id.recurrenceView);
+                    view.setTag(viewHolder);
                 } else {
                     view = inflater.inflate(R.layout.task_list_header, null);
-                    view.setTag(TYPE_HEADER);
+                    viewHolder.viewType = TYPE_HEADER;
+                    viewHolder.textView = (TextView) view.findViewById(R.id.listHeader);
+                    view.setTag(viewHolder);
                 }
             }
 
             if (isTask) {
-                TextView textView1 = (TextView) view.findViewById(R.id.taskName);
+                TextView textView = viewHolder.textView;
                 String taskName = task.getName();
-                textView1.setText(taskName);
+                textView.setText(taskName);
 
-                RecurrenceView recurrenceView = (RecurrenceView) view.findViewById(R.id.recurrenceView);
+                RecurrenceView recurrenceView = viewHolder.recurrenceView;
                 recurrenceView.setTextSize(12.0f);
                 recurrenceView.update(task.getRecurrence());
 
-                ImageView imageView = (ImageView) view.findViewById(R.id.taskListItemCheck);
+                ImageView imageView = viewHolder.imageView;
                 boolean checked = task.ifChecked();
                 if (checked) {
                     imageView.setImageResource(R.drawable.ic_done);
@@ -294,11 +302,18 @@ public class TasksActivity extends MainActivity {
                     }
                 });
             } else {
-                TextView listHeader = (TextView) view.findViewById(R.id.listHeader);
+                TextView listHeader = viewHolder.textView;
                 listHeader.setText(task.getName());
             }
 
             return view;
+        }
+
+        private class ViewHolder {
+            int viewType;
+            TextView textView;
+            ImageView imageView;
+            RecurrenceView recurrenceView;
         }
     }
 }
