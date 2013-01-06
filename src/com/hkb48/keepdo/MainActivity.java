@@ -22,10 +22,12 @@ import com.hkb48.keepdo.Database.TasksToday;
 public class MainActivity extends Activity {
     private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";
     private static final String SDF_PATTERN_YMD = "yyyy-MM-dd"; 
-    private static final String SDF_PATTERN_YM = "yyyy-MM"; 
+    private static final String SDF_PATTERN_YM = "yyyy-MM";
+    private static final String SELECT_FORM = "select * from ";
+    private static final String SELECT_ARG_FORM = "where ";
 
 	// Our application database
-	protected DatabaseHelper mDatabaseHelper = null; 
+	protected DatabaseHelper mDatabaseHelper = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,6 +35,7 @@ public class MainActivity extends Activity {
         setDatabase();
     }
 
+    
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -56,20 +59,20 @@ public class MainActivity extends Activity {
 
     protected List<Task> getTaskList() {
         List<Task> tasks = new ArrayList<Task>();
-        String selectQuery = "SELECT  * FROM " + TasksToday.TASKS_TABLE_NAME;
+        String selectQuery = SELECT_FORM + TasksToday.TASKS_TABLE_NAME;
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        // Looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
                 Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(3)),
                         Boolean.valueOf(cursor.getString(4)),Boolean.valueOf(cursor.getString(5)), Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)),Boolean.valueOf(cursor.getString(8)));
                 Task task = new Task(cursor.getString(1),recurrence);
+
                 Long taskID = Long.parseLong(cursor.getString(0));
-                boolean checked = isChecked(taskID, new Date());
                 task.setTaskID(taskID);
-                task.setChecked(checked);
+                task.setChecked(isChecked(taskID, new Date()));
+
                 tasks.add(task);
             } while (cursor.moveToNext());
         }
@@ -135,7 +138,7 @@ public class MainActivity extends Activity {
 
     protected void deleteTask(Long taskID) {
         // Delete task from TASKS_TABLE_NAME
-        String whereClause = TasksToday._ID + "=?";
+    	String whereClause = TasksToday._ID + "=?";
         String whereArgs[] = {taskID.toString()};
         mDatabaseHelper.getWritableDatabase().delete(TasksToday.TASKS_TABLE_NAME, whereClause, whereArgs);
 
@@ -148,7 +151,7 @@ public class MainActivity extends Activity {
 
     //TODO: ROID v.s _ID to be validated.
 	protected void setDoneStatus(Long taskID, Date date, Boolean doneSwitch) {
-        if (taskID ==null) {
+        if (taskID == null) {
             return;
         }
 
@@ -181,20 +184,16 @@ public class MainActivity extends Activity {
 
     protected Task getTask(Long taskID) {
         Task task = null;
-        String selectQuery = "SELECT * FROM " + TasksToday.TASKS_TABLE_NAME;
-        SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
+        String selectQuery = SELECT_FORM + TasksToday.TASKS_TABLE_NAME + SELECT_ARG_FORM + TasksToday._ID + "=?";
 
-        if (cursor.moveToFirst()) {
-            do {
-                if (Long.parseLong(cursor.getString(0)) == taskID) {
-                    Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(3)),
-                            Boolean.valueOf(cursor.getString(4)),Boolean.valueOf(cursor.getString(5)), Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)),Boolean.valueOf(cursor.getString(8)));
-                    task = new Task(cursor.getString(1),recurrence);
-                    task.setTaskID(taskID);
-                    break;
-                }
-            } while (cursor.moveToNext());
+        SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
+        if (cursor != null){
+        	cursor.moveToFirst();
+            Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(3)),
+                    Boolean.valueOf(cursor.getString(4)),Boolean.valueOf(cursor.getString(5)), Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)),Boolean.valueOf(cursor.getString(8)));
+            task = new Task(cursor.getString(1),recurrence);
+            task.setTaskID(taskID);
         }
 
         cursor.close();
@@ -205,17 +204,16 @@ public class MainActivity extends Activity {
 
     protected ArrayList<Date> getHistory(Long taskID, Date month) {
         ArrayList<Date> dateList = new ArrayList<Date>();
-        String selectQuery = "SELECT * FROM " + TaskCompletions.TASK_COMPLETION_TABLE_NAME;
+        String selectQuery = SELECT_FORM + TaskCompletions.TASK_COMPLETION_TABLE_NAME + SELECT_ARG_FORM + TaskCompletions.TASK_NAME_ID + "=?";
+
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
+        Cursor cursor = db.rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD);
         SimpleDateFormat sdf_ym = new SimpleDateFormat(SDF_PATTERN_YM);
 
-        // Looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                if ((Long.parseLong(cursor.getString(1)) == taskID) &&
-                    (cursor.getString(2) != null)) {
+                if (cursor.getString(2) != null) {
                     Date date = null;
                     try {
                         date = sdf_ymd.parse(cursor.getString(2));
@@ -239,15 +237,15 @@ public class MainActivity extends Activity {
 
     private boolean isChecked(Long taskID, Date day) {
         boolean isChecked = false;
-        String selectQuery = "SELECT * FROM " + TaskCompletions.TASK_COMPLETION_TABLE_NAME;
+        String selectQuery = SELECT_FORM + TaskCompletions.TASK_COMPLETION_TABLE_NAME + SELECT_ARG_FORM + TaskCompletions._ID + " = ?";
+
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
+        Cursor cursor = db.rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD);
 
         if (cursor.moveToFirst()) {
             do {
-                if ((Long.parseLong(cursor.getString(1)) == taskID) &&
-                    (cursor.getString(2) != null)) {
+                if (cursor.getString(2) != null) {
                     Date date = null;
                     try {
                         date = sdf_ymd.parse(cursor.getString(2));
@@ -266,7 +264,7 @@ public class MainActivity extends Activity {
 
         cursor.close();
         db.close();
-   
+
         return isChecked;
     }
 }
