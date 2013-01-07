@@ -29,8 +29,9 @@ import android.widget.Toast;
 
 public class TasksActivity extends MainActivity {
     // Request code when launching sub-activity
-    private final static int REQUEST_ADD = 0;
-    private final static int REQUEST_EDIT = 1;
+    private final static int REQUEST_ADD_TASK = 0;
+    private final static int REQUEST_EDIT_TASK = 1;
+    private final static int REQUEST_SHOW_CALENDAR = 2;
 
     // ID of context menu items
     private final static int CONTEXT_MENU_EDIT = 0;
@@ -60,7 +61,7 @@ public class TasksActivity extends MainActivity {
                 Long taskId =  dataList.get(position).getTaskID();
                 Intent intent = new Intent(TasksActivity.this, CalendarActivity.class);
                 intent.putExtra("TASK-ID", taskId);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_SHOW_CALENDAR);
             }
         });
 
@@ -93,7 +94,7 @@ public class TasksActivity extends MainActivity {
         switch (item.getItemId()) {
         case R.id.menu_add_task:
             Intent intent = new Intent(TasksActivity.this, TaskSettingActivity.class);
-            startActivityForResult(intent, REQUEST_ADD);
+            startActivityForResult(intent, REQUEST_ADD_TASK);
             return true;
         default:
             return super.onOptionsItemSelected(item);
@@ -103,14 +104,19 @@ public class TasksActivity extends MainActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            Task task = (Task) data.getSerializableExtra("TASK-INFO");
+            Task task;
             switch(requestCode) {
-            case REQUEST_ADD:
+            case REQUEST_ADD_TASK:
+                task = (Task) data.getSerializableExtra("TASK-INFO");
                 addTask(task.getName(), task.getRecurrence());
                 updateTaskList();
                 break;
-            case REQUEST_EDIT:
+            case REQUEST_EDIT_TASK:
+                task = (Task) data.getSerializableExtra("TASK-INFO");
                 editTask(task.getTaskID(), task.getName(), task.getRecurrence());
+                updateTaskList();
+                break;
+            case REQUEST_SHOW_CALENDAR:
                 updateTaskList();
                 break;
             default:
@@ -136,7 +142,7 @@ public class TasksActivity extends MainActivity {
         case CONTEXT_MENU_EDIT:
             Intent intent = new Intent(TasksActivity.this, TaskSettingActivity.class);
             intent.putExtra("TASK-INFO", task);
-            startActivityForResult(intent, REQUEST_EDIT);
+            startActivityForResult(intent, REQUEST_EDIT_TASK);
             return true;
         case CONTEXT_MENU_DELETE:
             final Long taskId = task.getTaskID();

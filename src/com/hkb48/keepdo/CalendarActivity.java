@@ -1,5 +1,6 @@
 package com.hkb48.keepdo;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -8,9 +9,11 @@ import java.util.Date;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -19,8 +22,9 @@ import android.widget.TextView;
 public class CalendarActivity extends MainActivity {
 	private GridLayout mGridLayout;
     private int mPosition = 0;
-    private Task task;
-	
+    private Task mTask;
+    private View mPressedView;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +32,7 @@ public class CalendarActivity extends MainActivity {
 
         Intent intent = getIntent();
         long taskId = intent.getLongExtra("TASK-ID", -1);
-        task = getTask(taskId);
+        mTask = getTask(taskId);
 
         setActionBar();
 
@@ -50,6 +54,9 @@ public class CalendarActivity extends MainActivity {
             }
         });
 
+        Intent returnIntent = new Intent();
+        setResult(RESULT_OK, returnIntent);
+
         buildCalendar();
     }
 
@@ -64,14 +71,47 @@ public class CalendarActivity extends MainActivity {
         }
     }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, view, menuInfo);
+        mPressedView = view;
+        Date date = (Date) mPressedView.getTag();
+        SimpleDateFormat sdf = new SimpleDateFormat("MM" + "åé" + "dd" + "ì˙");
+        menu.setHeaderTitle(sdf.format(date));
+
+        ImageView imageView = (ImageView) mPressedView.findViewById(R.id.imageView1);
+        int visibility = imageView.getVisibility();
+        if (visibility == View.VISIBLE) {
+            menu.add("çœÇäOÇ∑");
+        } else {
+            menu.add("çœÇïtÇØÇÈÅ^çœÇäOÇ∑");
+        }
+    }
+
+    public boolean onContextItemSelected(MenuItem item) {
+        ImageView imageView = (ImageView) mPressedView.findViewById(R.id.imageView1);
+        int visibility = imageView.getVisibility();
+        Date date = (Date) mPressedView.getTag();
+
+        if (visibility == View.VISIBLE) {
+            imageView.setVisibility(View.INVISIBLE);
+            setDoneStatus(mTask.getTaskID(), date, false);
+        } else {
+            imageView.setVisibility(View.VISIBLE);
+            setDoneStatus(mTask.getTaskID(), date, true);
+        }
+
+        return super.onContextItemSelected(item);
+    }
+
     /***
      * Set action bar
      */
     private void setActionBar() {
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        if (task != null) {
-            setTitle(task.getName());
+        if (mTask != null) {
+            setTitle(mTask.getName());
         }
     }
 
@@ -95,6 +135,8 @@ public class CalendarActivity extends MainActivity {
         current.set(Calendar.DAY_OF_MONTH, 1);
 
         setCalendarTitle(current);
+
+        setVisibilityOfNextButton();
 
         mGridLayout.removeAllViews();
 
@@ -139,11 +181,15 @@ public class CalendarActivity extends MainActivity {
      * @param calendar
      */
     private void addDayOfMonth(Calendar calendar) {
-        int maxdate = calendar.getMaximum(Calendar.DAY_OF_MONTH);
+        int maxDate = calendar.getMaximum(Calendar.DAY_OF_MONTH);
         int week = calendar.get(Calendar.DAY_OF_WEEK);
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int today = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
 
-        ArrayList<Date> doneDateList = getHistory(task.getTaskID(), calendar.getTime());
+        ArrayList<Date> doneDateList = getHistory(mTask.getTaskID(), calendar.getTime());
         SimpleDateFormat sdf_d = new SimpleDateFormat("dd");
+        SimpleDateFormat sdf_ymd = new SimpleDateFormat("yyyy/MM/dd");
 
         // Fill the days of previous month in the first week with blank rectangle
         for (int i = 0; i < (week - Calendar.SUNDAY); i++) {
@@ -155,25 +201,40 @@ public class CalendarActivity extends MainActivity {
             mGridLayout.addView(child, params);
         }
 
-        for (int date = 1; date <= maxdate; date++) {
+        for (int day = 1; day <= maxDate; day++) {
             View child = getLayoutInflater().inflate(R.layout.calendar_date, null);
             TextView textView1 = (TextView) child.findViewById(R.id.textView1);
             ImageView imageView1 = (ImageView) child.findViewById(R.id.imageView1);
+
+            // Register context menu to change done status of past days.
+            if ((mPosition < 0) ||
+                ((mPosition == 0) && (day <= today))) {
+                Date date = null;
+                try {
+                    date = sdf_ymd.parse(year + "/" + month + "/" + day);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                child.setTag(date);
+                registerForContextMenu(child);
+            }
+
             week = calendar.get(Calendar.DAY_OF_WEEK);
             int fontColorOfWeek = getFontColorOfWeek(week);
 
-            textView1.setText(Integer.toString(date));
+            textView1.setText(Integer.toString(day));
             textView1.setTextColor(fontColorOfWeek);
 
             // Put done mark
             for (Date doneDate : doneDateList) {
-                if (date == Integer.parseInt(sdf_d.format(doneDate))) {
+                if (day == Integer.parseInt(sdf_d.format(doneDate))) {
                     imageView1.setVisibility(View.VISIBLE);
                     break;
                 }
             }
 
-            if (! task.getRecurrence().isValidDay(week)) {
+            if (! mTask.getRecurrence().isValidDay(week)) {
                 child.setBackgroundResource(R.drawable.bg_calendar_day_off);
             }
 
@@ -216,6 +277,15 @@ public class CalendarActivity extends MainActivity {
             return Color.BLUE;
         default:
             return Color.BLACK;
+        }
+    }
+
+    private void setVisibilityOfNextButton() {
+        View button = findViewById(R.id.button_next);
+        if (mPosition < 0) {
+            button.setVisibility(View.VISIBLE);
+        } else {
+            button.setVisibility(View.INVISIBLE);
         }
     }
 }

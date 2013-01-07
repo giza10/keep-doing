@@ -237,7 +237,7 @@ public class MainActivity extends Activity {
 
     private boolean isChecked(Long taskID, Date day) {
         boolean isChecked = false;
-        String selectQuery = SELECT_FORM + TaskCompletions.TASK_COMPLETION_TABLE_NAME + SELECT_ARG_FORM + TaskCompletions._ID + " = ?";
+        String selectQuery = SELECT_FORM + TaskCompletions.TASK_COMPLETION_TABLE_NAME + SELECT_ARG_FORM + TaskCompletions.TASK_NAME_ID + "=?";
 
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
