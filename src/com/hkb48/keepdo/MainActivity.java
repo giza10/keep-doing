@@ -24,7 +24,7 @@ public class MainActivity extends Activity {
     private static final String SDF_PATTERN_YMD = "yyyy-MM-dd"; 
     private static final String SDF_PATTERN_YM = "yyyy-MM";
     private static final String SELECT_FORM = "select * from ";
-    private static final String SELECT_ARG_FORM = "where ";
+    private static final String SELECT_ARG_FORM = " where ";
 
 	// Our application database
 	protected DatabaseHelper mDatabaseHelper = null;
