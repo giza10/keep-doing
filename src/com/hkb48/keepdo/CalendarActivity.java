@@ -20,6 +20,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class CalendarActivity extends MainActivity {
+    // ID of context menu items
+    private final static int CONTEXT_MENU_CHECK_DONE = 0;
+    private final static int CONTEXT_MENU_UNCHECK_DONE = 1;
+
 	private GridLayout mGridLayout;
     private int mPosition = 0;
     private Task mTask;
@@ -82,23 +86,27 @@ public class CalendarActivity extends MainActivity {
         ImageView imageView = (ImageView) mPressedView.findViewById(R.id.imageView1);
         int visibility = imageView.getVisibility();
         if (visibility == View.VISIBLE) {
-            menu.add("çœÇäOÇ∑");
+            menu.add(0, CONTEXT_MENU_UNCHECK_DONE, 0, R.string.uncheck_done);
         } else {
-            menu.add("çœÇïtÇØÇÈÅ^çœÇäOÇ∑");
+            menu.add(0, CONTEXT_MENU_CHECK_DONE, 0, R.string.check_done);
         }
     }
 
     public boolean onContextItemSelected(MenuItem item) {
         ImageView imageView = (ImageView) mPressedView.findViewById(R.id.imageView1);
-        int visibility = imageView.getVisibility();
         Date date = (Date) mPressedView.getTag();
 
-        if (visibility == View.VISIBLE) {
-            imageView.setVisibility(View.INVISIBLE);
-            setDoneStatus(mTask.getTaskID(), date, false);
-        } else {
+        switch (item.getItemId()) {
+        case CONTEXT_MENU_CHECK_DONE:
             imageView.setVisibility(View.VISIBLE);
             setDoneStatus(mTask.getTaskID(), date, true);
+            break;
+        case CONTEXT_MENU_UNCHECK_DONE:
+            imageView.setVisibility(View.INVISIBLE);
+            setDoneStatus(mTask.getTaskID(), date, false);
+            break;
+        default:
+            break;
         }
 
         return super.onContextItemSelected(item);
