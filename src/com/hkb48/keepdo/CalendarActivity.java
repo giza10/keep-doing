@@ -28,6 +28,7 @@ public class CalendarActivity extends MainActivity {
     private int mPosition = 0;
     private Task mTask;
     private View mPressedView;
+    private CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,9 +60,21 @@ public class CalendarActivity extends MainActivity {
         });
 
         Intent returnIntent = new Intent();
-        setResult(RESULT_OK, returnIntent);
+        setResult(RESULT_CANCELED, returnIntent);
 
         buildCalendar();
+    }
+
+    @Override
+    public void onResume() {
+    	mCheckSound.load();
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+    	mCheckSound.unload();
+        super.onPause();
     }
 
     @Override
@@ -100,6 +113,7 @@ public class CalendarActivity extends MainActivity {
         case CONTEXT_MENU_CHECK_DONE:
             imageView.setVisibility(View.VISIBLE);
             setDoneStatus(mTask.getTaskID(), date, true);
+            mCheckSound.play();
             break;
         case CONTEXT_MENU_UNCHECK_DONE:
             imageView.setVisibility(View.INVISIBLE);
@@ -108,6 +122,10 @@ public class CalendarActivity extends MainActivity {
         default:
             break;
         }
+
+        // Set result of this activity as OK to inform that the database is updated
+        Intent returnIntent = new Intent();
+        setResult(RESULT_OK, returnIntent);
 
         return super.onContextItemSelected(item);
     }

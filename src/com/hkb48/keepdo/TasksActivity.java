@@ -9,8 +9,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.AudioManager;
-import android.media.SoundPool;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -39,11 +37,9 @@ public class TasksActivity extends MainActivity {
 
     private final static int TASKID_FOR_LISTHEADER = -1;
 
-    private TaskAdapter adapter;
-    private List<Task> dataList = new ArrayList<Task>();
-
-    private SoundPool soundPool;
-    private int soundId;
+    private TaskAdapter mAdapter;
+    private List<Task> mDataList = new ArrayList<Task>();
+    private CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,14 +47,14 @@ public class TasksActivity extends MainActivity {
         setContentView(R.layout.activity_main);
 
         ListView listView1 = (ListView)findViewById(R.id.listView1);
-        adapter = new TaskAdapter();
-        listView1.setAdapter(adapter);
+        mAdapter = new TaskAdapter();
+        listView1.setAdapter(mAdapter);
 
         listView1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                     int position, long id) {
                 // Show calendar view
-                Long taskId =  dataList.get(position).getTaskID();
+                Long taskId =  mDataList.get(position).getTaskID();
                 Intent intent = new Intent(TasksActivity.this, CalendarActivity.class);
                 intent.putExtra("TASK-ID", taskId);
                 startActivityForResult(intent, REQUEST_SHOW_CALENDAR);
@@ -72,14 +68,13 @@ public class TasksActivity extends MainActivity {
 
     @Override
     public void onResume() {
-        soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
-        soundId = soundPool.load(this, R.raw.done_pressed, 1);
+    	mCheckSound.load();
         super.onResume();
     }
 
     @Override
     public void onPause() {
-        soundPool.release();
+    	mCheckSound.unload();
         super.onPause();
     }
 
@@ -137,7 +132,7 @@ public class TasksActivity extends MainActivity {
 
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
-        Task task = (Task) adapter.getItem(info.position);
+        Task task = (Task) mAdapter.getItem(info.position);
         switch (item.getItemId()) {
         case CONTEXT_MENU_EDIT:
             Intent intent = new Intent(TasksActivity.this, TaskSettingActivity.class);
@@ -177,7 +172,7 @@ public class TasksActivity extends MainActivity {
         List<Task> taskListNotToday = new ArrayList<Task>();
         int dayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
 
-        dataList.clear();
+        mDataList.clear();
         for (Task task : taskList) {
             if (task.getRecurrence().isValidDay(dayOfWeek) ) {
                 taskListToday.add(task);
@@ -190,23 +185,23 @@ public class TasksActivity extends MainActivity {
             // Dummy Task for header on the ListView
             Task dummyTask = new Task(getString(R.string.tasklist_header_today_task), null);
             dummyTask.setTaskID(TASKID_FOR_LISTHEADER);
-            dataList.add(dummyTask);
+            mDataList.add(dummyTask);
 
             for (Task task : taskListToday) {
-                dataList.add(task);
+                mDataList.add(task);
             }
         }
         if (taskListNotToday.size() > 0) {
             // Dummy Task for header on the ListView
             Task dummyTask = new Task(getString(R.string.tasklist_header_other_task), null);
             dummyTask.setTaskID(TASKID_FOR_LISTHEADER);
-            dataList.add(dummyTask);
+            mDataList.add(dummyTask);
 
             for (Task task : taskListNotToday) {
-                dataList.add(task);
+                mDataList.add(task);
             }
         }
-        adapter.notifyDataSetChanged();
+        mAdapter.notifyDataSetChanged();
     }
 
     private class TaskAdapter extends BaseAdapter {
@@ -215,11 +210,11 @@ public class TasksActivity extends MainActivity {
         private ViewHolder viewHolder;
 
         public int getCount() {
-            return dataList.size();
+            return mDataList.size();
         }
 
         public Object getItem(int position) {
-            return dataList.get(position);
+            return mDataList.get(position);
         }
 
         public long getItemId(int position) {
@@ -301,7 +296,7 @@ public class TasksActivity extends MainActivity {
                         setDoneStatus(task.getTaskID(), new Date(), checked);
                         if (checked) {
                             imageView.setImageResource(R.drawable.ic_done);
-                            soundPool.play(soundId, 1.0f, 1.0f, 0, 0, 1.0f);
+                            mCheckSound.play();
                         } else {
                             imageView.setImageResource(R.drawable.ic_not_done);
                         }
