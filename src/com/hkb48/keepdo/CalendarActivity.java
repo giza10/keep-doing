@@ -228,6 +228,9 @@ public class CalendarActivity extends MainActivity {
                 registerForContextMenu(child);
             }
 
+            if ((mPosition == 0) && (day == today)) {
+                child.setBackgroundResource(R.drawable.bg_calendar_day_today);
+            }
             week = calendar.get(Calendar.DAY_OF_WEEK);
             int fontColorOfWeek = getFontColorOfWeek(week);
 
