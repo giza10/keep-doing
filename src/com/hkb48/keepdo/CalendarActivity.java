@@ -18,13 +18,16 @@ import android.view.View.OnClickListener;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
 public class CalendarActivity extends MainActivity {
     // ID of context menu items
     private final static int CONTEXT_MENU_CHECK_DONE = 0;
     private final static int CONTEXT_MENU_UNCHECK_DONE = 1;
 
-	private GridLayout mGridLayout;
+    private ViewFlipper mFlipper;
+    private int mNextPageIndex = 0;
+    private GridLayout mGridLayout;
     private int mPosition = 0;
     private Task mTask;
     private View mPressedView;
@@ -41,13 +44,14 @@ public class CalendarActivity extends MainActivity {
 
         setActionBar();
 
-        mGridLayout = (GridLayout) findViewById(R.id.gridLayout);
+        mFlipper = (ViewFlipper) findViewById(R.id.flipper);
 
         findViewById(R.id.button_prev).setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                // Go to last month
+                // Go to previous month
                 mPosition--;
                 buildCalendar();
+                mFlipper.showNext();
             }
         });
 
@@ -56,6 +60,7 @@ public class CalendarActivity extends MainActivity {
                 // Go to next month
                 mPosition++;
                 buildCalendar();
+                mFlipper.showNext();
             }
         });
 
@@ -67,13 +72,13 @@ public class CalendarActivity extends MainActivity {
 
     @Override
     public void onResume() {
-    	mCheckSound.load();
+        mCheckSound.load();
         super.onResume();
     }
 
     @Override
     public void onPause() {
-    	mCheckSound.unload();
+        mCheckSound.unload();
         super.onPause();
     }
 
@@ -164,6 +169,8 @@ public class CalendarActivity extends MainActivity {
 
         setVisibilityOfNextButton();
 
+        View layout = getNextPageLayout();
+        mGridLayout = (GridLayout) layout.findViewById(R.id.gridLayout);
         mGridLayout.removeAllViews();
 
         addDayOfWeek();
@@ -307,6 +314,13 @@ public class CalendarActivity extends MainActivity {
         default:
             return Color.BLACK;
         }
+    }
+
+    private View getNextPageLayout() {
+        final int pages[] = {R.id.page1, R.id.page2};
+        View layout = findViewById(pages[mNextPageIndex]);
+        mNextPageIndex = (mNextPageIndex + 1) % 2;
+        return layout;
     }
 
     private void setVisibilityOfNextButton() {
