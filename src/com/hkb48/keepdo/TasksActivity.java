@@ -278,7 +278,7 @@ public class TasksActivity extends MainActivity {
                 recurrenceView.update(task.getRecurrence());
 
                 ImageView imageView = viewHolder.imageView;
-                boolean checked = task.ifChecked();
+                boolean checked = getDoneStatus(task.getTaskID(), new Date());
                 if (checked) {
                     imageView.setImageResource(R.drawable.ic_done);
                 } else {
@@ -290,9 +290,8 @@ public class TasksActivity extends MainActivity {
                         ImageView imageView = (ImageView) v;
                         int position = (Integer) v.getTag();
                         Task task = (Task) getItem(position);
-                        boolean checked = task.ifChecked();
+                        boolean checked = getDoneStatus(task.getTaskID(), new Date());
                         checked = ! checked;
-                        task.setChecked(checked);
                         setDoneStatus(task.getTaskID(), new Date(), checked);
                         if (checked) {
                             imageView.setImageResource(R.drawable.ic_done);

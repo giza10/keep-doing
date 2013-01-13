@@ -71,7 +71,6 @@ public class MainActivity extends Activity {
 
                 Long taskID = Long.parseLong(cursor.getString(0));
                 task.setTaskID(taskID);
-                task.setChecked(isChecked(taskID, new Date()));
 
                 tasks.add(task);
             } while (cursor.moveToNext());
@@ -161,11 +160,7 @@ public class MainActivity extends Activity {
             ContentValues contentValues = new ContentValues();
 
             contentValues.put(TaskCompletions.TASK_NAME_ID, taskID);
-            if (date == null) {
-                contentValues.put(TaskCompletions.TASK_COMPLETION_DATE, dateFormat.format(new Date())); //Insert 'now' as the date
-            } else {
-                contentValues.put(TaskCompletions.TASK_COMPLETION_DATE, dateFormat.format(date));
-            }           
+            contentValues.put(TaskCompletions.TASK_COMPLETION_DATE, dateFormat.format(date));
 
             try {
                 mDatabaseHelper.getWritableDatabase().insertOrThrow(TaskCompletions.TASK_COMPLETION_TABLE_NAME, null, contentValues);
@@ -182,6 +177,39 @@ public class MainActivity extends Activity {
         mDatabaseHelper.close();
     }
 
+    protected boolean getDoneStatus(Long taskID, Date day) {
+        boolean isDone = false;
+        String selectQuery = SELECT_FORM + TaskCompletions.TASK_COMPLETION_TABLE_NAME + SELECT_ARG_FORM + TaskCompletions.TASK_NAME_ID + "=?";
+
+        SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
+        SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD);
+
+        if (cursor.moveToFirst()) {
+            do {
+                if (cursor.getString(2) != null) {
+                    Date date = null;
+                    try {
+                        date = sdf_ymd.parse(cursor.getString(2));
+                    } catch (ParseException e) {
+                        Log.e(TAG_KEEPDO, e.getMessage());
+                    }
+                    if (date != null) {
+                        if (sdf_ymd.format(date).equals(sdf_ymd.format(day))) {
+                            isDone = true;
+                            break;
+                        }
+                    }
+                }
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+
+        return isDone;
+    }
+
     protected Task getTask(Long taskID) {
         Task task = null;
         String selectQuery = SELECT_FORM + TasksToday.TASKS_TABLE_NAME + SELECT_ARG_FORM + TasksToday._ID + "=?";
@@ -189,7 +217,7 @@ public class MainActivity extends Activity {
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         if (cursor != null){
-        	cursor.moveToFirst();
+            cursor.moveToFirst();
             Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(3)),
                     Boolean.valueOf(cursor.getString(4)),Boolean.valueOf(cursor.getString(5)), Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)),Boolean.valueOf(cursor.getString(8)));
             task = new Task(cursor.getString(1),recurrence);
@@ -233,38 +261,5 @@ public class MainActivity extends Activity {
         db.close();
 
         return dateList;
-    }
-
-    private boolean isChecked(Long taskID, Date day) {
-        boolean isChecked = false;
-        String selectQuery = SELECT_FORM + TaskCompletions.TASK_COMPLETION_TABLE_NAME + SELECT_ARG_FORM + TaskCompletions.TASK_NAME_ID + "=?";
-
-        SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
-        SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD);
-
-        if (cursor.moveToFirst()) {
-            do {
-                if (cursor.getString(2) != null) {
-                    Date date = null;
-                    try {
-                        date = sdf_ymd.parse(cursor.getString(2));
-                    } catch (ParseException e) {
-                        Log.e(TAG_KEEPDO, e.getMessage());
-                    }
-                    if (date != null) {
-                        if (sdf_ymd.format(date).equals(sdf_ymd.format(day))) {
-                            isChecked = true;
-                            break;
-                        }
-                    }
-                }
-            } while (cursor.moveToNext());
-        }
-
-        cursor.close();
-        db.close();
-
-        return isChecked;
     }
 }
