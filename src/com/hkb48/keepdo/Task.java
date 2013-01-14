@@ -7,11 +7,12 @@ public class Task implements Serializable {
 	private long identifier;
 	private String name;
     private Recurrence recurrence;
+    private Reminder reminder;
 
     public Task(String name, Recurrence recurrence) {
-    	this.name = name;
-    	this.recurrence = recurrence;
-    	this.identifier = Long.MIN_VALUE;
+        this.identifier = Long.MIN_VALUE;
+        this.name = name;
+        this.recurrence = recurrence;
 	}
 
 	public long getTaskID() {
@@ -26,6 +27,10 @@ public class Task implements Serializable {
         return recurrence;
     }
 
+    public Reminder getReminder() {
+        return reminder;
+    }
+
     protected void setTaskID(long id) {
     	this.identifier = id;
     }
@@ -36,5 +41,9 @@ public class Task implements Serializable {
 
     public void setRecurrence(Recurrence recurrence) {
         this.recurrence = recurrence;
+    }
+
+    public void setReminder(Reminder reminder) {
+        this.reminder = reminder;
     }
 }

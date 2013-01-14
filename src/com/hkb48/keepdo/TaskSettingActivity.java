@@ -1,9 +1,11 @@
 package com.hkb48.keepdo;
 
 import java.util.Arrays;
+import java.util.Calendar;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +15,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.TimePicker;
 
 public class TaskSettingActivity extends Activity {
     private boolean[] recurrenceFlags = {true,true,true,true,true,true,true};
@@ -102,6 +106,24 @@ public class TaskSettingActivity extends Activity {
                 .show();
             }
         });
+
+//        final TextView reminderTime = (TextView) findViewById(R.id.textView3);
+//        final Calendar calendar = Calendar.getInstance();
+//        final int hour = calendar.get(Calendar.HOUR_OF_DAY);
+//        final int minute = calendar.get(Calendar.MINUTE);
+//        final TimePickerDialog timePickerDialog = new TimePickerDialog(
+//            this,
+//            new TimePickerDialog.OnTimeSetListener() {
+//                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+//                    reminderTime.setText(hourOfDay + ":" + minute);
+//                }
+//            }, hour, minute, true);
+//
+//        reminderTime.setOnClickListener(new OnClickListener() {
+//            public void onClick(View v) {
+//                timePickerDialog.show();
+//            }
+//        });
     }
 
     /**
@@ -111,11 +133,14 @@ public class TaskSettingActivity extends Activity {
     public void onSaveClicked(View view) {
         EditText edit = (EditText) findViewById(R.id.editText1);
         Recurrence recurrence = new Recurrence(recurrenceFlags[1], recurrenceFlags[2], recurrenceFlags[3], recurrenceFlags[4], recurrenceFlags[5], recurrenceFlags[6], recurrenceFlags[0]);
+        Reminder reminder = new Reminder(false, 1, 23);
         if (task == null) {
             task = new Task(edit.getText().toString(), recurrence);
+            task.setReminder(reminder);
         } else {
             task.setName(edit.getText().toString());
             task.setRecurrence(recurrence);
+            task.setReminder(reminder);
         }
         Intent data = new Intent();
         data.putExtra("TASK-INFO", task);

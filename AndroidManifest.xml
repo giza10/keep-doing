@@ -31,6 +31,8 @@
         <activity android:name=".CalendarActivity"
             android:screenOrientation="portrait" >
         </activity>
+
+        <receiver android:name=".RemindAlarmReceiver" android:process=":remote" />
     </application>
 
 </manifest>

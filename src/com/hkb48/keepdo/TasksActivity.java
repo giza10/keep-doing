@@ -105,11 +105,13 @@ public class TasksActivity extends MainActivity {
                 task = (Task) data.getSerializableExtra("TASK-INFO");
                 addTask(task.getName(), task.getRecurrence());
                 updateTaskList();
+                updateReminder(task);
                 break;
             case REQUEST_EDIT_TASK:
                 task = (Task) data.getSerializableExtra("TASK-INFO");
                 editTask(task.getTaskID(), task.getName(), task.getRecurrence());
                 updateTaskList();
+                updateReminder(task);
                 break;
             case REQUEST_SHOW_CALENDAR:
                 updateTaskList();
@@ -202,6 +204,16 @@ public class TasksActivity extends MainActivity {
             }
         }
         mAdapter.notifyDataSetChanged();
+    }
+
+    private void updateReminder(Task task) {
+        ReminderManager reminderManager = new ReminderManager(this);
+
+        if (task.getReminder().getEnabled()) {
+            reminderManager.register(task);
+        } else {
+            reminderManager.unregister(task.getTaskID());
+        }
     }
 
     private class TaskAdapter extends BaseAdapter {
