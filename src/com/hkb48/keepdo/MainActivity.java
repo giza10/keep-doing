@@ -65,13 +65,12 @@ public class MainActivity extends Activity {
 
         if (cursor.moveToFirst()) {
             do {
+                String taskName = cursor.getString(1);
                 Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(3)),
                         Boolean.valueOf(cursor.getString(4)),Boolean.valueOf(cursor.getString(5)), Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)),Boolean.valueOf(cursor.getString(8)));
-                Task task = new Task(cursor.getString(1),recurrence);
-
                 Long taskID = Long.parseLong(cursor.getString(0));
+                Task task = new Task(taskName, recurrence);
                 task.setTaskID(taskID);
-
                 tasks.add(task);
             } while (cursor.moveToNext());
         }
@@ -187,10 +186,11 @@ public class MainActivity extends Activity {
 
         if (cursor.moveToFirst()) {
             do {
-                if (cursor.getString(2) != null) {
+                String dateString = cursor.getString(2);
+                if (dateString != null) {
                     Date date = null;
                     try {
-                        date = sdf_ymd.parse(cursor.getString(2));
+                        date = sdf_ymd.parse(dateString);
                     } catch (ParseException e) {
                         Log.e(TAG_KEEPDO, e.getMessage());
                     }
@@ -218,9 +218,10 @@ public class MainActivity extends Activity {
         Cursor cursor = db.rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         if (cursor != null){
             cursor.moveToFirst();
+            String taskName = cursor.getString(1);
             Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(3)),
                     Boolean.valueOf(cursor.getString(4)),Boolean.valueOf(cursor.getString(5)), Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)),Boolean.valueOf(cursor.getString(8)));
-            task = new Task(cursor.getString(1),recurrence);
+            task = new Task(taskName, recurrence);
             task.setTaskID(taskID);
         }
 
@@ -241,10 +242,11 @@ public class MainActivity extends Activity {
 
         if (cursor.moveToFirst()) {
             do {
-                if (cursor.getString(2) != null) {
+                String dateString = cursor.getString(2);
+                if (dateString != null) {
                     Date date = null;
                     try {
-                        date = sdf_ymd.parse(cursor.getString(2));
+                        date = sdf_ymd.parse(dateString);
                     } catch (ParseException e) {
                         Log.e(TAG_KEEPDO, e.getMessage());
                     }

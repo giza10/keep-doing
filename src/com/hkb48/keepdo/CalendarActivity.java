@@ -253,12 +253,21 @@ public class CalendarActivity extends MainActivity {
                 registerForContextMenu(child);
             }
 
-            if ((mPosition == 0) && (day == today)) {
-                child.setBackgroundResource(R.drawable.bg_calendar_day_today);
-            }
             week = calendar.get(Calendar.DAY_OF_WEEK);
-            int fontColorOfWeek = getFontColorOfWeek(week);
+            boolean isValidDay = mTask.getRecurrence().isValidDay(week);
+            if (isValidDay) {
+                if ((mPosition == 0) && (day == today)) {
+                    child.setBackgroundResource(R.drawable.bg_calendar_day_today);
+                }
+            } else {
+                if ((mPosition == 0) && (day == today)) {
+                    child.setBackgroundResource(R.drawable.bg_calendar_day_today_off);
+                } else {
+                    child.setBackgroundResource(R.drawable.bg_calendar_day_off);
+                }
+            }
 
+            int fontColorOfWeek = getFontColorOfWeek(week);
             textView1.setText(Integer.toString(day));
             textView1.setTextColor(fontColorOfWeek);
 
@@ -268,10 +277,6 @@ public class CalendarActivity extends MainActivity {
                     imageView1.setVisibility(View.VISIBLE);
                     break;
                 }
-            }
-
-            if (! mTask.getRecurrence().isValidDay(week)) {
-                child.setBackgroundResource(R.drawable.bg_calendar_day_off);
             }
 
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
