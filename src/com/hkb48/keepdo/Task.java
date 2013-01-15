@@ -13,6 +13,7 @@ public class Task implements Serializable {
         this.identifier = Long.MIN_VALUE;
         this.name = name;
         this.recurrence = recurrence;
+        this.reminder = new Reminder();
 	}
 
 	public long getTaskID() {

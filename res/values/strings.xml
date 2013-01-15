@@ -13,6 +13,7 @@
     <string name="recurrence_separator">, </string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="reminder">Reminder</string>
     <string name="task_save">Save</string>
     <string name="task_cancel">Cancel</string>
     <string name="delete_confirmation">Are you sure you want to delete this task ?</string>

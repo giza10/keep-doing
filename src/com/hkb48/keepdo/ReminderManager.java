@@ -22,7 +22,7 @@ public class ReminderManager {
     public void register(Task task) {
         mTaskMap.put(task.getTaskID(), task);
         Reminder reminder = task.getReminder();
-        startAlarm(reminder.getHour(), reminder.getMinute());
+        startAlarm(reminder.getHourOfDay(), reminder.getMinute());
     }
 
     public void unregister(long taskId) {
@@ -30,10 +30,10 @@ public class ReminderManager {
         stopAlarm();
     }
 
-    private void startAlarm(int hour, int minute) {
+    private void startAlarm(int hourOfDay, int minute) {
         Calendar time = Calendar.getInstance();
         time.setTimeInMillis(System.currentTimeMillis());
-        time.set(Calendar.HOUR_OF_DAY, hour);
+        time.set(Calendar.HOUR_OF_DAY, hourOfDay);
         time.set(Calendar.MINUTE, minute);
         time.set(Calendar.SECOND, 0);
         time.set(Calendar.MILLISECOND, 0);

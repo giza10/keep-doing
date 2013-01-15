@@ -71,6 +71,8 @@ public class MainActivity extends Activity {
                 Long taskID = Long.parseLong(cursor.getString(0));
                 Task task = new Task(taskName, recurrence);
                 task.setTaskID(taskID);
+                // TODO : Reminder setting should be taken from database
+                task.setReminder(new Reminder());
                 tasks.add(task);
             } while (cursor.moveToNext());
         }
@@ -222,6 +224,8 @@ public class MainActivity extends Activity {
             Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(3)),
                     Boolean.valueOf(cursor.getString(4)),Boolean.valueOf(cursor.getString(5)), Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)),Boolean.valueOf(cursor.getString(8)));
             task = new Task(taskName, recurrence);
+            // TODO : Reminder setting should be taken from database
+            task.setReminder(new Reminder());
             task.setTaskID(taskID);
         }
 

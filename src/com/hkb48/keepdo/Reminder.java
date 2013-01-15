@@ -4,13 +4,19 @@ import java.io.Serializable;
 
 @SuppressWarnings("serial")
 public class Reminder implements Serializable {
-    boolean enabled;
-    int hour;
-    int minute;
+    private boolean enabled;
+    private int hourOfDay;
+    private int minute;
 
-    public Reminder(boolean enabled, int hour, int minute) {
+    public Reminder() {
+        this.enabled = false;
+        this.hourOfDay = 0;
+        this.minute = 0;
+    }
+
+    public Reminder(boolean enabled, int hourOfDay, int minute) {
         this.enabled = enabled;
-        this.hour = hour;
+        this.hourOfDay = hourOfDay;
         this.minute = minute;
     }
 
@@ -18,8 +24,8 @@ public class Reminder implements Serializable {
         return enabled;
     }
 
-    int getHour() {
-        return hour;
+    int getHourOfDay() {
+        return hourOfDay;
     }
 
     int getMinute() {
@@ -30,8 +36,8 @@ public class Reminder implements Serializable {
         this.enabled = enabled;
     }
 
-    void setHour(int hour) {
-        this.hour = hour;
+    void setHourOfDay(int hourOfDay) {
+        this.hourOfDay = hourOfDay;
     }
 
     void setMinute(int minute) {
