@@ -1,7 +1,6 @@
 package com.hkb48.keepdo;
 
 import java.util.Arrays;
-import java.util.Calendar;
 
 import android.app.Activity;
 import android.app.AlertDialog;

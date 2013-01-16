@@ -20,17 +20,18 @@ public class ReminderManager {
     }
 
     public void register(Task task) {
-        mTaskMap.put(task.getTaskID(), task);
+        long taskId = task.getTaskID();
+        mTaskMap.put(taskId, task);
         Reminder reminder = task.getReminder();
-        startAlarm(reminder.getHourOfDay(), reminder.getMinute());
+        startAlarm(taskId, reminder.getHourOfDay(), reminder.getMinute());
     }
 
     public void unregister(long taskId) {
+        stopAlarm(taskId);
         mTaskMap.remove(taskId);
-        stopAlarm();
     }
 
-    private void startAlarm(int hourOfDay, int minute) {
+    private void startAlarm(long taskId, int hourOfDay, int minute) {
         Calendar time = Calendar.getInstance();
         time.setTimeInMillis(System.currentTimeMillis());
         time.set(Calendar.HOUR_OF_DAY, hourOfDay);
@@ -40,15 +41,17 @@ public class ReminderManager {
 
         mAlarmManager.set(AlarmManager.RTC_WAKEUP,
                 time.getTimeInMillis(),
-                getPendingIntent());
+                getPendingIntent(taskId));
     }
 
-    private void stopAlarm() {
-        mAlarmManager.cancel(getPendingIntent());
+    private void stopAlarm(long taskId) {
+        mAlarmManager.cancel(getPendingIntent(taskId));
     }
 
-    private PendingIntent getPendingIntent() {
+    private PendingIntent getPendingIntent(long taskId) {
+        Task task = mTaskMap.get(taskId);
         Intent intent = new Intent(mContext, RemindAlarmReceiver.class);
+        intent.putExtra("TASK-INFO", task);
         PendingIntent pendingIntent = 
                 PendingIntent.getBroadcast(mContext, 0, intent, 0);
         return pendingIntent;
