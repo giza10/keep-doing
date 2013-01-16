@@ -24,6 +24,8 @@ public class RemindAlarmReceiver extends BroadcastReceiver {
 
         builder.setSmallIcon(R.drawable.ic_launcher);
         builder.setTicker(taskName);
+        builder.setContentTitle("¡“ú‚â‚éƒ^ƒXƒN‚ª‚ ‚è‚Ü‚·ƒˆ");
+        builder.setContentText(taskName);
         builder.setDefaults(Notification.DEFAULT_LIGHTS);
         Intent newIntent = new Intent(context, TasksActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, newIntent, 0);

@@ -54,13 +54,13 @@ public class Recurrence implements Serializable {
 
     public boolean isValidDay(int week) {
         switch(week) {
+        case Calendar.SUNDAY: return sunday;
         case Calendar.MONDAY: return monday;
         case Calendar.TUESDAY: return tuesday;
         case Calendar.WEDNESDAY: return wednesday;
         case Calendar.THURSDAY: return thursday;
         case Calendar.FRIDAY: return friday;
         case Calendar.SATURDAY: return saturday;
-        case Calendar.SUNDAY: return sunday;
         default: return false;
         }
     }
