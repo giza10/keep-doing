@@ -40,14 +40,11 @@ public class TasksActivity extends MainActivity {
     private TaskAdapter mAdapter;
     private List<Task> mDataList = new ArrayList<Task>();
     private CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
-    private ReminderManager mReminderManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        mReminderManager = new ReminderManager(this);
 
         ListView listView1 = (ListView)findViewById(R.id.listView1);
         mAdapter = new TaskAdapter();
@@ -103,18 +100,20 @@ public class TasksActivity extends MainActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             Task task;
+            long taskId;
             switch(requestCode) {
             case REQUEST_ADD_TASK:
                 task = (Task) data.getSerializableExtra("TASK-INFO");
-                addTask(task.getName(), task.getRecurrence());
+                taskId = addTask(task.getName(), task.getRecurrence(), task.getReminder());
                 updateTaskList();
-                updateReminder(task);
+                updateReminder(taskId);
                 break;
             case REQUEST_EDIT_TASK:
                 task = (Task) data.getSerializableExtra("TASK-INFO");
-                editTask(task.getTaskID(), task.getName(), task.getRecurrence());
+                taskId = task.getTaskID();
+                editTask(taskId, task.getName(), task.getRecurrence(), task.getReminder());
                 updateTaskList();
-                updateReminder(task);
+                updateReminder(taskId);
                 break;
             case REQUEST_SHOW_CALENDAR:
                 updateTaskList();
@@ -137,7 +136,8 @@ public class TasksActivity extends MainActivity {
 
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
-        final Task task = (Task) mAdapter.getItem(info.position);
+        Task task = (Task) mAdapter.getItem(info.position);
+        final long taskId = task.getTaskID();
         switch (item.getItemId()) {
         case CONTEXT_MENU_EDIT:
             Intent intent = new Intent(TasksActivity.this, TaskSettingActivity.class);
@@ -149,9 +149,9 @@ public class TasksActivity extends MainActivity {
             .setMessage(R.string.delete_confirmation)
             .setPositiveButton(R.string.dialog_ok ,new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                    deleteTask(task.getTaskID());
+                    deleteTask(taskId);
                     updateTaskList();
-                    updateReminder(task);
+                    updateReminder(taskId);
                 }
             })
             .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
@@ -209,12 +209,14 @@ public class TasksActivity extends MainActivity {
         mAdapter.notifyDataSetChanged();
     }
 
-    private void updateReminder(Task task) {
+    private void updateReminder(long taskId) {
+        ReminderManager reminderManager = ReminderManager.getInstance();
+        Task task = getTask(taskId);
         if (task.getReminder().getEnabled()) {
-            boolean isDone = getDoneStatus(task.getTaskID(), new Date());
-            mReminderManager.register(task, isDone);
+            boolean isDoneToday = getDoneStatus(task.getTaskID(), new Date());
+            reminderManager.register(this, task, isDoneToday);
         } else {
-            mReminderManager.unregister(task.getTaskID());
+            reminderManager.unregister(this, task.getTaskID());
         }
     }
 
@@ -304,10 +306,11 @@ public class TasksActivity extends MainActivity {
                         ImageView imageView = (ImageView) v;
                         int position = (Integer) v.getTag();
                         Task task = (Task) getItem(position);
-                        boolean checked = getDoneStatus(task.getTaskID(), new Date());
+                        long taskId = task.getTaskID();
+                        boolean checked = getDoneStatus(taskId, new Date());
                         checked = ! checked;
-                        setDoneStatus(task.getTaskID(), new Date(), checked);
-                        updateReminder(task);
+                        setDoneStatus(taskId, new Date(), checked);
+                        updateReminder(taskId);
                         if (checked) {
                             imageView.setImageResource(R.drawable.ic_done);
                             mCheckSound.play();

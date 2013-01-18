@@ -20,6 +20,10 @@ public final class Database {
         public static final String FREQUENCY_FRI = "fri_frequency";
         public static final String FREQUENCY_SAT = "sat_frequency";
         public static final String FREQUENCY_SUN = "sun_frequency";
+        // TODO : Temporary added for reminder test (by kuramitsu)
+        public static final String REMINDER_ENABLED = "reminder_enabled";
+        public static final String REMINDER_TIME_HOUR = "reminder_time_hour";
+        public static final String REMINDER_TIME_MINUTE = "reminder_time_minute";
         
         public static final String DEFAULT_SORT_ORDER = "task_name ASC";
     }

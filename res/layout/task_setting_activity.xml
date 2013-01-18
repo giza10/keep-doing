@@ -71,24 +71,49 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/checkBoxReminder"
-                android:text="@string/reminder"
+            <TextView
+                android:id="@+id/textViewReminderTitle"
+                android:text="@string/reminder_setting"
                 android:textAppearance="@android:style/TextAppearance.Large"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dip"
                 android:layout_marginLeft="16dip"
                 android:layout_marginRight="16dip" >
-            </CheckBox>
-            <TextView
-                android:id="@+id/textViewReminder"
+            </TextView>
+            <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
+            <CheckBox
+                android:id="@+id/checkBoxReminder"
+                android:text="@string/reminder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="26dip"
+                android:layout_marginRight="26dip"
+                android:layout_marginBottom="10dip" >
+            </CheckBox>
+            <TextView
+                android:id="@+id/textViewReminderTime1"
+                android:text="@string/reminder_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="26dip"
+                android:layout_marginRight="26dip"
+                android:layout_marginBottom="10dip" >
+            </TextView>
+            <TextView
+                android:id="@+id/textViewReminderTime2"
+                android:text="@string/reminder_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="26dip"
+                android:layout_marginRight="26dip"
+                android:layout_marginBottom="10dip" >
             </TextView>
         </LinearLayout>
-
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout

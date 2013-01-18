@@ -12,7 +12,9 @@
     <string name="recurrence_separator"></string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">キャンセル</string>
-    <string name="reminder">通知機能</string>
+    <string name="reminder_setting">通知機能</string>
+    <string name="reminder">通知</string>
+    <string name="reminder_time">時刻</string>
     <string name="task_save">保存</string>
     <string name="task_cancel">キャンセル</string>
     <string name="delete_confirmation">このタスクを削除してもよろしいですか？</string>

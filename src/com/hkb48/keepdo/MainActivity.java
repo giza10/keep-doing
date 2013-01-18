@@ -68,11 +68,11 @@ public class MainActivity extends Activity {
                 String taskName = cursor.getString(1);
                 Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(3)),
                         Boolean.valueOf(cursor.getString(4)),Boolean.valueOf(cursor.getString(5)), Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)),Boolean.valueOf(cursor.getString(8)));
+                Reminder reminder = new Reminder(Boolean.valueOf(cursor.getString(9)), Integer.valueOf(cursor.getString(10)), Integer.valueOf(cursor.getString(11)));
                 Long taskID = Long.parseLong(cursor.getString(0));
                 Task task = new Task(taskName, recurrence);
                 task.setTaskID(taskID);
-                // TODO : Reminder setting should be taken from database
-                task.setReminder(new Reminder());
+                task.setReminder(reminder);
                 tasks.add(task);
             } while (cursor.moveToNext());
         }
@@ -83,36 +83,39 @@ public class MainActivity extends Activity {
         return tasks;
     }
 
-	protected long addTask(String taskName, Recurrence recurrence) {
-		long rowID = -0xFF;
+    protected long addTask(String taskName, Recurrence recurrence, Reminder reminder) {
+        long rowID = -0xFF;
 
-		if ((taskName ==null) || (taskName.isEmpty()) || (recurrence == null)) {
-			return rowID;
-		}
+        if ((taskName ==null) || (taskName.isEmpty()) || (recurrence == null) || (reminder == null)) {
+            return rowID;
+        }
 
-		try {
-			ContentValues contentValues = new ContentValues();
-			contentValues.put(TasksToday.TASK_NAME, taskName);
-			contentValues.put(TasksToday.FREQUENCY_MON, String.valueOf(recurrence.getMonday()));
-			contentValues.put(TasksToday.FREQUENCY_TUE, String.valueOf(recurrence.getTuesday()));
-			contentValues.put(TasksToday.FREQUENCY_WEN, String.valueOf(recurrence.getWednesday()));
-			contentValues.put(TasksToday.FREQUENCY_THR, String.valueOf(recurrence.getThurday()));
-			contentValues.put(TasksToday.FREQUENCY_FRI, String.valueOf(recurrence.getFriday()));
-			contentValues.put(TasksToday.FREQUENCY_SAT, String.valueOf(recurrence.getSaturday()));
-			contentValues.put(TasksToday.FREQUENCY_SUN, String.valueOf(recurrence.getSunday()));
-			
-			rowID = mDatabaseHelper.getWritableDatabase().insertOrThrow(TasksToday.TASKS_TABLE_NAME, null, contentValues);
+        try {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(TasksToday.TASK_NAME, taskName);
+            contentValues.put(TasksToday.FREQUENCY_MON, String.valueOf(recurrence.getMonday()));
+            contentValues.put(TasksToday.FREQUENCY_TUE, String.valueOf(recurrence.getTuesday()));
+            contentValues.put(TasksToday.FREQUENCY_WEN, String.valueOf(recurrence.getWednesday()));
+            contentValues.put(TasksToday.FREQUENCY_THR, String.valueOf(recurrence.getThurday()));
+            contentValues.put(TasksToday.FREQUENCY_FRI, String.valueOf(recurrence.getFriday()));
+            contentValues.put(TasksToday.FREQUENCY_SAT, String.valueOf(recurrence.getSaturday()));
+            contentValues.put(TasksToday.FREQUENCY_SUN, String.valueOf(recurrence.getSunday()));
+            contentValues.put(TasksToday.REMINDER_ENABLED, String.valueOf(reminder.getEnabled()));
+            contentValues.put(TasksToday.REMINDER_TIME_HOUR, String.valueOf(reminder.getHourOfDay()));
+            contentValues.put(TasksToday.REMINDER_TIME_MINUTE, String.valueOf(reminder.getMinute()));
 
-		} catch (SQLiteException e) {
-			Log.e(TAG_KEEPDO, e.getMessage());
+            rowID = mDatabaseHelper.getWritableDatabase().insertOrThrow(TasksToday.TASKS_TABLE_NAME, null, contentValues);
+
+        } catch (SQLiteException e) {
+            Log.e(TAG_KEEPDO, e.getMessage());
         }
         mDatabaseHelper.close();
 
         return rowID;
-	}
+    }
 
-    protected void editTask(Long taskID, String taskName, Recurrence recurrence) {
-        if ((taskName ==null) || (taskName.isEmpty()) || (recurrence == null)) {
+    protected void editTask(Long taskID, String taskName, Recurrence recurrence, Reminder reminder) {
+        if ((taskName ==null) || (taskName.isEmpty()) || (recurrence == null) || (reminder == null)) {
             return;
         }
 
@@ -125,6 +128,9 @@ public class MainActivity extends Activity {
         contentValues.put(TasksToday.FREQUENCY_FRI, String.valueOf(recurrence.getFriday()));
         contentValues.put(TasksToday.FREQUENCY_SAT, String.valueOf(recurrence.getSaturday()));
         contentValues.put(TasksToday.FREQUENCY_SUN, String.valueOf(recurrence.getSunday()));
+        contentValues.put(TasksToday.REMINDER_ENABLED, String.valueOf(reminder.getEnabled()));
+        contentValues.put(TasksToday.REMINDER_TIME_HOUR, String.valueOf(reminder.getHourOfDay()));
+        contentValues.put(TasksToday.REMINDER_TIME_MINUTE, String.valueOf(reminder.getMinute()));
         String whereClause = TasksToday._ID + "=?";
         String whereArgs[] = {taskID.toString()};
 
@@ -223,9 +229,9 @@ public class MainActivity extends Activity {
             String taskName = cursor.getString(1);
             Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(3)),
                     Boolean.valueOf(cursor.getString(4)),Boolean.valueOf(cursor.getString(5)), Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)),Boolean.valueOf(cursor.getString(8)));
+            Reminder reminder = new Reminder(Boolean.valueOf(cursor.getString(9)), Integer.valueOf(cursor.getString(10)), Integer.valueOf(cursor.getString(11)));
             task = new Task(taskName, recurrence);
-            // TODO : Reminder setting should be taken from database
-            task.setReminder(new Reminder());
+            task.setReminder(reminder);
             task.setTaskID(taskID);
         }
 

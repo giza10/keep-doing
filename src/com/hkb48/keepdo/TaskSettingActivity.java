@@ -120,7 +120,7 @@ public class TaskSettingActivity extends Activity {
             }
         });
 
-        final TextView reminderTime = (TextView) findViewById(R.id.textViewReminder);
+        final TextView reminderTime = (TextView) findViewById(R.id.textViewReminderTime2);
         final int hourOfDay = reminder.getHourOfDay();
         final int minute = reminder.getMinute();
         reminderTime.setText(hourOfDay + ":" + minute);

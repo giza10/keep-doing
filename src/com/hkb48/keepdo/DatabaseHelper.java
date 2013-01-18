@@ -19,7 +19,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_PATH = "/data/data/com.hkb48.keepdo/databases/";
     private static final String DB_NAME = "keepdo_tracker.db";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
     private static final String STRING_CREATE_TASK = "CREATE TABLE " + TasksToday.TASKS_TABLE_NAME + " ("
                                                      + TasksToday._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                                                      + TasksToday.TASK_NAME + " TEXT, "
@@ -29,7 +29,10 @@ class DatabaseHelper extends SQLiteOpenHelper {
                                                      + TasksToday.FREQUENCY_THR + " TEXT, "
                                                      + TasksToday.FREQUENCY_FRI + " TEXT, "
                                                      + TasksToday.FREQUENCY_SAT + " TEXT, "
-                                                     + TasksToday.FREQUENCY_SUN + " TEXT" + ");";
+                                                     + TasksToday.FREQUENCY_SUN + " TEXT,"
+                                                     + TasksToday.REMINDER_ENABLED + " TEXT,"
+                                                     + TasksToday.REMINDER_TIME_HOUR + " TEXT,"
+                                                     + TasksToday.REMINDER_TIME_MINUTE + " TEXT" + ");";
 
     private static final String STRING_CREATE_COMPLETION = "CREATE TABLE " + TaskCompletions.TASK_COMPLETION_TABLE_NAME + " ("
                                                      + TaskCompletions._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
