@@ -7,49 +7,44 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.os.Bundle;
 import android.util.Log;
 
 import com.hkb48.keepdo.Database.TaskCompletions;
 import com.hkb48.keepdo.Database.TasksToday;
 
-public class MainActivity extends Activity {
+public class DBAdapter {
     private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";
     private static final String SDF_PATTERN_YMD = "yyyy-MM-dd"; 
     private static final String SDF_PATTERN_YM = "yyyy-MM";
     private static final String SELECT_FORM = "select * from ";
     private static final String SELECT_ARG_FORM = " where ";
 
-	// Our application database
-	protected DatabaseHelper mDatabaseHelper = null;
+    // Our application database
+    private DatabaseHelper mDatabaseHelper;
+    private SQLiteDatabase mDatabase;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public DBAdapter(Context context) {
+        mDatabaseHelper = new DatabaseHelper(context.getApplicationContext());
         setDatabase();
     }
 
-    
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		if(mDatabaseHelper != null)
-		{
-			mDatabaseHelper.close();
-		}
-	}
+    public void open() {
+        mDatabase = mDatabaseHelper.getWritableDatabase();
+    }
+
+    public void close() {
+        mDatabaseHelper.close();
+    }
 
     private void setDatabase() {
-		mDatabaseHelper = new DatabaseHelper(this.getApplicationContext());
         try {
             mDatabaseHelper.createDataBase();
-            mDatabaseHelper.openDataBase();
         } catch (IOException ioe) {
             throw new Error("Unable to create database");
         } catch(SQLException sqle){
@@ -60,8 +55,7 @@ public class MainActivity extends Activity {
     protected List<Task> getTaskList() {
         List<Task> tasks = new ArrayList<Task>();
         String selectQuery = SELECT_FORM + TasksToday.TASKS_TABLE_NAME;
-        SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
+        Cursor cursor = mDatabase.rawQuery(selectQuery, null);
 
         if (cursor.moveToFirst()) {
             do {
@@ -78,8 +72,6 @@ public class MainActivity extends Activity {
         }
 
         cursor.close();
-        db.close();
-
         return tasks;
     }
 
@@ -104,12 +96,11 @@ public class MainActivity extends Activity {
             contentValues.put(TasksToday.REMINDER_TIME_HOUR, String.valueOf(reminder.getHourOfDay()));
             contentValues.put(TasksToday.REMINDER_TIME_MINUTE, String.valueOf(reminder.getMinute()));
 
-            rowID = mDatabaseHelper.getWritableDatabase().insertOrThrow(TasksToday.TASKS_TABLE_NAME, null, contentValues);
+            rowID = mDatabase.insertOrThrow(TasksToday.TASKS_TABLE_NAME, null, contentValues);
 
         } catch (SQLiteException e) {
             Log.e(TAG_KEEPDO, e.getMessage());
         }
-        mDatabaseHelper.close();
 
         return rowID;
     }
@@ -135,24 +126,21 @@ public class MainActivity extends Activity {
         String whereArgs[] = {taskID.toString()};
 
         try {
-            mDatabaseHelper.getWritableDatabase().update(TasksToday.TASKS_TABLE_NAME, contentValues, whereClause, whereArgs);
+            mDatabase.update(TasksToday.TASKS_TABLE_NAME, contentValues, whereClause, whereArgs);
         } catch (SQLiteException e) {
             Log.e(TAG_KEEPDO, e.getMessage());
         }
-        mDatabaseHelper.close();
     }
 
     protected void deleteTask(Long taskID) {
         // Delete task from TASKS_TABLE_NAME
     	String whereClause = TasksToday._ID + "=?";
         String whereArgs[] = {taskID.toString()};
-        mDatabaseHelper.getWritableDatabase().delete(TasksToday.TASKS_TABLE_NAME, whereClause, whereArgs);
+        mDatabase.delete(TasksToday.TASKS_TABLE_NAME, whereClause, whereArgs);
 
         // Delete records of deleted task from TASK_COMPLETION_TABLE_NAME
         whereClause = TaskCompletions.TASK_NAME_ID + "=?";
-        mDatabaseHelper.getWritableDatabase().delete(TaskCompletions.TASK_COMPLETION_TABLE_NAME, whereClause, whereArgs);
-
-        mDatabaseHelper.close();
+        mDatabase.delete(TaskCompletions.TASK_COMPLETION_TABLE_NAME, whereClause, whereArgs);
     }
 
     //TODO: ROID v.s _ID to be validated.
@@ -170,7 +158,7 @@ public class MainActivity extends Activity {
             contentValues.put(TaskCompletions.TASK_COMPLETION_DATE, dateFormat.format(date));
 
             try {
-                mDatabaseHelper.getWritableDatabase().insertOrThrow(TaskCompletions.TASK_COMPLETION_TABLE_NAME, null, contentValues);
+                mDatabase.insertOrThrow(TaskCompletions.TASK_COMPLETION_TABLE_NAME, null, contentValues);
             } catch (SQLiteException e) {
                 Log.e(TAG_KEEPDO, e.getMessage());
             }
@@ -178,18 +166,14 @@ public class MainActivity extends Activity {
         } else {
             String whereClause = TaskCompletions.TASK_NAME_ID + "=? and " + TaskCompletions.TASK_COMPLETION_DATE + "=?";
             String whereArgs[] = {taskID.toString(), dateFormat.format(date)};
-            mDatabaseHelper.getWritableDatabase().delete(TaskCompletions.TASK_COMPLETION_TABLE_NAME, whereClause, whereArgs);
+            mDatabase.delete(TaskCompletions.TASK_COMPLETION_TABLE_NAME, whereClause, whereArgs);
         }
-
-        mDatabaseHelper.close();
     }
 
     protected boolean getDoneStatus(Long taskID, Date day) {
         boolean isDone = false;
         String selectQuery = SELECT_FORM + TaskCompletions.TASK_COMPLETION_TABLE_NAME + SELECT_ARG_FORM + TaskCompletions.TASK_NAME_ID + "=?";
-
-        SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
+        Cursor cursor = mDatabase.rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD);
 
         if (cursor.moveToFirst()) {
@@ -213,8 +197,6 @@ public class MainActivity extends Activity {
         }
 
         cursor.close();
-        db.close();
-
         return isDone;
     }
 
@@ -222,8 +204,7 @@ public class MainActivity extends Activity {
         Task task = null;
         String selectQuery = SELECT_FORM + TasksToday.TASKS_TABLE_NAME + SELECT_ARG_FORM + TasksToday._ID + "=?";
 
-        SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
+        Cursor cursor = mDatabase.rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         if (cursor != null){
             cursor.moveToFirst();
             String taskName = cursor.getString(1);
@@ -236,17 +217,13 @@ public class MainActivity extends Activity {
         }
 
         cursor.close();
-        db.close();
-
         return task;
     }
 
     protected ArrayList<Date> getHistory(Long taskID, Date month) {
         ArrayList<Date> dateList = new ArrayList<Date>();
-        String selectQuery = SELECT_FORM + TaskCompletions.TASK_COMPLETION_TABLE_NAME + SELECT_ARG_FORM + TaskCompletions.TASK_NAME_ID + "=?";
-
-        SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
+        String selectQuery = SELECT_FORM + TaskCompletions.TASK_COMPLETION_TABLE_NAME + SELECT_ARG_FORM + TaskCompletions.TASK_NAME_ID + "=?";;
+        Cursor cursor = mDatabase.rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD);
         SimpleDateFormat sdf_ym = new SimpleDateFormat(SDF_PATTERN_YM);
 
@@ -270,8 +247,6 @@ public class MainActivity extends Activity {
         }
 
         cursor.close();
-        db.close();
-
         return dateList;
     }
 }

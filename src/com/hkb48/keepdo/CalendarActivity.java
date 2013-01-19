@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -20,7 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
-public class CalendarActivity extends MainActivity {
+public class CalendarActivity extends Activity {
     // ID of context menu items
     private final static int CONTEXT_MENU_CHECK_DONE = 0;
     private final static int CONTEXT_MENU_UNCHECK_DONE = 1;
@@ -32,15 +33,19 @@ public class CalendarActivity extends MainActivity {
     private Task mTask;
     private View mPressedView;
     private CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
+    private DBAdapter mDBAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.calendar_activity);
 
+        mDBAdapter = new DBAdapter(this);
+        mDBAdapter.open();
+
         Intent intent = getIntent();
         long taskId = intent.getLongExtra("TASK-ID", -1);
-        mTask = getTask(taskId);
+        mTask = mDBAdapter.getTask(taskId);
 
         setActionBar();
 
@@ -83,6 +88,12 @@ public class CalendarActivity extends MainActivity {
     }
 
     @Override
+    public void onDestroy() {
+        mDBAdapter.close();
+        super.onDestroy();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
         case android.R.id.home:
@@ -118,13 +129,13 @@ public class CalendarActivity extends MainActivity {
         switch (item.getItemId()) {
         case CONTEXT_MENU_CHECK_DONE:
             imageView.setVisibility(View.VISIBLE);
-            setDoneStatus(mTask.getTaskID(), selectedDate, true);
+            mDBAdapter.setDoneStatus(mTask.getTaskID(), selectedDate, true);
             mCheckSound.play();
             isDone = true;
             break;
         case CONTEXT_MENU_UNCHECK_DONE:
             imageView.setVisibility(View.INVISIBLE);
-            setDoneStatus(mTask.getTaskID(), selectedDate, false);
+            mDBAdapter.setDoneStatus(mTask.getTaskID(), selectedDate, false);
             break;
         default:
             break;
@@ -241,7 +252,7 @@ public class CalendarActivity extends MainActivity {
         int month = calendar.get(Calendar.MONTH) + 1;
         int today = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
 
-        ArrayList<Date> doneDateList = getHistory(mTask.getTaskID(), calendar.getTime());
+        ArrayList<Date> doneDateList = mDBAdapter.getHistory(mTask.getTaskID(), calendar.getTime());
         SimpleDateFormat sdf_d = new SimpleDateFormat("dd");
         SimpleDateFormat sdf_ymd = new SimpleDateFormat("yyyy/MM/dd");
 

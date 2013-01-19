@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import android.content.Context;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -40,7 +39,6 @@ class DatabaseHelper extends SQLiteOpenHelper {
                                                      + TaskCompletions.TASK_COMPLETION_DATE + " DATE" + ");";
 
     private final Context mContext;
-    private SQLiteDatabase mDataBase;
 
     DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -130,19 +128,5 @@ class DatabaseHelper extends SQLiteOpenHelper {
         outputStream.flush();
         outputStream.close();
         inputStream.close();
-    }
-
-    public void openDataBase() throws SQLException {
-        //Open the database
-        String dbPath = DB_PATH + DB_NAME;
-        mDataBase = SQLiteDatabase.openDatabase(dbPath, null, SQLiteDatabase.OPEN_READONLY);
-    }
-
-    @Override
-    public synchronized void close() {
-        if(mDataBase != null) {
-            mDataBase.close();
-        }
-        super.close();
     }
 }

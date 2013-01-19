@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -25,7 +26,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class TasksActivity extends MainActivity {
+public class TasksActivity extends Activity {
     // Request code when launching sub-activity
     private final static int REQUEST_ADD_TASK = 0;
     private final static int REQUEST_EDIT_TASK = 1;
@@ -40,12 +41,15 @@ public class TasksActivity extends MainActivity {
     private TaskAdapter mAdapter;
     private List<Task> mDataList = new ArrayList<Task>();
     private CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
+    private DBAdapter mDBAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mDBAdapter = new DBAdapter(this);
+        mDBAdapter.open();
         ListView listView1 = (ListView)findViewById(R.id.listView1);
         mAdapter = new TaskAdapter();
         listView1.setAdapter(mAdapter);
@@ -79,6 +83,12 @@ public class TasksActivity extends MainActivity {
     }
 
     @Override
+    public void onDestroy() {
+        mDBAdapter.close();
+        super.onDestroy();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
@@ -104,14 +114,14 @@ public class TasksActivity extends MainActivity {
             switch(requestCode) {
             case REQUEST_ADD_TASK:
                 task = (Task) data.getSerializableExtra("TASK-INFO");
-                taskId = addTask(task.getName(), task.getRecurrence(), task.getReminder());
+                taskId = mDBAdapter.addTask(task.getName(), task.getRecurrence(), task.getReminder());
                 updateTaskList();
                 updateReminder(taskId);
                 break;
             case REQUEST_EDIT_TASK:
                 task = (Task) data.getSerializableExtra("TASK-INFO");
                 taskId = task.getTaskID();
-                editTask(taskId, task.getName(), task.getRecurrence(), task.getReminder());
+                mDBAdapter.editTask(taskId, task.getName(), task.getRecurrence(), task.getReminder());
                 updateTaskList();
                 updateReminder(taskId);
                 break;
@@ -148,8 +158,8 @@ public class TasksActivity extends MainActivity {
             new AlertDialog.Builder(this)
             .setMessage(R.string.delete_confirmation)
             .setPositiveButton(R.string.dialog_ok ,new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                    deleteTask(taskId);
+                public void onClick(DialogInterface dialog, int which) {
+                    mDBAdapter.deleteTask(taskId);
                     updateTaskList();
                     updateReminder(taskId);
                 }
@@ -172,7 +182,7 @@ public class TasksActivity extends MainActivity {
      * Update the task list view with latest DB information.
      */
     private void updateTaskList() {
-        List<Task> taskList = getTaskList();
+        List<Task> taskList = mDBAdapter.getTaskList();
         List<Task> taskListToday =  new ArrayList<Task>();
         List<Task> taskListNotToday = new ArrayList<Task>();
         int dayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
@@ -211,9 +221,9 @@ public class TasksActivity extends MainActivity {
 
     private void updateReminder(long taskId) {
         ReminderManager reminderManager = ReminderManager.getInstance();
-        Task task = getTask(taskId);
+        Task task = mDBAdapter.getTask(taskId);
         if (task.getReminder().getEnabled()) {
-            boolean isDoneToday = getDoneStatus(task.getTaskID(), new Date());
+            boolean isDoneToday = mDBAdapter.getDoneStatus(task.getTaskID(), new Date());
             reminderManager.register(this, task, isDoneToday);
         } else {
             reminderManager.unregister(this, task.getTaskID());
@@ -294,7 +304,7 @@ public class TasksActivity extends MainActivity {
                 recurrenceView.update(task.getRecurrence());
 
                 ImageView imageView = viewHolder.imageView;
-                boolean checked = getDoneStatus(task.getTaskID(), new Date());
+                boolean checked = mDBAdapter.getDoneStatus(task.getTaskID(), new Date());
                 if (checked) {
                     imageView.setImageResource(R.drawable.ic_done);
                 } else {
@@ -307,9 +317,9 @@ public class TasksActivity extends MainActivity {
                         int position = (Integer) v.getTag();
                         Task task = (Task) getItem(position);
                         long taskId = task.getTaskID();
-                        boolean checked = getDoneStatus(taskId, new Date());
+                        boolean checked = mDBAdapter.getDoneStatus(taskId, new Date());
                         checked = ! checked;
-                        setDoneStatus(taskId, new Date(), checked);
+                        mDBAdapter.setDoneStatus(taskId, new Date(), checked);
                         updateReminder(taskId);
                         if (checked) {
                             imageView.setImageResource(R.drawable.ic_done);
