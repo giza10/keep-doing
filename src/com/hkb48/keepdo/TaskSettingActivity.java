@@ -15,14 +15,11 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.TimePicker;
 
 public class TaskSettingActivity extends Activity {
     private boolean[] mRecurrenceFlags = {true,true,true,true,true,true,true};
-    private String[] mWeeks;
     private Task mTask;
-    private RecurrenceView mRecurrenceView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,6 +56,12 @@ public class TaskSettingActivity extends Activity {
             ((Button) findViewById(R.id.okButton)).setEnabled(true);
         }
 
+        addTaskName(editText);
+        addRecurrence(recurrence);
+        addReminder();
+    }
+
+    private void addTaskName(EditText editText) {
         editText.addTextChangedListener( new TextWatcher() {
             public void afterTextChanged(Editable s) {
                  Button okButton = (Button) findViewById(R.id.okButton);
@@ -77,10 +80,12 @@ public class TaskSettingActivity extends Activity {
                     int count) {
             }
         } );
+    }
 
-        mWeeks = getResources().getStringArray(R.array.week_names);
-        mRecurrenceView = (RecurrenceView) findViewById(R.id.recurrenceView);
-        mRecurrenceView.update(recurrence);
+    private void addRecurrence(Recurrence recurrence) {
+        final String[] weekNames = getResources().getStringArray(R.array.week_names);
+        final RecurrenceView recurrenceView = (RecurrenceView) findViewById(R.id.recurrenceView);
+        recurrenceView.update(recurrence);
 
         findViewById(R.id.recurrenceLayout).setOnClickListener(new OnClickListener() {
             boolean tmpRecurrenceFlags[];
@@ -89,15 +94,15 @@ public class TaskSettingActivity extends Activity {
                 tmpRecurrenceFlags = Arrays.copyOf(mRecurrenceFlags, mRecurrenceFlags.length);
                 new AlertDialog.Builder(TaskSettingActivity.this)
                 .setTitle(getString(R.string.recurrence))
-                .setMultiChoiceItems(mWeeks, mRecurrenceFlags,
-                        new DialogInterface.OnMultiChoiceClickListener(){
+                .setMultiChoiceItems(weekNames, mRecurrenceFlags,
+                        new DialogInterface.OnMultiChoiceClickListener() {
                     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                         mRecurrenceFlags[which] = isChecked;
                     }
                 })
                 .setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                    mRecurrenceView.update(mRecurrenceFlags);
+                        recurrenceView.update(mRecurrenceFlags);
                     }
                 })
                 .setNegativeButton(getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
@@ -108,19 +113,23 @@ public class TaskSettingActivity extends Activity {
                 .show();
             }
         });
+    }
 
+    private void addReminder() {
         final Reminder reminder = mTask.getReminder();
         final CheckBox reminderCheckBox = (CheckBox) findViewById(R.id.checkBoxReminder);
+        final Button reminderTime = (Button) findViewById(R.id.buttonReminderTime);
+
         reminderCheckBox.setChecked(reminder.getEnabled());
         reminderCheckBox.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 CheckBox checkBox = (CheckBox) v;
-                boolean checked = checkBox.isChecked();
-                reminder.setEnabled(checked);
+                boolean enabled = checkBox.isChecked();
+                reminder.setEnabled(enabled);
+                reminderTime.setEnabled(enabled);
             }
         });
 
-        final TextView reminderTime = (TextView) findViewById(R.id.textViewReminderTime2);
         final int hourOfDay = reminder.getHourOfDay();
         final int minute = reminder.getMinute();
         reminderTime.setText(hourOfDay + ":" + minute);

@@ -21,7 +21,6 @@ public class RemindAlarmReceiver extends BroadcastReceiver {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context.getApplicationContext());
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
         builder.setSmallIcon(R.drawable.ic_launcher);
         builder.setTicker(taskName);
         builder.setContentTitle("ç°ì˙Ç‚ÇÈÉ^ÉXÉNÇ™Ç†ÇËÇ‹Ç∑Éà");
@@ -31,7 +30,9 @@ public class RemindAlarmReceiver extends BroadcastReceiver {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, newIntent, 0);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-
         notificationManager.notify(1, builder.build());
+
+        ReminderManager reminderManager = ReminderManager.getInstance();
+        reminderManager.register(context, task, true);
     }
 }

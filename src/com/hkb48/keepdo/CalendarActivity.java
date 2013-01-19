@@ -112,25 +112,46 @@ public class CalendarActivity extends MainActivity {
 
     public boolean onContextItemSelected(MenuItem item) {
         ImageView imageView = (ImageView) mPressedView.findViewById(R.id.imageView1);
-        Date date = (Date) mPressedView.getTag();
+        Date selectedDate = (Date) mPressedView.getTag();
+        boolean isDone = false;
 
         switch (item.getItemId()) {
         case CONTEXT_MENU_CHECK_DONE:
             imageView.setVisibility(View.VISIBLE);
-            setDoneStatus(mTask.getTaskID(), date, true);
+            setDoneStatus(mTask.getTaskID(), selectedDate, true);
             mCheckSound.play();
+            isDone = true;
             break;
         case CONTEXT_MENU_UNCHECK_DONE:
             imageView.setVisibility(View.INVISIBLE);
-            setDoneStatus(mTask.getTaskID(), date, false);
+            setDoneStatus(mTask.getTaskID(), selectedDate, false);
             break;
         default:
             break;
         }
 
-        // Set result of this activity as OK to inform that the database is updated
-        Intent returnIntent = new Intent();
-        setResult(RESULT_OK, returnIntent);
+        SimpleDateFormat sdf_ymd = new SimpleDateFormat("yyyy/MM/dd");
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        Date today = null;
+        try {
+            today = sdf_ymd.parse(year + "/" + month + "/" + day);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        if (selectedDate.compareTo(today) == 0) {
+            // Set result of this activity as OK to inform that the today's done status is updated
+            Intent returnIntent = new Intent();
+            setResult(RESULT_OK, returnIntent);
+
+            ReminderManager reminderManager = ReminderManager.getInstance();
+            if (mTask.getReminder().getEnabled()) {
+                reminderManager.register(this, mTask, isDone);
+            }
+        }
 
         return super.onContextItemSelected(item);
     }
