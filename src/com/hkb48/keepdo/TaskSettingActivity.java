@@ -120,7 +120,8 @@ public class TaskSettingActivity extends Activity {
         final CheckBox reminderCheckBox = (CheckBox) findViewById(R.id.checkBoxReminder);
         final Button reminderTime = (Button) findViewById(R.id.buttonReminderTime);
 
-        reminderCheckBox.setChecked(reminder.getEnabled());
+        boolean isChecked = reminder.getEnabled();
+        reminderCheckBox.setChecked(isChecked);
         reminderCheckBox.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 CheckBox checkBox = (CheckBox) v;
@@ -129,6 +130,7 @@ public class TaskSettingActivity extends Activity {
                 reminderTime.setEnabled(enabled);
             }
         });
+        reminderTime.setEnabled(isChecked);
 
         final int hourOfDay = reminder.getHourOfDay();
         final int minute = reminder.getMinute();

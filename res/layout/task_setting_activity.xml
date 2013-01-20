@@ -2,117 +2,125 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:fillViewport="true" >
 
-    <LinearLayout
-        android:orientation="vertical"
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_above="@+id/footer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:divider="?android:attr/dividerHorizontal"
-        android:showDividers="middle" >
+        android:layout_height="match_parent" >
 
         <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/textViewTaskName"
-                android:text="@string/task_name"
-                android:textAppearance="@android:style/TextAppearance.Large"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dip"
-                android:layout_marginLeft="16dip"
-                android:layout_marginRight="16dip" >
-            </TextView>
-
-            <EditText
-                android:id="@+id/editTextTaskName"
-                android:inputType="text"
-                android:hint="@string/hint_task_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="26dip"
-                android:layout_marginRight="26dip"
-                android:layout_marginBottom="10dip" >
-            </EditText>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/recurrenceLayout"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?android:attr/selectableItemBackground" >
-            <TextView
-                android:id="@+id/textViewRecurrence"
-                android:text="@string/recurrence"
-                android:textAppearance="@android:style/TextAppearance.Large"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dip"
-                android:layout_marginLeft="16dip"
-                android:layout_marginRight="16dip" >
-            </TextView>
-            <com.hkb48.keepdo.RecurrenceView
-                android:id="@+id/recurrenceView"
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="26dip"
-                android:layout_marginRight="26dip"
-                android:layout_marginBottom="10dip" >
-            </com.hkb48.keepdo.RecurrenceView>
-        </LinearLayout>
+            android:divider="?android:attr/dividerHorizontal"
+            android:showDividers="middle" >
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-            <TextView
-                android:id="@+id/textViewReminderTitle"
-                android:text="@string/reminder_setting"
-                android:textAppearance="@android:style/TextAppearance.Large"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dip"
-                android:layout_marginLeft="16dip"
-                android:layout_marginRight="16dip" >
-            </TextView>
             <LinearLayout
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
-            <CheckBox
-                android:id="@+id/checkBoxReminder"
-                android:text="@string/reminder"
-                android:layout_width="wrap_content"
+
+                <TextView
+                    android:id="@+id/textViewTaskName"
+                    android:text="@string/task_name"
+                    android:textAppearance="@android:style/TextAppearance.Large"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dip"
+                    android:layout_marginLeft="16dip"
+                    android:layout_marginRight="16dip" >
+                </TextView>
+
+                <EditText
+                    android:id="@+id/editTextTaskName"
+                    android:inputType="text"
+                    android:hint="@string/hint_task_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="26dip"
+                    android:layout_marginRight="26dip"
+                    android:layout_marginBottom="10dip" >
+                </EditText>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/recurrenceLayout"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="26dip"
-                android:layout_marginBottom="10dip" >
-            </CheckBox>
-            <TextView
-                android:id="@+id/textViewReminderTime"
-                android:text="@string/reminder_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="26dip"
-                android:layout_marginBottom="10dip" >
-            </TextView>
-            <Button
-                android:id="@+id/buttonReminderTime"
-                android:text="@string/reminder_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dip" >
-            </Button>
+                android:background="?android:attr/selectableItemBackground" >
+                <TextView
+                    android:id="@+id/textViewRecurrence"
+                    android:text="@string/recurrence"
+                    android:textAppearance="@android:style/TextAppearance.Large"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dip"
+                    android:layout_marginLeft="16dip"
+                    android:layout_marginRight="16dip" >
+                </TextView>
+                <com.hkb48.keepdo.RecurrenceView
+                    android:id="@+id/recurrenceView"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="26dip"
+                    android:layout_marginRight="26dip"
+                    android:layout_marginBottom="10dip" >
+                </com.hkb48.keepdo.RecurrenceView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+                <TextView
+                    android:id="@+id/textViewReminderTitle"
+                    android:text="@string/reminder_setting"
+                    android:textAppearance="@android:style/TextAppearance.Large"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dip"
+                    android:layout_marginLeft="16dip"
+                    android:layout_marginRight="16dip" >
+                </TextView>
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+                    <CheckBox
+                        android:id="@+id/checkBoxReminder"
+                        android:text="@string/reminder"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="26dip"
+                        android:layout_marginBottom="10dip" >
+                    </CheckBox>
+                    <TextView
+                        android:id="@+id/textViewReminderTime"
+                        android:text="@string/reminder_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="26dip"
+                        android:layout_marginBottom="10dip" >
+                    </TextView>
+                    <Button
+                        android:id="@+id/buttonReminderTime"
+                        android:text="@string/reminder_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dip" >
+                    </Button>
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
+        android:id="@+id/footer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="bottom"
