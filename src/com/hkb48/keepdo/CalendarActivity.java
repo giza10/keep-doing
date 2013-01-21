@@ -11,10 +11,10 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -33,15 +33,12 @@ public class CalendarActivity extends Activity {
     private Task mTask;
     private View mPressedView;
     private CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
-    private DBAdapter mDBAdapter;
+    private DatabaseAdapter mDBAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.calendar_activity);
-
-        mDBAdapter = new DBAdapter(this);
-        mDBAdapter.open();
 
         Intent intent = getIntent();
         long taskId = intent.getLongExtra("TASK-ID", -1);
@@ -89,7 +86,6 @@ public class CalendarActivity extends Activity {
 
     @Override
     public void onDestroy() {
-        mDBAdapter.close();
         super.onDestroy();
     }
 

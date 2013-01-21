@@ -16,8 +16,9 @@ public class RemindAlarmInitReceiver extends BroadcastReceiver {
         Log.v("KEEP_DO", "RemindAlarmInitReceiver");
 
         ReminderManager reminderManager = ReminderManager.getInstance();
-        DBAdapter dbAdapter = new DBAdapter(context);
-        dbAdapter.open();
+
+        DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(context);
+
         List<Task> taskList = dbAdapter.getTaskList();
         for (Task task : taskList) {
             if (task.getReminder().getEnabled()) {
@@ -25,7 +26,7 @@ public class RemindAlarmInitReceiver extends BroadcastReceiver {
                 reminderManager.register(context, task, isDoneToday);
             }
         }
-        dbAdapter.close();
+
         if (action.equals(Intent.ACTION_BOOT_COMPLETED)) {
             ;
         }

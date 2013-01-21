@@ -41,15 +41,15 @@ public class TasksActivity extends Activity {
     private TaskAdapter mAdapter;
     private List<Task> mDataList = new ArrayList<Task>();
     private CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
-    private DBAdapter mDBAdapter;
+    private DatabaseAdapter mDBAdapter = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mDBAdapter = new DBAdapter(this);
-        mDBAdapter.open();
+        mDBAdapter = DatabaseAdapter.getInstance(this);
+
         ListView listView1 = (ListView)findViewById(R.id.listView1);
         mAdapter = new TaskAdapter();
         listView1.setAdapter(mAdapter);
