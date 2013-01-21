@@ -1,15 +1,19 @@
 package com.hkb48.keepdo;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 public class ReminderManager {
+    private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";
     private static ReminderManager sInstance;
     private static Map<Long, Task> sTaskMap = new HashMap<Long, Task>();
 
@@ -28,13 +32,39 @@ public class ReminderManager {
         Reminder reminder = task.getReminder();
         Calendar nextSchedule = getNextSchedule(task.getRecurrence(), isDoneToday, reminder.getHourOfDay(), reminder.getMinute());
         if (nextSchedule != null) {
-            startAlarm(context, taskId, nextSchedule);
+            startAlarm(context, taskId, nextSchedule.getTimeInMillis());
         }
     }
 
     public void unregister(Context context, long taskId) {
         stopAlarm(context, taskId);
         sTaskMap.remove(taskId);
+    }
+
+    public void setNextAlert(final Context context) {
+        DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(context);
+        List<Task> taskList = dbAdapter.getTaskList();
+        long minTime = Long.MAX_VALUE;;
+        long taskId = -1;
+        for (Task task : taskList) {
+            Reminder reminder = task.getReminder();
+            if (reminder.getEnabled()) {
+                boolean isDoneToday = dbAdapter.getDoneStatus(task.getTaskID(), new Date());
+                int hourOfDay = reminder.getHourOfDay();
+                int minute = reminder.getMinute();
+                Calendar nextSchedule = getNextSchedule(task.getRecurrence(), isDoneToday, hourOfDay, minute);
+                if (nextSchedule != null) {
+                    if (minTime > nextSchedule.getTimeInMillis()) {
+                        minTime = nextSchedule.getTimeInMillis();
+                        taskId = task.getTaskID();
+                    }
+                }
+            }
+        }
+
+        if (taskId != -1) {
+            startAlarm(context, taskId, minTime);
+        }
     }
 
     private Calendar getNextSchedule(Recurrence recurrence, boolean isDoneToday, int hourOfDay, int minute) {
@@ -56,7 +86,7 @@ public class ReminderManager {
 
         // Check if today's reminder time is already exceeded
         if ((time.get(Calendar.HOUR_OF_DAY) > hourOfDay) ||
-            ((time.get(Calendar.HOUR_OF_DAY) == hourOfDay) && time.get(Calendar.MINUTE) > minute)) {
+            ((time.get(Calendar.HOUR_OF_DAY) == hourOfDay) && time.get(Calendar.MINUTE) >= minute)) {
             todayAlreadyExceeded = true;
         }
         if (isDoneToday || todayAlreadyExceeded) {
@@ -83,11 +113,12 @@ public class ReminderManager {
         return time;
     }
 
-    private void startAlarm(Context context, long taskId, Calendar time) {
+    private void startAlarm(Context context, long taskId, long timeInMillis) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.set(AlarmManager.RTC_WAKEUP,
-                time.getTimeInMillis(),
+                timeInMillis,
                 getPendingIntent(context, taskId));
+        Log.v(TAG_KEEPDO + "ReminderManager#startAlarm()", "taskId = " + taskId);
     }
 
     private void stopAlarm(Context context, long taskId) {
@@ -96,9 +127,8 @@ public class ReminderManager {
     }
 
     private PendingIntent getPendingIntent(Context context, long taskId) {
-        Task task = sTaskMap.get(taskId);
         Intent intent = new Intent(context, RemindAlarmReceiver.class);
-        intent.putExtra("TASK-INFO", task);
+        intent.putExtra("TASK-ID", taskId);
         PendingIntent pendingIntent = 
                 PendingIntent.getBroadcast(context, 0, intent, 0);
         return pendingIntent;

@@ -42,6 +42,7 @@ public class CalendarActivity extends Activity {
 
         Intent intent = getIntent();
         long taskId = intent.getLongExtra("TASK-ID", -1);
+        mDBAdapter = DatabaseAdapter.getInstance(this);
         mTask = mDBAdapter.getTask(taskId);
 
         setActionBar();

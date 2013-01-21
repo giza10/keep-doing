@@ -7,15 +7,20 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 public class RemindAlarmReceiver extends BroadcastReceiver {
+    private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Task task = (Task) intent.getSerializableExtra("TASK-INFO");
-        String taskName = "";
+        long taskId = intent.getLongExtra("TASK-ID", -1);
+        Task task = DatabaseAdapter.getInstance(context).getTask(taskId);
+        String taskName = null;
         if (task != null) {
             taskName = task.getName();
+            Log.v(TAG_KEEPDO + "RemindAlarmReceiver#onReceive()", "taskId = " + taskId);
+            Log.v(TAG_KEEPDO + "RemindAlarmReceiver#onReceive()", "taskName = " + taskName);
         }
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context.getApplicationContext());
@@ -33,6 +38,6 @@ public class RemindAlarmReceiver extends BroadcastReceiver {
         notificationManager.notify(1, builder.build());
 
         ReminderManager reminderManager = ReminderManager.getInstance();
-        reminderManager.register(context, task, true);
+        reminderManager.setNextAlert(context);
     }
 }
