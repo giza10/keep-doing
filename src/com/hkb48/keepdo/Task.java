@@ -4,13 +4,15 @@ import java.io.Serializable;
 
 @SuppressWarnings("serial")
 public class Task implements Serializable {
+    public static final long INVALID_TASKID = Long.MIN_VALUE;
+
 	private long identifier;
 	private String name;
     private Recurrence recurrence;
     private Reminder reminder;
 
     public Task(String name, Recurrence recurrence) {
-        this.identifier = Long.MIN_VALUE;
+        this.identifier = INVALID_TASKID;
         this.name = name;
         this.recurrence = recurrence;
         this.reminder = new Reminder();

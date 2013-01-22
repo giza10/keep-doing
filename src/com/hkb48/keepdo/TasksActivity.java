@@ -114,14 +114,14 @@ public class TasksActivity extends Activity {
             switch(requestCode) {
             case REQUEST_ADD_TASK:
                 task = (Task) data.getSerializableExtra("TASK-INFO");
-                taskId = mDBAdapter.addTask(task.getName(), task.getRecurrence(), task.getReminder());
+                taskId = mDBAdapter.addTask(task);
                 updateTaskList();
                 updateReminder(taskId);
                 break;
             case REQUEST_EDIT_TASK:
                 task = (Task) data.getSerializableExtra("TASK-INFO");
                 taskId = task.getTaskID();
-                mDBAdapter.editTask(taskId, task.getName(), task.getRecurrence(), task.getReminder());
+                mDBAdapter.editTask(task);
                 updateTaskList();
                 updateReminder(taskId);
                 break;

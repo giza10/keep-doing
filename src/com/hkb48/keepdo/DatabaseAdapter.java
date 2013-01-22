@@ -98,10 +98,13 @@ public class DatabaseAdapter {
         return tasks;
     }
 
-    public long addTask(String taskName, Recurrence recurrence, Reminder reminder) {
-        long rowID = -0xFF;
+    public long addTask(Task task) {
+        long rowID = Task.INVALID_TASKID;
+        String taskName = task.getName();
+        Recurrence recurrence = task.getRecurrence();
+        Reminder reminder = task.getReminder();
 
-        if ((taskName ==null) || (taskName.isEmpty()) || (recurrence == null) || (reminder == null)) {
+        if ((taskName == null) || (taskName.isEmpty()) || (recurrence == null) || (reminder == null)) {
             return rowID;
         }
 
@@ -130,8 +133,13 @@ public class DatabaseAdapter {
         return rowID;
     }
 
-    protected void editTask(Long taskID, String taskName, Recurrence recurrence, Reminder reminder) {
-        if ((taskName ==null) || (taskName.isEmpty()) || (recurrence == null) || (reminder == null)) {
+    protected void editTask(Task task) {
+        Long taskID = task.getTaskID();
+        String taskName = task.getName();
+        Recurrence recurrence = task.getRecurrence();
+        Reminder reminder = task.getReminder();
+
+        if ((taskName == null) || (taskName.isEmpty()) || (recurrence == null) || (reminder == null)) {
             return;
         }
 
