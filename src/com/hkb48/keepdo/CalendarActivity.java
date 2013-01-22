@@ -121,14 +121,12 @@ public class CalendarActivity extends Activity {
     public boolean onContextItemSelected(MenuItem item) {
         ImageView imageView = (ImageView) mPressedView.findViewById(R.id.imageView1);
         Date selectedDate = (Date) mPressedView.getTag();
-        boolean isDone = false;
 
         switch (item.getItemId()) {
         case CONTEXT_MENU_CHECK_DONE:
             imageView.setVisibility(View.VISIBLE);
             mDBAdapter.setDoneStatus(mTask.getTaskID(), selectedDate, true);
             mCheckSound.play();
-            isDone = true;
             break;
         case CONTEXT_MENU_UNCHECK_DONE:
             imageView.setVisibility(View.INVISIBLE);
@@ -155,10 +153,7 @@ public class CalendarActivity extends Activity {
             Intent returnIntent = new Intent();
             setResult(RESULT_OK, returnIntent);
 
-            ReminderManager reminderManager = ReminderManager.getInstance();
-            if (mTask.getReminder().getEnabled()) {
-                reminderManager.register(this, mTask, isDone);
-            }
+            ReminderManager.getInstance().setNextAlert(this);
         }
 
         return super.onContextItemSelected(item);

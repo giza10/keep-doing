@@ -110,20 +110,18 @@ public class TasksActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             Task task;
-            long taskId;
             switch(requestCode) {
             case REQUEST_ADD_TASK:
                 task = (Task) data.getSerializableExtra("TASK-INFO");
-                taskId = mDBAdapter.addTask(task);
+                mDBAdapter.addTask(task);
                 updateTaskList();
-                updateReminder(taskId);
+                updateReminder();
                 break;
             case REQUEST_EDIT_TASK:
                 task = (Task) data.getSerializableExtra("TASK-INFO");
-                taskId = task.getTaskID();
                 mDBAdapter.editTask(task);
                 updateTaskList();
-                updateReminder(taskId);
+                updateReminder();
                 break;
             case REQUEST_SHOW_CALENDAR:
                 updateTaskList();
@@ -161,7 +159,7 @@ public class TasksActivity extends Activity {
                 public void onClick(DialogInterface dialog, int which) {
                     mDBAdapter.deleteTask(taskId);
                     updateTaskList();
-                    updateReminder(taskId);
+                    updateReminder();
                 }
             })
             .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
@@ -219,15 +217,8 @@ public class TasksActivity extends Activity {
         mAdapter.notifyDataSetChanged();
     }
 
-    private void updateReminder(long taskId) {
-        ReminderManager reminderManager = ReminderManager.getInstance();
-        Task task = mDBAdapter.getTask(taskId);
-        if (task.getReminder().getEnabled()) {
-            boolean isDoneToday = mDBAdapter.getDoneStatus(task.getTaskID(), new Date());
-            reminderManager.register(this, task, isDoneToday);
-        } else {
-            reminderManager.unregister(this, task.getTaskID());
-        }
+    private void updateReminder() {
+        ReminderManager.getInstance().setNextAlert(this);
     }
 
     private class TaskAdapter extends BaseAdapter {
@@ -320,7 +311,7 @@ public class TasksActivity extends Activity {
                         boolean checked = mDBAdapter.getDoneStatus(taskId, new Date());
                         checked = ! checked;
                         mDBAdapter.setDoneStatus(taskId, new Date(), checked);
-                        updateReminder(taskId);
+                        updateReminder();
                         if (checked) {
                             imageView.setImageResource(R.drawable.ic_done);
                             mCheckSound.play();

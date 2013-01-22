@@ -170,7 +170,8 @@ public class DatabaseAdapter {
         // Delete task from TASKS_TABLE_NAME
     	String whereClause = TasksToday._ID + "=?";
         String whereArgs[] = {taskID.toString()};
-        mDatabase.delete(TasksToday.TASKS_TABLE_NAME, whereClause, whereArgs);
+        openDatabase().delete(TasksToday.TASKS_TABLE_NAME, whereClause, whereArgs);
+        closeDatabase();
 
         // Delete records of deleted task from TASK_COMPLETION_TABLE_NAME
         whereClause = TaskCompletions.TASK_NAME_ID + "=?";

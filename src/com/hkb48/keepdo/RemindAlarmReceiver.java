@@ -19,8 +19,7 @@ public class RemindAlarmReceiver extends BroadcastReceiver {
         String taskName = null;
         if (task != null) {
             taskName = task.getName();
-            Log.v(TAG_KEEPDO + "RemindAlarmReceiver#onReceive()", "taskId = " + taskId);
-            Log.v(TAG_KEEPDO + "RemindAlarmReceiver#onReceive()", "taskName = " + taskName);
+            Log.v(TAG_KEEPDO + "RemindAlarmReceiver#onReceive()", "taskId:" + taskId + ", taskName:" + taskName);
         }
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context.getApplicationContext());
@@ -37,7 +36,6 @@ public class RemindAlarmReceiver extends BroadcastReceiver {
         builder.setAutoCancel(true);
         notificationManager.notify(1, builder.build());
 
-        ReminderManager reminderManager = ReminderManager.getInstance();
-        reminderManager.setNextAlert(context);
+        ReminderManager.getInstance().setNextAlert(context);
     }
 }

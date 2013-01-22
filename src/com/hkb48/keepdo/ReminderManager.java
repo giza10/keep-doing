@@ -1,10 +1,9 @@
 package com.hkb48.keepdo;
 
+import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -15,7 +14,6 @@ import android.util.Log;
 public class ReminderManager {
     private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";
     private static ReminderManager sInstance;
-    private static Map<Long, Task> sTaskMap = new HashMap<Long, Task>();
 
     private ReminderManager() {}
 
@@ -26,26 +24,11 @@ public class ReminderManager {
         return sInstance;
     }
 
-    public void register(Context context, Task task, boolean isDoneToday) {
-        long taskId = task.getTaskID();
-        sTaskMap.put(taskId, task);
-        Reminder reminder = task.getReminder();
-        Calendar nextSchedule = getNextSchedule(task.getRecurrence(), isDoneToday, reminder.getHourOfDay(), reminder.getMinute());
-        if (nextSchedule != null) {
-            startAlarm(context, taskId, nextSchedule.getTimeInMillis());
-        }
-    }
-
-    public void unregister(Context context, long taskId) {
-        stopAlarm(context, taskId);
-        sTaskMap.remove(taskId);
-    }
-
     public void setNextAlert(final Context context) {
         DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(context);
         List<Task> taskList = dbAdapter.getTaskList();
         long minTime = Long.MAX_VALUE;;
-        long taskId = -1;
+        long taskId = Task.INVALID_TASKID;
         for (Task task : taskList) {
             Reminder reminder = task.getReminder();
             if (reminder.getEnabled()) {
@@ -54,16 +37,19 @@ public class ReminderManager {
                 int minute = reminder.getMinute();
                 Calendar nextSchedule = getNextSchedule(task.getRecurrence(), isDoneToday, hourOfDay, minute);
                 if (nextSchedule != null) {
-                    if (minTime > nextSchedule.getTimeInMillis()) {
-                        minTime = nextSchedule.getTimeInMillis();
+                    long nextTime = nextSchedule.getTimeInMillis();
+                    if (minTime > nextTime) {
+                        minTime = nextTime;
                         taskId = task.getTaskID();
                     }
                 }
             }
         }
 
-        if (taskId != -1) {
+        if (taskId != Task.INVALID_TASKID) {
             startAlarm(context, taskId, minTime);
+        } else {
+            stopAlarm(context, taskId);
         }
     }
 
@@ -118,7 +104,7 @@ public class ReminderManager {
         alarmManager.set(AlarmManager.RTC_WAKEUP,
                 timeInMillis,
                 getPendingIntent(context, taskId));
-        Log.v(TAG_KEEPDO + "ReminderManager#startAlarm()", "taskId = " + taskId);
+        dumpLog(taskId, timeInMillis);
     }
 
     private void stopAlarm(Context context, long taskId) {
@@ -130,7 +116,16 @@ public class ReminderManager {
         Intent intent = new Intent(context, RemindAlarmReceiver.class);
         intent.putExtra("TASK-ID", taskId);
         PendingIntent pendingIntent = 
-                PendingIntent.getBroadcast(context, 0, intent, 0);
+                PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         return pendingIntent;
+    }
+
+    private void dumpLog(long taskId, long timeInMillis) {
+        Calendar time = Calendar.getInstance();
+        time.setTimeInMillis(timeInMillis);
+        MessageFormat mf = new MessageFormat("{0,date,yyyy/MM/dd HH:mm:ss}");
+        Object[] objs = {time.getTime()};
+        String result = mf.format(objs);
+        Log.v(TAG_KEEPDO + "ReminderManager", "taskId:" + taskId + ", time:" + result);
     }
 }
