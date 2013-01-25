@@ -21,6 +21,8 @@
     <string name="delete_confirmation">Are you sure you want to delete this task ?</string>
     <string name="check_done">Check done</string>
     <string name="uncheck_done">Uncheck done</string>
+    <string name="notification_title_one_task">There\'s a task to be done today!</string>
+    <string name="notification_title_multi_tasks">There\'re %d tasks to be done today!</string>
 
     <string name="btn_month_next">Next</string>
 	<string name="btn_month_prev">Prev</string>

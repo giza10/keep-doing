@@ -1,5 +1,7 @@
 package com.hkb48.keepdo;
 
+import java.util.List;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -27,8 +29,25 @@ public class RemindAlarmReceiver extends BroadcastReceiver {
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         builder.setSmallIcon(R.drawable.ic_launcher);
         builder.setTicker(taskName);
-        builder.setContentTitle("ç°ì˙Ç‚ÇÈÉ^ÉXÉNÇ™Ç†ÇËÇ‹Ç∑Éà");
-        builder.setContentText(taskName);
+
+        ReminderManager reminderManager = ReminderManager.getInstance();
+        List<Task> remainingTaskList = reminderManager.getRemainingUndoneTaskList(context);
+        int numOfReminingTasks = remainingTaskList.size();
+
+        if (numOfReminingTasks > 1) {
+            builder.setContentTitle(context.getString(R.string.notification_title_multi_tasks, numOfReminingTasks));
+            StringBuffer stringBugger = new StringBuffer();
+            for (Task remainingTask : remainingTaskList) {
+                if (stringBugger.length() > 0) {
+                    stringBugger.append(", ");
+                }
+                stringBugger.append(remainingTask.getName());
+            }
+            builder.setContentText(stringBugger.toString());
+        } else {
+            builder.setContentTitle(context.getString(R.string.notification_title_one_task));
+            builder.setContentText(taskName);
+        }
         builder.setDefaults(Notification.DEFAULT_LIGHTS);
         Intent newIntent = new Intent(context, TasksActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, newIntent, 0);
@@ -36,6 +55,6 @@ public class RemindAlarmReceiver extends BroadcastReceiver {
         builder.setAutoCancel(true);
         notificationManager.notify(1, builder.build());
 
-        ReminderManager.getInstance().setNextAlert(context);
+        reminderManager.setNextAlert(context);
     }
 }

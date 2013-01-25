@@ -1,6 +1,7 @@
 package com.hkb48.keepdo;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -51,6 +52,29 @@ public class ReminderManager {
         } else {
             stopAlarm(context, taskId);
         }
+    }
+
+    public List<Task> getRemainingUndoneTaskList(final Context context) {
+        Calendar time = Calendar.getInstance();
+        time.setTimeInMillis(System.currentTimeMillis());
+        DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(context);
+        List<Task> remainingList = new ArrayList<Task>();
+        for (Task task : dbAdapter.getTaskList()) {
+            Reminder reminder = task.getReminder();
+            Recurrence recurrence = task.getRecurrence();
+            if (reminder.getEnabled() && recurrence.isValidDay(time.get(Calendar.DAY_OF_WEEK))) {
+                int hourOfDay = reminder.getHourOfDay();
+                int minute = reminder.getMinute();
+                // Check if today's reminder time is already exceeded
+                if ((time.get(Calendar.HOUR_OF_DAY) > hourOfDay) ||
+                    ((time.get(Calendar.HOUR_OF_DAY) == hourOfDay) && time.get(Calendar.MINUTE) >= minute)) {
+                    if (dbAdapter.getDoneStatus(task.getTaskID(), new Date()) == false) {
+                        remainingList.add(task);
+                    }
+                }
+            }
+        }
+        return remainingList;
     }
 
     private Calendar getNextSchedule(Recurrence recurrence, boolean isDoneToday, int hourOfDay, int minute) {

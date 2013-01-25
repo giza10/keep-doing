@@ -20,6 +20,8 @@
     <string name="delete_confirmation">このタスクを削除してもよろしいですか？</string>
     <string name="check_done">済をつける</string>
     <string name="uncheck_done">済をはずす</string>
+    <string name="notification_title_one_task">今日やる予定のタスクがあります！</string>
+    <string name="notification_title_multi_tasks">今日やる予定のタスクが%d件あります！</string>
 
     <string name="btn_month_next">翌月</string>
 	<string name="btn_month_prev">先月</string>
