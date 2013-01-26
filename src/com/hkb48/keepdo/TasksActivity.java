@@ -7,6 +7,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -49,6 +50,11 @@ public class TasksActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         mDBAdapter = DatabaseAdapter.getInstance(this);
+
+        // Cancel notification (if displayed)
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(R.string.app_name);
 
         ListView listView1 = (ListView)findViewById(R.id.listView1);
         mAdapter = new TaskAdapter();

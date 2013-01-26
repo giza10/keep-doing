@@ -53,7 +53,7 @@ public class RemindAlarmReceiver extends BroadcastReceiver {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, newIntent, 0);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-        notificationManager.notify(1, builder.build());
+        notificationManager.notify(R.string.app_name, builder.build());
 
         reminderManager.setNextAlert(context);
     }
