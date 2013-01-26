@@ -106,7 +106,7 @@ public class CalendarActivity extends Activity {
         super.onCreateContextMenu(menu, view, menuInfo);
         mPressedView = view;
         Date date = (Date) mPressedView.getTag();
-        SimpleDateFormat sdf = new SimpleDateFormat("MM" + "ŒŽ" + "dd" + "“ú");
+        SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.date_format));
         menu.setHeaderTitle(sdf.format(date));
 
         ImageView imageView = (ImageView) mPressedView.findViewById(R.id.imageView1);
