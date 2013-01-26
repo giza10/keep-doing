@@ -12,6 +12,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -24,6 +25,7 @@ public class TaskSettingActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         setContentView(R.layout.task_setting_activity);
 
         EditText editText = (EditText) findViewById(R.id.editTextTaskName);
