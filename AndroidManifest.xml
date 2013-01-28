@@ -44,6 +44,13 @@
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
         </receiver>
+
+        <provider
+            android:name=".KeepdoProvider"
+        	android:authorities="com.hkb48.keepdo.keepdoprovider"
+        	android:exported="false" >
+        </provider>provider>
+
     </application>
 
 </manifest>

@@ -19,7 +19,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_PATH = "/data/data/com.hkb48.keepdo/databases/";
     private static final String DB_NAME = "keepdo_tracker.db";
     private static final int DB_VERSION = 2;
-    private static final String STRING_CREATE_TASK = "CREATE TABLE " + TasksToday.TASKS_TABLE_NAME + " ("
+    private static final String STRING_CREATE_TASK = "CREATE TABLE " + TasksToday.TABLE_NAME + " ("
                                                      + TasksToday._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                                                      + TasksToday.TASK_NAME + " TEXT, "
                                                      + TasksToday.FREQUENCY_MON + " TEXT, "
@@ -33,9 +33,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
                                                      + TasksToday.REMINDER_TIME_HOUR + " TEXT,"
                                                      + TasksToday.REMINDER_TIME_MINUTE + " TEXT" + ");";
 
-    private static final String STRING_CREATE_COMPLETION = "CREATE TABLE " + TaskCompletions.TASK_COMPLETION_TABLE_NAME + " ("
+    private static final String STRING_CREATE_COMPLETION = "CREATE TABLE " + TaskCompletions.TABLE_NAME + " ("
                                                      + TaskCompletions._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                                                     + TaskCompletions.TASK_NAME_ID + " INTEGER NOT NULL CONSTRAINT " + TaskCompletions.TASK_NAME_ID + " REFERENCES " + TasksToday.TASKS_TABLE_NAME+"("+TasksToday._ID+")" + " ON DELETE CASCADE, "
+                                                     + TaskCompletions.TASK_NAME_ID + " INTEGER NOT NULL CONSTRAINT " + TaskCompletions.TASK_NAME_ID + " REFERENCES " + TasksToday.TABLE_NAME+"("+TasksToday._ID+")" + " ON DELETE CASCADE, "
                                                      + TaskCompletions.TASK_COMPLETION_DATE + " DATE" + ");";
 
     private final Context mContext;
@@ -60,8 +60,8 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS "+TasksToday.TASKS_TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS "+TaskCompletions.TASK_COMPLETION_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS "+TasksToday.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS "+TaskCompletions.TABLE_NAME);
         onCreate(db);
     }
 

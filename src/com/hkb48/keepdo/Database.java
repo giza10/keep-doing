@@ -1,16 +1,26 @@
 package com.hkb48.keepdo;
 
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 public final class Database {
+    public static final String AUTHORITY = " com.hkb48.keepdo.keepdoprovider";
+
 	private Database() {}
-	
+
 	// Task table
 	public static final class TasksToday implements BaseColumns {
 
         private TasksToday() {}
 
-        public static final String TASKS_TABLE_NAME = "table_tasks";
+        // The incoming URI matches the main table URI pattern
+        public static final int TABLE_LIST = 10;
+        // The incoming URI matches the main table row ID URI pattern
+        public static final int TABLE_ID = 20;
+
+        public static final String TABLE_NAME = "table_tasks";
+        public static final String TABLE_URI = "table_taskrui";
+        public static final Uri CONTENT_URI =  Uri.parse("content://" + AUTHORITY + "/" + "tasktblurl");
         
         public static final String TASK_NAME = "task_name";
         public static final String FREQUENCY_MON = "mon_frequency";
@@ -34,7 +44,15 @@ public final class Database {
 
         private TaskCompletions() {}
         
-        public static final String TASK_COMPLETION_TABLE_NAME = "table_completions";
+        // The incoming URI matches the main table URI pattern
+        public static final int TABLE_LIST = 30;
+        // The incoming URI matches the main table row ID URI pattern
+        public static final int TABLE_ID = 40;
+
+        public static final String TABLE_NAME = "table_completions";
+        public static final String TABLE_URI = "table_completionuri"; 
+
+        public static final Uri CONTENT_URI =  Uri.parse("content://" + AUTHORITY + "/" + "completiontblurl");
 
         public static final String TASK_NAME_ID = "task_id";
         public static final String TASK_COMPLETION_DATE = "completion_date";

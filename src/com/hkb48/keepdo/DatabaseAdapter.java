@@ -74,7 +74,7 @@ public class DatabaseAdapter {
     
     public List<Task> getTaskList() {
         List<Task> tasks = new ArrayList<Task>();
-        String selectQuery = SELECT_FORM + TasksToday.TASKS_TABLE_NAME;
+        String selectQuery = SELECT_FORM + TasksToday.TABLE_NAME;
 
         Cursor cursor = openDatabase().rawQuery(selectQuery, null);
 
@@ -123,7 +123,7 @@ public class DatabaseAdapter {
             contentValues.put(TasksToday.REMINDER_TIME_MINUTE, String.valueOf(reminder.getMinute()));
 
             
-            rowID = openDatabase().insertOrThrow(TasksToday.TASKS_TABLE_NAME, null, contentValues);
+            rowID = openDatabase().insertOrThrow(TasksToday.TABLE_NAME, null, contentValues);
             closeDatabase();
             
         } catch (SQLiteException e) {
@@ -159,7 +159,7 @@ public class DatabaseAdapter {
         String whereArgs[] = {taskID.toString()};
 
         try {
-        	openDatabase().update(TasksToday.TASKS_TABLE_NAME, contentValues, whereClause, whereArgs);
+        	openDatabase().update(TasksToday.TABLE_NAME, contentValues, whereClause, whereArgs);
         	closeDatabase();
         } catch (SQLiteException e) {
             Log.e(TAG_KEEPDO, e.getMessage());
@@ -170,12 +170,12 @@ public class DatabaseAdapter {
         // Delete task from TASKS_TABLE_NAME
     	String whereClause = TasksToday._ID + "=?";
         String whereArgs[] = {taskID.toString()};
-        openDatabase().delete(TasksToday.TASKS_TABLE_NAME, whereClause, whereArgs);
+        openDatabase().delete(TasksToday.TABLE_NAME, whereClause, whereArgs);
         closeDatabase();
 
         // Delete records of deleted task from TASK_COMPLETION_TABLE_NAME
         whereClause = TaskCompletions.TASK_NAME_ID + "=?";
-        openDatabase().delete(TaskCompletions.TASK_COMPLETION_TABLE_NAME, whereClause, whereArgs);
+        openDatabase().delete(TaskCompletions.TABLE_NAME, whereClause, whereArgs);
         closeDatabase();
     }
 
@@ -194,7 +194,7 @@ public class DatabaseAdapter {
             contentValues.put(TaskCompletions.TASK_COMPLETION_DATE, dateFormat.format(date));
 
             try {
-            	openDatabase().insertOrThrow(TaskCompletions.TASK_COMPLETION_TABLE_NAME, null, contentValues);
+            	openDatabase().insertOrThrow(TaskCompletions.TABLE_NAME, null, contentValues);
             } catch (SQLiteException e) {
                 Log.e(TAG_KEEPDO, e.getMessage());
             } finally {
@@ -204,14 +204,14 @@ public class DatabaseAdapter {
         } else {
             String whereClause = TaskCompletions.TASK_NAME_ID + "=? and " + TaskCompletions.TASK_COMPLETION_DATE + "=?";
             String whereArgs[] = {taskID.toString(), dateFormat.format(date)};
-            openDatabase().delete(TaskCompletions.TASK_COMPLETION_TABLE_NAME, whereClause, whereArgs);
+            openDatabase().delete(TaskCompletions.TABLE_NAME, whereClause, whereArgs);
             closeDatabase();
         }
     }
 
     protected boolean getDoneStatus(Long taskID, Date day) {
         boolean isDone = false;
-        String selectQuery = SELECT_FORM + TaskCompletions.TASK_COMPLETION_TABLE_NAME + SELECT_ARG_FORM + TaskCompletions.TASK_NAME_ID + "=?";
+        String selectQuery = SELECT_FORM + TaskCompletions.TABLE_NAME + SELECT_ARG_FORM + TaskCompletions.TASK_NAME_ID + "=?";
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD);
 
@@ -243,7 +243,7 @@ public class DatabaseAdapter {
 
     protected Task getTask(Long taskID) {
         Task task = null;
-        String selectQuery = SELECT_FORM + TasksToday.TASKS_TABLE_NAME + SELECT_ARG_FORM + TasksToday._ID + "=?";
+        String selectQuery = SELECT_FORM + TasksToday.TABLE_NAME + SELECT_ARG_FORM + TasksToday._ID + "=?";
 
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         if (cursor != null){
@@ -265,7 +265,7 @@ public class DatabaseAdapter {
 
     protected ArrayList<Date> getHistory(Long taskID, Date month) {
         ArrayList<Date> dateList = new ArrayList<Date>();
-        String selectQuery = SELECT_FORM + TaskCompletions.TASK_COMPLETION_TABLE_NAME + SELECT_ARG_FORM + TaskCompletions.TASK_NAME_ID + "=?";;
+        String selectQuery = SELECT_FORM + TaskCompletions.TABLE_NAME + SELECT_ARG_FORM + TaskCompletions.TASK_NAME_ID + "=?";;
         
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD);
