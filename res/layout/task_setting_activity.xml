@@ -91,29 +91,26 @@
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" >
-                    <CheckBox
-                        android:id="@+id/checkBoxReminder"
-                        android:text="@string/reminder"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="26dip"
-                        android:layout_marginBottom="10dip" >
-                    </CheckBox>
-                    <TextView
-                        android:id="@+id/textViewReminderTime"
-                        android:text="@string/reminder_time"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="26dip"
-                        android:layout_marginBottom="10dip" >
-                    </TextView>
                     <Button
                         android:id="@+id/buttonReminderTime"
-                        android:text="@string/reminder_time"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dip"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        style="android:style/Widget.Holo.Light.Spinner"
+                        android:layout_marginLeft="26dip"
+                        android:layout_marginRight="26dip"
                         android:layout_marginBottom="10dip" >
                     </Button>
+                    <ImageButton android:id="@+id/reminder_remove"
+                        android:src="@drawable/ic_menu_cancel_holo_light"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:contentDescription="@string/accessibility_remove_reminder"
+                        android:layout_marginLeft="26dip"
+                        android:layout_marginRight="26dip"
+                        android:layout_marginBottom="10dip" >
+                    </ImageButton>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

@@ -11,7 +11,7 @@
         android:padding="10dp"
         android:visibility="visible"
         android:soundEffectsEnabled="false"
-        android:contentDescription="@string/image_description" />
+        android:contentDescription="@string/accessibility_done_mark" />
     <LinearLayout
         android:id="@+id/taskListItemMain"
         android:layout_width="match_parent"

@@ -31,7 +31,7 @@
             android:padding="5dip"
             android:src="@drawable/ic_done"
             android:visibility="gone"
-            android:contentDescription="@string/image_description" />
+            android:contentDescription="@string/accessibility_done_mark" />
 
     </LinearLayout>
 </RelativeLayout>

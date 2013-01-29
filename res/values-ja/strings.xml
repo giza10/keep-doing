@@ -13,8 +13,7 @@
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">キャンセル</string>
     <string name="reminder_setting">通知機能</string>
-    <string name="reminder">通知</string>
-    <string name="reminder_time">時刻</string>
+    <string name="no_reminder">通知なし</string>
     <string name="task_save">保存</string>
     <string name="task_cancel">キャンセル</string>
     <string name="delete_confirmation">このタスクを削除してもよろしいですか？</string>
@@ -25,9 +24,11 @@
     <string name="notification_title_multi_tasks">今日やる予定のタスクが%d件あります！</string>
 
     <string name="btn_month_next">翌月</string>
-	<string name="btn_month_prev">先月</string>
-	<string name="image_description">Done mark</string>
-	<string-array name="week_names">
+    <string name="btn_month_prev">先月</string>
+
+    <string name="accessibility_done_mark">Done mark</string>
+    <string name="accessibility_remove_reminder">Remove reminder</string>
+    <string-array name="week_names">
         <item>日</item>
         <item>月</item>
         <item>火</item>

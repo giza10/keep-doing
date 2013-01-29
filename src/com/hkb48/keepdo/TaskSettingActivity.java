@@ -14,8 +14,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TimePicker;
 
 public class TaskSettingActivity extends Activity {
@@ -119,29 +119,34 @@ public class TaskSettingActivity extends Activity {
 
     private void addReminder() {
         final Reminder reminder = mTask.getReminder();
-        final CheckBox reminderCheckBox = (CheckBox) findViewById(R.id.checkBoxReminder);
         final Button reminderTime = (Button) findViewById(R.id.buttonReminderTime);
-
-        boolean isChecked = reminder.getEnabled();
-        reminderCheckBox.setChecked(isChecked);
-        reminderCheckBox.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                CheckBox checkBox = (CheckBox) v;
-                boolean enabled = checkBox.isChecked();
-                reminder.setEnabled(enabled);
-                reminderTime.setEnabled(enabled);
-            }
-        });
-        reminderTime.setEnabled(isChecked);
+        final ImageButton cancelButton = (ImageButton) findViewById(R.id.reminder_remove);
 
         final int hourOfDay = reminder.getHourOfDay();
         final int minute = reminder.getMinute();
-        reminderTime.setText(hourOfDay + ":" + minute);
+        boolean isChecked = reminder.getEnabled();
+        if (isChecked) {
+            reminderTime.setText(hourOfDay + ":" + minute);
+            cancelButton.setVisibility(View.VISIBLE);
+        } else {
+            reminderTime.setText(R.string.no_reminder);
+            cancelButton.setVisibility(View.INVISIBLE);
+        }
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                reminder.setEnabled(false);
+                cancelButton.setVisibility(View.INVISIBLE);
+                reminderTime.setText(R.string.no_reminder);
+            }
+        });
+
         final TimePickerDialog timePickerDialog = new TimePickerDialog(
             this,
             new TimePickerDialog.OnTimeSetListener() {
                 public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                     reminderTime.setText(hourOfDay + ":" + minute);
+                    cancelButton.setVisibility(View.VISIBLE);
                     Reminder reminder = mTask.getReminder();
                     reminder.setHourOfDay(hourOfDay);
                     reminder.setMinute(minute);
