@@ -126,7 +126,7 @@ public class TaskSettingActivity extends Activity {
         final int minute = reminder.getMinute();
         boolean isChecked = reminder.getEnabled();
         if (isChecked) {
-            reminderTime.setText(hourOfDay + ":" + minute);
+            reminderTime.setText(String.format("%1$02d", hourOfDay) + ":" + String.format("%1$02d", minute));
             cancelButton.setVisibility(View.VISIBLE);
         } else {
             reminderTime.setText(R.string.no_reminder);
@@ -145,7 +145,7 @@ public class TaskSettingActivity extends Activity {
             this,
             new TimePickerDialog.OnTimeSetListener() {
                 public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                    reminderTime.setText(hourOfDay + ":" + minute);
+                    reminderTime.setText(String.format("%1$02d", hourOfDay) + ":" + String.format("%1$02d", minute));
                     cancelButton.setVisibility(View.VISIBLE);
                     Reminder reminder = mTask.getReminder();
                     reminder.setHourOfDay(hourOfDay);
