@@ -14,10 +14,10 @@ public class KeepdoProvider extends ContentProvider {
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     static {
-      sURIMatcher.addURI(Database.AUTHORITY, Database.TasksToday.TABLE_URI, Database.TasksToday.TABLE_LIST);
-      sURIMatcher.addURI(Database.AUTHORITY, Database.TasksToday.TABLE_URI + "/#", Database.TasksToday.TABLE_ID);
-      sURIMatcher.addURI(Database.AUTHORITY, Database.TaskCompletions.TABLE_URI, Database.TaskCompletions.TABLE_LIST);
-      sURIMatcher.addURI(Database.AUTHORITY, Database.TaskCompletions.TABLE_URI + "/#", Database.TaskCompletions.TABLE_ID);
+    	sURIMatcher.addURI(Database.AUTHORITY, Database.TasksToday.TABLE_URI, Database.TasksToday.TABLE_LIST);
+    	sURIMatcher.addURI(Database.AUTHORITY, Database.TasksToday.TABLE_URI + "/#", Database.TasksToday.TABLE_ID);
+    	sURIMatcher.addURI(Database.AUTHORITY, Database.TaskCompletions.TABLE_URI, Database.TaskCompletions.TABLE_LIST);
+    	sURIMatcher.addURI(Database.AUTHORITY, Database.TaskCompletions.TABLE_URI + "/#", Database.TaskCompletions.TABLE_ID);
     }
 
 	@Override
@@ -28,14 +28,48 @@ public class KeepdoProvider extends ContentProvider {
 
 	@Override
 	public String getType(Uri uri) {
-		// TODO Auto-generated method stub
-		return null;
+
+		//TODO: have to be corrected
+		switch (sURIMatcher.match(uri)) {
+		case Database.TasksToday.TABLE_LIST:		        	
+        	return String.valueOf(Database.TasksToday.TABLE_LIST);	        	
+        case Database.TasksToday.TABLE_ID:
+        	return String.valueOf(Database.TasksToday.TABLE_ID);	        	
+        case Database.TaskCompletions.TABLE_LIST:		        	
+        	return String.valueOf(Database.TaskCompletions.TABLE_LIST);	        	
+        case Database.TaskCompletions.TABLE_ID:
+        	return String.valueOf(Database.TaskCompletions.TABLE_ID);	        	
+        default:
+        	throw new IllegalArgumentException("Unknown URI " + uri);
+    	}
 	}
 
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
-		// TODO Auto-generated method stub
-		return null;
+        // Constructs a new query builder and sets its table name
+		String tableName = null;
+  		switch (sURIMatcher.match(uri)) {
+        
+        case Database.TasksToday.TABLE_LIST:
+        case Database.TasksToday.TABLE_ID:
+        	tableName = Database.TasksToday.TABLE_NAME;
+        	break;
+
+        case Database.TaskCompletions.TABLE_LIST:
+        case Database.TaskCompletions.TABLE_ID:
+        	tableName = Database.TaskCompletions.TABLE_NAME;
+        	break;
+
+        default:
+            throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+  		
+  		SQLiteDatabase db = mOpenHelper.getReadableDatabase();
+	    final long id = db.insertOrThrow(tableName, null, values);
+	    final Uri newUri = Uri.parse("random" + id);
+	    getContext().getContentResolver().notifyChange(newUri, null);
+	
+	    return newUri;
 	}
 
 	@Override
@@ -55,11 +89,13 @@ public class KeepdoProvider extends ContentProvider {
         switch (sURIMatcher.match(uri)) {
         
             case Database.TasksToday.TABLE_LIST:
+            case Database.TasksToday.TABLE_ID:
                 qb.setTables(Database.TasksToday.TABLE_NAME);
             	break;
 
             case Database.TaskCompletions.TABLE_LIST:
-                qb.setTables(Database.TaskCompletions.TABLE_NAME);
+            case Database.TaskCompletions.TABLE_ID:
+            	qb.setTables(Database.TaskCompletions.TABLE_NAME);
             	break;
 
             default:
@@ -71,9 +107,8 @@ public class KeepdoProvider extends ContentProvider {
         Cursor c = qb.query(db, projection, selection, selectionArgs,
                 null /* no group */, null /* no filter */, sortOrder);
 
-      c.setNotificationUri(getContext().getContentResolver(), uri);
-      return c;
-
+        c.setNotificationUri(getContext().getContentResolver(), uri);
+        return c;
 	}
 
 	@Override
@@ -82,5 +117,4 @@ public class KeepdoProvider extends ContentProvider {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
 }
