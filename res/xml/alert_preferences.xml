@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/app_name">
+
+        <RingtonePreference
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:key="preferences_alerts_ringtone"
+            android:title="@string/app_name"
+            android:ringtoneType="notification"
+            android:defaultValue="content://settings/system/notification_sound" />
+        
+    </PreferenceCategory>
+</PreferenceScreen>
