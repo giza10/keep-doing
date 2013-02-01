@@ -8,12 +8,14 @@ public class Task implements Serializable {
 
 	private long identifier;
 	private String name;
-    private Recurrence recurrence;
+	private String context;
+	private Recurrence recurrence;
     private Reminder reminder;
 
-    public Task(String name, Recurrence recurrence) {
+    public Task(String name, String context, Recurrence recurrence) {
         this.identifier = INVALID_TASKID;
         this.name = name;
+        this.context = context;
         this.recurrence = recurrence;
         this.reminder = new Reminder();
 	}
@@ -26,7 +28,11 @@ public class Task implements Serializable {
 		return name;
 	}
 
-    public Recurrence getRecurrence() {
+	public String getContext() {
+		return context;
+	}
+
+	public Recurrence getRecurrence() {
         return recurrence;
     }
 

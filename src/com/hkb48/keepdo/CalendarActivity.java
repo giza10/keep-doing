@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -106,7 +107,7 @@ public class CalendarActivity extends Activity {
         super.onCreateContextMenu(menu, view, menuInfo);
         mPressedView = view;
         Date date = (Date) mPressedView.getTag();
-        SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.date_format));
+        SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.date_format), Locale.JAPAN);
         menu.setHeaderTitle(sdf.format(date));
 
         ImageView imageView = (ImageView) mPressedView.findViewById(R.id.imageView1);
@@ -136,7 +137,7 @@ public class CalendarActivity extends Activity {
             break;
         }
 
-        SimpleDateFormat sdf_ymd = new SimpleDateFormat("yyyy/MM/dd");
+        SimpleDateFormat sdf_ymd = new SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         int year = calendar.get(Calendar.YEAR);
@@ -176,7 +177,7 @@ public class CalendarActivity extends Activity {
      * @param calendar
      */
     private void setCalendarTitle(Calendar calendar) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM", Locale.JAPAN);
         TextView textView1 = (TextView) findViewById(R.id.textView1);
         textView1.setText(sdf.format(calendar.getTime()));
     }
@@ -245,8 +246,8 @@ public class CalendarActivity extends Activity {
         int today = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
 
         ArrayList<Date> doneDateList = mDBAdapter.getHistory(mTask.getTaskID(), calendar.getTime());
-        SimpleDateFormat sdf_d = new SimpleDateFormat("dd");
-        SimpleDateFormat sdf_ymd = new SimpleDateFormat("yyyy/MM/dd");
+        SimpleDateFormat sdf_d = new SimpleDateFormat("dd", Locale.JAPAN);
+        SimpleDateFormat sdf_ymd = new SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN);
 
         // Fill the days of previous month in the first week with blank rectangle
         for (int i = 0; i < (week - Calendar.SUNDAY); i++) {

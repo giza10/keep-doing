@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -81,11 +82,12 @@ public class DatabaseAdapter {
         if (cursor.moveToFirst()) {
             do {
                 String taskName = cursor.getString(1);
-                Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(3)),
-                        Boolean.valueOf(cursor.getString(4)),Boolean.valueOf(cursor.getString(5)), Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)),Boolean.valueOf(cursor.getString(8)));
-                Reminder reminder = new Reminder(Boolean.valueOf(cursor.getString(9)), Integer.valueOf(cursor.getString(10)), Integer.valueOf(cursor.getString(11)));
+                String taskContext = cursor.getString(2);
+                Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(3)), Boolean.valueOf(cursor.getString(4)),
+                        Boolean.valueOf(cursor.getString(5)),Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)), Boolean.valueOf(cursor.getString(8)),Boolean.valueOf(cursor.getString(9)));
+                Reminder reminder = new Reminder(Boolean.valueOf(cursor.getString(10)), Integer.valueOf(cursor.getString(11)), Integer.valueOf(cursor.getString(12)));
                 Long taskID = Long.parseLong(cursor.getString(0));
-                Task task = new Task(taskName, recurrence);
+                Task task = new Task(taskName, taskContext, recurrence);
                 task.setTaskID(taskID);
                 task.setReminder(reminder);
                 tasks.add(task);
@@ -101,6 +103,7 @@ public class DatabaseAdapter {
     public long addTask(Task task) {
         long rowID = Task.INVALID_TASKID;
         String taskName = task.getName();
+        String taskContext = task.getContext();
         Recurrence recurrence = task.getRecurrence();
         Reminder reminder = task.getReminder();
 
@@ -111,6 +114,7 @@ public class DatabaseAdapter {
         try {
             ContentValues contentValues = new ContentValues();
             contentValues.put(TasksToday.TASK_NAME, taskName);
+            contentValues.put(TasksToday.TASK_CONTEXT, taskContext);
             contentValues.put(TasksToday.FREQUENCY_MON, String.valueOf(recurrence.getMonday()));
             contentValues.put(TasksToday.FREQUENCY_TUE, String.valueOf(recurrence.getTuesday()));
             contentValues.put(TasksToday.FREQUENCY_WEN, String.valueOf(recurrence.getWednesday()));
@@ -136,6 +140,7 @@ public class DatabaseAdapter {
     protected void editTask(Task task) {
         Long taskID = task.getTaskID();
         String taskName = task.getName();
+        String taskContext = task.getContext();
         Recurrence recurrence = task.getRecurrence();
         Reminder reminder = task.getReminder();
 
@@ -145,6 +150,7 @@ public class DatabaseAdapter {
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(TasksToday.TASK_NAME, taskName);
+        contentValues.put(TasksToday.TASK_NAME, taskContext);
         contentValues.put(TasksToday.FREQUENCY_MON, String.valueOf(recurrence.getMonday()));
         contentValues.put(TasksToday.FREQUENCY_TUE, String.valueOf(recurrence.getTuesday()));
         contentValues.put(TasksToday.FREQUENCY_WEN, String.valueOf(recurrence.getWednesday()));
@@ -185,7 +191,7 @@ public class DatabaseAdapter {
             return;
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat(SDF_PATTERN_YMD);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
 
         if (doneSwitch == true) {
             ContentValues contentValues = new ContentValues();
@@ -213,7 +219,7 @@ public class DatabaseAdapter {
         boolean isDone = false;
         String selectQuery = SELECT_FORM + TaskCompletions.TABLE_NAME + SELECT_ARG_FORM + TaskCompletions.TASK_NAME_ID + "=?";
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
-        SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD);
+        SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
 
         if (cursor.moveToFirst()) {
             do {
@@ -249,10 +255,11 @@ public class DatabaseAdapter {
         if (cursor != null){
             cursor.moveToFirst();
             String taskName = cursor.getString(1);
-            Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(2)), Boolean.valueOf(cursor.getString(3)),
-                    Boolean.valueOf(cursor.getString(4)),Boolean.valueOf(cursor.getString(5)), Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)),Boolean.valueOf(cursor.getString(8)));
-            Reminder reminder = new Reminder(Boolean.valueOf(cursor.getString(9)), Integer.valueOf(cursor.getString(10)), Integer.valueOf(cursor.getString(11)));
-            task = new Task(taskName, recurrence);
+            String taskContext = cursor.getString(2);
+            Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(3)), Boolean.valueOf(cursor.getString(4)),
+                    Boolean.valueOf(cursor.getString(5)),Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)), Boolean.valueOf(cursor.getString(8)),Boolean.valueOf(cursor.getString(9)));
+            Reminder reminder = new Reminder(Boolean.valueOf(cursor.getString(10)), Integer.valueOf(cursor.getString(11)), Integer.valueOf(cursor.getString(12)));
+            task = new Task(taskName, taskContext, recurrence);
             task.setReminder(reminder);
             task.setTaskID(taskID);
         }
@@ -268,8 +275,8 @@ public class DatabaseAdapter {
         String selectQuery = SELECT_FORM + TaskCompletions.TABLE_NAME + SELECT_ARG_FORM + TaskCompletions.TASK_NAME_ID + "=?";;
         
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
-        SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD);
-        SimpleDateFormat sdf_ym = new SimpleDateFormat(SDF_PATTERN_YM);
+        SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
+        SimpleDateFormat sdf_ym = new SimpleDateFormat(SDF_PATTERN_YM, Locale.JAPAN);
 
         if (cursor.moveToFirst()) {
             do {

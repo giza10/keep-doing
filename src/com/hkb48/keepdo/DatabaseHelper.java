@@ -21,7 +21,8 @@ class DatabaseHelper extends SQLiteOpenHelper {
     private static final int DB_VERSION = 2;
     private static final String STRING_CREATE_TASK = "CREATE TABLE " + TasksToday.TABLE_NAME + " ("
                                                      + TasksToday._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                                                     + TasksToday.TASK_NAME + " TEXT, "
+                                                     + TasksToday.TASK_NAME + " TEXT NOT NULL, "
+                                                     + TasksToday.TASK_CONTEXT + " TEXT,"
                                                      + TasksToday.FREQUENCY_MON + " TEXT, "
                                                      + TasksToday.FREQUENCY_TUE + " TEXT, "
                                                      + TasksToday.FREQUENCY_WEN + " TEXT, "
@@ -35,7 +36,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String STRING_CREATE_COMPLETION = "CREATE TABLE " + TaskCompletions.TABLE_NAME + " ("
                                                      + TaskCompletions._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                                                     + TaskCompletions.TASK_NAME_ID + " INTEGER NOT NULL CONSTRAINT " + TaskCompletions.TASK_NAME_ID + " REFERENCES " + TasksToday.TABLE_NAME+"("+TasksToday._ID+")" + " ON DELETE CASCADE, "
+                                                     + TaskCompletions.TASK_NAME_ID + " INTEGER NOT NULL CONSTRAINT "
+                                                     + TaskCompletions.TASK_NAME_ID + " REFERENCES "
+                                                     + TasksToday.TABLE_NAME+"("+TasksToday._ID+")" + " ON DELETE CASCADE, "
                                                      + TaskCompletions.TASK_COMPLETION_DATE + " DATE" + ");";
 
     private final Context mContext;
@@ -47,8 +50,8 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        try {
-            // Create the Tasks table
+    	try {
+        	// Create the Tasks table
             db.execSQL(STRING_CREATE_TASK);
 
             // Create the Completion table

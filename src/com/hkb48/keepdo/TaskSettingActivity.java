@@ -36,7 +36,7 @@ public class TaskSettingActivity extends Activity {
         if (mTask == null) {
             setTitle(R.string.add_task);
             recurrence = new Recurrence(true, true, true, true, true, true, true);
-            mTask = new Task(null, recurrence);
+            mTask = new Task(null, null, recurrence);
             mTask.setReminder(new Reminder());
         } else {
             setTitle(R.string.edit_task);

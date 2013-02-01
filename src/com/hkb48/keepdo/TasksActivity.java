@@ -202,7 +202,7 @@ public class TasksActivity extends Activity {
 
         if (taskListToday.size() > 0) {
             // Dummy Task for header on the ListView
-            Task dummyTask = new Task(getString(R.string.tasklist_header_today_task), null);
+            Task dummyTask = new Task(getString(R.string.tasklist_header_today_task), null, null);
             dummyTask.setTaskID(TASKID_FOR_LISTHEADER);
             mDataList.add(dummyTask);
 
@@ -212,7 +212,7 @@ public class TasksActivity extends Activity {
         }
         if (taskListNotToday.size() > 0) {
             // Dummy Task for header on the ListView
-            Task dummyTask = new Task(getString(R.string.tasklist_header_other_task), null);
+            Task dummyTask = new Task(getString(R.string.tasklist_header_other_task), null, null);
             dummyTask.setTaskID(TASKID_FOR_LISTHEADER);
             mDataList.add(dummyTask);
 
