@@ -18,7 +18,10 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_PATH = "/data/data/com.hkb48.keepdo/databases/";
     private static final String DB_NAME = "keepdo_tracker.db";
-    private static final int DB_VERSION = 2;
+    /*
+     * the first version is 2, the current version is 3;
+     */
+    private static final int DB_VERSION = 3;
     private static final String STRING_CREATE_TASK = "CREATE TABLE " + TasksToday.TABLE_NAME + " ("
                                                      + TasksToday._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                                                      + TasksToday.TASK_NAME + " TEXT NOT NULL, "
@@ -63,10 +66,17 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS "+TasksToday.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS "+TaskCompletions.TABLE_NAME);
-        onCreate(db);
+    	
+    	if ((oldVersion == 2) && (newVersion == 3)) {
+    		String sql = "ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.TASK_CONTEXT + " TEXT";
+    		db.execSQL(sql);
+            db.execSQL("DROP TABLE IF EXISTS "+TaskCompletions.TABLE_NAME);
+     
+        }
+
+    	onCreate(db);
     }
+
 
     @Override
     public void onOpen(SQLiteDatabase db) {
