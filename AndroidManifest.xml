@@ -35,6 +35,11 @@
             android:screenOrientation="portrait" >
         </activity>
 
+        <activity android:name=".SettingsActivity"
+            android:label="@string/settings"
+            android:screenOrientation="portrait" >
+        </activity>
+
         <receiver android:name=".RemindAlarmReceiver"/>
 
         <receiver android:name=".RemindAlarmInitReceiver">

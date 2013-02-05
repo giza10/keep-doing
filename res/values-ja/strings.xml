@@ -6,13 +6,16 @@
     <string name="add_task">新規タスク追加</string>
     <string name="edit_task">タスク編集</string>
     <string name="delete_task">タスク削除</string>
+    <string name="settings">設定</string>
+    <string name="reminder_setting">通知設定</string>
+    <string name="notification_sound">通知音</string>
     <string name="task_name">タスク名</string>
     <string name="hint_task_name">タスク名</string>
     <string name="recurrence">実行頻度</string>
     <string name="recurrence_separator"></string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">キャンセル</string>
-    <string name="reminder_setting">通知機能</string>
+    <string name="reminder">通知機能</string>
     <string name="no_reminder">通知なし</string>
     <string name="task_save">保存</string>
     <string name="task_cancel">キャンセル</string>

@@ -9,9 +9,7 @@ import android.os.Bundle;
 public class SettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-    	super.onCreate(savedInstanceState);
-
-        setTitle("AlartSetting");
+        super.onCreate(savedInstanceState);
 
         FragmentManager fragmentManager = getFragmentManager();
         Fragment fragment = new AlertPreferences();

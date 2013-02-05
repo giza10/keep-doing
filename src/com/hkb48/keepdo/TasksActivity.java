@@ -102,10 +102,15 @@ public class TasksActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
         case R.id.menu_add_task:
-            Intent intent = new Intent(TasksActivity.this, TaskSettingActivity.class);
+            intent = new Intent(TasksActivity.this, TaskSettingActivity.class);
             startActivityForResult(intent, REQUEST_ADD_TASK);
+            return true;
+        case R.id.menu_settings:
+            intent = new Intent(TasksActivity.this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         default:
             return super.onOptionsItemSelected(item);

@@ -2,14 +2,14 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
-        android:title="@string/app_name">
+        android:title="@string/reminder_setting">
 
         <RingtonePreference
             android:layout="?android:attr/preferenceLayoutChild"
             android:key="preferences_alerts_ringtone"
-            android:title="@string/app_name"
+            android:title="@string/notification_sound"
             android:ringtoneType="notification"
             android:defaultValue="content://settings/system/notification_sound" />
-        
+
     </PreferenceCategory>
 </PreferenceScreen>
