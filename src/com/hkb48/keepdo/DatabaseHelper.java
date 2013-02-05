@@ -21,9 +21,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "keepdo_tracker.db";
 
     /*
-     * The first version is 2, the latest version is 3;
+     * The first version is 1, the latest version is 2;
      */
-    private static final int DB_VERSION = 3;
+    private static final int DB_VERSION = 2;
 
     private static final String STRING_CREATE_TASK = "CREATE TABLE " + TasksToday.TABLE_NAME + " ("
                                                      + TasksToday._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -71,7 +71,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
     	/*
     	 *  The initial version is 2, while updated to the latest version to 4.  
     	 */
-    	if (oldVersion < 3) {
+    	if (oldVersion < 2) {
     		db.beginTransaction();
     		try {
 	    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.TASK_CONTEXT + " TEXT");
