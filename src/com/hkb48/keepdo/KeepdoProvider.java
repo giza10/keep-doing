@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
 public class KeepdoProvider extends ContentProvider {
-    static final String TAG = "#KEEPDOPROVIDER : ";
+    private static final String TAG = "#KEEPDO_PROVIDER: ";
 
     private DatabaseHelper mOpenHelper;
 

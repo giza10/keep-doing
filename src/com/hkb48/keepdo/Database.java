@@ -36,7 +36,7 @@ public final class Database {
         public static final String REMINDER_ENABLED = "reminder_enabled";
         public static final String REMINDER_TIME_HOUR = "reminder_time_hour";
         public static final String REMINDER_TIME_MINUTE = "reminder_time_minute";
-        
+
         public static final String DEFAULT_SORT_ORDER = "task_name ASC";
     }
 

@@ -16,12 +16,15 @@ import com.hkb48.keepdo.Database.TasksToday;
 
 class DatabaseHelper extends SQLiteOpenHelper {
 
+	private static final String TAG = "#KEEPDO_DBHELP: ";
     private static final String DB_PATH = "/data/data/com.hkb48.keepdo/databases/";
     private static final String DB_NAME = "keepdo_tracker.db";
+
     /*
-     * the first version is 2, the current version is 3;
+     * The first version is 2, the latest version is 3;
      */
     private static final int DB_VERSION = 3;
+
     private static final String STRING_CREATE_TASK = "CREATE TABLE " + TasksToday.TABLE_NAME + " ("
                                                      + TasksToday._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                                                      + TasksToday.TASK_NAME + " TEXT NOT NULL, "
@@ -54,29 +57,28 @@ class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
     	try {
-        	// Create the Tasks table
             db.execSQL(STRING_CREATE_TASK);
-
-            // Create the Completion table
             db.execSQL(STRING_CREATE_COMPLETION);
         } catch (SQLiteException e) {
-            Log.e("_KEEPDOLOG: ", e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    	Log.d(TAG, "The database version is [Old] " + Integer.toString(oldVersion) + " [New] " + Integer.toString(newVersion));
     	
+    	/*
+    	 *  The initial version is 2, while updated to the latest version to 4.  
+    	 */
     	if ((oldVersion == 2) && (newVersion == 3)) {
-    		String sql = "ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.TASK_CONTEXT + " TEXT";
-    		db.execSQL(sql);
-            db.execSQL("DROP TABLE IF EXISTS "+TaskCompletions.TABLE_NAME);
-     
+    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.TASK_CONTEXT + " TEXT");
+    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_ENABLED + " TEXT");
+    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_TIME_HOUR + " TEXT");
+    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_TIME_MINUTE + " TEXT");    		
+            db.setVersion(newVersion);
         }
-
-    	onCreate(db);
     }
-
 
     @Override
     public void onOpen(SQLiteDatabase db) {

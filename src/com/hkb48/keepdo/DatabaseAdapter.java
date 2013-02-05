@@ -20,7 +20,7 @@ import com.hkb48.keepdo.Database.TaskCompletions;
 import com.hkb48.keepdo.Database.TasksToday;
 
 public class DatabaseAdapter {
-    private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";
+    private static final String TAG = "#KEEPDO_ADAPTER: ";
     private static final String SDF_PATTERN_YMD = "yyyy-MM-dd"; 
     private static final String SDF_PATTERN_YM = "yyyy-MM";
     private static final String SELECT_FORM = "select * from ";
@@ -131,7 +131,7 @@ public class DatabaseAdapter {
             closeDatabase();
             
         } catch (SQLiteException e) {
-            Log.e(TAG_KEEPDO, e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
 
         return rowID;
@@ -168,7 +168,7 @@ public class DatabaseAdapter {
         	openDatabase().update(TasksToday.TABLE_NAME, contentValues, whereClause, whereArgs);
         	closeDatabase();
         } catch (SQLiteException e) {
-            Log.e(TAG_KEEPDO, e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
     }
 
@@ -202,7 +202,7 @@ public class DatabaseAdapter {
             try {
             	openDatabase().insertOrThrow(TaskCompletions.TABLE_NAME, null, contentValues);
             } catch (SQLiteException e) {
-                Log.e(TAG_KEEPDO, e.getMessage());
+                Log.e(TAG, e.getMessage());
             } finally {
             	closeDatabase();
             }
@@ -229,7 +229,7 @@ public class DatabaseAdapter {
                     try {
                         date = sdf_ymd.parse(dateString);
                     } catch (ParseException e) {
-                        Log.e(TAG_KEEPDO, e.getMessage());
+                        Log.e(TAG, e.getMessage());
                     }
                     if (date != null) {
                         if (sdf_ymd.format(date).equals(sdf_ymd.format(day))) {
@@ -286,7 +286,7 @@ public class DatabaseAdapter {
                     try {
                         date = sdf_ymd.parse(dateString);
                     } catch (ParseException e) {
-                        Log.e(TAG_KEEPDO, e.getMessage());
+                        Log.e(TAG, e.getMessage());
                     }
                     if (date != null) {
                         if (sdf_ym.format(date).equals(sdf_ym.format(month))) {
