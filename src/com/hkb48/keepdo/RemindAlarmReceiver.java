@@ -8,6 +8,8 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -49,6 +51,11 @@ public class RemindAlarmReceiver extends BroadcastReceiver {
             builder.setContentText(taskName);
         }
         builder.setDefaults(Notification.DEFAULT_LIGHTS);
+        SharedPreferences prefs = AlertPreferences.getSharedPreferences(context);
+        String reminderRingtone = prefs.getString(AlertPreferences.KEY_ALERTS_RINGTONE, null);
+        if (reminderRingtone != null) {
+            builder.setSound(Uri.parse(reminderRingtone));
+        }
         Intent newIntent = new Intent(context, TasksActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, newIntent, 0);
         builder.setContentIntent(pendingIntent);

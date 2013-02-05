@@ -106,7 +106,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
             try {
                 copyDataBase();
             } catch (IOException e) {
-                throw new Error("Error copying database");
+                Log.e(TAG, e.getMessage());
             }
         }
     }

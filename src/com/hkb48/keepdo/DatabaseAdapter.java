@@ -161,7 +161,6 @@ public class DatabaseAdapter {
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(TasksToday.TASK_NAME, taskName);
-        contentValues.put(TasksToday.TASK_NAME, taskContext);
         contentValues.put(TasksToday.FREQUENCY_MON, String.valueOf(recurrence.getMonday()));
         contentValues.put(TasksToday.FREQUENCY_TUE, String.valueOf(recurrence.getTuesday()));
         contentValues.put(TasksToday.FREQUENCY_WEN, String.valueOf(recurrence.getWednesday()));
@@ -169,6 +168,7 @@ public class DatabaseAdapter {
         contentValues.put(TasksToday.FREQUENCY_FRI, String.valueOf(recurrence.getFriday()));
         contentValues.put(TasksToday.FREQUENCY_SAT, String.valueOf(recurrence.getSaturday()));
         contentValues.put(TasksToday.FREQUENCY_SUN, String.valueOf(recurrence.getSunday()));
+        contentValues.put(TasksToday.TASK_CONTEXT, taskContext);
         contentValues.put(TasksToday.REMINDER_ENABLED, String.valueOf(reminder.getEnabled()));
         contentValues.put(TasksToday.REMINDER_TIME_HOUR, String.valueOf(reminder.getHourOfDay()));
         contentValues.put(TasksToday.REMINDER_TIME_MINUTE, String.valueOf(reminder.getMinute()));

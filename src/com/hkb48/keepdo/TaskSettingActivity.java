@@ -135,9 +135,10 @@ public class TaskSettingActivity extends Activity {
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                reminder.setEnabled(false);
                 cancelButton.setVisibility(View.INVISIBLE);
                 reminderTime.setText(R.string.no_reminder);
+                reminder.setEnabled(false);
+                mTask.setReminder(reminder);
             }
         });
 
@@ -147,7 +148,7 @@ public class TaskSettingActivity extends Activity {
                 public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                     reminderTime.setText(String.format("%1$02d", hourOfDay) + ":" + String.format("%1$02d", minute));
                     cancelButton.setVisibility(View.VISIBLE);
-                    Reminder reminder = mTask.getReminder();
+                    reminder.setEnabled(true);
                     reminder.setHourOfDay(hourOfDay);
                     reminder.setMinute(minute);
                     mTask.setReminder(reminder);
