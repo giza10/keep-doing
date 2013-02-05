@@ -28,7 +28,6 @@ class DatabaseHelper extends SQLiteOpenHelper {
     private static final String STRING_CREATE_TASK = "CREATE TABLE " + TasksToday.TABLE_NAME + " ("
                                                      + TasksToday._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                                                      + TasksToday.TASK_NAME + " TEXT NOT NULL, "
-                                                     + TasksToday.TASK_CONTEXT + " TEXT,"
                                                      + TasksToday.FREQUENCY_MON + " TEXT, "
                                                      + TasksToday.FREQUENCY_TUE + " TEXT, "
                                                      + TasksToday.FREQUENCY_WEN + " TEXT, "
@@ -36,6 +35,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
                                                      + TasksToday.FREQUENCY_FRI + " TEXT, "
                                                      + TasksToday.FREQUENCY_SAT + " TEXT, "
                                                      + TasksToday.FREQUENCY_SUN + " TEXT,"
+                                                     + TasksToday.TASK_CONTEXT + " TEXT,"
                                                      + TasksToday.REMINDER_ENABLED + " TEXT,"
                                                      + TasksToday.REMINDER_TIME_HOUR + " TEXT,"
                                                      + TasksToday.REMINDER_TIME_MINUTE + " TEXT" + ");";
@@ -44,7 +44,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
                                                      + TaskCompletions._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                                                      + TaskCompletions.TASK_NAME_ID + " INTEGER NOT NULL CONSTRAINT "
                                                      + TaskCompletions.TASK_NAME_ID + " REFERENCES "
-                                                     + TasksToday.TABLE_NAME+"("+TasksToday._ID+")" + " ON DELETE CASCADE, "
+                                                     + TasksToday.TABLE_NAME + "(" + TasksToday._ID + ")" + " ON DELETE CASCADE, "
                                                      + TaskCompletions.TASK_COMPLETION_DATE + " DATE" + ");";
 
     private final Context mContext;
@@ -66,17 +66,24 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-    	Log.d(TAG, "The database version is [Old] " + Integer.toString(oldVersion) + " [New] " + Integer.toString(newVersion));
+    	Log.d(TAG, "Updating database version from " + oldVersion + " to " + newVersion);
     	
     	/*
     	 *  The initial version is 2, while updated to the latest version to 4.  
     	 */
-    	if ((oldVersion == 2) && (newVersion == 3)) {
-    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.TASK_CONTEXT + " TEXT");
-    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_ENABLED + " TEXT");
-    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_TIME_HOUR + " TEXT");
-    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_TIME_MINUTE + " TEXT");    		
-            db.setVersion(newVersion);
+    	if (oldVersion < 3) {
+    		db.beginTransaction();
+    		try {
+	    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.TASK_CONTEXT + " TEXT");
+	    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_ENABLED + " TEXT");
+	    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_TIME_HOUR + " TEXT");
+	    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_TIME_MINUTE + " TEXT");    		
+
+	    		db.setVersion(newVersion);
+	            db.setTransactionSuccessful();
+    		} finally {
+    			db.endTransaction();
+    		}
         }
     }
 

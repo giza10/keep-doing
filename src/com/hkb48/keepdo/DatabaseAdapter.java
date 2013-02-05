@@ -81,12 +81,23 @@ public class DatabaseAdapter {
 
         if (cursor.moveToFirst()) {
             do {
-                String taskName = cursor.getString(1);
-                String taskContext = cursor.getString(2);
-                Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(3)), Boolean.valueOf(cursor.getString(4)),
-                        Boolean.valueOf(cursor.getString(5)),Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)), Boolean.valueOf(cursor.getString(8)),Boolean.valueOf(cursor.getString(9)));
-                Reminder reminder = new Reminder(Boolean.valueOf(cursor.getString(10)), Integer.valueOf(cursor.getString(11)), Integer.valueOf(cursor.getString(12)));
-                Long taskID = Long.parseLong(cursor.getString(0));
+                String taskName = cursor.getString(cursor.getColumnIndex(TasksToday.TASK_NAME));
+                String taskContext = cursor.getString(cursor.getColumnIndex(TasksToday.TASK_CONTEXT));
+
+                Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_MON))),
+                									   Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_TUE))),
+                									   Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_WEN))),
+                									   Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_THR))),
+                									   Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_FRI))),
+                									   Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_SAT))),
+                									   Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_SUN))));
+
+                Reminder reminder = new Reminder(Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.REMINDER_ENABLED))),
+                								 Integer.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.REMINDER_TIME_HOUR))),
+                								 Integer.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.REMINDER_TIME_MINUTE))));
+                
+                Long taskID = Long.parseLong(cursor.getString(cursor.getColumnIndex(TasksToday._ID)));
+
                 Task task = new Task(taskName, taskContext, recurrence);
                 task.setTaskID(taskID);
                 task.setReminder(reminder);
@@ -114,7 +125,6 @@ public class DatabaseAdapter {
         try {
             ContentValues contentValues = new ContentValues();
             contentValues.put(TasksToday.TASK_NAME, taskName);
-            contentValues.put(TasksToday.TASK_CONTEXT, taskContext);
             contentValues.put(TasksToday.FREQUENCY_MON, String.valueOf(recurrence.getMonday()));
             contentValues.put(TasksToday.FREQUENCY_TUE, String.valueOf(recurrence.getTuesday()));
             contentValues.put(TasksToday.FREQUENCY_WEN, String.valueOf(recurrence.getWednesday()));
@@ -122,6 +132,7 @@ public class DatabaseAdapter {
             contentValues.put(TasksToday.FREQUENCY_FRI, String.valueOf(recurrence.getFriday()));
             contentValues.put(TasksToday.FREQUENCY_SAT, String.valueOf(recurrence.getSaturday()));
             contentValues.put(TasksToday.FREQUENCY_SUN, String.valueOf(recurrence.getSunday()));
+            contentValues.put(TasksToday.TASK_CONTEXT, taskContext);
             contentValues.put(TasksToday.REMINDER_ENABLED, String.valueOf(reminder.getEnabled()));
             contentValues.put(TasksToday.REMINDER_TIME_HOUR, String.valueOf(reminder.getHourOfDay()));
             contentValues.put(TasksToday.REMINDER_TIME_MINUTE, String.valueOf(reminder.getMinute()));
@@ -223,7 +234,7 @@ public class DatabaseAdapter {
 
         if (cursor.moveToFirst()) {
             do {
-                String dateString = cursor.getString(2);
+                String dateString = cursor.getString(cursor.getColumnIndex(TaskCompletions.TASK_COMPLETION_DATE));
                 if (dateString != null) {
                     Date date = null;
                     try {
@@ -254,11 +265,21 @@ public class DatabaseAdapter {
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         if (cursor != null){
             cursor.moveToFirst();
-            String taskName = cursor.getString(1);
-            String taskContext = cursor.getString(2);
-            Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(3)), Boolean.valueOf(cursor.getString(4)),
-                    Boolean.valueOf(cursor.getString(5)),Boolean.valueOf(cursor.getString(6)), Boolean.valueOf(cursor.getString(7)), Boolean.valueOf(cursor.getString(8)),Boolean.valueOf(cursor.getString(9)));
-            Reminder reminder = new Reminder(Boolean.valueOf(cursor.getString(10)), Integer.valueOf(cursor.getString(11)), Integer.valueOf(cursor.getString(12)));
+            String taskName = cursor.getString(cursor.getColumnIndex(TasksToday.TASK_NAME));
+            String taskContext = cursor.getString(cursor.getColumnIndex(TasksToday.TASK_CONTEXT));
+
+            Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_MON))),
+            		                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_TUE))),
+            		                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_WEN))),
+            		                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_THR))),
+            		                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_FRI))),
+            		                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_SAT))),
+            		                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_SUN))));
+            
+            Reminder reminder = new Reminder(Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.REMINDER_ENABLED))),
+            								 Integer.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.REMINDER_TIME_HOUR))),
+            								 Integer.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.REMINDER_TIME_MINUTE))));
+ 
             task = new Task(taskName, taskContext, recurrence);
             task.setReminder(reminder);
             task.setTaskID(taskID);
@@ -280,7 +301,7 @@ public class DatabaseAdapter {
 
         if (cursor.moveToFirst()) {
             do {
-                String dateString = cursor.getString(2);
+                String dateString = cursor.getString(cursor.getColumnIndex(TaskCompletions.TASK_COMPLETION_DATE));
                 if (dateString != null) {
                     Date date = null;
                     try {

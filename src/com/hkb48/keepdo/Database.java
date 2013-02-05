@@ -23,7 +23,6 @@ public final class Database {
         public static final Uri CONTENT_URI =  Uri.parse("content://" + AUTHORITY + "/" + TABLE_URI);
         
         public static final String TASK_NAME = "task_name";
-        public static final String TASK_CONTEXT = "task_context";
         public static final String FREQUENCY_MON = "mon_frequency";
         public static final String FREQUENCY_TUE = "tue_frequency";
         public static final String FREQUENCY_WEN = "wen_frequency";
@@ -31,6 +30,7 @@ public final class Database {
         public static final String FREQUENCY_FRI = "fri_frequency";
         public static final String FREQUENCY_SAT = "sat_frequency";
         public static final String FREQUENCY_SUN = "sun_frequency";
+        public static final String TASK_CONTEXT = "task_context";
 
         // TODO : Temporary added for reminder test (by kuramitsu)
         public static final String REMINDER_ENABLED = "reminder_enabled";
