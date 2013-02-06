@@ -10,7 +10,8 @@
     <string name="task_name">Task name</string>
     <string name="settings">Settings</string>
     <string name="reminder_setting">Reminder setting</string>
-    <string name="notification_sound">Notification sound</string>
+    <string name="preferences_alerts_ringtone_title">Notification sound</string>
+    <string name="preferences_alerts_vibrateWhen_title">Vibration</string>
     <string name="hint_task_name">Input task name</string>
     <string name="recurrence">Recurrence</string>
     <string name="recurrence_separator">, </string>
@@ -43,4 +44,26 @@
         <item>SAT</item>
     </string-array>
 
+    <!-- The vibrate notification modes -->
+    <string-array name="prefEntries_alerts_vibrateWhen">
+        <!-- Always -->
+        <item>Always</item>
+        <!-- Only when the phone is in Silent mode -->
+        <item>Only when silent</item>
+        <!-- Never -->
+        <item>Never</item>
+    </string-array>
+
+    <!-- The default vibrateWhen value, when none is set -->
+    <string translatable="false" name="prefDefault_alerts_vibrateWhen">never</string>
+
+    <!-- The vibrateWhen values -->
+    <string-array translatable="false" name="prefValues_alerts_vibrateWhen">
+        <item>always</item>
+        <item>silent</item>
+        <item>never</item>
+    </string-array>
+
+    <!-- Dialog title for the Vibrate dialog -->
+    <string name="prefDialogTitle_vibrateWhen">Vibrate</string>
 </resources>

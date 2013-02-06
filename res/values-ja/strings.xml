@@ -8,7 +8,8 @@
     <string name="delete_task">タスク削除</string>
     <string name="settings">設定</string>
     <string name="reminder_setting">通知設定</string>
-    <string name="notification_sound">通知音</string>
+    <string name="preferences_alerts_ringtone_title">通知音</string>
+    <string name="preferences_alerts_vibrateWhen_title">バイブレーション</string>
     <string name="task_name">タスク名</string>
     <string name="hint_task_name">タスク名</string>
     <string name="recurrence">実行頻度</string>
@@ -41,4 +42,6 @@
         <item>土</item>
     </string-array>
 
+    <!-- Dialog title for the Vibrate dialog -->
+    <string name="prefDialogTitle_vibrateWhen">バイブレーション</string>
 </resources>
