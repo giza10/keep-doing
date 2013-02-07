@@ -32,6 +32,11 @@
             android:screenOrientation="portrait" >
         </activity>
 
+        <activity
+            android:name=".TaskActivity"
+            android:label="@string/title_activity_task" >
+        </activity>
+
         <activity android:name=".CalendarActivity"
             android:screenOrientation="portrait" >
         </activity>
@@ -55,7 +60,7 @@
             android:name=".KeepdoProvider"
         	android:authorities="com.hkb48.keepdo.keepdoprovider"
         	android:exported="false" >
-        </provider>provider>
+        </provider>
 
     </application>
 

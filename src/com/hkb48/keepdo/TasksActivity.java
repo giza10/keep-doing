@@ -65,7 +65,7 @@ public class TasksActivity extends Activity {
                     int position, long id) {
                 // Show calendar view
                 Long taskId =  mDataList.get(position).getTaskID();
-                Intent intent = new Intent(TasksActivity.this, CalendarActivity.class);
+                Intent intent = new Intent(TasksActivity.this, TaskActivity.class);
                 intent.putExtra("TASK-ID", taskId);
                 startActivityForResult(intent, REQUEST_SHOW_CALENDAR);
             }
