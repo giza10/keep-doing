@@ -24,7 +24,9 @@ public class RemindAlarmReceiver extends BroadcastReceiver {
         String taskName = null;
         if (task != null) {
             taskName = task.getName();
-            Log.v(TAG_KEEPDO + "RemindAlarmReceiver#onReceive()", "taskId:" + taskId + ", taskName:" + taskName);
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG_KEEPDO + "RemindAlarmReceiver#onReceive()", "taskId:" + taskId + ", taskName:" + taskName);
+            }
         }
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context.getApplicationContext());

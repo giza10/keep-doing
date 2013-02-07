@@ -37,8 +37,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
                                                      + TasksToday.FREQUENCY_SUN + " TEXT,"
                                                      + TasksToday.TASK_CONTEXT + " TEXT,"
                                                      + TasksToday.REMINDER_ENABLED + " TEXT,"
-                                                     + TasksToday.REMINDER_TIME_HOUR + " TEXT,"
-                                                     + TasksToday.REMINDER_TIME_MINUTE + " TEXT" + ");";
+                                                     + TasksToday.REMINDER_TIME + " TEXT" + ");";
 
     private static final String STRING_CREATE_COMPLETION = "CREATE TABLE " + TaskCompletions.TABLE_NAME + " ("
                                                      + TaskCompletions._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -66,8 +65,10 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-    	Log.d(TAG, "Updating database version from " + oldVersion + " to " + newVersion);
-    	
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Updating database version from " + oldVersion + " to " + newVersion);
+        }
+
     	/*
     	 *  The initial version is 2, while updated to the latest version to 4.  
     	 */
@@ -76,8 +77,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
     		try {
 	    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.TASK_CONTEXT + " TEXT");
 	    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_ENABLED + " TEXT");
-	    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_TIME_HOUR + " TEXT");
-	    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_TIME_MINUTE + " TEXT");    		
+                db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_TIME + " TEXT");		
 
 	    		db.setVersion(newVersion);
 	            db.setTransactionSuccessful();

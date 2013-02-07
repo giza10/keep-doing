@@ -145,11 +145,13 @@ public class ReminderManager {
     }
 
     private void dumpLog(long taskId, long timeInMillis) {
-        Calendar time = Calendar.getInstance();
-        time.setTimeInMillis(timeInMillis);
-        MessageFormat mf = new MessageFormat("{0,date,yyyy/MM/dd HH:mm:ss}");
-        Object[] objs = {time.getTime()};
-        String result = mf.format(objs);
-        Log.v(TAG_KEEPDO + "ReminderManager", "taskId:" + taskId + ", time:" + result);
+        if (BuildConfig.DEBUG) {
+            Calendar time = Calendar.getInstance();
+            time.setTimeInMillis(timeInMillis);
+            MessageFormat mf = new MessageFormat("{0,date,yyyy/MM/dd HH:mm:ss}");
+            Object[] objs = {time.getTime()};
+            String result = mf.format(objs);
+            Log.v(TAG_KEEPDO + "ReminderManager", "taskId:" + taskId + ", time:" + result);
+        }
     }
 }

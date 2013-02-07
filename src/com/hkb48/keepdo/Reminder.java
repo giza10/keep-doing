@@ -1,6 +1,7 @@
 package com.hkb48.keepdo;
 
 import java.io.Serializable;
+import java.util.Calendar;
 
 @SuppressWarnings("serial")
 public class Reminder implements Serializable {
@@ -20,27 +21,46 @@ public class Reminder implements Serializable {
         this.minute = minute;
     }
 
-    boolean getEnabled() {
+    public Reminder(boolean enabled, long timeInMillis) {
+        this.enabled = enabled;
+        setTimeInMillis(timeInMillis);
+    }
+
+    public boolean getEnabled() {
         return enabled;
     }
 
-    int getHourOfDay() {
+    public int getHourOfDay() {
         return hourOfDay;
     }
 
-    int getMinute() {
+    public int getMinute() {
         return minute;
     }
 
-    void setEnabled(boolean enabled) {
+    public long getTimeInMillis() {
+        Calendar time = Calendar.getInstance();
+        time.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        time.set(Calendar.MINUTE, minute);
+        return time.getTimeInMillis();
+    }
+
+    public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
-    void setHourOfDay(int hourOfDay) {
+    public void setHourOfDay(int hourOfDay) {
         this.hourOfDay = hourOfDay;
     }
 
-    void setMinute(int minute) {
+    public void setMinute(int minute) {
         this.minute = minute;
+    }
+
+    public void setTimeInMillis(long milliseconds) {
+        Calendar time = Calendar.getInstance();
+        time.setTimeInMillis(milliseconds);
+        hourOfDay = time.get(Calendar.HOUR_OF_DAY);
+        minute = time.get(Calendar.MINUTE);
     }
 }
