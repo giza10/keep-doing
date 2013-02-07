@@ -46,6 +46,7 @@ public class TaskActivity extends FragmentActivity implements
 		// Set up the action bar to show tabs.
 		final ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		// For each of the sections in the app, add a tab to the action bar.
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_section1)
@@ -110,6 +111,17 @@ public class TaskActivity extends FragmentActivity implements
 	public void onTabReselected(ActionBar.Tab tab,
 			FragmentTransaction fragmentTransaction) {
 	}
+
+	@Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case android.R.id.home:
+            finish();
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
+    }
 
 	/**
 	 * A dummy fragment representing a section of the app, but that simply
@@ -218,16 +230,16 @@ public class TaskActivity extends FragmentActivity implements
 //	        super.onDestroy();
 //	    }
 
-	    @Override
-	    public boolean onOptionsItemSelected(MenuItem item) {
-	        switch (item.getItemId()) {
-	        case android.R.id.home:
-	            getActivity().finish();
-	            return true;
-	        default:
-	            return super.onOptionsItemSelected(item);
-	        }
-	    }
+//	    @Override
+//	    public boolean onOptionsItemSelected(MenuItem item) {
+//	        switch (item.getItemId()) {
+//	        case android.R.id.home:
+//	            getActivity().finish();
+//	            return true;
+//	        default:
+//	            return super.onOptionsItemSelected(item);
+//	        }
+//	    }
 
 	    @Override
 	    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
@@ -291,7 +303,7 @@ public class TaskActivity extends FragmentActivity implements
 	     * Set action bar
 	     */
 	    private void setActionBar() {
-	    	getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+//	    	getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
 
 	        if (mTask != null) {
 	        	getActivity().setTitle(mTask.getName());
