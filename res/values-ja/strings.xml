@@ -18,6 +18,8 @@
     <string name="dialog_cancel">キャンセル</string>
     <string name="reminder">通知機能</string>
     <string name="no_reminder">通知なし</string>
+    <string name="description">内容</string>
+    <string name="hint_task_description">説明</string>
     <string name="task_save">保存</string>
     <string name="task_cancel">キャンセル</string>
     <string name="delete_confirmation">このタスクを削除してもよろしいですか？</string>

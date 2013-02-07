@@ -28,7 +28,8 @@ public class TaskSettingActivity extends Activity {
         getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         setContentView(R.layout.task_setting_activity);
 
-        EditText editText = (EditText) findViewById(R.id.editTextTaskName);
+        EditText editTextTaskName = (EditText) findViewById(R.id.editTextTaskName);
+        EditText editTextDescription = (EditText) findViewById(R.id.editTextDescription);
         Recurrence recurrence;
 
         Intent intent = getIntent();
@@ -42,8 +43,8 @@ public class TaskSettingActivity extends Activity {
             setTitle(R.string.edit_task);
             String taskName = mTask.getName();
             if (taskName != null) {
-                editText.setText(taskName);
-                editText.setSelection(taskName.length());
+                editTextTaskName.setText(taskName);
+                editTextTaskName.setSelection(taskName.length());
             }
 
             recurrence = mTask.getRecurrence();
@@ -55,10 +56,16 @@ public class TaskSettingActivity extends Activity {
             mRecurrenceFlags[5] = recurrence.getFriday();
             mRecurrenceFlags[6] = recurrence.getSaturday();
 
+            String description = mTask.getContext();
+            if (description != null) {
+                editTextDescription.setText(description);
+                editTextDescription.setSelection(description.length());
+            }
+
             ((Button) findViewById(R.id.okButton)).setEnabled(true);
         }
 
-        addTaskName(editText);
+        addTaskName(editTextTaskName);
         addRecurrence(recurrence);
         addReminder();
     }
@@ -167,7 +174,8 @@ public class TaskSettingActivity extends Activity {
      * @param view
      */
     public void onSaveClicked(View view) {
-        EditText edit = (EditText) findViewById(R.id.editTextTaskName);
+        EditText editTextTaskName = (EditText) findViewById(R.id.editTextTaskName);
+        EditText editTextDescription = (EditText) findViewById(R.id.editTextDescription);
         Recurrence recurrence = new Recurrence(
                 mRecurrenceFlags[1],
                 mRecurrenceFlags[2],
@@ -176,8 +184,9 @@ public class TaskSettingActivity extends Activity {
                 mRecurrenceFlags[5],
                 mRecurrenceFlags[6],
                 mRecurrenceFlags[0]);
-        mTask.setName(edit.getText().toString());
+        mTask.setName(editTextTaskName.getText().toString());
         mTask.setRecurrence(recurrence);
+        mTask.setContext(editTextDescription.getText().toString());
 
         Intent data = new Intent();
         data.putExtra("TASK-INFO", mTask);

@@ -55,4 +55,8 @@ public class Task implements Serializable {
     public void setReminder(Reminder reminder) {
         this.reminder = reminder;
     }
+
+    public void setContext(String context) {
+        this.context = context;
+    }
 }
