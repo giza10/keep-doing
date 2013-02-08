@@ -4,7 +4,7 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 public final class Database {
-    public static final String AUTHORITY = " com.hkb48.keepdo.keepdoprovider";
+    public static final String AUTHORITY = "com.hkb48.keepdo.keepdoprovider";
 
 	private Database() {}
 
@@ -13,9 +13,9 @@ public final class Database {
 
         private TasksToday() {}
 
-        // The incoming URI matches the main table URI pattern
+        // Incoming URI matches the main table URI pattern
         public static final int TABLE_LIST = 10;
-        // The incoming URI matches the main table row ID URI pattern
+        // Incoming URI matches the main table row ID URI pattern
         public static final int TABLE_ID = 20;
 
         public static final String TABLE_NAME = "table_tasks";
@@ -43,9 +43,9 @@ public final class Database {
 
         private TaskCompletions() {}
         
-        // The incoming URI matches the main table URI pattern
+        // Incoming URI matches the main table URI pattern
         public static final int TABLE_LIST = 30;
-        // The incoming URI matches the main table row ID URI pattern
+        // Incoming URI matches the main table row ID URI pattern
         public static final int TABLE_ID = 40;
 
         public static final String TABLE_NAME = "table_completions";

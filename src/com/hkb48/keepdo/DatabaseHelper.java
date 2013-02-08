@@ -59,7 +59,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL(STRING_CREATE_TASK);
             db.execSQL(STRING_CREATE_COMPLETION);
         } catch (SQLiteException e) {
-            Log.e(TAG, e.getMessage());
+            if (BuildConfig.DEBUG) {
+            	Log.e(TAG, e.getMessage());
+            }
         }
     }
 
@@ -70,7 +72,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
         }
 
     	/*
-    	 *  The initial version is 2, while updated to the latest version to 4.  
+    	 *  The initial version is 1, while updated to the latest version to 2.  
     	 */
     	if (oldVersion < 2) {
     		db.beginTransaction();
@@ -93,60 +95,67 @@ class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Creates a empty database on the system and rewrites it with your own database.
+     * Creates a empty database on the system and rewrites it with own database.
      */
     public void createDataBase() throws IOException {
         boolean dbExist = checkDataBase();
+
         if (dbExist) {
-            //do nothing - database already exist
+            if (BuildConfig.DEBUG) {
+            	Log.i(TAG, "The file is existing");
+            }
         } else {
-            //By calling this method and empty database will be created into the default system path
-            //of your application so we are gonna be able to overwrite that database with our database.
             this.getReadableDatabase();
             try {
                 copyDataBase();
             } catch (IOException e) {
-                Log.e(TAG, e.getMessage());
+                if (BuildConfig.DEBUG) {
+                	Log.e(TAG, e.getMessage());
+                }
             }
         }
     }
 
     /**
-     * Check if the database already exist to avoid re-copying the file each time you open the application.
+     * Check if the database already exist to avoid re-copying the file each time open the application.
      * @return true if it exists, false if it doesn't
      */
     private boolean checkDataBase() {
         SQLiteDatabase checkDB = null;
+
         try {
             String dbPath = DB_PATH + DB_NAME;
             checkDB = SQLiteDatabase.openDatabase(dbPath, null, SQLiteDatabase.OPEN_READONLY);
         } catch(SQLiteException e) {
-            //database does't exist yet.
+            if (BuildConfig.DEBUG) {
+            	Log.e(TAG, e.getMessage());
+            }
         }
+
         if (checkDB != null) {
             checkDB.close();
         }
+
         return checkDB != null ? true : false;
     }
 
     /**
-      * Copies your database from your local assets-folder to the just created empty database in the
+      * Copies database from local assets-folder to the just created empty database in the
       * system folder, from where it can be accessed and handled.
       * This is done by transferring bytestream.
       */
     private void copyDataBase() throws IOException {
-        //Open your local db as the input stream
         InputStream inputStream = mContext.getAssets().open(DB_NAME);
-        // Path to the just created empty db
         String outFileName = DB_PATH + DB_NAME;
-        //Open the empty db as the output stream
+
         OutputStream outputStream = new FileOutputStream(outFileName);
-        //transfer bytes from the inputfile to the outputfile
         byte[] buffer = new byte[1024];
         int length;
+
         while ((length = inputStream.read(buffer)) > 0) {
             outputStream.write(buffer, 0, length);
-        }     	//Close the streams
+        }
+        
         outputStream.flush();
         outputStream.close();
         inputStream.close();
