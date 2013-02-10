@@ -29,15 +29,15 @@ import android.widget.Toast;
 
 public class TasksActivity extends Activity {
     // Request code when launching sub-activity
-    private final static int REQUEST_ADD_TASK = 0;
-    private final static int REQUEST_EDIT_TASK = 1;
-    private final static int REQUEST_SHOW_CALENDAR = 2;
+    private static final int REQUEST_ADD_TASK = 0;
+    private static final int REQUEST_EDIT_TASK = 1;
+    private static final int REQUEST_SHOW_CALENDAR = 2;
 
     // ID of context menu items
-    private final static int CONTEXT_MENU_EDIT = 0;
-    private final static int CONTEXT_MENU_DELETE = 1;
+    private static final int CONTEXT_MENU_EDIT = 0;
+    private static final int CONTEXT_MENU_DELETE = 1;
 
-    private final static int TASKID_FOR_LISTHEADER = -1;
+    private static final int TASKID_FOR_LISTHEADER = -1;
 
     private TaskAdapter mAdapter;
     private List<Task> mDataList = new ArrayList<Task>();
@@ -56,7 +56,7 @@ public class TasksActivity extends Activity {
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(R.string.app_name);
 
-        ListView listView1 = (ListView)findViewById(R.id.listView1);
+        ListView listView1 = (ListView) findViewById(R.id.listView1);
         mAdapter = new TaskAdapter();
         listView1.setAdapter(mAdapter);
 
@@ -78,13 +78,13 @@ public class TasksActivity extends Activity {
 
     @Override
     public void onResume() {
-    	mCheckSound.load();
+        mCheckSound.load();
         super.onResume();
     }
 
     @Override
     public void onPause() {
-    	mCheckSound.unload();
+        mCheckSound.unload();
         super.onPause();
     }
 
@@ -145,8 +145,8 @@ public class TasksActivity extends Activity {
 
     public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, view, menuInfo);
-        AdapterContextMenuInfo adapterinfo = (AdapterContextMenuInfo)menuInfo;
-        ListView listView = (ListView)view;
+        AdapterContextMenuInfo adapterinfo = (AdapterContextMenuInfo) menuInfo;
+        ListView listView = (ListView) view;
         Task task = (Task) listView.getItemAtPosition(adapterinfo.position);
         menu.setHeaderTitle(task.getName());
         menu.add(0, CONTEXT_MENU_EDIT, 0, R.string.edit_task);
@@ -154,7 +154,7 @@ public class TasksActivity extends Activity {
     }
 
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         Task task = (Task) mAdapter.getItem(info.position);
         final long taskId = task.getTaskID();
         switch (item.getItemId()) {
@@ -198,7 +198,7 @@ public class TasksActivity extends Activity {
 
         mDataList.clear();
         for (Task task : taskList) {
-            if (task.getRecurrence().isValidDay(dayOfWeek) ) {
+            if (task.getRecurrence().isValidDay(dayOfWeek)) {
                 taskListToday.add(task);
             } else {
                 taskListNotToday.add(task);
@@ -270,7 +270,7 @@ public class TasksActivity extends Activity {
             boolean createView = false;
 
             // Check if it's necessary to create view or re-use
-            if (view == null ) {
+            if (view == null) {
                 createView = true;
             } else {
                 viewHolder = (ViewHolder) view.getTag();

@@ -64,32 +64,32 @@ public class Recurrence implements Serializable {
         default: return false;
         }
     }
-	
-	private void setMonday(boolean setValue){
-		this.monday = setValue;
-	}
-	
-	private void setTuesday(boolean setValue){
-		this.tuesday = setValue;
-	}
-	
-	private void setWednesday(boolean setValue){
-		this.wednesday = setValue;
-	}
-	
-	private void setThurday(boolean setValue){
-		this.thursday = setValue;
-	}
-	
-	private void setFriday(boolean setValue){
-		this.friday = setValue;
-	}
-	
-	private void setSaturday(boolean setValue){
-		this.saturday = setValue;
-	}
 
-	private void setSunday(boolean setValue){
-		this.sunday = setValue;
-	}
+    public void setMonday(boolean setValue){
+        this.monday = setValue;
+    }
+
+    public void setTuesday(boolean setValue){
+        this.tuesday = setValue;
+    }
+
+    public void setWednesday(boolean setValue){
+        this.wednesday = setValue;
+    }
+
+    public void setThurday(boolean setValue){
+        this.thursday = setValue;
+    }
+
+    public void setFriday(boolean setValue){
+        this.friday = setValue;
+    }
+
+    public void setSaturday(boolean setValue){
+        this.saturday = setValue;
+    }
+
+    public void setSunday(boolean setValue){
+        this.sunday = setValue;
+    }
 }

@@ -20,9 +20,9 @@ public class AlertPreferences extends PreferenceFragment implements OnPreference
     public static final String KEY_ALERTS_RINGTONE = "preferences_alerts_ringtone";
     public static final String KEY_ALERTS_VIBRATE_WHEN = "preferences_alerts_vibrateWhen";
 
-    ListPreference mVibrateWhen;
+    private ListPreference mVibrateWhen;
 
-    public static SharedPreferences getSharedPreferences(Context context) {
+    public static SharedPreferences getSharedPreferences(final Context context) {
         return context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
     }
 
@@ -58,7 +58,7 @@ public class AlertPreferences extends PreferenceFragment implements OnPreference
 
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         if (preference == mVibrateWhen) {
-            mVibrateWhen.setValue((String)newValue);
+            mVibrateWhen.setValue((String) newValue);
             mVibrateWhen.setSummary(mVibrateWhen.getEntry());
         }
         return false;

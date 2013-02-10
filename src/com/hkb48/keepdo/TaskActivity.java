@@ -14,7 +14,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.NavUtils;
 import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.LayoutInflater;

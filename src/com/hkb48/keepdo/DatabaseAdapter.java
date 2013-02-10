@@ -243,9 +243,9 @@ public class DatabaseAdapter {
         if (cursor != null){
             cursor.moveToFirst();
             task = getTask(cursor);
+            cursor.close();
         }
 
-        cursor.close();
         closeDatabase();
 
         return task;

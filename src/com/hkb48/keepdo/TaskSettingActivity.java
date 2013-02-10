@@ -99,7 +99,7 @@ public class TaskSettingActivity extends Activity {
         findViewById(R.id.recurrenceLayout).setOnClickListener(new OnClickListener() {
             boolean tmpRecurrenceFlags[];
 
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 tmpRecurrenceFlags = Arrays.copyOf(mRecurrenceFlags, mRecurrenceFlags.length);
                 new AlertDialog.Builder(TaskSettingActivity.this)
                 .setTitle(getString(R.string.recurrence))
@@ -141,7 +141,7 @@ public class TaskSettingActivity extends Activity {
         }
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 cancelButton.setVisibility(View.INVISIBLE);
                 reminderTime.setText(R.string.no_reminder);
                 reminder.setEnabled(false);
@@ -152,7 +152,7 @@ public class TaskSettingActivity extends Activity {
         final TimePickerDialog timePickerDialog = new TimePickerDialog(
             this,
             new TimePickerDialog.OnTimeSetListener() {
-                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                public void onTimeSet(final TimePicker view, final int hourOfDay, final int minute) {
                     reminderTime.setText(String.format("%1$02d", hourOfDay) + ":" + String.format("%1$02d", minute));
                     cancelButton.setVisibility(View.VISIBLE);
                     reminder.setEnabled(true);
@@ -163,7 +163,7 @@ public class TaskSettingActivity extends Activity {
             }, hourOfDay, minute, true);
 
         reminderTime.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 timePickerDialog.show();
             }
         });
@@ -191,7 +191,7 @@ public class TaskSettingActivity extends Activity {
         Intent data = new Intent();
         data.putExtra("TASK-INFO", mTask);
         setResult(RESULT_OK, data);
-    	finish();
+        finish();
     }
 
     /**
