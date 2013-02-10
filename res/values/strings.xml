@@ -19,7 +19,7 @@
     <string name="dialog_cancel">Cancel</string>
     <string name="reminder">Reminder</string>
     <string name="no_reminder">No reminder</string>
-    <string name="description">Reminder</string>
+    <string name="description">Description</string>
     <string name="hint_task_description">Event description</string>
     <string name="task_save">Save</string>
     <string name="task_cancel">Cancel</string>
