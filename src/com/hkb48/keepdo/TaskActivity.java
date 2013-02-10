@@ -6,7 +6,6 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.view.Menu;
 import android.view.MenuItem;
 
 public class TaskActivity extends FragmentActivity implements
@@ -89,5 +88,4 @@ public class TaskActivity extends FragmentActivity implements
             return super.onOptionsItemSelected(item);
         }
     }
-
 }

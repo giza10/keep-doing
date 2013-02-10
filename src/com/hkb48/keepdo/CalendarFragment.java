@@ -9,9 +9,11 @@ import java.util.Locale;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.ContextMenu;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -37,6 +39,8 @@ public class CalendarFragment extends Fragment {
 	    private View mPressedView;
 	    private CheckSoundPlayer mCheckSound;
 	    private DatabaseAdapter mDBAdapter;
+        private int mCalendarCellWidth;
+        private int mCalendarCellHeight;
 
 		public CalendarFragment() {
 		}
@@ -84,6 +88,14 @@ public class CalendarFragment extends Fragment {
 	        Intent returnIntent = new Intent();
 	        getActivity().setResult(TaskActivity.RESULT_CANCELED, returnIntent);
 
+            Display display = getActivity().getWindowManager().getDefaultDisplay();
+            Point displaySize = new Point();
+            display.getSize(displaySize);
+            int width = (displaySize.x - 10) / 7;
+            int height = width + 15;
+            mCalendarCellWidth = width;
+            mCalendarCellHeight= height;
+
 	        buildCalendar();
 		}
 
@@ -98,22 +110,6 @@ public class CalendarFragment extends Fragment {
 	        mCheckSound.unload();
 	        super.onPause();
 	    }
-
-//	    @Override
-//	    public void onDestroy() {
-//	        super.onDestroy();
-//	    }
-
-//	    @Override
-//	    public boolean onOptionsItemSelected(MenuItem item) {
-//	        switch (item.getItemId()) {
-//	        case android.R.id.home:
-//	            getActivity().finish();
-//	            return true;
-//	        default:
-//	            return super.onOptionsItemSelected(item);
-//	        }
-//	    }
 
 	    @Override
 	    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
@@ -241,8 +237,9 @@ public class CalendarFragment extends Fragment {
 	            }
 
 	            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+                params.width = mCalendarCellWidth;
 	            params.setGravity(Gravity.FILL_HORIZONTAL);
-	            mGridLayout.addView(child);
+	            mGridLayout.addView(child, params);
 	        }
 	    }
 
@@ -267,6 +264,8 @@ public class CalendarFragment extends Fragment {
 	            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
 	            params.rowSpec = GridLayout.spec(1);
 	            params.columnSpec = GridLayout.spec(i);
+                params.width = mCalendarCellWidth;
+                params.height = mCalendarCellHeight;
 	            View child = getActivity().getLayoutInflater().inflate(R.layout.calendar_date, null);
 	            child.setBackgroundResource(R.drawable.bg_calendar_day_blank);
 	            mGridLayout.addView(child, params);
@@ -318,6 +317,8 @@ public class CalendarFragment extends Fragment {
 	            }
 
 	            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+                params.width = mCalendarCellWidth;
+                params.height = mCalendarCellHeight;
 	            params.setGravity(Gravity.FILL_HORIZONTAL);
 	            mGridLayout.addView(child, params);
 
@@ -327,6 +328,8 @@ public class CalendarFragment extends Fragment {
 	        // Fill the days of next month in the last week with blank rectangle
 	        for (int i = 0; i < (7 - week); i++) {
 	            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+                params.width = mCalendarCellWidth;
+                params.height = mCalendarCellHeight;
 	            View child = getActivity().getLayoutInflater().inflate(R.layout.calendar_date, null);
 	            child.setBackgroundResource(R.drawable.bg_calendar_day_blank);
 	            mGridLayout.addView(child, params);
