@@ -11,10 +11,12 @@ import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.ContextMenu;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -162,6 +164,8 @@ public class TaskActivity extends FragmentActivity implements
 	    private View mPressedView;
 	    private CheckSoundPlayer mCheckSound;
 	    private DatabaseAdapter mDBAdapter;
+        private int mCalendarCellWidth;
+        private int mCalendarCellHeight;
 
 		public CalendarFragment() {
 		}
@@ -208,6 +212,14 @@ public class TaskActivity extends FragmentActivity implements
 
 	        Intent returnIntent = new Intent();
 	        getActivity().setResult(RESULT_CANCELED, returnIntent);
+
+            Display display = getActivity().getWindowManager().getDefaultDisplay();
+            Point displaySize = new Point();
+            display.getSize(displaySize);
+            int width = (displaySize.x - 10) / 7;
+            int height = width + 15;
+            mCalendarCellWidth = width;
+            mCalendarCellHeight= height;
 
 	        buildCalendar();
 		}
@@ -348,6 +360,7 @@ public class TaskActivity extends FragmentActivity implements
 	        String[] weeks = getResources().getStringArray(R.array.week_names);
 	        for (int i = 0; i < weeks.length; i++) {
 	            View child = getActivity().getLayoutInflater().inflate(R.layout.calendar_week, null);
+
 	            int dayOfWeek = getDayOfWeek(i);
 
 	            TextView textView1 = (TextView) child.findViewById(R.id.textView1);
@@ -366,8 +379,9 @@ public class TaskActivity extends FragmentActivity implements
 	            }
 
 	            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+                params.width = mCalendarCellWidth;
 	            params.setGravity(Gravity.FILL_HORIZONTAL);
-	            mGridLayout.addView(child);
+	            mGridLayout.addView(child, params);
 	        }
 	    }
 
@@ -392,6 +406,8 @@ public class TaskActivity extends FragmentActivity implements
 	            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
 	            params.rowSpec = GridLayout.spec(1);
 	            params.columnSpec = GridLayout.spec(i);
+                params.width = mCalendarCellWidth;
+                params.height = mCalendarCellHeight;
 	            View child = getActivity().getLayoutInflater().inflate(R.layout.calendar_date, null);
 	            child.setBackgroundResource(R.drawable.bg_calendar_day_blank);
 	            mGridLayout.addView(child, params);
@@ -443,6 +459,8 @@ public class TaskActivity extends FragmentActivity implements
 	            }
 
 	            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+                params.width = mCalendarCellWidth;
+                params.height = mCalendarCellHeight;
 	            params.setGravity(Gravity.FILL_HORIZONTAL);
 	            mGridLayout.addView(child, params);
 
@@ -452,6 +470,8 @@ public class TaskActivity extends FragmentActivity implements
 	        // Fill the days of next month in the last week with blank rectangle
 	        for (int i = 0; i < (7 - week); i++) {
 	            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+                params.width = mCalendarCellWidth;
+                params.height = mCalendarCellHeight;
 	            View child = getActivity().getLayoutInflater().inflate(R.layout.calendar_date, null);
 	            child.setBackgroundResource(R.drawable.bg_calendar_day_blank);
 	            mGridLayout.addView(child, params);
