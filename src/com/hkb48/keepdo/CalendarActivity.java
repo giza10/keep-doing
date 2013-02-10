@@ -39,7 +39,7 @@ public class CalendarActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.calendar_activity);
+        setContentView(R.layout.calendar_fragment);
 
         Intent intent = getIntent();
         long taskId = intent.getLongExtra("TASK-ID", -1);
