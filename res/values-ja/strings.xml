@@ -1,17 +1,17 @@
 <resources>
     <string name="app_name">Keep Do!</string>
 
-    <string name="tasklist_header_today_task">今日のタスク</string>
-    <string name="tasklist_header_other_task">その他のタスク</string>
-    <string name="add_task">新規タスク追加</string>
-    <string name="edit_task">タスク編集</string>
-    <string name="delete_task">タスク削除</string>
+    <string name="tasklist_header_today_task">今日のDo</string>
+    <string name="tasklist_header_other_task">その他のDo</string>
+    <string name="add_task">新規Do追加</string>
+    <string name="edit_task">Doの編集</string>
+    <string name="delete_task">Doの削除</string>
     <string name="settings">設定</string>
     <string name="reminder_setting">通知設定</string>
     <string name="preferences_alerts_ringtone_title">通知音</string>
     <string name="preferences_alerts_vibrateWhen_title">バイブレーション</string>
-    <string name="task_name">タスク名</string>
-    <string name="hint_task_name">タスク名</string>
+    <string name="task_name">タイトル</string>
+    <string name="hint_task_name">Doのタイトル</string>
     <string name="recurrence">実行頻度</string>
     <string name="recurrence_separator"></string>
     <string name="dialog_ok">OK</string>
@@ -22,12 +22,12 @@
     <string name="hint_task_description">説明</string>
     <string name="task_save">保存</string>
     <string name="task_cancel">キャンセル</string>
-    <string name="delete_confirmation">このタスクを削除してもよろしいですか？</string>
+    <string name="delete_confirmation">このDoを削除してもよろしいですか？</string>
     <string name="date_format">MM月dd日(E)</string>
     <string name="check_done">済をつける</string>
     <string name="uncheck_done">済をはずす</string>
-    <string name="notification_title_one_task">今日やる予定のタスクがあります！</string>
-    <string name="notification_title_multi_tasks">今日やる予定のタスクが%d件あります！</string>
+    <string name="notification_title_one_task">今日の未実施のDoがあります！</string>
+    <string name="notification_title_multi_tasks">今日の未実施のDoが%d件あります！</string>
 
     <string name="btn_month_next">翌月</string>
     <string name="btn_month_prev">先月</string>
