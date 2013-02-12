@@ -14,7 +14,7 @@ public class CheckSoundPlayer {
     }
 
     void load() {
-        mSoundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+        mSoundPool = new SoundPool(1, AudioManager.STREAM_SYSTEM, 0);
         mSoundId = mSoundPool.load(mContext, R.raw.done_pressed, 1);
     }
 
