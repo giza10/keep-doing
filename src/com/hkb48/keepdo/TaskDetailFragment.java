@@ -31,7 +31,18 @@ public class TaskDetailFragment extends Fragment {
         DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(this.getActivity());
         Task task = dbAdapter.getTask(taskId);
 
-        TextView textView = (TextView) getActivity().findViewById(R.id.taskDetailContextDescription);
-        textView.setText(task.getContext());
+        RecurrenceView recurrenceView = (RecurrenceView) getActivity().findViewById(R.id.recurrenceView);
+        recurrenceView.update(task.getRecurrence());
+        TextView contextTextView = (TextView) getActivity().findViewById(R.id.taskDetailContextDescription);
+        contextTextView.setText(task.getContext());
+        TextView reminderTextView = (TextView) getActivity().findViewById(R.id.taskDetailReminderValue);
+        Reminder reminder = task.getReminder();
+        if (reminder.getEnabled()) {
+        	int hourOfDay = reminder.getHourOfDay();
+			int minute = reminder.getMinute();
+			reminderTextView.setText(String.format("%1$02d", hourOfDay) + ":" + String.format("%1$02d", minute));
+        } else {
+        	reminderTextView.setText(R.string.no_reminder);
+        }
 	}
 }
