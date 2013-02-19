@@ -31,18 +31,31 @@ public class TaskDetailFragment extends Fragment {
         DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(this.getActivity());
         Task task = dbAdapter.getTask(taskId);
 
+        // Recurrence
         RecurrenceView recurrenceView = (RecurrenceView) getActivity().findViewById(R.id.recurrenceView);
         recurrenceView.update(task.getRecurrence());
-        TextView contextTextView = (TextView) getActivity().findViewById(R.id.taskDetailContextDescription);
-        contextTextView.setText(task.getContext());
+        // Reminder
         TextView reminderTextView = (TextView) getActivity().findViewById(R.id.taskDetailReminderValue);
         Reminder reminder = task.getReminder();
         if (reminder.getEnabled()) {
-        	int hourOfDay = reminder.getHourOfDay();
-			int minute = reminder.getMinute();
-			reminderTextView.setText(String.format("%1$02d", hourOfDay) + ":" + String.format("%1$02d", minute));
+			String hourOfDayStr = String.format("%1$02d", reminder.getHourOfDay());
+			String minuteStr    = String.format("%1$02d", reminder.getMinute());
+			String remindAtStr  = getActivity().getString(R.string.remind_at);
+			reminderTextView.setText(remindAtStr + " " + hourOfDayStr + ":" + minuteStr);
         } else {
         	reminderTextView.setText(R.string.no_reminder);
+        }
+        // Context
+    	TextView contextTitleTextView = (TextView) getActivity().findViewById(R.id.taskDetailContext);
+        TextView contextTextView = (TextView) getActivity().findViewById(R.id.taskDetailContextDescription);
+        String contextStr = task.getContext();
+        if (contextStr == null || contextStr.isEmpty()) {
+        	contextTitleTextView.setVisibility(View.INVISIBLE);
+        	contextTextView.setVisibility(View.INVISIBLE);
+        } else {
+        	contextTitleTextView.setVisibility(View.VISIBLE);
+        	contextTextView.setVisibility(View.VISIBLE);
+    		contextTextView.setText(contextStr);
         }
 	}
 }

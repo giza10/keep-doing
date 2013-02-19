@@ -29,6 +29,7 @@
     <string name="uncheck_done">Uncheck done</string>
     <string name="notification_title_one_task">There\'s a Do to be done today!</string>
     <string name="notification_title_multi_tasks">There\'re %d Do to be done today!</string>
+    <string name="remind_at">Remind at</string>
 
     <string name="btn_month_next">Next</string>
     <string name="btn_month_prev">Prev</string>
