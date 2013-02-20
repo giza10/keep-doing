@@ -2,6 +2,19 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
+        android:key="preferences_general_category"
+        android:title="@string/general_setting">
+
+        <com.hkb48.keepdo.DoneIconPreference
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:key="preferences_done_icon"
+            android:title="@string/preferences_done_icon_title"
+            android:positiveButtonText=""
+            android:negativeButtonText=""
+            android:dialogTitle="@string/prefDialogTitle_selectDoneIcon" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:key="preferences_alerts_category"
         android:title="@string/reminder_setting">
 

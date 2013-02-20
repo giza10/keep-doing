@@ -7,7 +7,9 @@
     <string name="edit_task">Doの編集</string>
     <string name="delete_task">Doの削除</string>
     <string name="settings">設定</string>
+    <string name="general_setting">一般設定</string>
     <string name="reminder_setting">通知設定</string>
+    <string name="preferences_done_icon_title">完了アイコン</string>
     <string name="preferences_alerts_ringtone_title">通知音</string>
     <string name="preferences_alerts_vibrateWhen_title">バイブレーション</string>
     <string name="task_name">タイトル</string>
@@ -55,6 +57,9 @@
         <item>マナーモード時のみ</item>
         <item>使用しない</item>
     </string-array>
+
+    <!-- Dialog title for the Done icon dialog -->
+    <string name="prefDialogTitle_selectDoneIcon">完了アイコン選択</string>
 
     <!-- Dialog title for the Vibrate dialog -->
     <string name="prefDialogTitle_vibrateWhen">バイブレーション</string>
