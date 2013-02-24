@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -41,6 +42,7 @@ public class CalendarFragment extends Fragment {
     private DatabaseAdapter mDBAdapter;
     private int mCalendarCellWidth;
     private int mCalendarCellHeight;
+    private int mDoneIconId;
 
     public CalendarFragment() {
     }
@@ -95,6 +97,15 @@ public class CalendarFragment extends Fragment {
         mCalendarCellWidth = width;
         mCalendarCellHeight= height;
 
+        mDoneIconId = R.drawable.ic_done_1;
+        SharedPreferences prefs = GeneralSettingsFragment.getSharedPreferences(getActivity());
+        String doneIcon = prefs.getString(GeneralSettingsFragment.KEY_GENERAL_DONE_ICON, null);
+        if (doneIcon != null) {
+            if (doneIcon.equals("type2")) {
+                mDoneIconId = R.drawable.ic_done_2;
+            }
+        }
+
         buildCalendar();
     }
 
@@ -133,12 +144,12 @@ public class CalendarFragment extends Fragment {
 
         switch (item.getItemId()) {
         case CONTEXT_MENU_CHECK_DONE:
-            imageView.setVisibility(View.VISIBLE);
+            showDoneIcon(imageView);
             mDBAdapter.setDoneStatus(mTask.getTaskID(), selectedDate, true);
             mCheckSound.play();
             break;
         case CONTEXT_MENU_UNCHECK_DONE:
-            imageView.setVisibility(View.INVISIBLE);
+            hideDoneIcon(imageView);
             mDBAdapter.setDoneStatus(mTask.getTaskID(), selectedDate, false);
             break;
         default:
@@ -308,7 +319,7 @@ public class CalendarFragment extends Fragment {
             // Put done mark
             for (Date doneDate : doneDateList) {
                 if (day == Integer.parseInt(sdf_d.format(doneDate))) {
-                    imageView1.setVisibility(View.VISIBLE);
+                    showDoneIcon(imageView1);
                     break;
                 }
             }
@@ -373,5 +384,14 @@ public class CalendarFragment extends Fragment {
         } else {
             button.setVisibility(View.INVISIBLE);
         }
+    }
+
+    private void showDoneIcon(ImageView view) {
+        view.setImageResource(mDoneIconId);
+        view.setVisibility(View.VISIBLE);
+    }
+
+    private void hideDoneIcon(ImageView view) {
+        view.setVisibility(View.INVISIBLE);
     }
 }

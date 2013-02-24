@@ -54,12 +54,12 @@ public class RemindAlarmReceiver extends BroadcastReceiver {
             builder.setContentText(taskName);
         }
         builder.setDefaults(Notification.DEFAULT_LIGHTS);
-        SharedPreferences prefs = AlertPreferences.getSharedPreferences(context);
-        String reminderRingtone = prefs.getString(AlertPreferences.KEY_ALERTS_RINGTONE, null);
+        SharedPreferences prefs = GeneralSettingsFragment.getSharedPreferences(context);
+        String reminderRingtone = prefs.getString(GeneralSettingsFragment.KEY_ALERTS_RINGTONE, null);
         if (reminderRingtone != null) {
             builder.setSound(Uri.parse(reminderRingtone));
         }
-        String vibrateWhen = prefs.getString(AlertPreferences.KEY_ALERTS_VIBRATE_WHEN, null);
+        String vibrateWhen = prefs.getString(GeneralSettingsFragment.KEY_ALERTS_VIBRATE_WHEN, null);
         boolean vibrateAlways = vibrateWhen.equals("always");
         boolean vibrateSilent = vibrateWhen.equals("silent");
         AudioManager audioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);

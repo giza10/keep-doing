@@ -12,9 +12,11 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 
-public class AlertPreferences extends PreferenceFragment implements OnPreferenceChangeListener {
+public class GeneralSettingsFragment extends PreferenceFragment implements OnPreferenceChangeListener {
 
     private static final String SHARED_PREFS_NAME = "com.hkb48.keepdo_preferences";
+
+    public static final String KEY_GENERAL_DONE_ICON = "preferences_done_icon";
 
     public static final String KEY_ALERTS_CATEGORY = "preferences_alerts_category";
     public static final String KEY_ALERTS_RINGTONE = "preferences_alerts_ringtone";
@@ -30,7 +32,7 @@ public class AlertPreferences extends PreferenceFragment implements OnPreference
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        addPreferencesFromResource(R.xml.alert_preferences);
+        addPreferencesFromResource(R.xml.general_settings);
 
         final Activity activity = getActivity();
         final PreferenceScreen preferenceScreen = getPreferenceScreen();

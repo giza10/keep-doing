@@ -12,7 +12,7 @@ public class SettingsActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         FragmentManager fragmentManager = getFragmentManager();
-        Fragment fragment = new AlertPreferences();
+        Fragment fragment = new GeneralSettingsFragment();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(android.R.id.content, fragment);
         fragmentTransaction.commit();
