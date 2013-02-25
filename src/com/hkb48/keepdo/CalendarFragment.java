@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -97,14 +96,7 @@ public class CalendarFragment extends Fragment {
         mCalendarCellWidth = width;
         mCalendarCellHeight= height;
 
-        mDoneIconId = R.drawable.ic_done_1;
-        SharedPreferences prefs = GeneralSettingsFragment.getSharedPreferences(getActivity());
-        String doneIcon = prefs.getString(GeneralSettingsFragment.KEY_GENERAL_DONE_ICON, null);
-        if (doneIcon != null) {
-            if (doneIcon.equals("type2")) {
-                mDoneIconId = R.drawable.ic_done_2;
-            }
-        }
+        mDoneIconId = Settings.getDoneIconId();
 
         buildCalendar();
     }

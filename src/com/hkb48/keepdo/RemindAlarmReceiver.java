@@ -8,9 +8,9 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -54,12 +54,13 @@ public class RemindAlarmReceiver extends BroadcastReceiver {
             builder.setContentText(taskName);
         }
         builder.setDefaults(Notification.DEFAULT_LIGHTS);
-        SharedPreferences prefs = GeneralSettingsFragment.getSharedPreferences(context);
-        String reminderRingtone = prefs.getString(GeneralSettingsFragment.KEY_ALERTS_RINGTONE, null);
+
+        Settings.getInstance(PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext()));
+        String reminderRingtone = Settings.getAlertsRingTone();
         if (reminderRingtone != null) {
             builder.setSound(Uri.parse(reminderRingtone));
         }
-        String vibrateWhen = prefs.getString(GeneralSettingsFragment.KEY_ALERTS_VIBRATE_WHEN, null);
+        String vibrateWhen = Settings.getAlertsVibrateWhen();
         boolean vibrateAlways = vibrateWhen.equals("always");
         boolean vibrateSilent = vibrateWhen.equals("silent");
         AudioManager audioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);

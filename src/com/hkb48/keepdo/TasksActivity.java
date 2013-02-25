@@ -11,8 +11,8 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -44,8 +44,8 @@ public class TasksActivity extends Activity {
     private List<Task> mDataList = new ArrayList<Task>();
     private CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
     private DatabaseAdapter mDBAdapter = null;
-    private int mDoneIconId;
-    private int mNotDoneIconId;
+    private int mDoneIconId = 0;
+    private int mNotDoneIconId = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,26 +76,18 @@ public class TasksActivity extends Activity {
 
         registerForContextMenu(listView1);
 
+        Settings.getInstance(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
+
         updateTaskList();
     }
 
     @Override
     public void onResume() {
-        int doneIconId = R.drawable.ic_done_1;
-        int notDoneIconId = R.drawable.ic_not_done_1;
-        SharedPreferences prefs = GeneralSettingsFragment.getSharedPreferences(this);
-        String doneIcon = prefs.getString(GeneralSettingsFragment.KEY_GENERAL_DONE_ICON, null);
-        if (doneIcon != null) {
-            if (doneIcon.equals("type2")) {
-                doneIconId = R.drawable.ic_done_2;
-                notDoneIconId = R.drawable.ic_not_done_2;
-            }
-        }
-        if (doneIconId != mDoneIconId) {
+        if (mDoneIconId != Settings.getDoneIconId()) {
+            mDoneIconId = Settings.getDoneIconId();
+            mNotDoneIconId = Settings.getNotDoneIconId();
             updateTaskList();
         }
-        mDoneIconId = doneIconId;
-        mNotDoneIconId = notDoneIconId;
 
         mCheckSound.load();
         super.onResume();
