@@ -63,7 +63,7 @@
         <item>Never</item>
     </string-array>
 
-    <string name="prefDefault_done_icon">type1</string>
+    <string translatable="false" name="prefDefault_done_icon">type1</string>
 
     <!-- The default vibrateWhen value, when none is set -->
     <string translatable="false" name="prefDefault_alerts_vibrateWhen">never</string>
