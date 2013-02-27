@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -54,6 +53,8 @@ public class TasksActivity extends Activity {
 
         mDBAdapter = DatabaseAdapter.getInstance(this);
 
+        GeneralSettingsFragment.setDefaultValues(getApplicationContext());
+
         // Cancel notification (if displayed)
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -76,7 +77,7 @@ public class TasksActivity extends Activity {
 
         registerForContextMenu(listView1);
 
-        Settings.getInstance(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
+        Settings.getInstance(this);
 
         updateTaskList();
     }

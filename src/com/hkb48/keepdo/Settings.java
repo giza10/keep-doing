@@ -1,6 +1,8 @@
 package com.hkb48.keepdo;
 
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 public class Settings {
     private static Settings sInstance = null;
@@ -13,8 +15,9 @@ public class Settings {
         sSharedPref = pref;
     }
 
-    public static Settings getInstance(SharedPreferences pref) {
+    public static Settings getInstance(Context context) {
         if (sInstance == null) {
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
             sInstance = new Settings(pref);
             sDoneIconType = sSharedPref.getString(GeneralSettingsFragment.KEY_GENERAL_DONE_ICON, null);
             sAlertsRingTone = sSharedPref.getString(GeneralSettingsFragment.KEY_ALERTS_RINGTONE, null);

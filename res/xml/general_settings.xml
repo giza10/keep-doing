@@ -11,6 +11,7 @@
             android:title="@string/preferences_done_icon_title"
             android:positiveButtonText=""
             android:negativeButtonText=""
+            android:defaultValue="@string/prefDefault_done_icon"
             android:dialogTitle="@string/prefDialogTitle_selectDoneIcon" />
     </PreferenceCategory>
 

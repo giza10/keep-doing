@@ -16,8 +16,6 @@ import android.preference.RingtonePreference;
 
 public class GeneralSettingsFragment extends PreferenceFragment implements OnPreferenceChangeListener {
 
-    private static final String SHARED_PREFS_NAME = "com.hkb48.keepdo_preferences";
-
     public static final String KEY_GENERAL_DONE_ICON = "preferences_done_icon";
 
     public static final String KEY_ALERTS_CATEGORY = "preferences_alerts_category";
@@ -29,7 +27,12 @@ public class GeneralSettingsFragment extends PreferenceFragment implements OnPre
     private ListPreference mVibrateWhen;
 
     public static SharedPreferences getSharedPreferences(final Context context) {
-        return context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
+        return PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    /** Set the default shared preferences in the proper context */
+    public static void setDefaultValues(Context context) {
+        PreferenceManager.setDefaultValues(context, R.xml.general_settings, false);
     }
 
     @Override
@@ -51,7 +54,7 @@ public class GeneralSettingsFragment extends PreferenceFragment implements OnPre
             mVibrateWhen.setSummary(mVibrateWhen.getEntry());
         }
 
-        Settings.getInstance(PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext()));
+        Settings.getInstance(activity);
     }
 
     @Override

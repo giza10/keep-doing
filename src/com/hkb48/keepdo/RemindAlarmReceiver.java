@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -55,7 +54,7 @@ public class RemindAlarmReceiver extends BroadcastReceiver {
         }
         builder.setDefaults(Notification.DEFAULT_LIGHTS);
 
-        Settings.getInstance(PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext()));
+        Settings.getInstance(context);
         String reminderRingtone = Settings.getAlertsRingTone();
         if (reminderRingtone != null) {
             builder.setSound(Uri.parse(reminderRingtone));

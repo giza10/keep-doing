@@ -1,6 +1,7 @@
 package com.hkb48.keepdo;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -10,6 +11,19 @@ public class DoneIconPreference extends DialogPreference {
 
     public DoneIconPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
+    }
+
+    @Override
+    protected Object onGetDefaultValue(TypedArray a, int index) {
+        return a.getString(index);
+    }
+
+    @Override
+    protected void onSetInitialValue(boolean restorePersistedValue,
+            Object defaultValue) {
+        if (! restorePersistedValue) {
+            persistString((String) defaultValue);
+        }
     }
 
     @Override
