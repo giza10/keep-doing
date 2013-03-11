@@ -318,7 +318,8 @@ public class TasksActivity extends Activity {
                 recurrenceView.update(task.getRecurrence());
 
                 ImageView imageView = viewHolder.imageView;
-                boolean checked = mDBAdapter.getDoneStatus(task.getTaskID(), new Date());
+                Date today = DateChangeTime.getDate();
+                boolean checked = mDBAdapter.getDoneStatus(task.getTaskID(), today);
 
                 if (checked) {
                     imageView.setImageResource(mDoneIconId);
@@ -332,9 +333,10 @@ public class TasksActivity extends Activity {
                         int position = (Integer) v.getTag();
                         Task task = (Task) getItem(position);
                         long taskId = task.getTaskID();
-                        boolean checked = mDBAdapter.getDoneStatus(taskId, new Date());
+                        Date today = DateChangeTime.getDate();
+                        boolean checked = mDBAdapter.getDoneStatus(taskId, today);
                         checked = ! checked;
-                        mDBAdapter.setDoneStatus(taskId, new Date(), checked);
+                        mDBAdapter.setDoneStatus(taskId, today, checked);
                         updateReminder();
 
                         if (checked) {

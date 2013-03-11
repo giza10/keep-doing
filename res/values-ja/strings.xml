@@ -26,8 +26,8 @@
     <string name="task_cancel">キャンセル</string>
     <string name="delete_confirmation">このDoを削除してもよろしいですか？</string>
     <string name="date_format">MM月dd日(E)</string>
-    <string name="check_done">済をつける</string>
-    <string name="uncheck_done">済をはずす</string>
+    <string name="check_done">完了マークをつける</string>
+    <string name="uncheck_done">完了マークをはずす</string>
     <string name="notification_title_one_task">今日の未実施のDoがあります！</string>
     <string name="notification_title_multi_tasks">今日の未実施のDoが%d件あります！</string>
     <string name="remind_at">通知あり</string>

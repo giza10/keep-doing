@@ -63,6 +63,11 @@ public class Settings {
         return notDoneIconId;
     }
 
+    public static String getDateChangeTime() {
+        // TODO: should be take pick up from preference
+        return new String("24:00");
+    }
+
     public static String getAlertsRingTone() {
         // TODO Get the value from shared-preference directly because
         // GeneralSettingsFragment#onPreferenceChange isn't called when ringtone setting is updated.
