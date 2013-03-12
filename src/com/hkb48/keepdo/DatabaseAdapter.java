@@ -16,11 +16,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
-import com.hkb48.keepdo.Database.TaskCompletions;
+import com.hkb48.keepdo.Database.TaskCompletion;
 import com.hkb48.keepdo.Database.TasksToday;
 
 public class DatabaseAdapter {
-    private static final String TAG = "#KEEPDO_ADAPTER: ";
+    private static final String TAG = "#KEEPDO_DB_ADAPTER: ";
     private static final String SDF_PATTERN_YMD = "yyyy-MM-dd"; 
     private static final String SDF_PATTERN_YM = "yyyy-MM";
     private static final String SELECT_FORM = "select * from ";
@@ -32,7 +32,7 @@ public class DatabaseAdapter {
 
     private DatabaseAdapter(Context context) {
         mDatabaseHelper = new DatabaseHelper(context.getApplicationContext());
-        setDatabase();
+        //setDatabase();
     }
 
     public static DatabaseAdapter getInstance(Context context) {
@@ -43,7 +43,7 @@ public class DatabaseAdapter {
     	return INSTANCE;
     }
    
-    private SQLiteDatabase openDatabase() {
+    private synchronized SQLiteDatabase openDatabase() {
     	try {
     		mDatabase = mDatabaseHelper.getWritableDatabase();
     	} catch (SQLiteException sqle) {
@@ -53,10 +53,15 @@ public class DatabaseAdapter {
     	return mDatabase;
     }
 
-    private void closeDatabase() {
+    private synchronized void closeDatabase() {
     	if (mDatabase != null) {
     		mDatabase.close();
+    		mDatabase = null;
     	}
+    }
+
+    public void close() {
+        mDatabaseHelper.close();
     }
     
     private void setDatabase() {
@@ -67,10 +72,6 @@ public class DatabaseAdapter {
         } catch(SQLException sqle){
             throw sqle;
         }
-    }
-
-    public void close() {
-        mDatabaseHelper.close();
     }
     
     public List<Task> getTaskList() {
@@ -168,12 +169,12 @@ public class DatabaseAdapter {
         closeDatabase();
 
         // Delete records of deleted task from TASK_COMPLETION_TABLE_NAME
-        whereClause = TaskCompletions.TASK_NAME_ID + "=?";
-        openDatabase().delete(TaskCompletions.TABLE_NAME, whereClause, whereArgs);
+        whereClause = TaskCompletion.TASK_NAME_ID + "=?";
+        openDatabase().delete(TaskCompletion.TABLE_NAME, whereClause, whereArgs);
         closeDatabase();
     }
 
-    //TODO: ROID v.s _ID to be validated.
+    //TODO: ROID --> _ID to be validated.
 	protected void setDoneStatus(Long taskID, Date date, Boolean doneSwitch) {
         if (taskID == null) {
             return;
@@ -184,11 +185,11 @@ public class DatabaseAdapter {
         if (doneSwitch == true) {
             ContentValues contentValues = new ContentValues();
 
-            contentValues.put(TaskCompletions.TASK_NAME_ID, taskID);
-            contentValues.put(TaskCompletions.TASK_COMPLETION_DATE, dateFormat.format(date));
+            contentValues.put(TaskCompletion.TASK_NAME_ID, taskID);
+            contentValues.put(TaskCompletion.TASK_COMPLETION_DATE, dateFormat.format(date));
 
             try {
-            	openDatabase().insertOrThrow(TaskCompletions.TABLE_NAME, null, contentValues);
+            	openDatabase().insertOrThrow(TaskCompletion.TABLE_NAME, null, contentValues);
             } catch (SQLiteException e) {
                 Log.e(TAG, e.getMessage());
             } finally {
@@ -196,22 +197,22 @@ public class DatabaseAdapter {
             }
 
         } else {
-            String whereClause = TaskCompletions.TASK_NAME_ID + "=? and " + TaskCompletions.TASK_COMPLETION_DATE + "=?";
+            String whereClause = TaskCompletion.TASK_NAME_ID + "=? and " + TaskCompletion.TASK_COMPLETION_DATE + "=?";
             String whereArgs[] = {taskID.toString(), dateFormat.format(date)};
-            openDatabase().delete(TaskCompletions.TABLE_NAME, whereClause, whereArgs);
+            openDatabase().delete(TaskCompletion.TABLE_NAME, whereClause, whereArgs);
             closeDatabase();
         }
     }
 
     protected boolean getDoneStatus(Long taskID, Date day) {
         boolean isDone = false;
-        String selectQuery = SELECT_FORM + TaskCompletions.TABLE_NAME + SELECT_ARG_FORM + TaskCompletions.TASK_NAME_ID + "=?";
+        String selectQuery = SELECT_FORM + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
 
         if (cursor.moveToFirst()) {
             do {
-                String dateString = cursor.getString(cursor.getColumnIndex(TaskCompletions.TASK_COMPLETION_DATE));
+                String dateString = cursor.getString(cursor.getColumnIndex(TaskCompletion.TASK_COMPLETION_DATE));
                 if (dateString != null) {
                     Date date = null;
                     try {
@@ -253,7 +254,7 @@ public class DatabaseAdapter {
 
     protected ArrayList<Date> getHistory(Long taskID, Date month) {
         ArrayList<Date> dateList = new ArrayList<Date>();
-        String selectQuery = SELECT_FORM + TaskCompletions.TABLE_NAME + SELECT_ARG_FORM + TaskCompletions.TASK_NAME_ID + "=?";;
+        String selectQuery = SELECT_FORM + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";;
         
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
@@ -261,7 +262,7 @@ public class DatabaseAdapter {
 
         if (cursor.moveToFirst()) {
             do {
-                String dateString = cursor.getString(cursor.getColumnIndex(TaskCompletions.TASK_COMPLETION_DATE));
+                String dateString = cursor.getString(cursor.getColumnIndex(TaskCompletion.TASK_COMPLETION_DATE));
                 if (dateString != null) {
                     Date date = null;
                     try {

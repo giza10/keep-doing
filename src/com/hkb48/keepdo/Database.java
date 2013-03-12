@@ -39,9 +39,9 @@ public final class Database {
     }
 
     // Task Completion table
-    public static final class TaskCompletions implements BaseColumns {
+    public static final class TaskCompletion implements BaseColumns {
 
-        private TaskCompletions() {}
+        private TaskCompletion() {}
         
         // Incoming URI matches the main table URI pattern
         public static final int TABLE_LIST = 30;

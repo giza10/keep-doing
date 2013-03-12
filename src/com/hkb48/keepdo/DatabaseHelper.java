@@ -1,5 +1,6 @@
 package com.hkb48.keepdo;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,17 +12,19 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.hkb48.keepdo.Database.TaskCompletions;
+import com.hkb48.keepdo.Database.TaskCompletion;
 import com.hkb48.keepdo.Database.TasksToday;
 
 class DatabaseHelper extends SQLiteOpenHelper {
 
-	private static final String TAG = "#KEEPDO_DBHELP: ";
-    private static final String DB_PATH = "/data/data/com.hkb48.keepdo/databases/";
+	private static final String TAG = "#KEEPDO_DB_HELPER: ";
     private static final String DB_NAME = "keepdo_tracker.db";
+    private final Context mContext;
 
     /*
-     * The first version is 1, the latest version is 2;
+     * The first version is 1, the latest version is 2
+     * version 1: initial columns
+     * version 2: adding context and reminder column
      */
     private static final int DB_VERSION = 2;
 
@@ -39,14 +42,12 @@ class DatabaseHelper extends SQLiteOpenHelper {
                                                      + TasksToday.REMINDER_ENABLED + " TEXT,"
                                                      + TasksToday.REMINDER_TIME + " TEXT" + ");";
 
-    private static final String STRING_CREATE_COMPLETION = "CREATE TABLE " + TaskCompletions.TABLE_NAME + " ("
-                                                     + TaskCompletions._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                                                     + TaskCompletions.TASK_NAME_ID + " INTEGER NOT NULL CONSTRAINT "
-                                                     + TaskCompletions.TASK_NAME_ID + " REFERENCES "
+    private static final String STRING_CREATE_COMPLETION = "CREATE TABLE " + TaskCompletion.TABLE_NAME + " ("
+                                                     + TaskCompletion._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                                                     + TaskCompletion.TASK_NAME_ID + " INTEGER NOT NULL CONSTRAINT "
+                                                     + TaskCompletion.TASK_NAME_ID + " REFERENCES "
                                                      + TasksToday.TABLE_NAME + "(" + TasksToday._ID + ")" + " ON DELETE CASCADE, "
-                                                     + TaskCompletions.TASK_COMPLETION_DATE + " DATE" + ");";
-
-    private final Context mContext;
+                                                     + TaskCompletion.TASK_COMPLETION_DATE + " DATE" + ");";
 
     DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -124,7 +125,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase checkDB = null;
 
         try {
-            String dbPath = DB_PATH + DB_NAME;
+            String dbPath = mContext.getFilesDir().getPath() + DB_NAME;
             checkDB = SQLiteDatabase.openDatabase(dbPath, null, SQLiteDatabase.OPEN_READONLY);
         } catch(SQLiteException e) {
             if (BuildConfig.DEBUG) {
@@ -142,11 +143,11 @@ class DatabaseHelper extends SQLiteOpenHelper {
     /**
       * Copies database from local assets-folder to the just created empty database in the
       * system folder, from where it can be accessed and handled.
-      * This is done by transferring bytestream.
+      * This is done by transferring byte stream.
       */
     private void copyDataBase() throws IOException {
         InputStream inputStream = mContext.getAssets().open(DB_NAME);
-        String outFileName = DB_PATH + DB_NAME;
+        String outFileName = mContext.getFilesDir().getPath() + DB_NAME;
 
         OutputStream outputStream = new FileOutputStream(outFileName);
         byte[] buffer = new byte[1024];

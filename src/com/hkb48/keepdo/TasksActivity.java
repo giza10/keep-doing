@@ -79,6 +79,12 @@ public class TasksActivity extends Activity {
 
         Settings.getInstance(this);
 
+        // If no task records, quit from procedure. 
+        if (mDBAdapter.getTaskList().isEmpty()) {
+        	 Toast.makeText(this, R.string.tasklist_msg_newtask, Toast.LENGTH_LONG).show();
+        	 return;
+        }
+
         updateTaskList();
     }
 
@@ -204,6 +210,7 @@ public class TasksActivity extends Activity {
      */
     private void updateTaskList() {
         List<Task> taskList = mDBAdapter.getTaskList();
+
         List<Task> taskListToday =  new ArrayList<Task>();
         List<Task> taskListNotToday = new ArrayList<Task>();
         int dayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);

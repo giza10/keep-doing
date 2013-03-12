@@ -63,4 +63,7 @@
 
     <!-- Dialog title for the Vibrate dialog -->
     <string name="prefDialogTitle_vibrateWhen">バイブレーション</string>
+
+    <!-- Toas message to encourage create new tasks -->
+    <string name="tasklist_msg_newtask">「+」 メニューからDoを追加できます！</string>
 </resources>

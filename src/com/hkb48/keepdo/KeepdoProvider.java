@@ -16,8 +16,8 @@ public class KeepdoProvider extends ContentProvider {
     static {
     	sURIMatcher.addURI(Database.AUTHORITY, Database.TasksToday.TABLE_URI, Database.TasksToday.TABLE_LIST);
     	sURIMatcher.addURI(Database.AUTHORITY, Database.TasksToday.TABLE_URI + "/#", Database.TasksToday.TABLE_ID);
-    	sURIMatcher.addURI(Database.AUTHORITY, Database.TaskCompletions.TABLE_URI, Database.TaskCompletions.TABLE_LIST);
-    	sURIMatcher.addURI(Database.AUTHORITY, Database.TaskCompletions.TABLE_URI + "/#", Database.TaskCompletions.TABLE_ID);
+    	sURIMatcher.addURI(Database.AUTHORITY, Database.TaskCompletion.TABLE_URI, Database.TaskCompletion.TABLE_LIST);
+    	sURIMatcher.addURI(Database.AUTHORITY, Database.TaskCompletion.TABLE_URI + "/#", Database.TaskCompletion.TABLE_ID);
     }
 
 	@Override
@@ -35,10 +35,10 @@ public class KeepdoProvider extends ContentProvider {
         	return String.valueOf(Database.TasksToday.TABLE_LIST);	        	
         case Database.TasksToday.TABLE_ID:
         	return String.valueOf(Database.TasksToday.TABLE_ID);	        	
-        case Database.TaskCompletions.TABLE_LIST:		        	
-        	return String.valueOf(Database.TaskCompletions.TABLE_LIST);	        	
-        case Database.TaskCompletions.TABLE_ID:
-        	return String.valueOf(Database.TaskCompletions.TABLE_ID);	        	
+        case Database.TaskCompletion.TABLE_LIST:		        	
+        	return String.valueOf(Database.TaskCompletion.TABLE_LIST);	        	
+        case Database.TaskCompletion.TABLE_ID:
+        	return String.valueOf(Database.TaskCompletion.TABLE_ID);	        	
         default:
         	throw new IllegalArgumentException("Unknown URI " + uri);
     	}
@@ -55,9 +55,9 @@ public class KeepdoProvider extends ContentProvider {
         	tableName = Database.TasksToday.TABLE_NAME;
         	break;
 
-        case Database.TaskCompletions.TABLE_LIST:
-        case Database.TaskCompletions.TABLE_ID:
-        	tableName = Database.TaskCompletions.TABLE_NAME;
+        case Database.TaskCompletion.TABLE_LIST:
+        case Database.TaskCompletion.TABLE_ID:
+        	tableName = Database.TaskCompletion.TABLE_NAME;
         	break;
 
         default:
@@ -93,9 +93,9 @@ public class KeepdoProvider extends ContentProvider {
                 qb.setTables(Database.TasksToday.TABLE_NAME);
             	break;
 
-            case Database.TaskCompletions.TABLE_LIST:
-            case Database.TaskCompletions.TABLE_ID:
-            	qb.setTables(Database.TaskCompletions.TABLE_NAME);
+            case Database.TaskCompletion.TABLE_LIST:
+            case Database.TaskCompletion.TABLE_ID:
+            	qb.setTables(Database.TaskCompletion.TABLE_NAME);
             	break;
 
             default:
