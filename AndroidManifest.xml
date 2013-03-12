@@ -34,7 +34,8 @@
 
         <activity
             android:name=".TaskActivity"
-            android:label="@string/title_activity_task" >
+            android:label="@string/title_activity_task"
+            android:screenOrientation="portrait" >
         </activity>
 
         <activity android:name=".SettingsActivity"
