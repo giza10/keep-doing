@@ -8,6 +8,7 @@ public class Settings {
     private static Settings sInstance = null;
     private static SharedPreferences sSharedPref;
     private static String sDoneIconType;
+    private static String sDateChangeTime;
     private static String sAlertsRingTone;
     private static String sAlertsVibrateWhen;
 
@@ -20,6 +21,7 @@ public class Settings {
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
             sInstance = new Settings(pref);
             sDoneIconType = sSharedPref.getString(GeneralSettingsFragment.KEY_GENERAL_DONE_ICON, null);
+            sDateChangeTime = sSharedPref.getString(GeneralSettingsFragment.KEY_GENERAL_DATE_CHANGE_TIME, null);
             sAlertsRingTone = sSharedPref.getString(GeneralSettingsFragment.KEY_ALERTS_RINGTONE, null);
             sAlertsVibrateWhen = sSharedPref.getString(GeneralSettingsFragment.KEY_ALERTS_VIBRATE_WHEN, null);
         }
@@ -29,6 +31,10 @@ public class Settings {
 
     public static void setDoneIcon(String v) {
         sDoneIconType = v;
+    }
+
+    public static void setDateChangeTime(String v) {
+        sDateChangeTime = v;
     }
 
     public static void setAlertsRingTone(String v) {
@@ -64,8 +70,7 @@ public class Settings {
     }
 
     public static String getDateChangeTime() {
-        // TODO: should be take pick up from preference
-        return new String("24:00");
+        return sDateChangeTime;
     }
 
     public static String getAlertsRingTone() {

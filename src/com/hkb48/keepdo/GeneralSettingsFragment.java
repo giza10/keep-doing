@@ -17,12 +17,14 @@ import android.preference.RingtonePreference;
 public class GeneralSettingsFragment extends PreferenceFragment implements OnPreferenceChangeListener {
 
     public static final String KEY_GENERAL_DONE_ICON = "preferences_done_icon";
+    public static final String KEY_GENERAL_DATE_CHANGE_TIME = "preferences_date_change_time";
 
     public static final String KEY_ALERTS_CATEGORY = "preferences_alerts_category";
     public static final String KEY_ALERTS_RINGTONE = "preferences_alerts_ringtone";
     public static final String KEY_ALERTS_VIBRATE_WHEN = "preferences_alerts_vibrateWhen";
 
     private DoneIconPreference mDoneIconPref;
+    private ListPreference mDateChangeTimePref;
     private RingtonePreference mRingtonePref;
     private ListPreference mVibrateWhen;
 
@@ -44,6 +46,9 @@ public class GeneralSettingsFragment extends PreferenceFragment implements OnPre
         final Activity activity = getActivity();
         final PreferenceScreen preferenceScreen = getPreferenceScreen();
         mDoneIconPref = (DoneIconPreference) preferenceScreen.findPreference(KEY_GENERAL_DONE_ICON);
+        mDateChangeTimePref = (ListPreference) preferenceScreen.findPreference(KEY_GENERAL_DATE_CHANGE_TIME);
+        String summary = getString(R.string.preferences_date_change_time_summary, mDateChangeTimePref.getEntry());
+        mDateChangeTimePref.setSummary(summary);
         mRingtonePref = (RingtonePreference) preferenceScreen.findPreference(KEY_ALERTS_RINGTONE);
         mVibrateWhen = (ListPreference) preferenceScreen.findPreference(KEY_ALERTS_VIBRATE_WHEN);
         Vibrator vibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
@@ -61,6 +66,7 @@ public class GeneralSettingsFragment extends PreferenceFragment implements OnPre
     public void onResume() {
         super.onResume();
         mDoneIconPref.setOnPreferenceChangeListener(this);
+        mDateChangeTimePref.setOnPreferenceChangeListener(this);
         mRingtonePref.setOnPreferenceChangeListener(this);
         mVibrateWhen.setOnPreferenceChangeListener(this);
     }
@@ -69,6 +75,7 @@ public class GeneralSettingsFragment extends PreferenceFragment implements OnPre
     public void onPause() {
         super.onPause();
         mDoneIconPref.setOnPreferenceChangeListener(null);
+        mDateChangeTimePref.setOnPreferenceChangeListener(null);
         mRingtonePref.setOnPreferenceChangeListener(null);
         mVibrateWhen.setOnPreferenceChangeListener(null);
     }
@@ -78,6 +85,11 @@ public class GeneralSettingsFragment extends PreferenceFragment implements OnPre
         if (preference == mDoneIconPref) {
             Settings.setDoneIcon((String) newValue);
             ret = true;
+        } else if (preference == mDateChangeTimePref) {
+            Settings.setDateChangeTime((String) newValue);
+            mDateChangeTimePref.setValue((String) newValue);
+            String summary = getString(R.string.preferences_date_change_time_summary, mDateChangeTimePref.getEntry());
+            mDateChangeTimePref.setSummary(summary);
         } else if (preference == mRingtonePref) {
             Settings.setAlertsRingTone((String) newValue);
             ret = true;

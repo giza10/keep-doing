@@ -13,6 +13,8 @@
     <string name="general_setting">General setting</string>
     <string name="reminder_setting">Reminder setting</string>
     <string name="preferences_done_icon_title">Done icon</string>
+    <string name="preferences_date_change_time_title">Date change time</string>
+    <string name="preferences_date_change_time_summary">Date of Do list is updated at %s.</string>
     <string name="preferences_alerts_ringtone_title">Notification sound</string>
     <string name="preferences_alerts_vibrateWhen_title">Vibration</string>
     <string name="recurrence">Recurrence</string>
@@ -54,6 +56,31 @@
     <string name="title_activity_task">TaskActivity</string>
 
     <!-- The vibrate notification modes -->
+    <string-array translatable="false" name="prefEntries_date_change_time">
+        <item>24:00 (AM 0:00)</item>
+        <item>25:00 (AM 1:00)</item>
+        <item>26:00 (AM 2:00)</item>
+        <item>27:00 (AM 3:00)</item>
+        <item>28:00 (AM 4:00)</item>
+        <item>29:00 (AM 5:00)</item>
+        <item>30:00 (AM 6:00)</item>
+    </string-array>
+
+    <!-- The default vibrateWhen value, when none is set -->
+    <string translatable="false" name="prefDefault_date_change_time">24:00</string>
+
+    <!-- The vibrateWhen values -->
+    <string-array translatable="false" name="prefValues_date_change_time">
+        <item>24:00</item>
+        <item>25:00</item>
+        <item>26:00</item>
+        <item>27:00</item>
+        <item>28:00</item>
+        <item>29:00</item>
+        <item>30:00</item>
+    </string-array>
+
+    <!-- The vibrate notification modes -->
     <string-array name="prefEntries_alerts_vibrateWhen">
         <!-- Always -->
         <item>Always</item>
@@ -77,6 +104,9 @@
 
     <!-- Dialog title for the Done icon dialog -->
     <string name="prefDialogTitle_selectDoneIcon">Select Done icon</string>
+
+    <!-- Dialog title for the Date change time dialog -->
+    <string name="prefDialogTitle_date_change_time">Date change time</string>
 
     <!-- Dialog title for the Vibrate dialog -->
     <string name="prefDialogTitle_vibrateWhen">Vibrate</string>

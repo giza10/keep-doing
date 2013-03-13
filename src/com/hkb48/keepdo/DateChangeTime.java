@@ -16,15 +16,9 @@ public class DateChangeTime {
         int hour = Integer.parseInt(time_para[0]);
         int minutes = Integer.parseInt(time_para[1]);
 
-        if (hour < 24) {
-            if ((nowHour * 60 + nowMinutes) > (hour * 60 + minutes)) {
-                calendar.add(Calendar.DAY_OF_MONTH, 1);
-            }
-        } else {
-            nowHour += 24;
-            if ((nowHour * 60 + nowMinutes) < (hour * 60 + minutes)) {
-                calendar.add(Calendar.DAY_OF_MONTH, -1);
-            }
+        nowHour += 24;
+        if ((nowHour * 60 + nowMinutes) < (hour * 60 + minutes)) {
+            calendar.add(Calendar.DAY_OF_MONTH, -1);
         }
         return calendar.getTime();
     }

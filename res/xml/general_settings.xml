@@ -13,6 +13,14 @@
             android:negativeButtonText=""
             android:defaultValue="@string/prefDefault_done_icon"
             android:dialogTitle="@string/prefDialogTitle_selectDoneIcon" />
+        <ListPreference
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:key="preferences_date_change_time"
+            android:title="@string/preferences_date_change_time_title"
+            android:entries="@array/prefEntries_date_change_time"
+            android:entryValues="@array/prefValues_date_change_time"
+            android:defaultValue="@string/prefDefault_date_change_time"
+            android:dialogTitle="@string/prefDialogTitle_date_change_time" />
     </PreferenceCategory>
 
     <PreferenceCategory

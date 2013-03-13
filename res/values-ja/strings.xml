@@ -10,6 +10,8 @@
     <string name="general_setting">一般設定</string>
     <string name="reminder_setting">通知設定</string>
     <string name="preferences_done_icon_title">完了アイコン</string>
+    <string name="preferences_date_change_time_title">日付変更時刻</string>
+    <string name="preferences_date_change_time_summary">Doリストの日付は %sに更新されます</string>
     <string name="preferences_alerts_ringtone_title">通知音</string>
     <string name="preferences_alerts_vibrateWhen_title">バイブレーション</string>
     <string name="task_name">タイトル</string>
@@ -60,6 +62,9 @@
 
     <!-- Dialog title for the Done icon dialog -->
     <string name="prefDialogTitle_selectDoneIcon">完了アイコン選択</string>
+
+    <!-- Dialog title for the Date change time dialog -->
+    <string name="prefDialogTitle_date_change_time">日付変更時刻</string>
 
     <!-- Dialog title for the Vibrate dialog -->
     <string name="prefDialogTitle_vibrateWhen">バイブレーション</string>
