@@ -30,10 +30,12 @@ public class ReminderManager {
         List<Task> taskList = dbAdapter.getTaskList();
         long minTime = Long.MAX_VALUE;;
         long taskId = Task.INVALID_TASKID;
+        Date today = DateChangeTime.getDate();
+
         for (Task task : taskList) {
             Reminder reminder = task.getReminder();
             if (reminder.getEnabled()) {
-                boolean isDoneToday = dbAdapter.getDoneStatus(task.getTaskID(), new Date());
+                boolean isDoneToday = dbAdapter.getDoneStatus(task.getTaskID(), today);
                 int hourOfDay = reminder.getHourOfDay();
                 int minute = reminder.getMinute();
                 Calendar nextSchedule = getNextSchedule(task.getRecurrence(), isDoneToday, hourOfDay, minute);
@@ -59,6 +61,8 @@ public class ReminderManager {
         time.setTimeInMillis(System.currentTimeMillis());
         DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(context);
         List<Task> remainingList = new ArrayList<Task>();
+        Date today = DateChangeTime.getDate();
+
         for (Task task : dbAdapter.getTaskList()) {
             Reminder reminder = task.getReminder();
             Recurrence recurrence = task.getRecurrence();
@@ -68,7 +72,7 @@ public class ReminderManager {
                 // Check if today's reminder time is already exceeded
                 if ((time.get(Calendar.HOUR_OF_DAY) > hourOfDay) ||
                     ((time.get(Calendar.HOUR_OF_DAY) == hourOfDay) && time.get(Calendar.MINUTE) >= minute)) {
-                    if (dbAdapter.getDoneStatus(task.getTaskID(), new Date()) == false) {
+                    if (dbAdapter.getDoneStatus(task.getTaskID(), today) == false) {
                         remainingList.add(task);
                     }
                 }

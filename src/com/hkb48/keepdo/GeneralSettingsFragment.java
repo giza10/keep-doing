@@ -47,7 +47,7 @@ public class GeneralSettingsFragment extends PreferenceFragment implements OnPre
         final PreferenceScreen preferenceScreen = getPreferenceScreen();
         mDoneIconPref = (DoneIconPreference) preferenceScreen.findPreference(KEY_GENERAL_DONE_ICON);
         mDateChangeTimePref = (ListPreference) preferenceScreen.findPreference(KEY_GENERAL_DATE_CHANGE_TIME);
-        String summary = getString(R.string.preferences_date_change_time_summary, mDateChangeTimePref.getEntry());
+        String summary = getString(R.string.preferences_date_change_time_summary, mDateChangeTimePref.getValue());
         mDateChangeTimePref.setSummary(summary);
         mRingtonePref = (RingtonePreference) preferenceScreen.findPreference(KEY_ALERTS_RINGTONE);
         mVibrateWhen = (ListPreference) preferenceScreen.findPreference(KEY_ALERTS_VIBRATE_WHEN);
@@ -88,7 +88,7 @@ public class GeneralSettingsFragment extends PreferenceFragment implements OnPre
         } else if (preference == mDateChangeTimePref) {
             Settings.setDateChangeTime((String) newValue);
             mDateChangeTimePref.setValue((String) newValue);
-            String summary = getString(R.string.preferences_date_change_time_summary, mDateChangeTimePref.getEntry());
+            String summary = getString(R.string.preferences_date_change_time_summary, mDateChangeTimePref.getValue());
             mDateChangeTimePref.setSummary(summary);
         } else if (preference == mRingtonePref) {
             Settings.setAlertsRingTone((String) newValue);
