@@ -125,7 +125,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase checkDB = null;
 
         try {
-            String dbPath = mContext.getFilesDir().getPath() + DB_NAME;
+            String dbPath = mContext.getFilesDir().getPath() + File.separator + DB_NAME;
             checkDB = SQLiteDatabase.openDatabase(dbPath, null, SQLiteDatabase.OPEN_READONLY);
         } catch(SQLiteException e) {
             if (BuildConfig.DEBUG) {
