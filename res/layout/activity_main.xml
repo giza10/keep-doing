@@ -6,8 +6,15 @@
 
     <ListView
         android:layout_height="0dp" 
-        android:id="@+id/listView1" 
+        android:id="@+id/mainListView" 
         android:layout_width="match_parent" 
         android:layout_weight="1" />
 
+    <TextView
+    	android:id="@+id/empty"
+    	android:text="@string/tasklist_msg_newtask"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"
+    	android:gravity="center"
+    />
 </LinearLayout>

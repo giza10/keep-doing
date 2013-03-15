@@ -63,7 +63,7 @@ public class DatabaseAdapter {
     public void close() {
         mDatabaseHelper.close();
     }
-    
+
     private void setDatabase() {
         try {
             mDatabaseHelper.createDataBase();
@@ -73,7 +73,7 @@ public class DatabaseAdapter {
             throw sqle;
         }
     }
-    
+
     public List<Task> getTaskList() {
         List<Task> tasks = new ArrayList<Task>();
         String selectQuery = SELECT_FORM + TasksToday.TABLE_NAME;

@@ -60,11 +60,13 @@ public class TasksActivity extends Activity {
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(R.string.app_name);
 
-        ListView listView1 = (ListView) findViewById(R.id.listView1);
+        ListView taskListView = (ListView) findViewById(R.id.mainListView);
         mAdapter = new TaskAdapter();
-        listView1.setAdapter(mAdapter);
+        taskListView.setAdapter(mAdapter);
 
-        listView1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        taskListView.setEmptyView(findViewById(R.id.empty));
+
+        taskListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                     int position, long id) {
                 // Show calendar view
@@ -75,15 +77,9 @@ public class TasksActivity extends Activity {
             }
         });
 
-        registerForContextMenu(listView1);
+        registerForContextMenu(taskListView);
 
         Settings.getInstance(this);
-
-        // If no task records, quit from procedure. 
-        if (mDBAdapter.getTaskList().isEmpty()) {
-        	 Toast.makeText(this, R.string.tasklist_msg_newtask, Toast.LENGTH_LONG).show();
-        	 return;
-        }
 
         updateTaskList();
     }
