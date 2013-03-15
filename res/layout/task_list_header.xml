@@ -4,12 +4,23 @@
     android:layout_height="wrap_content" >
 
     <TextView
-        android:id="@+id/listHeader"
+        android:id="@+id/textView1"
         android:layout_width="0dip"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:background="@color/tasklist_bg_header"
-        android:textSize="15sp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:padding="5dp"
+    />
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@color/tasklist_bg_header"
+        android:gravity="right|bottom"
+        android:textSize="14sp"
         android:padding="5dp"
     />
 </LinearLayout>

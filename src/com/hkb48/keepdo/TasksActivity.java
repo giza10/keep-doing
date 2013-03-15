@@ -1,5 +1,6 @@
 package com.hkb48.keepdo;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -222,7 +223,11 @@ public class TasksActivity extends Activity {
 
         if (taskListToday.size() > 0) {
             // Dummy Task for header on the ListView
-            Task dummyTask = new Task(getString(R.string.tasklist_header_today_task), null, null);
+            String headerTitle = getString(R.string.tasklist_header_today_task);
+            Task dummyTask = new Task(headerTitle, null, null);
+            SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.date_format));
+            Date today = DateChangeTime.getDate();
+            dummyTask.setContext(sdf.format(today));
             dummyTask.setTaskID(TASKID_FOR_LISTHEADER);
             mDataList.add(dummyTask);
 
@@ -300,19 +305,20 @@ public class TasksActivity extends Activity {
                     view = inflater.inflate(R.layout.task_list_row, null);
                     viewHolder.viewType = TYPE_ITEM;
                     viewHolder.imageView = (ImageView) view.findViewById(R.id.taskListItemCheck);
-                    viewHolder.textView = (TextView) view.findViewById(R.id.taskName);
+                    viewHolder.textView1 = (TextView) view.findViewById(R.id.taskName);
                     viewHolder.recurrenceView = (RecurrenceView) view.findViewById(R.id.recurrenceView);
                     view.setTag(viewHolder);
                 } else {
                     view = inflater.inflate(R.layout.task_list_header, null);
                     viewHolder.viewType = TYPE_HEADER;
-                    viewHolder.textView = (TextView) view.findViewById(R.id.listHeader);
+                    viewHolder.textView1 = (TextView) view.findViewById(R.id.textView1);
+                    viewHolder.textView2 = (TextView) view.findViewById(R.id.textView2);
                     view.setTag(viewHolder);
                 }
             }
 
             if (isTask) {
-                TextView textView = viewHolder.textView;
+                TextView textView = viewHolder.textView1;
                 String taskName = task.getName();
                 textView.setText(taskName);
 
@@ -351,8 +357,8 @@ public class TasksActivity extends Activity {
                     }
                 });
             } else {
-                TextView listHeader = viewHolder.textView;
-                listHeader.setText(task.getName());
+                viewHolder.textView1.setText(task.getName());
+                viewHolder.textView2.setText(task.getContext());
             }
 
             return view;
@@ -360,7 +366,8 @@ public class TasksActivity extends Activity {
 
         private class ViewHolder {
             int viewType;
-            TextView textView;
+            TextView textView1;
+            TextView textView2;
             ImageView imageView;
             RecurrenceView recurrenceView;
         }

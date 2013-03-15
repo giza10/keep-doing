@@ -118,7 +118,7 @@ public class CalendarFragment extends Fragment {
         super.onCreateContextMenu(menu, view, menuInfo);
         mPressedView = view;
         Date date = (Date) mPressedView.getTag();
-        SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.date_format), Locale.JAPAN);
+        SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.date_format));
         menu.setHeaderTitle(sdf.format(date));
 
         ImageView imageView = (ImageView) mPressedView.findViewById(R.id.imageView1);
