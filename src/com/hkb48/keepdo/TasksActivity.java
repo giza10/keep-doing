@@ -38,10 +38,11 @@ public class TasksActivity extends Activity {
     private static final int CONTEXT_MENU_EDIT = 0;
     private static final int CONTEXT_MENU_DELETE = 1;
 
-    private static final int TASKID_FOR_LISTHEADER = -1;
+    private static final int TYPE_HEADER = 0;
+    private static final int TYPE_ITEM = 1;
 
     private TaskAdapter mAdapter;
-    private List<Task> mDataList = new ArrayList<Task>();
+    private List<TaskListItem> mDataList = new ArrayList<TaskListItem>();
     private CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
     private DatabaseAdapter mDBAdapter = null;
     private int mDoneIconId = 0;
@@ -71,7 +72,8 @@ public class TasksActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View view,
                     int position, long id) {
                 // Show calendar view
-                Long taskId =  mDataList.get(position).getTaskID();
+                Task task = (Task) mDataList.get(position).data;
+                Long taskId = task.getTaskID();
                 Intent intent = new Intent(TasksActivity.this, TaskActivity.class);
                 intent.putExtra("TASK-ID", taskId);
                 startActivityForResult(intent, REQUEST_SHOW_CALENDAR);
@@ -162,7 +164,8 @@ public class TasksActivity extends Activity {
         super.onCreateContextMenu(menu, view, menuInfo);
         AdapterContextMenuInfo adapterinfo = (AdapterContextMenuInfo) menuInfo;
         ListView listView = (ListView) view;
-        Task task = (Task) listView.getItemAtPosition(adapterinfo.position);
+        TaskListItem taskListItem = (TaskListItem) listView.getItemAtPosition(adapterinfo.position);
+        Task task = (Task) taskListItem.data;
         menu.setHeaderTitle(task.getName());
         menu.add(0, CONTEXT_MENU_EDIT, 0, R.string.edit_task);
         menu.add(0, CONTEXT_MENU_DELETE, 1, R.string.delete_task);
@@ -170,7 +173,8 @@ public class TasksActivity extends Activity {
 
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        Task task = (Task) mAdapter.getItem(info.position);
+        TaskListItem taskListItem = (TaskListItem) mAdapter.getItem(info.position);
+        Task task = (Task) taskListItem.data;
         final long taskId = task.getTaskID();
         switch (item.getItemId()) {
         case CONTEXT_MENU_EDIT:
@@ -223,26 +227,29 @@ public class TasksActivity extends Activity {
 
         if (taskListToday.size() > 0) {
             // Dummy Task for header on the ListView
-            String headerTitle = getString(R.string.tasklist_header_today_task);
-            Task dummyTask = new Task(headerTitle, null, null);
+            TaskListHeader header = new TaskListHeader();
+            header.title = getString(R.string.tasklist_header_today_task);
             SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.date_format));
             Date today = DateChangeTime.getDate();
-            dummyTask.setContext(sdf.format(today));
-            dummyTask.setTaskID(TASKID_FOR_LISTHEADER);
-            mDataList.add(dummyTask);
+            header.subText = sdf.format(today);
+            TaskListItem taskListItem = new TaskListItem(TYPE_HEADER, header);
+            mDataList.add(taskListItem);
 
             for (Task task : taskListToday) {
-                mDataList.add(task);
+                taskListItem = new TaskListItem(TYPE_ITEM, task);
+                mDataList.add(taskListItem);
             }
         }
         if (taskListNotToday.size() > 0) {
             // Dummy Task for header on the ListView
-            Task dummyTask = new Task(getString(R.string.tasklist_header_other_task), null, null);
-            dummyTask.setTaskID(TASKID_FOR_LISTHEADER);
-            mDataList.add(dummyTask);
+            TaskListHeader header = new TaskListHeader();
+            header.title = getString(R.string.tasklist_header_other_task);
+            TaskListItem taskListItem = new TaskListItem(TYPE_HEADER, header);
+            mDataList.add(taskListItem);
 
             for (Task task : taskListNotToday) {
-                mDataList.add(task);
+                taskListItem = new TaskListItem(TYPE_ITEM, task);
+                mDataList.add(taskListItem);
             }
         }
         mAdapter.notifyDataSetChanged();
@@ -252,11 +259,22 @@ public class TasksActivity extends Activity {
         ReminderManager.getInstance().setNextAlert(this);
     }
 
-    private class TaskAdapter extends BaseAdapter {
-        private static final int TYPE_HEADER = 0;
-        private static final int TYPE_ITEM = 1;
-        private ViewHolder viewHolder;
+    private static class TaskListItem {
+        int type;
+        Object data;
 
+        public TaskListItem(int type, Object data) {
+            this.type = type;
+            this.data = data;
+        }
+    }
+
+    private static class TaskListHeader {
+        String title;
+        String subText;
+    }
+
+    private class TaskAdapter extends BaseAdapter {
         public int getCount() {
             return mDataList.size();
         }
@@ -270,12 +288,8 @@ public class TasksActivity extends Activity {
         }
 
         public int getItemViewType(int position) {
-            Task task = (Task) getItem(position);
-            if (task.getTaskID() == TASKID_FOR_LISTHEADER) {
-                return TYPE_HEADER;
-            } else {
-                return TYPE_ITEM;
-            }
+            TaskListItem item = (TaskListItem) getItem(position);
+            return item.type;
         }
 
         public boolean isEnabled(int position) {
@@ -285,48 +299,58 @@ public class TasksActivity extends Activity {
         public View getView(int position, View convertView, ViewGroup parent) {
             LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = convertView;
-            Task task = (Task) getItem(position);
+            TaskListItem taskListItem = (TaskListItem) getItem(position);
             boolean isTask = isEnabled(position);
             boolean createView = false;
+            HeaderViewHolder headerViewHolder = null;
+            ItemViewHolder itemViewHolder = null;
 
             // Check if it's necessary to create view or re-use
             if (view == null) {
                 createView = true;
             } else {
-                viewHolder = (ViewHolder) view.getTag();
+                ViewHolder viewHolder = (ViewHolder) view.getTag();
                 if (viewHolder.viewType != getItemViewType(position)) {
                     createView = true;
+                } else {
+                    if (isTask) {
+                        itemViewHolder = (ItemViewHolder) viewHolder;
+                    } else {
+                        headerViewHolder = (HeaderViewHolder) viewHolder;
+                    }
                 }
             }
 
             if (createView) {
-                viewHolder = new ViewHolder();
                 if (isTask) {
+                    itemViewHolder = new ItemViewHolder();
                     view = inflater.inflate(R.layout.task_list_row, null);
-                    viewHolder.viewType = TYPE_ITEM;
-                    viewHolder.imageView = (ImageView) view.findViewById(R.id.taskListItemCheck);
-                    viewHolder.textView1 = (TextView) view.findViewById(R.id.taskName);
-                    viewHolder.recurrenceView = (RecurrenceView) view.findViewById(R.id.recurrenceView);
-                    view.setTag(viewHolder);
+                    itemViewHolder.viewType = TYPE_ITEM;
+                    itemViewHolder.imageView = (ImageView) view.findViewById(R.id.taskListItemCheck);
+                    itemViewHolder.textView1 = (TextView) view.findViewById(R.id.taskName);
+                    itemViewHolder.recurrenceView = (RecurrenceView) view.findViewById(R.id.recurrenceView);
+                    view.setTag(itemViewHolder);
                 } else {
+                    headerViewHolder = new HeaderViewHolder();
                     view = inflater.inflate(R.layout.task_list_header, null);
-                    viewHolder.viewType = TYPE_HEADER;
-                    viewHolder.textView1 = (TextView) view.findViewById(R.id.textView1);
-                    viewHolder.textView2 = (TextView) view.findViewById(R.id.textView2);
-                    view.setTag(viewHolder);
+                    headerViewHolder.viewType = TYPE_HEADER;
+                    headerViewHolder.textView1 = (TextView) view.findViewById(R.id.textView1);
+                    headerViewHolder.textView2 = (TextView) view.findViewById(R.id.textView2);
+                    view.setTag(headerViewHolder);
                 }
             }
 
             if (isTask) {
-                TextView textView = viewHolder.textView1;
+                TextView textView = itemViewHolder.textView1;
+                Task task = (Task) taskListItem.data;
                 String taskName = task.getName();
                 textView.setText(taskName);
 
-                RecurrenceView recurrenceView = viewHolder.recurrenceView;
+                RecurrenceView recurrenceView = itemViewHolder.recurrenceView;
                 recurrenceView.setTextSize(12.0f);
                 recurrenceView.update(task.getRecurrence());
 
-                ImageView imageView = viewHolder.imageView;
+                ImageView imageView = itemViewHolder.imageView;
                 Date today = DateChangeTime.getDate();
                 boolean checked = mDBAdapter.getDoneStatus(task.getTaskID(), today);
 
@@ -340,7 +364,8 @@ public class TasksActivity extends Activity {
                     public void onClick(View v) {
                         ImageView imageView = (ImageView) v;
                         int position = (Integer) v.getTag();
-                        Task task = (Task) getItem(position);
+                        TaskListItem taskListItem = (TaskListItem) getItem(position);
+                        Task task = (Task) taskListItem.data;
                         long taskId = task.getTaskID();
                         Date today = DateChangeTime.getDate();
                         boolean checked = mDBAdapter.getDoneStatus(taskId, today);
@@ -357,8 +382,9 @@ public class TasksActivity extends Activity {
                     }
                 });
             } else {
-                viewHolder.textView1.setText(task.getName());
-                viewHolder.textView2.setText(task.getContext());
+                TaskListHeader taskListHeader = (TaskListHeader) taskListItem.data;
+                headerViewHolder.textView1.setText(taskListHeader.title);
+                headerViewHolder.textView2.setText(taskListHeader.subText);
             }
 
             return view;
@@ -366,8 +392,15 @@ public class TasksActivity extends Activity {
 
         private class ViewHolder {
             int viewType;
+        }
+
+        private class HeaderViewHolder extends ViewHolder {
             TextView textView1;
             TextView textView2;
+        }
+
+        private class ItemViewHolder extends ViewHolder {
+            TextView textView1;
             ImageView imageView;
             RecurrenceView recurrenceView;
         }
