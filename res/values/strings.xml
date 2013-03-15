@@ -21,6 +21,7 @@
     <string name="recurrence_separator">, </string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_start">Start</string>
     <string name="reminder">Reminder</string>
     <string name="no_reminder">No reminder</string>
     <string name="description">Description</string>
@@ -53,6 +54,7 @@
     <string name="title_section2">Details</string>
     <string name="title_section1">Calendar</string>
     <string name="menu_settings">Settings</string>
+    <string name="backup_restore">Backup and Restore</string>
     <string name="title_activity_task">TaskActivity</string>
 
     <!-- The vibrate notification modes -->
@@ -113,5 +115,13 @@
     
     <!-- Toas message to encourage create new tasks -->
     <string name="tasklist_msg_newtask">Press \'+\' menu to adds new Do!</string>
-        
+
+    <!-- Backup & Restore -->
+    <string-array name="dialog_choice_backup_restore">
+        <item>Backup</item>
+        <item>Restore</item>
+    </string-array>
+    <string name="backup_done">Backed up.</string>
+    <string name="restore_done">Restored.</string>
+    
 </resources>

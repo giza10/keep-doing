@@ -1,5 +1,12 @@
 package com.hkb48.keepdo;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -13,6 +20,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
 	private static final String TAG = "#KEEPDO_DB_HELPER: ";
     private static final String DB_NAME = "keepdo_tracker.db";
+    private final Context mContext;
+
+    private static final Object[] sDataLock = new Object[0];
 
     /*
      * The first version is 1, the latest version is 2
@@ -44,6 +54,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
+        this.mContext = context;
     }
 
     @Override
@@ -85,5 +96,43 @@ class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onOpen(SQLiteDatabase db) {
         super.onOpen(db);
+    }
+
+    /**
+     * Backup and Restore database.
+     * @param backupPath
+     */
+    public void backupDataBase(String backupDirPath, String backupFileName) {
+    	File dir = new File(backupDirPath);
+    	dir.mkdir();
+    	final String DB_FILE_PATH = mContext.getDatabasePath(DB_NAME).getPath();
+		copyDataBase(DB_FILE_PATH, backupDirPath + backupFileName);
+    }
+    public void restoreDataBase(String backupPath) {
+    	final String DB_FILE_PATH = mContext.getDatabasePath(DB_NAME).getPath();
+    	copyDataBase(backupPath, DB_FILE_PATH);
+    }
+    private void copyDataBase(String fromPath, String toPath) {
+    	synchronized (sDataLock) {
+        	try {
+    			InputStream inputStream = new FileInputStream(fromPath);
+    			OutputStream outputStream = new FileOutputStream(toPath);
+    			
+    	        byte[] buffer = new byte[1024];
+    	        int length;
+
+    			while ((length = inputStream.read(buffer)) > 0) {
+    			    outputStream.write(buffer, 0, length);
+    			}
+    	        
+    	        outputStream.flush();
+    	        outputStream.close();
+    	        inputStream.close();
+    		} catch (IOException e) {
+                if (BuildConfig.DEBUG) {
+                	Log.e(TAG, e.getMessage());
+                }
+    		}
+    	}
     }
 }

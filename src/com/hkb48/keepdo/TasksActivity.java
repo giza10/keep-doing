@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -129,6 +130,38 @@ public class TasksActivity extends Activity {
             intent = new Intent(TasksActivity.this, SettingsActivity.class);
             startActivity(intent);
             return true;
+        case R.id.menu_backup_restore:
+        	// Show a backup & restore dialog
+        	AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(TasksActivity.this);
+        	dialogBuilder.setTitle(R.string.backup_restore);
+        	dialogBuilder.setSingleChoiceItems(R.array.dialog_choice_backup_restore, -1, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                	((AlertDialog)dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                }
+            });
+        	dialogBuilder.setNegativeButton(R.string.dialog_cancel, null);
+        	dialogBuilder.setPositiveButton(R.string.dialog_start, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                	switch (((AlertDialog)dialog).getListView().getCheckedItemPosition()) {
+                	case 0:
+                		// execute backup
+                		backupTaskData();
+                		Toast.makeText(TasksActivity.this, R.string.backup_done, Toast.LENGTH_SHORT).show();
+                		return;
+                	case 1:
+                		// execute restore
+                		restoreTaskData();
+                        updateTaskList();
+                		Toast.makeText(TasksActivity.this, R.string.restore_done, Toast.LENGTH_SHORT).show();
+                		return;
+                	default:
+                		return;
+                	}
+                }
+            });
+        	dialogBuilder.setCancelable(true);
+        	dialogBuilder.show().getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        	return true;
         default:
             return super.onOptionsItemSelected(item);
         }
@@ -259,6 +292,21 @@ public class TasksActivity extends Activity {
         ReminderManager.getInstance().setNextAlert(this);
     }
 
+    /**
+     * Backup & Restore
+     */
+    private void backupTaskData() {
+    	DatabaseHelper dbHelper = new DatabaseHelper(this);
+    	dbHelper.backupDataBase(Environment.getExternalStorageDirectory().getPath() + "/keepdo", "/keepdo.db" );
+    }
+    private void restoreTaskData() {
+    	DatabaseHelper dbHelper = new DatabaseHelper(this);
+    	dbHelper.restoreDataBase(Environment.getExternalStorageDirectory().getPath() + "/keepdo/keepdo.db" );
+    }
+
+    /**
+     * 
+     */
     private static class TaskListItem {
         int type;
         Object data;

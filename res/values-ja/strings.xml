@@ -20,6 +20,7 @@
     <string name="recurrence_separator"></string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">キャンセル</string>
+    <string name="dialog_start">開始</string>
     <string name="reminder">通知機能</string>
     <string name="no_reminder">通知なし</string>
     <string name="description">内容</string>
@@ -51,6 +52,7 @@
     <string name="title_section2">詳細</string>
     <string name="title_section1">カレンダー</string>
     <string name="menu_settings">Settings</string>
+    <string name="backup_restore">バックアップと復元</string>
     <string name="title_activity_task">TaskActivity</string>
 
     <!-- The vibrate notification modes -->
@@ -71,4 +73,13 @@
 
     <!-- Toas message to encourage create new tasks -->
     <string name="tasklist_msg_newtask">「+」 メニューからDoを追加できます！</string>
+
+    <!-- Backup & Restore -->
+    <string-array name="dialog_choice_backup_restore">
+        <item>バックアップ</item>
+        <item>復元(上書き)</item>
+    </string-array>
+    <string name="backup_done">バックアップ完了</string>
+    <string name="restore_done">復元完了</string>
+    
 </resources>
