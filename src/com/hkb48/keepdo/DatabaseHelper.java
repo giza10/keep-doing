@@ -1,11 +1,5 @@
 package com.hkb48.keepdo;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -19,7 +13,6 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
 	private static final String TAG = "#KEEPDO_DB_HELPER: ";
     private static final String DB_NAME = "keepdo_tracker.db";
-    private final Context mContext;
 
     /*
      * The first version is 1, the latest version is 2
@@ -51,7 +44,6 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
-        this.mContext = context;
     }
 
     @Override
@@ -93,72 +85,5 @@ class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onOpen(SQLiteDatabase db) {
         super.onOpen(db);
-    }
-
-    /**
-     * Creates a empty database on the system and rewrites it with own database.
-     */
-    public void createDataBase() throws IOException {
-        boolean dbExist = checkDataBase();
-
-        if (dbExist) {
-            if (BuildConfig.DEBUG) {
-            	Log.i(TAG, "The file is existing");
-            }
-        } else {
-            this.getReadableDatabase();
-            try {
-                copyDataBase();
-            } catch (IOException e) {
-                if (BuildConfig.DEBUG) {
-                	Log.e(TAG, e.getMessage());
-                }
-            }
-        }
-    }
-
-    /**
-     * Check if the database already exist to avoid re-copying the file each time open the application.
-     * @return true if it exists, false if it doesn't
-     */
-    private boolean checkDataBase() {
-        SQLiteDatabase checkDB = null;
-
-        try {
-            String dbPath = mContext.getFilesDir().getPath() + File.separator + DB_NAME;
-            checkDB = SQLiteDatabase.openDatabase(dbPath, null, SQLiteDatabase.OPEN_READONLY);
-        } catch(SQLiteException e) {
-            if (BuildConfig.DEBUG) {
-            	Log.e(TAG, e.getMessage());
-            }
-        }
-
-        if (checkDB != null) {
-            checkDB.close();
-        }
-
-        return checkDB != null ? true : false;
-    }
-
-    /**
-      * Copies database from local assets-folder to the just created empty database in the
-      * system folder, from where it can be accessed and handled.
-      * This is done by transferring byte stream.
-      */
-    private void copyDataBase() throws IOException {
-        InputStream inputStream = mContext.getAssets().open(DB_NAME);
-        String outFileName = mContext.getFilesDir().getPath() + File.separator + DB_NAME;
-
-        OutputStream outputStream = new FileOutputStream(outFileName);
-        byte[] buffer = new byte[1024];
-        int length;
-
-        while ((length = inputStream.read(buffer)) > 0) {
-            outputStream.write(buffer, 0, length);
-        }
-        
-        outputStream.flush();
-        outputStream.close();
-        inputStream.close();
     }
 }
