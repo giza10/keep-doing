@@ -1,6 +1,5 @@
 package com.hkb48.keepdo;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -148,18 +147,7 @@ public class CalendarFragment extends Fragment {
             break;
         }
 
-        SimpleDateFormat sdf_ymd = new SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        Date today = null;
-        try {
-            today = sdf_ymd.parse(year + "/" + month + "/" + day);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        Date today = DateChangeTime.getDate();
         if (selectedDate.compareTo(today) == 0) {
             // Set result of this activity as OK to inform that the today's done status is updated
             Intent returnIntent = new Intent();
@@ -252,12 +240,11 @@ public class CalendarFragment extends Fragment {
         int maxDate = calendar.getMaximum(Calendar.DAY_OF_MONTH);
         int week = calendar.get(Calendar.DAY_OF_WEEK);
         int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int today = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+        int month = calendar.get(Calendar.MONTH);
+        int today = DateChangeTime.getDateCalendar().get(Calendar.DAY_OF_MONTH);
 
         ArrayList<Date> doneDateList = mDBAdapter.getHistory(mTask.getTaskID(), calendar.getTime());
         SimpleDateFormat sdf_d = new SimpleDateFormat("dd", Locale.JAPAN);
-        SimpleDateFormat sdf_ymd = new SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN);
 
         // Fill the days of previous month in the first week with blank rectangle
         for (int i = 0; i < (week - Calendar.SUNDAY); i++) {
@@ -271,6 +258,11 @@ public class CalendarFragment extends Fragment {
             mGridLayout.addView(child, params);
         }
 
+        Calendar date = Calendar.getInstance();
+        date.set(Calendar.HOUR, 0);
+        date.set(Calendar.MINUTE, 0);
+        date.set(Calendar.SECOND, 0);
+        date.set(Calendar.MILLISECOND, 0);
         for (int day = 1; day <= maxDate; day++) {
             View child = getActivity().getLayoutInflater().inflate(R.layout.calendar_date, null);
             TextView textView1 = (TextView) child.findViewById(R.id.textView1);
@@ -279,14 +271,8 @@ public class CalendarFragment extends Fragment {
             // Register context menu to change done status of past days.
             if ((mPosition < 0) ||
                 ((mPosition == 0) && (day <= today))) {
-                Date date = null;
-                try {
-                    date = sdf_ymd.parse(year + "/" + month + "/" + day);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-
-                child.setTag(date);
+                date.set(year, month, day);
+                child.setTag(date.getTime());
                 registerForContextMenu(child);
             }
 

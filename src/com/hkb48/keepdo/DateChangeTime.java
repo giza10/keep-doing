@@ -5,6 +5,10 @@ import java.util.Date;
 
 public class DateChangeTime {
     public static Date getDate() {
+        return getDateCalendar().getTime();
+    }
+
+    public static Calendar getDateCalendar() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
 
@@ -20,6 +24,11 @@ public class DateChangeTime {
         if ((nowHour * 60 + nowMinutes) < (hour * 60 + minutes)) {
             calendar.add(Calendar.DAY_OF_MONTH, -1);
         }
-        return calendar.getTime();
+
+        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar;
     }
 }
