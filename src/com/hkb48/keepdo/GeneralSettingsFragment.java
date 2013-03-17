@@ -58,8 +58,6 @@ public class GeneralSettingsFragment extends PreferenceFragment implements OnPre
         } else {
             mVibrateWhen.setSummary(mVibrateWhen.getEntry());
         }
-
-        Settings.getInstance(activity);
     }
 
     @Override

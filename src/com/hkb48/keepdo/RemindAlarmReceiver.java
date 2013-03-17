@@ -54,7 +54,7 @@ public class RemindAlarmReceiver extends BroadcastReceiver {
         }
         builder.setDefaults(Notification.DEFAULT_LIGHTS);
 
-        Settings.getInstance(context);
+        Settings.initialize(context.getApplicationContext());
         String reminderRingtone = Settings.getAlertsRingTone();
         if (reminderRingtone != null) {
             builder.setSound(Uri.parse(reminderRingtone));

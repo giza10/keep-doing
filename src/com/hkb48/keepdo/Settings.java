@@ -2,39 +2,53 @@ package com.hkb48.keepdo;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 public class Settings {
     private static Settings sInstance = null;
+    private static OnSettingsChangeListener sListener;
     private static SharedPreferences sSharedPref;
     private static String sDoneIconType;
     private static String sDateChangeTime;
     private static String sAlertsRingTone;
     private static String sAlertsVibrateWhen;
 
+    public interface OnSettingsChangeListener {
+        public void onSettingsChanged();
+    }
+
+    public static void setOnPreferenceChangeListener(OnSettingsChangeListener listener) {
+        // TODO Only single client is supported as of now. 
+        sListener = listener;
+    }
+
     private Settings(SharedPreferences pref) {
         sSharedPref = pref;
     }
 
-    public static Settings getInstance(Context context) {
+    private static void onSettingsChanged() {
+        sListener.onSettingsChanged();
+    }
+
+    public static void initialize(Context context) {
         if (sInstance == null) {
-            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+            GeneralSettingsFragment.setDefaultValues(context);
+            SharedPreferences pref = GeneralSettingsFragment.getSharedPreferences(context);
             sInstance = new Settings(pref);
             sDoneIconType = sSharedPref.getString(GeneralSettingsFragment.KEY_GENERAL_DONE_ICON, null);
             sDateChangeTime = sSharedPref.getString(GeneralSettingsFragment.KEY_GENERAL_DATE_CHANGE_TIME, null);
             sAlertsRingTone = sSharedPref.getString(GeneralSettingsFragment.KEY_ALERTS_RINGTONE, null);
             sAlertsVibrateWhen = sSharedPref.getString(GeneralSettingsFragment.KEY_ALERTS_VIBRATE_WHEN, null);
         }
-
-        return sInstance;
     }
 
     public static void setDoneIcon(String v) {
         sDoneIconType = v;
+        onSettingsChanged();
     }
 
     public static void setDateChangeTime(String v) {
         sDateChangeTime = v;
+        onSettingsChanged();
     }
 
     public static void setAlertsRingTone(String v) {

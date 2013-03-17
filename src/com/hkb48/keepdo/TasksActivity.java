@@ -49,6 +49,14 @@ public class TasksActivity extends Activity {
     private int mDoneIconId = 0;
     private int mNotDoneIconId = 0;
 
+    private Settings.OnSettingsChangeListener mListener = new Settings.OnSettingsChangeListener() {
+        public void onSettingsChanged() {
+            mDoneIconId = Settings.getDoneIconId();
+            mNotDoneIconId = Settings.getNotDoneIconId();
+            updateTaskList();
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +64,10 @@ public class TasksActivity extends Activity {
 
         mDBAdapter = DatabaseAdapter.getInstance(this);
 
-        GeneralSettingsFragment.setDefaultValues(getApplicationContext());
+        Settings.initialize(getApplicationContext());
+        Settings.setOnPreferenceChangeListener(mListener);
+        mDoneIconId = Settings.getDoneIconId();
+        mNotDoneIconId = Settings.getNotDoneIconId();
 
         // Cancel notification (if displayed)
         NotificationManager notificationManager =
@@ -83,19 +94,11 @@ public class TasksActivity extends Activity {
 
         registerForContextMenu(taskListView);
 
-        Settings.getInstance(this);
-
         updateTaskList();
     }
 
     @Override
     public void onResume() {
-        if (mDoneIconId != Settings.getDoneIconId()) {
-            mDoneIconId = Settings.getDoneIconId();
-            mNotDoneIconId = Settings.getNotDoneIconId();
-            updateTaskList();
-        }
-
         mCheckSound.load();
         super.onResume();
     }
