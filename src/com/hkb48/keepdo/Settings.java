@@ -26,7 +26,9 @@ public class Settings {
     }
 
     private static void onSettingsChanged() {
-        sListener.onSettingsChanged();
+        if (sListener != null) {
+            sListener.onSettingsChanged();
+        }
     }
 
     public static void initialize(Context context) {
