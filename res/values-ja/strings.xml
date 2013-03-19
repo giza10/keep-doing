@@ -81,5 +81,6 @@
     </string-array>
     <string name="backup_done">バックアップ完了</string>
     <string name="restore_done">復元完了</string>
+    <string name="no_backup_file">バックアップファイルがありません</string>
     
 </resources>

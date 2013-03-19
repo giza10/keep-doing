@@ -123,5 +123,6 @@
     </string-array>
     <string name="backup_done">Backed up.</string>
     <string name="restore_done">Restored.</string>
+    <string name="no_backup_file">No backup file.</string>
     
 </resources>

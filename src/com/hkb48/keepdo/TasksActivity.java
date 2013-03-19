@@ -1,5 +1,6 @@
 package com.hkb48.keepdo;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -29,7 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class TasksActivity extends Activity {
-    // Request code when launching sub-activity
+	// Request code when launching sub-activity
     private static final int REQUEST_ADD_TASK = 0;
     private static final int REQUEST_EDIT_TASK = 1;
     private static final int REQUEST_SHOW_CALENDAR = 2;
@@ -40,6 +41,11 @@ public class TasksActivity extends Activity {
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ITEM = 1;
+
+    // Backup & Restore
+    private static final String BACKUP_DIR_NAME = "/keepdo";
+    private static final String BACKUP_FILE_NAME = "/keepdo.db";
+	private static final String BACKUP_DIR_PATH = Environment.getExternalStorageDirectory().getPath() + BACKUP_DIR_NAME;
 
     private TaskAdapter mAdapter;
     private List<TaskListItem> mDataList = new ArrayList<TaskListItem>();
@@ -133,36 +139,7 @@ public class TasksActivity extends Activity {
             startActivity(intent);
             return true;
         case R.id.menu_backup_restore:
-        	// Show a backup & restore dialog
-        	AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(TasksActivity.this);
-        	dialogBuilder.setTitle(R.string.backup_restore);
-        	dialogBuilder.setSingleChoiceItems(R.array.dialog_choice_backup_restore, -1, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                	((AlertDialog)dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-                }
-            });
-        	dialogBuilder.setNegativeButton(R.string.dialog_cancel, null);
-        	dialogBuilder.setPositiveButton(R.string.dialog_start, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                	switch (((AlertDialog)dialog).getListView().getCheckedItemPosition()) {
-                	case 0:
-                		// execute backup
-                		backupTaskData();
-                		Toast.makeText(TasksActivity.this, R.string.backup_done, Toast.LENGTH_SHORT).show();
-                		return;
-                	case 1:
-                		// execute restore
-                		restoreTaskData();
-                        updateTaskList();
-                		Toast.makeText(TasksActivity.this, R.string.restore_done, Toast.LENGTH_SHORT).show();
-                		return;
-                	default:
-                		return;
-                	}
-                }
-            });
-        	dialogBuilder.setCancelable(true);
-        	dialogBuilder.show().getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        	showBackupRestoreDialog();
         	return true;
         default:
             return super.onOptionsItemSelected(item);
@@ -294,13 +271,62 @@ public class TasksActivity extends Activity {
     /**
      * Backup & Restore
      */
+    private void showBackupRestoreDialog() {
+    	AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(TasksActivity.this);
+    	String title = getString(R.string.backup_restore) + "\n" + BACKUP_DIR_NAME + BACKUP_FILE_NAME;
+    	dialogBuilder.setTitle(title);
+    	dialogBuilder.setSingleChoiceItems(R.array.dialog_choice_backup_restore, -1, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+            	boolean enabled = true;
+            	if (which == 1) {
+            		// Restore
+    		    	File backupFile = new File(BACKUP_DIR_PATH + BACKUP_FILE_NAME);
+    		    	if (!backupFile.exists()) {
+    		    		enabled = false;
+    		    		Toast.makeText(TasksActivity.this, R.string.no_backup_file, Toast.LENGTH_SHORT).show();
+    		    	}
+            	}
+            	((AlertDialog)dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(enabled);
+            }
+        });
+    	dialogBuilder.setNegativeButton(R.string.dialog_cancel, null);
+    	dialogBuilder.setPositiveButton(R.string.dialog_start, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+            	switch (((AlertDialog)dialog).getListView().getCheckedItemPosition()) {
+            	case 0:
+            		// execute backup
+            		backupTaskData();
+            		Toast.makeText(TasksActivity.this, R.string.backup_done, Toast.LENGTH_SHORT).show();
+            		return;
+            	case 1:
+            		// execute restore
+            		restoreTaskData();
+                    updateTaskList();
+            		Toast.makeText(TasksActivity.this, R.string.restore_done, Toast.LENGTH_SHORT).show();
+            		return;
+            	default:
+            		return;
+            	}
+            }
+        });
+    	dialogBuilder.setCancelable(true);
+    	final AlertDialog alertDialog = dialogBuilder.show();
+		alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+		alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+			public void onShow(DialogInterface dialog) {
+		    	File backupFile = new File(BACKUP_DIR_PATH + BACKUP_FILE_NAME);
+		    	boolean existBackupFile = backupFile.exists();
+		    	((AlertDialog)dialog).getListView().getChildAt(1).setEnabled(existBackupFile);
+			}
+		});
+    }
     private void backupTaskData() {
     	DatabaseHelper dbHelper = new DatabaseHelper(this);
-    	dbHelper.backupDataBase(Environment.getExternalStorageDirectory().getPath() + "/keepdo", "/keepdo.db" );
+    	dbHelper.backupDataBase(BACKUP_DIR_PATH, BACKUP_FILE_NAME );
     }
     private void restoreTaskData() {
     	DatabaseHelper dbHelper = new DatabaseHelper(this);
-    	dbHelper.restoreDataBase(Environment.getExternalStorageDirectory().getPath() + "/keepdo/keepdo.db" );
+    	dbHelper.restoreDataBase(BACKUP_DIR_PATH + BACKUP_FILE_NAME);
     }
 
     /**

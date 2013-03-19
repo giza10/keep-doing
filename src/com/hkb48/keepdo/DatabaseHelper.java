@@ -104,7 +104,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
      */
     public void backupDataBase(String backupDirPath, String backupFileName) {
     	File dir = new File(backupDirPath);
-    	dir.mkdir();
+    	if (!dir.exists()) {
+    		dir.mkdir();
+    	}
     	final String DB_FILE_PATH = mContext.getDatabasePath(DB_NAME).getPath();
 		copyDataBase(DB_FILE_PATH, backupDirPath + backupFileName);
     }
