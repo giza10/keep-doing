@@ -1,6 +1,5 @@
 package com.hkb48.keepdo;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -265,9 +264,6 @@ public class TasksActivity extends Activity {
             // Dummy Task for header on the ListView
             TaskListHeader header = new TaskListHeader();
             header.title = getString(R.string.tasklist_header_today_task);
-            SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.date_format));
-            Date today = DateChangeTime.getDate();
-            header.subText = sdf.format(today);
             TaskListItem taskListItem = new TaskListItem(TYPE_HEADER, header);
             mDataList.add(taskListItem);
 
@@ -322,7 +318,6 @@ public class TasksActivity extends Activity {
 
     private static class TaskListHeader {
         String title;
-        String subText;
     }
 
     private class TaskAdapter extends BaseAdapter {
@@ -386,7 +381,6 @@ public class TasksActivity extends Activity {
                     view = inflater.inflate(R.layout.task_list_header, null);
                     headerViewHolder.viewType = TYPE_HEADER;
                     headerViewHolder.textView1 = (TextView) view.findViewById(R.id.textView1);
-                    headerViewHolder.textView2 = (TextView) view.findViewById(R.id.textView2);
                     view.setTag(headerViewHolder);
                 }
             }
@@ -435,7 +429,6 @@ public class TasksActivity extends Activity {
             } else {
                 TaskListHeader taskListHeader = (TaskListHeader) taskListItem.data;
                 headerViewHolder.textView1.setText(taskListHeader.title);
-                headerViewHolder.textView2.setText(taskListHeader.subText);
             }
 
             return view;
@@ -447,7 +440,6 @@ public class TasksActivity extends Activity {
 
         private class HeaderViewHolder extends ViewHolder {
             TextView textView1;
-            TextView textView2;
         }
 
         private class ItemViewHolder extends ViewHolder {
