@@ -86,6 +86,9 @@ public class Settings {
     }
 
     public static String getDateChangeTime() {
+        if (sDateChangeTime == null) {
+            sDateChangeTime = new String("24:00");
+        }
         return sDateChangeTime;
     }
 
