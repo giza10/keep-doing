@@ -1,6 +1,6 @@
 <resources>
 
-    <color name="tasklist_bg_header">#C0C0C0</color>
+    <color name="tasklist_bg_header">#33b5e5</color>
     <color name="recurrence_off_day">#C0C0C0</color>
 
     <color name="calendar_grid_color">#808080</color>
