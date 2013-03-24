@@ -28,6 +28,7 @@
     <string name="task_save">保存</string>
     <string name="task_cancel">キャンセル</string>
     <string name="delete_confirmation">このDoを削除してもよろしいですか？</string>
+    <string name="date_changed">日付が切り替わりました</string>
     <string name="date_format">MM月dd日(E)</string>
     <string name="check_done">完了マークをつける</string>
     <string name="uncheck_done">完了マークをはずす</string>

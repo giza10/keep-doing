@@ -30,7 +30,7 @@ public class ReminderManager {
         List<Task> taskList = dbAdapter.getTaskList();
         long minTime = Long.MAX_VALUE;;
         long taskId = Task.INVALID_TASKID;
-        Date today = DateChangeTime.getDate();
+        Date today = DateChangeTimeManager.getDate();
 
         for (Task task : taskList) {
             Reminder reminder = task.getReminder();
@@ -59,9 +59,10 @@ public class ReminderManager {
     public List<Task> getRemainingUndoneTaskList(final Context context) {
         Calendar time = Calendar.getInstance();
         time.setTimeInMillis(System.currentTimeMillis());
+        time.set(Calendar.DAY_OF_MONTH, DateChangeTimeManager.getDateCalendar().get(Calendar.DAY_OF_MONTH));
         DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(context);
         List<Task> remainingList = new ArrayList<Task>();
-        Date today = DateChangeTime.getDate();
+        Date today = DateChangeTimeManager.getDate();
 
         for (Task task : dbAdapter.getTaskList()) {
             Reminder reminder = task.getReminder();
@@ -84,6 +85,8 @@ public class ReminderManager {
     private Calendar getNextSchedule(Recurrence recurrence, boolean isDoneToday, int hourOfDay, int minute) {
         Calendar time = Calendar.getInstance();
         time.setTimeInMillis(System.currentTimeMillis());
+        time.set(Calendar.DAY_OF_MONTH, DateChangeTimeManager.getDateCalendar().get(Calendar.DAY_OF_MONTH));
+
         boolean todayAlreadyExceeded = false;
         int dayOffset = 0;
         boolean isSuccess = false;
@@ -141,8 +144,9 @@ public class ReminderManager {
     }
 
     private PendingIntent getPendingIntent(Context context, long taskId) {
-        Intent intent = new Intent(context, RemindAlarmReceiver.class);
+        Intent intent = new Intent(context, AlarmReceiver.class);
         intent.putExtra("TASK-ID", taskId);
+        intent.setType("Reminder");
         PendingIntent pendingIntent = 
                 PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         return pendingIntent;

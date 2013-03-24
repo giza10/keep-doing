@@ -13,11 +13,21 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-public class RemindAlarmReceiver extends BroadcastReceiver {
+public class AlarmReceiver extends BroadcastReceiver {
     private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        if (intent.getType().equals("Reminder")) {
+            dispatchReminderEvent(context, intent);
+        } else if (intent.getType().equals("DateChangeTime")) {
+            dispatchDateChangedEvent(context);
+        } else {
+            Log.e(TAG_KEEPDO + "RemindAlarmReceiver#onReceive()", "Unknown intent type");
+        }
+    }
+
+    private void dispatchReminderEvent(Context context, Intent intent) {
         long taskId = intent.getLongExtra("TASK-ID", -1);
         Task task = DatabaseAdapter.getInstance(context).getTask(taskId);
         String taskName = null;
@@ -76,5 +86,9 @@ public class RemindAlarmReceiver extends BroadcastReceiver {
         notificationManager.notify(R.string.app_name, builder.build());
 
         reminderManager.setNextAlert(context);
+    }
+
+    private void dispatchDateChangedEvent(Context context) {
+        DateChangeTimeManager.getInstance(context).dateChanged();
     }
 }

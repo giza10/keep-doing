@@ -29,8 +29,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class TasksActivity extends Activity {
-	// Request code when launching sub-activity
+public class TasksActivity extends Activity implements DateChangeTimeManager.OnDateChangedListener {
+    // Request code when launching sub-activity
     private static final int REQUEST_ADD_TASK = 0;
     private static final int REQUEST_EDIT_TASK = 1;
     private static final int REQUEST_SHOW_CALENDAR = 2;
@@ -54,7 +54,7 @@ public class TasksActivity extends Activity {
     private int mDoneIconId = 0;
     private int mNotDoneIconId = 0;
 
-    private Settings.OnSettingsChangeListener mListener = new Settings.OnSettingsChangeListener() {
+    private Settings.OnChangedListener mSettingsChangedListener = new Settings.OnChangedListener() {
         public void onSettingsChanged() {
             mDoneIconId = Settings.getDoneIconId();
             mNotDoneIconId = Settings.getNotDoneIconId();
@@ -70,9 +70,11 @@ public class TasksActivity extends Activity {
         mDBAdapter = DatabaseAdapter.getInstance(this);
 
         Settings.initialize(getApplicationContext());
-        Settings.setOnPreferenceChangeListener(mListener);
+        Settings.registerOnChangedListener(mSettingsChangedListener);
         mDoneIconId = Settings.getDoneIconId();
         mNotDoneIconId = Settings.getNotDoneIconId();
+
+        DateChangeTimeManager.getInstance(this).registerOnDateChangedListener(this);
 
         // Cancel notification (if displayed)
         NotificationManager notificationManager =
@@ -117,6 +119,7 @@ public class TasksActivity extends Activity {
     @Override
     public void onDestroy() {
         mDBAdapter.close();
+        DateChangeTimeManager.getInstance(this).unregisterOnDateChangedListener(this);
         super.onDestroy();
     }
 
@@ -422,7 +425,7 @@ public class TasksActivity extends Activity {
                 recurrenceView.update(task.getRecurrence());
 
                 ImageView imageView = itemViewHolder.imageView;
-                Date today = DateChangeTime.getDate();
+                Date today = DateChangeTimeManager.getDate();
                 boolean checked = mDBAdapter.getDoneStatus(task.getTaskID(), today);
 
                 if (checked) {
@@ -438,7 +441,7 @@ public class TasksActivity extends Activity {
                         TaskListItem taskListItem = (TaskListItem) getItem(position);
                         Task task = (Task) taskListItem.data;
                         long taskId = task.getTaskID();
-                        Date today = DateChangeTime.getDate();
+                        Date today = DateChangeTimeManager.getDate();
                         boolean checked = mDBAdapter.getDoneStatus(taskId, today);
                         checked = ! checked;
                         mDBAdapter.setDoneStatus(taskId, today, checked);
@@ -473,5 +476,18 @@ public class TasksActivity extends Activity {
             ImageView imageView;
             RecurrenceView recurrenceView;
         }
+    }
+
+    public void onDateChanged() {
+        new AlertDialog.Builder(this)
+        .setMessage(R.string.date_changed)
+        .setPositiveButton(R.string.dialog_ok ,new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                updateTaskList();
+            }
+        })
+        .setCancelable(false)
+        .create()
+        .show();
     }
 }

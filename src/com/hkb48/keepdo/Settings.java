@@ -1,24 +1,34 @@
 package com.hkb48.keepdo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 
 public class Settings {
     private static Settings sInstance = null;
-    private static OnSettingsChangeListener sListener;
+    private static final List<OnChangedListener> sChangedListeners = new ArrayList<OnChangedListener>(1);
     private static SharedPreferences sSharedPref;
     private static String sDoneIconType;
     private static String sDateChangeTime;
     private static String sAlertsRingTone;
     private static String sAlertsVibrateWhen;
 
-    public interface OnSettingsChangeListener {
+    public interface OnChangedListener {
         public void onSettingsChanged();
     }
 
-    public static void setOnPreferenceChangeListener(OnSettingsChangeListener listener) {
-        // TODO Only single client is supported as of now. 
-        sListener = listener;
+    public static void registerOnChangedListener(OnChangedListener listener) {
+        if (listener != null && !sChangedListeners.contains(listener)) {
+            sChangedListeners.add(listener);
+        }
+    }
+
+    public static void unregisterOnChangedListener(OnChangedListener listener) {
+        if (listener != null) {
+            sChangedListeners.remove(listener);
+        }
     }
 
     private Settings(SharedPreferences pref) {
@@ -26,8 +36,8 @@ public class Settings {
     }
 
     private static void onSettingsChanged() {
-        if (sListener != null) {
-            sListener.onSettingsChanged();
+        for (OnChangedListener listener : sChangedListeners) {
+            listener.onSettingsChanged();
         }
     }
 

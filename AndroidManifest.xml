@@ -45,7 +45,7 @@
             android:screenOrientation="portrait" >
         </activity>
 
-        <receiver android:name=".RemindAlarmReceiver"/>
+        <receiver android:name=".AlarmReceiver"/>
 
         <receiver android:name=".RemindAlarmInitReceiver">
             <intent-filter>

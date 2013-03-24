@@ -29,6 +29,7 @@
     <string name="task_save">Save</string>
     <string name="task_cancel">Cancel</string>
     <string name="delete_confirmation">Are you sure you want to delete this Do ?</string>
+    <string name="date_changed">Date changed</string>
     <string name="date_format">MM/dd(E)</string>
     <string name="check_done">Check done</string>
     <string name="uncheck_done">Uncheck done</string>
