@@ -425,7 +425,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
                 recurrenceView.update(task.getRecurrence());
 
                 ImageView imageView = itemViewHolder.imageView;
-                Date today = DateChangeTimeManager.getDate();
+                Date today = DateChangeTimeManager.getDateTime();
                 boolean checked = mDBAdapter.getDoneStatus(task.getTaskID(), today);
 
                 if (checked) {
@@ -441,7 +441,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
                         TaskListItem taskListItem = (TaskListItem) getItem(position);
                         Task task = (Task) taskListItem.data;
                         long taskId = task.getTaskID();
-                        Date today = DateChangeTimeManager.getDate();
+                        Date today = DateChangeTimeManager.getDateTime();
                         boolean checked = mDBAdapter.getDoneStatus(taskId, today);
                         checked = ! checked;
                         mDBAdapter.setDoneStatus(taskId, today, checked);

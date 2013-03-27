@@ -241,7 +241,7 @@ public class CalendarFragment extends Fragment {
         int week = calendar.get(Calendar.DAY_OF_WEEK);
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
-        int today = DateChangeTimeManager.getDateCalendar().get(Calendar.DAY_OF_MONTH);
+        int today = DateChangeTimeManager.getDateTimeCalendar().get(Calendar.DAY_OF_MONTH);
 
         ArrayList<Date> doneDateList = mDBAdapter.getHistory(mTask.getTaskID(), calendar.getTime());
         SimpleDateFormat sdf_d = new SimpleDateFormat("dd", Locale.JAPAN);

@@ -13,7 +13,6 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
-import android.util.Log;
 
 public class GeneralSettingsFragment extends PreferenceFragment implements OnPreferenceChangeListener {
 
@@ -80,7 +79,6 @@ public class GeneralSettingsFragment extends PreferenceFragment implements OnPre
     }
 
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-    Log.v("KEEP-DO", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         boolean ret = false;
         if (preference == mDoneIconPref) {
             Settings.setDoneIcon((String) newValue);
