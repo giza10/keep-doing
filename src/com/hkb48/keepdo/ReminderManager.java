@@ -30,7 +30,7 @@ public class ReminderManager {
         List<Task> taskList = dbAdapter.getTaskList();
         long minTime = Long.MAX_VALUE;
         long taskId = Task.INVALID_TASKID;
-        Date today = DateChangeTimeManager.getDateTime();
+        Date today = DateChangeTimeUtil.getDateTime();
 
         for (Task task : taskList) {
             Reminder reminder = task.getReminder();
@@ -59,7 +59,7 @@ public class ReminderManager {
     public List<Task> getRemainingUndoneTaskList(final Context context) {
         DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(context);
         List<Task> remainingList = new ArrayList<Task>();
-        Calendar time = DateChangeTimeManager.getDateTimeCalendar();
+        Calendar time = DateChangeTimeUtil.getDateTimeCalendar();
         Date today = time.getTime();
         final int dayOfWeek = time.get(Calendar.DAY_OF_WEEK);
 
@@ -78,7 +78,7 @@ public class ReminderManager {
                 reminderTime.set(Calendar.MINUTE, minute);
 
                 // Check if today's reminder time is already exceeded
-                if (time.after(DateChangeTimeManager.getDateTimeCalendar(reminderTime))) {
+                if (time.after(DateChangeTimeUtil.getDateTimeCalendar(reminderTime))) {
                     if (dbAdapter.getDoneStatus(task.getTaskID(), today) == false) {
                         remainingList.add(task);
                     }
@@ -89,7 +89,7 @@ public class ReminderManager {
     }
 
     private Calendar getNextSchedule(Recurrence recurrence, boolean isDoneToday, int hourOfDay, int minute) {
-        Calendar time = DateChangeTimeManager.getDateTimeCalendar();
+        Calendar time = DateChangeTimeUtil.getDateTimeCalendar();
 
         boolean todayAlreadyExceeded = false;
         int dayOffset = 0;
@@ -114,7 +114,7 @@ public class ReminderManager {
         time.add(Calendar.MINUTE, 1);
 
         // Check if today's reminder time is already exceeded
-        if (time.after(DateChangeTimeManager.getDateTimeCalendar(reminderTime))) {
+        if (time.after(DateChangeTimeUtil.getDateTimeCalendar(reminderTime))) {
             todayAlreadyExceeded = true;
         }
         if (isDoneToday || todayAlreadyExceeded) {

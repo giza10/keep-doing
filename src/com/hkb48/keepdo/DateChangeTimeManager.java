@@ -3,7 +3,6 @@ package com.hkb48.keepdo;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import android.app.AlarmManager;
@@ -20,8 +19,11 @@ public class DateChangeTimeManager {
     private final List<OnDateChangedListener> mChangedListeners = new ArrayList<OnDateChangedListener>();
 
     private Settings.OnChangedListener mSettingsChangedListener = new Settings.OnChangedListener() {
-        public void onSettingsChanged() {
+        public void onDoneIconSettingsChanged() {}
+
+        public void onDateChangeTimeSettingsChanged() {
             startAlarm();
+            ReminderManager.getInstance().setNextAlert(mContext);
         }
     };
 
@@ -46,8 +48,6 @@ public class DateChangeTimeManager {
             if (mChangedListeners.size() == 1) {
                 Settings.registerOnChangedListener(mSettingsChangedListener);
                 startAlarm();
-            } else {
-                Log.v(TAG_KEEPDO + "DateChangeTimeManager", "mChangedListeners:" + mChangedListeners.size());
             }
         }
     }
@@ -69,10 +69,10 @@ public class DateChangeTimeManager {
     }
 
     private void startAlarm() {
-        DateChangeTime dateChangeTime = getDateChangeTime();
-        Calendar nextAlarmTime = getDateTimeCalendar();
+    	DateChangeTimeUtil.DateChangeTime dateChangeTime = DateChangeTimeUtil.getDateChangeTime();
+        Calendar nextAlarmTime = DateChangeTimeUtil.getDateTimeCalendar();
         nextAlarmTime.add(Calendar.DATE, 1);
-        nextAlarmTime.set(Calendar.HOUR_OF_DAY, dateChangeTime.hour);
+        nextAlarmTime.set(Calendar.HOUR_OF_DAY, dateChangeTime.hourOfDay);
         nextAlarmTime.set(Calendar.MINUTE, dateChangeTime.minute);
         nextAlarmTime.set(Calendar.SECOND, 0);
         nextAlarmTime.set(Calendar.MILLISECOND, 0);
@@ -95,42 +95,7 @@ public class DateChangeTimeManager {
         return pendingIntent;
     }
 
-    public static Date getDateTime() {
-        return getDateTimeCalendar().getTime();
-    }
 
-    public static Date getDate() {
-        Calendar calendar = getDateTimeCalendar();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        return calendar.getTime();
-    }
-
-    public static Calendar getDateTimeCalendar() {
-        Calendar realTime = Calendar.getInstance();
-        realTime.setTimeInMillis(System.currentTimeMillis());
-        return getDateTimeCalendar(realTime);
-    }
-
-    public static Calendar getDateTimeCalendar(Calendar realTime) {
-        DateChangeTime dateChangeTime = getDateChangeTime();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(realTime.getTimeInMillis());
-        calendar.add(Calendar.HOUR_OF_DAY, -dateChangeTime.hour);
-        calendar.add(Calendar.MINUTE, -dateChangeTime.minute);
-        return calendar;
-    }
-
-    private static DateChangeTime getDateChangeTime() {
-        String dateChangeTimeStr = Settings.getDateChangeTime();
-        String[] time_para = dateChangeTimeStr.split(":");
-        DateChangeTime dateChangeTime = new DateChangeTime();
-        dateChangeTime.hour = Integer.parseInt(time_para[0]) - 24;
-        dateChangeTime.minute = Integer.parseInt(time_para[1]);
-        return dateChangeTime;
-    }
 
     private void dumpLog(long timeInMillis) {
         if (BuildConfig.DEBUG) {
@@ -141,10 +106,5 @@ public class DateChangeTimeManager {
             String result = mf.format(objs);
             Log.v(TAG_KEEPDO + "DateChangeTimeManager", "time:" + result);
         }
-    }
-
-    private static class DateChangeTime {
-        int hour;
-        int minute;
     }
 }

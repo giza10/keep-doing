@@ -16,7 +16,8 @@ public class Settings {
     private static String sAlertsVibrateWhen;
 
     public interface OnChangedListener {
-        public void onSettingsChanged();
+        public void onDoneIconSettingsChanged();
+        public void onDateChangeTimeSettingsChanged();
     }
 
     public static void registerOnChangedListener(OnChangedListener listener) {
@@ -35,12 +36,6 @@ public class Settings {
         sSharedPref = pref;
     }
 
-    private static void onSettingsChanged() {
-        for (OnChangedListener listener : sChangedListeners) {
-            listener.onSettingsChanged();
-        }
-    }
-
     public static void initialize(Context context) {
         if (sInstance == null) {
             GeneralSettingsFragment.setDefaultValues(context);
@@ -55,12 +50,16 @@ public class Settings {
 
     public static void setDoneIcon(String v) {
         sDoneIconType = v;
-        onSettingsChanged();
+        for (OnChangedListener listener : sChangedListeners) {
+            listener.onDoneIconSettingsChanged();
+        }
     }
 
     public static void setDateChangeTime(String v) {
         sDateChangeTime = v;
-        onSettingsChanged();
+        for (OnChangedListener listener : sChangedListeners) {
+            listener.onDateChangeTimeSettingsChanged();
+        }
     }
 
     public static void setAlertsRingTone(String v) {

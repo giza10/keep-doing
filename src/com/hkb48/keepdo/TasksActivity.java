@@ -55,9 +55,13 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
     private int mNotDoneIconId = 0;
 
     private Settings.OnChangedListener mSettingsChangedListener = new Settings.OnChangedListener() {
-        public void onSettingsChanged() {
+        public void onDoneIconSettingsChanged() {
             mDoneIconId = Settings.getDoneIconId();
             mNotDoneIconId = Settings.getNotDoneIconId();
+            updateTaskList();
+        }
+
+        public void onDateChangeTimeSettingsChanged() {
             updateTaskList();
         }
     };
@@ -229,7 +233,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
 
         List<Task> taskListToday =  new ArrayList<Task>();
         List<Task> taskListNotToday = new ArrayList<Task>();
-        int dayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+        int dayOfWeek = DateChangeTimeUtil.getDateTimeCalendar().get(Calendar.DAY_OF_WEEK);
 
         mDataList.clear();
         for (Task task : taskList) {
@@ -425,7 +429,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
                 recurrenceView.update(task.getRecurrence());
 
                 ImageView imageView = itemViewHolder.imageView;
-                Date today = DateChangeTimeManager.getDateTime();
+                Date today = DateChangeTimeUtil.getDateTime();
                 boolean checked = mDBAdapter.getDoneStatus(task.getTaskID(), today);
 
                 if (checked) {
@@ -441,7 +445,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
                         TaskListItem taskListItem = (TaskListItem) getItem(position);
                         Task task = (Task) taskListItem.data;
                         long taskId = task.getTaskID();
-                        Date today = DateChangeTimeManager.getDateTime();
+                        Date today = DateChangeTimeUtil.getDateTime();
                         boolean checked = mDBAdapter.getDoneStatus(taskId, today);
                         checked = ! checked;
                         mDBAdapter.setDoneStatus(taskId, today, checked);
