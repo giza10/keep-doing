@@ -2,6 +2,7 @@ package com.hkb48.keepdo;
 
 import java.util.Arrays;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
@@ -10,6 +11,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager.LayoutParams;
@@ -27,6 +29,9 @@ public class TaskSettingActivity extends Activity {
         super.onCreate(savedInstanceState);
         getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         setContentView(R.layout.task_setting_activity);
+
+        final ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         EditText editTextTaskName = (EditText) findViewById(R.id.editTextTaskName);
         EditText editTextDescription = (EditText) findViewById(R.id.editTextDescription);
@@ -68,6 +73,17 @@ public class TaskSettingActivity extends Activity {
         addTaskName(editTextTaskName);
         addRecurrence(recurrence);
         addReminder();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case android.R.id.home:
+            finish();
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     private void addTaskName(EditText editText) {
