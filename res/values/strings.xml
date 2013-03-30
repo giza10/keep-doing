@@ -11,9 +11,11 @@
     <string name="hint_task_name">Input title of Do</string>
     <string name="settings">Settings</string>
     <string name="general_setting">General setting</string>
+    <string name="history_calendar_setting">History calendar setting</string>
     <string name="reminder_setting">Reminder setting</string>
     <string name="preferences_done_icon_title">Done icon</string>
     <string name="preferences_date_change_time_title">Date change time</string>
+    <string name="preferences_calendar_week_start_day_title">Start week on</string>
     <string name="preferences_date_change_time_summary">Date of Do list is updated at %s.</string>
     <string name="preferences_alerts_ringtone_title">Notification sound</string>
     <string name="preferences_alerts_vibrateWhen_title">Vibration</string>
@@ -58,7 +60,7 @@
     <string name="backup_restore">Backup and Restore</string>
     <string name="title_activity_task">TaskActivity</string>
 
-    <!-- The vibrate notification modes -->
+    <!-- Time when date changes -->
     <string-array translatable="false" name="prefEntries_date_change_time">
         <item>24:00 (AM 0:00)</item>
         <item>25:00 (AM 1:00)</item>
@@ -69,10 +71,10 @@
         <item>30:00 (AM 6:00)</item>
     </string-array>
 
-    <!-- The default vibrateWhen value, when none is set -->
+    <!-- The default time when date changes, when none is set -->
     <string translatable="false" name="prefDefault_date_change_time">24:00</string>
 
-    <!-- The vibrateWhen values -->
+    <!-- The date change time values -->
     <string-array translatable="false" name="prefValues_date_change_time">
         <item>24:00</item>
         <item>25:00</item>
@@ -81,6 +83,21 @@
         <item>28:00</item>
         <item>29:00</item>
         <item>30:00</item>
+    </string-array>
+
+    <!-- The week start day on the calendar -->
+    <string-array name="prefEntries_calendar_week_start_day">
+        <item>Sunday</item>
+        <item>Monday</item>
+    </string-array>
+
+    <!-- The default week start day value, when none is set -->
+    <string translatable="false" name="prefDefault_calendar_week_start_day">"1"</string>
+
+    <!-- The week start day values -->
+    <string-array translatable="false" name="prefValues_calendar_week_start_day">
+        <item>"1"</item>
+        <item>"2"</item>
     </string-array>
 
     <!-- The vibrate notification modes -->
@@ -110,6 +127,9 @@
 
     <!-- Dialog title for the Date change time dialog -->
     <string name="prefDialogTitle_date_change_time">Date change time</string>
+
+    <!-- Dialog title for the Date change time dialog -->
+    <string name="prefDialogTitle_calendar_week_start_day">Week start day</string>
 
     <!-- Dialog title for the Vibrate dialog -->
     <string name="prefDialogTitle_vibrateWhen">Vibrate</string>

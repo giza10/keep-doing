@@ -24,6 +24,20 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:key="preferences_calendar_category"
+        android:title="@string/history_calendar_setting">
+
+        <ListPreference
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:key="preferences_calendar_week_start_day"
+            android:title="@string/preferences_calendar_week_start_day_title"
+            android:entries="@array/prefEntries_calendar_week_start_day"
+            android:entryValues="@array/prefValues_calendar_week_start_day"
+            android:defaultValue="@string/prefDefault_calendar_week_start_day"
+            android:dialogTitle="@string/prefDialogTitle_calendar_week_start_day" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:key="preferences_alerts_category"
         android:title="@string/reminder_setting">
 

@@ -205,12 +205,12 @@ public class CalendarFragment extends Fragment {
      */
     private void addDayOfWeek() {
         String[] weeks = getResources().getStringArray(R.array.week_names);
-        for (int i = 0; i < weeks.length; i++) {
-            View child = getActivity().getLayoutInflater().inflate(R.layout.calendar_week, null);
+        for (int i = 0; i < 7; i++) {
             int dayOfWeek = getDayOfWeek(i);
+            View child = getActivity().getLayoutInflater().inflate(R.layout.calendar_week, null);
 
             TextView textView1 = (TextView) child.findViewById(R.id.textView1);
-            textView1.setText(weeks[i]);
+            textView1.setText(weeks[dayOfWeek - 1]);
             textView1.setTextColor(Color.WHITE);
             switch(dayOfWeek) {
             case Calendar.SUNDAY:
@@ -237,17 +237,19 @@ public class CalendarFragment extends Fragment {
      * @param calendar
      */
     private void addDayOfMonth(Calendar calendar) {
-        int maxDate = calendar.getMaximum(Calendar.DAY_OF_MONTH);
+        final int maxDate = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
         int week = calendar.get(Calendar.DAY_OF_WEEK);
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int today = DateChangeTimeUtil.getDateTimeCalendar().get(Calendar.DAY_OF_MONTH);
+        final int year = calendar.get(Calendar.YEAR);
+        final int month = calendar.get(Calendar.MONTH);
+        final int startDayOfWeek = getStartDayOfWeek();
+        final int today = DateChangeTimeUtil.getDateTimeCalendar().get(Calendar.DAY_OF_MONTH);
 
         ArrayList<Date> doneDateList = mDBAdapter.getHistory(mTask.getTaskID(), calendar.getTime());
         SimpleDateFormat sdf_d = new SimpleDateFormat("dd", Locale.JAPAN);
 
         // Fill the days of previous month in the first week with blank rectangle
-        for (int i = 0; i < (week - Calendar.SUNDAY); i++) {
+        final int blankDaysInFirstWeek = (week - startDayOfWeek + 7) % 7;
+        for (int i = 0; i < blankDaysInFirstWeek; i++) {
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.rowSpec = GridLayout.spec(1);
             params.columnSpec = GridLayout.spec(i);
@@ -312,10 +314,11 @@ public class CalendarFragment extends Fragment {
         }
 
         // Fill the days of next month in the last week with blank rectangle
-        for (int i = 0; i < (7 - week); i++) {
+        final int blankDaysInLastWeek = (7 - week + (startDayOfWeek - 1)) % 7;
+        for (int i = 0; i < blankDaysInLastWeek; i++) {
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-                params.width = mCalendarCellWidth;
-                params.height = mCalendarCellHeight;
+            params.width = mCalendarCellWidth;
+            params.height = mCalendarCellHeight;
             View child = getActivity().getLayoutInflater().inflate(R.layout.calendar_date, null);
             child.setBackgroundResource(R.drawable.bg_calendar_day_blank);
             mGridLayout.addView(child, params);
@@ -329,7 +332,8 @@ public class CalendarFragment extends Fragment {
      * @return dayOfWeek value defined in Calendar class
      */
     private int getDayOfWeek(int indexOfWeek) {
-        return Calendar.SUNDAY + indexOfWeek;
+        int startDayOfWeek = getStartDayOfWeek();
+        return (indexOfWeek + (startDayOfWeek - 1)) % 7 + 1;
     }
 
     /***
@@ -371,5 +375,9 @@ public class CalendarFragment extends Fragment {
 
     private void hideDoneIcon(ImageView view) {
         view.setVisibility(View.INVISIBLE);
+    }
+
+    private int getStartDayOfWeek() {
+        return Settings.getWeekStartDay();
     }
 }

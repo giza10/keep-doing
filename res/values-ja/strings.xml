@@ -8,10 +8,12 @@
     <string name="delete_task">Doの削除</string>
     <string name="settings">設定</string>
     <string name="general_setting">一般設定</string>
+    <string name="history_calendar_setting">履歴カレンダー設定</string>
     <string name="reminder_setting">通知設定</string>
     <string name="preferences_done_icon_title">完了アイコン</string>
     <string name="preferences_date_change_time_title">日付変更時刻</string>
     <string name="preferences_date_change_time_summary">Doリストの日付は %sに更新されます</string>
+    <string name="preferences_calendar_week_start_day_title">週の開始日</string>
     <string name="preferences_alerts_ringtone_title">通知音</string>
     <string name="preferences_alerts_vibrateWhen_title">バイブレーション</string>
     <string name="task_name">タイトル</string>
@@ -56,6 +58,12 @@
     <string name="backup_restore">バックアップと復元</string>
     <string name="title_activity_task">TaskActivity</string>
 
+    <!-- The week start day on the calendar -->
+    <string-array name="prefEntries_calendar_week_start_day">
+        <item>日曜日</item>
+        <item>月曜日</item>
+    </string-array>
+
     <!-- The vibrate notification modes -->
     <string-array name="prefEntries_alerts_vibrateWhen">
         <item>常に使用</item>
@@ -68,6 +76,9 @@
 
     <!-- Dialog title for the Date change time dialog -->
     <string name="prefDialogTitle_date_change_time">日付変更時刻</string>
+
+    <!-- Dialog title for the Date change time dialog -->
+    <string name="prefDialogTitle_calendar_week_start_day">週の開始日</string>
 
     <!-- Dialog title for the Vibrate dialog -->
     <string name="prefDialogTitle_vibrateWhen">バイブレーション</string>

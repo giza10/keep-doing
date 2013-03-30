@@ -1,6 +1,7 @@
 package com.hkb48.keepdo;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import android.content.Context;
@@ -12,6 +13,7 @@ public class Settings {
     private static SharedPreferences sSharedPref;
     private static String sDoneIconType;
     private static String sDateChangeTime;
+    private static String sWeekStartDay;
     private static String sAlertsRingTone;
     private static String sAlertsVibrateWhen;
 
@@ -43,6 +45,7 @@ public class Settings {
             sInstance = new Settings(pref);
             sDoneIconType = sSharedPref.getString(GeneralSettingsFragment.KEY_GENERAL_DONE_ICON, null);
             sDateChangeTime = sSharedPref.getString(GeneralSettingsFragment.KEY_GENERAL_DATE_CHANGE_TIME, null);
+            sWeekStartDay = sSharedPref.getString(GeneralSettingsFragment.KEY_CALENDAR_WEEK_START_DAY, null);
             sAlertsRingTone = sSharedPref.getString(GeneralSettingsFragment.KEY_ALERTS_RINGTONE, null);
             sAlertsVibrateWhen = sSharedPref.getString(GeneralSettingsFragment.KEY_ALERTS_VIBRATE_WHEN, null);
         }
@@ -60,6 +63,10 @@ public class Settings {
         for (OnChangedListener listener : sChangedListeners) {
             listener.onDateChangeTimeSettingsChanged();
         }
+    }
+
+    public static void setWeekStartDay(String v) {
+        sWeekStartDay = v;
     }
 
     public static void setAlertsRingTone(String v) {
@@ -99,6 +106,18 @@ public class Settings {
             sDateChangeTime = new String("24:00");
         }
         return sDateChangeTime;
+    }
+
+    public static int getWeekStartDay() {
+        if (sWeekStartDay == null) {
+            sWeekStartDay = new String("1");
+        }
+        int weekStartDay = Integer.parseInt(sWeekStartDay);
+        if (Calendar.SUNDAY <= weekStartDay && weekStartDay <= Calendar.SATURDAY) {
+            return weekStartDay;
+        } else {
+            return Calendar.SUNDAY;
+        }
     }
 
     public static String getAlertsRingTone() {
