@@ -97,8 +97,9 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         style="@android:style/Widget.Holo.Light.Spinner"
+                        android:gravity="center"
                         android:layout_marginLeft="26dip"
-                        android:layout_marginRight="26dip"
+                        android:layout_marginRight="10dip"
                         android:layout_marginBottom="10dip" >
                     </Button>
                     <ImageButton android:id="@+id/reminder_remove"
@@ -107,7 +108,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:contentDescription="@string/accessibility_remove_reminder"
-                        android:layout_marginLeft="26dip"
+                        android:layout_marginLeft="10dip"
                         android:layout_marginRight="26dip"
                         android:layout_marginBottom="10dip" >
                     </ImageButton>
