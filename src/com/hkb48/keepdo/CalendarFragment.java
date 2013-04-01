@@ -33,7 +33,7 @@ public class CalendarFragment extends Fragment {
     private ViewFlipper mFlipper;
     private int mNextPageIndex = 0;
     private GridLayout mGridLayout;
-    private int mPosition = 0;
+    private int mMonthOffset = 0;
     private Task mTask;
     private View mPressedView;
     private CheckSoundPlayer mCheckSound;
@@ -69,7 +69,7 @@ public class CalendarFragment extends Fragment {
         getActivity().findViewById(R.id.button_prev).setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 // Go to previous month
-                mPosition--;
+                mMonthOffset--;
                 buildCalendar();
                 mFlipper.showNext();
             }
@@ -78,7 +78,7 @@ public class CalendarFragment extends Fragment {
         getActivity().findViewById(R.id.button_next).setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 // Go to next month
-                mPosition++;
+                mMonthOffset++;
                 buildCalendar();
                 mFlipper.showNext();
             }
@@ -183,8 +183,8 @@ public class CalendarFragment extends Fragment {
      * Build calendar view
      */
     private void buildCalendar() {
-        Calendar current = Calendar.getInstance();
-        current.add(Calendar.MONTH, mPosition);
+        Calendar current = DateChangeTimeUtil.getDateTimeCalendar();
+        current.add(Calendar.MONTH, mMonthOffset);
         current.set(Calendar.DAY_OF_MONTH, 1);
 
         setCalendarTitle(current);
@@ -271,8 +271,8 @@ public class CalendarFragment extends Fragment {
             ImageView imageView1 = (ImageView) child.findViewById(R.id.imageView1);
 
             // Register context menu to change done status of past days.
-            if ((mPosition < 0) ||
-                ((mPosition == 0) && (day <= today))) {
+            if ((mMonthOffset < 0) ||
+                ((mMonthOffset == 0) && (day <= today))) {
                 date.set(year, month, day);
                 child.setTag(date.getTime());
                 registerForContextMenu(child);
@@ -281,11 +281,11 @@ public class CalendarFragment extends Fragment {
             week = calendar.get(Calendar.DAY_OF_WEEK);
             boolean isValidDay = mTask.getRecurrence().isValidDay(week);
             if (isValidDay) {
-                if ((mPosition == 0) && (day == today)) {
+                if ((mMonthOffset == 0) && (day == today)) {
                     child.setBackgroundResource(R.drawable.bg_calendar_day_today);
                 }
             } else {
-                if ((mPosition == 0) && (day == today)) {
+                if ((mMonthOffset == 0) && (day == today)) {
                     child.setBackgroundResource(R.drawable.bg_calendar_day_today_off);
                 } else {
                     child.setBackgroundResource(R.drawable.bg_calendar_day_off);
@@ -361,7 +361,7 @@ public class CalendarFragment extends Fragment {
 
     private void setVisibilityOfNextButton() {
         View button = getActivity().findViewById(R.id.button_next);
-        if (mPosition < 0) {
+        if (mMonthOffset < 0) {
             button.setVisibility(View.VISIBLE);
         } else {
             button.setVisibility(View.INVISIBLE);
