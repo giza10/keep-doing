@@ -22,8 +22,6 @@ class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "keepdo_tracker.db";
     private final Context mContext;
 
-    private static final Object[] sDataLock = new Object[0];
-
     /*
      * The first version is 1, the latest version is 2
      * version 1: initial columns
@@ -101,40 +99,58 @@ class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * Backup and Restore database.
      * @param backupPath
+     * @param backupFileName
      */
     public void backupDataBase(String backupDirPath, String backupFileName) {
     	File dir = new File(backupDirPath);
+
     	if (!dir.exists()) {
     		dir.mkdir();
     	}
+
     	final String DB_FILE_PATH = mContext.getDatabasePath(DB_NAME).getPath();
 		copyDataBase(DB_FILE_PATH, backupDirPath + backupFileName);
     }
+
     public void restoreDataBase(String backupPath) {
     	final String DB_FILE_PATH = mContext.getDatabasePath(DB_NAME).getPath();
     	copyDataBase(backupPath, DB_FILE_PATH);
     }
-    private void copyDataBase(String fromPath, String toPath) {
-    	synchronized (sDataLock) {
-        	try {
-    			InputStream inputStream = new FileInputStream(fromPath);
-    			OutputStream outputStream = new FileOutputStream(toPath);
-    			
-    	        byte[] buffer = new byte[1024];
-    	        int length;
 
-    			while ((length = inputStream.read(buffer)) > 0) {
-    			    outputStream.write(buffer, 0, length);
-    			}
-    	        
-    	        outputStream.flush();
-    	        outputStream.close();
-    	        inputStream.close();
-    		} catch (IOException e) {
+    private synchronized void copyDataBase(String fromPath, String toPath) {
+		InputStream inputStream = null;
+		OutputStream outputStream = null;
+
+		try {
+			inputStream = new FileInputStream(fromPath);
+			outputStream = new FileOutputStream(toPath);
+			
+	        byte[] buffer = new byte[1024];
+	        int length;
+
+			while ((length = inputStream.read(buffer)) > 0) {
+			    outputStream.write(buffer, 0, length);
+			}    	        
+	        outputStream.flush();
+
+		} catch (IOException e) {
+            if (BuildConfig.DEBUG) {
+            	Log.e(TAG, e.getMessage());
+            }
+		} finally {
+			try {
+    	         if (outputStream != null) {
+    	        	 outputStream.close();
+    	         }
+
+    	         if (inputStream != null) {
+    	        	 inputStream.close();
+    	         }
+			} catch (IOException e) {
                 if (BuildConfig.DEBUG) {
                 	Log.e(TAG, e.getMessage());
                 }
-    		}
-    	}
-    }
+			}
+		}
+	}
 }

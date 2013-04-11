@@ -39,26 +39,30 @@ public class DatabaseAdapter {
 
     	return INSTANCE;
     }
-   
-    private synchronized SQLiteDatabase openDatabase() {
-    	try {
-    		mDatabase = mDatabaseHelper.getWritableDatabase();
-    	} catch (SQLiteException sqle) {
-    		throw sqle;
+
+    private SQLiteDatabase openDatabase() {
+    	synchronized (this) {
+	    	try {
+	    		mDatabase = mDatabaseHelper.getWritableDatabase();
+	    	} catch (SQLiteException sqle) {
+	    		throw sqle;
+	    	}
     	}
  
     	return mDatabase;
     }
 
-    private synchronized void closeDatabase() {
-    	if (mDatabase != null) {
-    		mDatabase.close();
-    		mDatabase = null;
+    private void closeDatabase() {
+    	synchronized (this) {
+			if (mDatabase != null) {
+				mDatabase.close();
+				mDatabase = null;
+			}
     	}
     }
 
-    public void close() {
-        mDatabaseHelper.close();
+    public synchronized void close() {
+		mDatabaseHelper.close();
     }
 
     public List<Task> getTaskList() {
