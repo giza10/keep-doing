@@ -227,6 +227,18 @@ public class DatabaseAdapter {
         return isDone;
     }
 
+    public int getNumberOfDone(Long taskID) {
+        int numberOfDone = 0;
+        String selectQuery = SELECT_FORM + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
+        Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
+        if (cursor != null) {
+            numberOfDone = cursor.getCount();
+            cursor.close();
+        }
+        closeDatabase();
+        return numberOfDone;
+    }
+
     protected Task getTask(Long taskID) {
         Task task = null;
         String selectQuery = SELECT_FORM + TasksToday.TABLE_NAME + SELECT_ARG_FORM + TasksToday._ID + "=?";

@@ -37,6 +37,7 @@
     <string name="notification_title_one_task">今日の未実施のDoがあります！</string>
     <string name="notification_title_multi_tasks">今日の未実施のDoが%d件あります！</string>
     <string name="remind_at">通知あり</string>
+    <string name="number_of_done">Do実施回数</string>
 
     <string name="btn_month_next">翌月</string>
     <string name="btn_month_prev">先月</string>
