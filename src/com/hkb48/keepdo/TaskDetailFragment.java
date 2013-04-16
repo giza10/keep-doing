@@ -1,5 +1,9 @@
 package com.hkb48.keepdo;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import android.support.v4.app.Fragment;
 import android.app.Activity;
 import android.content.Intent;
@@ -43,7 +47,7 @@ public class TaskDetailFragment extends Fragment {
         if (reminder.getEnabled()) {
             String hourOfDayStr = String.format("%1$02d", reminder.getHourOfDay());
             String minuteStr    = String.format("%1$02d", reminder.getMinute());
-            String remindAtStr  = activity.getString(R.string.remind_at);
+            String remindAtStr  = getString(R.string.remind_at);
             reminderTextView.setText(remindAtStr + " " + hourOfDayStr + ":" + minuteStr);
         } else {
             reminderTextView.setText(R.string.no_reminder);
@@ -54,6 +58,8 @@ public class TaskDetailFragment extends Fragment {
         TextView contextTextView = (TextView) activity.findViewById(R.id.taskDetailContextDescription);
         String contextStr = task.getContext();
         if (contextStr == null || contextStr.isEmpty()) {
+            View contextLayout = (View) activity.findViewById(R.id.taskDetailContextContainer);
+            contextLayout.setVisibility(View.GONE);
             contextTitleTextView.setVisibility(View.INVISIBLE);
             contextTextView.setVisibility(View.INVISIBLE);
         } else {
@@ -64,6 +70,27 @@ public class TaskDetailFragment extends Fragment {
 
         // Total number of done
         TextView numOfDoneTextView = (TextView) activity.findViewById(R.id.taskDetailNumOfDoneValue);
-        numOfDoneTextView.setText(Integer.toString(dbAdapter.getNumberOfDone(taskId)));
-	}
+        numOfDoneTextView.setText(getString(R.string.number_of_times, dbAdapter.getNumberOfDone(taskId)));
+
+        // First date that done is set
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN);
+        TextView firstDoneDateTextView = (TextView) activity.findViewById(R.id.taskDetailFirstDoneDateValue);
+        Date firstDoneDate = dbAdapter.getFirstDoneDate(taskId);
+        if (firstDoneDate != null) {
+            firstDoneDateTextView.setText(dateFormat.format(firstDoneDate));
+        } else {
+            View firstDoneDateLayout = (View) activity.findViewById(R.id.taskDetailFirstDoneDateContainer);
+            firstDoneDateLayout.setVisibility(View.GONE);
+        }
+
+        // Last date that done is set
+        TextView lastDoneDateTextView = (TextView) activity.findViewById(R.id.taskDetailLastDoneDateValue);
+        Date lastDoneDate = dbAdapter.getLastDoneDate(taskId);
+        if (lastDoneDate != null) {
+            lastDoneDateTextView.setText(dateFormat.format(lastDoneDate));
+        } else {
+            View lastDoneDateLayout = (View) activity.findViewById(R.id.taskDetailLastDoneDateContainer);
+            lastDoneDateLayout.setVisibility(View.GONE);
+        }
+    }
 }

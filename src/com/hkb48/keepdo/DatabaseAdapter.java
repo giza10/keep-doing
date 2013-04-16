@@ -239,6 +239,48 @@ public class DatabaseAdapter {
         return numberOfDone;
     }
 
+    public Date getFirstDoneDate(Long taskID) {
+        final SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
+        Date date = null;
+        String selectQuery =  "select min(completion_date) from " + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
+        Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
+        if (cursor != null) {
+            cursor.moveToFirst();
+            String dateString = cursor.getString(0);
+            if (dateString != null) {
+                try {
+                    date = sdf_ymd.parse(dateString);
+                } catch (ParseException e) {
+                    Log.e(TAG, e.getMessage());
+                }
+            }
+            cursor.close();
+        }
+        closeDatabase();
+        return date;
+    }
+
+    public Date getLastDoneDate(Long taskID) {
+        final SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
+        Date date = null;
+        String selectQuery =  "select max(completion_date) from " + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
+        Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
+        if (cursor != null) {
+            cursor.moveToFirst();
+            String dateString = cursor.getString(0);
+            if (dateString != null) {
+                try {
+                    date = sdf_ymd.parse(dateString);
+                } catch (ParseException e) {
+                    Log.e(TAG, e.getMessage());
+                }
+            }
+            cursor.close();
+        }
+        closeDatabase();
+        return date;
+    }
+
     protected Task getTask(Long taskID) {
         Task task = null;
         String selectQuery = SELECT_FORM + TasksToday.TABLE_NAME + SELECT_ARG_FORM + TasksToday._ID + "=?";
