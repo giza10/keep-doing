@@ -408,6 +408,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
                     itemViewHolder.imageView = (ImageView) view.findViewById(R.id.taskListItemCheck);
                     itemViewHolder.textView1 = (TextView) view.findViewById(R.id.taskName);
                     itemViewHolder.recurrenceView = (RecurrenceView) view.findViewById(R.id.recurrenceView);
+                    itemViewHolder.lastDoneDateTextView = (TextView) view.findViewById(R.id.taskLastDoneDate);
                     view.setTag(itemViewHolder);
                 } else {
                     headerViewHolder = new HeaderViewHolder();
@@ -431,11 +432,20 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
                 ImageView imageView = itemViewHolder.imageView;
                 Date today = DateChangeTimeUtil.getDateTime();
                 boolean checked = mDBAdapter.getDoneStatus(task.getTaskID(), today);
+                TextView lastDoneDateTextView = itemViewHolder.lastDoneDateTextView;
 
                 if (checked) {
                     imageView.setImageResource(mDoneIconId);
+                    lastDoneDateTextView.setText(R.string.tasklist_lastdonedate_today);
                 } else {
                     imageView.setImageResource(mNotDoneIconId);
+                    Date lastDoneDate = mDBAdapter.getLastDoneDate(task.getTaskID());
+                    if (lastDoneDate != null) {
+                        int diffDays = (int)((today.getTime() - lastDoneDate.getTime()) / (long)(1000 * 60 * 60 * 24));
+                        lastDoneDateTextView.setText(getString(R.string.tasklist_lastdonedate_diffdays, diffDays));
+                    } else {
+                        lastDoneDateTextView.setText(R.string.tasklist_lastdonedate_notyet);
+                    }
                 }
                 imageView.setTag(Integer.valueOf(position));
                 imageView.setOnClickListener(new View.OnClickListener() {
@@ -450,6 +460,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
                         checked = ! checked;
                         mDBAdapter.setDoneStatus(taskId, today, checked);
                         updateReminder();
+                        updateTaskList();
 
                         if (checked) {
                             imageView.setImageResource(mDoneIconId);
@@ -479,6 +490,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
             TextView textView1;
             ImageView imageView;
             RecurrenceView recurrenceView;
+            TextView lastDoneDateTextView;
         }
     }
 

@@ -14,8 +14,9 @@
         android:contentDescription="@string/accessibility_done_mark" />
     <LinearLayout
         android:id="@+id/taskListItemMain"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:orientation="vertical" >
         <TextView
             android:id="@+id/taskName"
@@ -38,4 +39,13 @@
             android:layout_marginBottom="10dip">
         </com.hkb48.keepdo.RecurrenceView>
     </LinearLayout>
+	<TextView
+		android:id="@+id/taskLastDoneDate"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:textSize="12sp"
+		android:textColor="@color/tasklist_last_donedate"
+		android:gravity="bottom"
+		android:padding="10dp"
+	/>
 </LinearLayout>
