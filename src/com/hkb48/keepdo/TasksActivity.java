@@ -442,7 +442,11 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
                     Date lastDoneDate = mDBAdapter.getLastDoneDate(task.getTaskID());
                     if (lastDoneDate != null) {
                         int diffDays = (int)((today.getTime() - lastDoneDate.getTime()) / (long)(1000 * 60 * 60 * 24));
-                        lastDoneDateTextView.setText(getString(R.string.tasklist_lastdonedate_diffdays, diffDays));
+                        if (diffDays == 1) {
+                        	lastDoneDateTextView.setText(getString(R.string.tasklist_lastdonedate_yesterday));
+                        } else {
+                        	lastDoneDateTextView.setText(getString(R.string.tasklist_lastdonedate_diffdays, diffDays));
+                        }
                     } else {
                         lastDoneDateTextView.setText(R.string.tasklist_lastdonedate_notyet);
                     }
