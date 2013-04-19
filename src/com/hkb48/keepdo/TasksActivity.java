@@ -422,6 +422,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
             if (isTask) {
                 TextView textView = itemViewHolder.textView1;
                 Task task = (Task) taskListItem.data;
+                long taskId = task.getTaskID();
                 String taskName = task.getName();
                 textView.setText(taskName);
 
@@ -431,30 +432,17 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
 
                 ImageView imageView = itemViewHolder.imageView;
                 Date today = DateChangeTimeUtil.getDateTime();
-                boolean checked = mDBAdapter.getDoneStatus(task.getTaskID(), today);
-                TextView lastDoneDateTextView = itemViewHolder.lastDoneDateTextView;
+                boolean checked = mDBAdapter.getDoneStatus(taskId, today);
 
-                if (checked) {
-                    imageView.setImageResource(mDoneIconId);
-                    lastDoneDateTextView.setText(R.string.tasklist_lastdonedate_today);
-                } else {
-                    imageView.setImageResource(mNotDoneIconId);
-                    Date lastDoneDate = mDBAdapter.getLastDoneDate(task.getTaskID());
-                    if (lastDoneDate != null) {
-                        int diffDays = (int)((today.getTime() - lastDoneDate.getTime()) / (long)(1000 * 60 * 60 * 24));
-                        if (diffDays == 1) {
-                        	lastDoneDateTextView.setText(getString(R.string.tasklist_lastdonedate_yesterday));
-                        } else {
-                        	lastDoneDateTextView.setText(getString(R.string.tasklist_lastdonedate_diffdays, diffDays));
-                        }
-                    } else {
-                        lastDoneDateTextView.setText(R.string.tasklist_lastdonedate_notyet);
-                    }
-                }
+                updateView(taskId, checked, itemViewHolder);
+
                 imageView.setTag(Integer.valueOf(position));
                 imageView.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        ImageView imageView = (ImageView) v;
+                        View parent = (View) v.getParent();
+                        ItemViewHolder itemViewHolder = new ItemViewHolder();
+                        itemViewHolder.imageView = (ImageView) v;
+                        itemViewHolder.lastDoneDateTextView = (TextView) parent.findViewById(R.id.taskLastDoneDate);
                         int position = (Integer) v.getTag();
                         TaskListItem taskListItem = (TaskListItem) getItem(position);
                         Task task = (Task) taskListItem.data;
@@ -463,14 +451,11 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
                         boolean checked = mDBAdapter.getDoneStatus(taskId, today);
                         checked = ! checked;
                         mDBAdapter.setDoneStatus(taskId, today, checked);
+                        updateView(taskId, checked, itemViewHolder);
                         updateReminder();
-                        updateTaskList();
 
                         if (checked) {
-                            imageView.setImageResource(mDoneIconId);
                             mCheckSound.play();
-                        } else {
-                            imageView.setImageResource(mNotDoneIconId);
                         }
                     }
                 });
@@ -480,6 +465,30 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
             }
 
             return view;
+        }
+
+        private void updateView(long taskId, boolean checked, ItemViewHolder holder) {
+            Date today = DateChangeTimeUtil.getDateTime();
+            ImageView imageView = holder.imageView;
+            TextView lastDoneDateTextView = holder.lastDoneDateTextView;
+
+            if (checked) {
+                imageView.setImageResource(mDoneIconId);
+                lastDoneDateTextView.setText(R.string.tasklist_lastdonedate_today);
+            } else {
+                imageView.setImageResource(mNotDoneIconId);
+                Date lastDoneDate = mDBAdapter.getLastDoneDate(taskId);
+                if (lastDoneDate != null) {
+                    int diffDays = (int)((today.getTime() - lastDoneDate.getTime()) / (long)(1000 * 60 * 60 * 24));
+                    if (diffDays == 1) {
+                        lastDoneDateTextView.setText(getString(R.string.tasklist_lastdonedate_yesterday));
+                    } else {
+                        lastDoneDateTextView.setText(getString(R.string.tasklist_lastdonedate_diffdays, diffDays));
+                    }
+                } else {
+                    lastDoneDateTextView.setText(R.string.tasklist_lastdonedate_notyet);
+                }
+            }
         }
 
         private class ViewHolder {
