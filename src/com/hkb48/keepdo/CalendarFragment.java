@@ -149,12 +149,12 @@ public class CalendarFragment extends Fragment {
 
         Date today = DateChangeTimeUtil.getDate();
         if (selectedDate.compareTo(today) == 0) {
-            // Set result of this activity as OK to inform that the today's done status is updated
-            Intent returnIntent = new Intent();
-            getActivity().setResult(TaskActivity.RESULT_OK, returnIntent);
-
             ReminderManager.getInstance().setNextAlert(this.getActivity());
         }
+
+        // Set result of this activity as OK to inform that the done status is updated
+        Intent returnIntent = new Intent();
+        getActivity().setResult(TaskActivity.RESULT_OK, returnIntent);
 
         return super.onContextItemSelected(item);
     }
@@ -261,7 +261,7 @@ public class CalendarFragment extends Fragment {
         }
 
         Calendar date = Calendar.getInstance();
-        date.set(Calendar.HOUR, 0);
+        date.set(Calendar.HOUR_OF_DAY, 0);
         date.set(Calendar.MINUTE, 0);
         date.set(Calendar.SECOND, 0);
         date.set(Calendar.MILLISECOND, 0);
