@@ -1,6 +1,8 @@
 <resources>
 
     <dimen name="calendar_padding_width">10dp</dimen>
-    <dimen name="calendar_date_height_delta">12dp</dimen>
+    <dimen name="calendar_padding_height">12dp</dimen>
 
+    <dimen name="calendar_date_margin_top">12dp</dimen>
+    <dimen name="calendar_date_margin_left">0dp</dimen>
 </resources>

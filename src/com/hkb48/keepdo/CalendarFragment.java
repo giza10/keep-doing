@@ -6,9 +6,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.ContextMenu;
@@ -20,6 +25,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -29,6 +36,9 @@ public class CalendarFragment extends Fragment {
     // ID of context menu items
     private static final int CONTEXT_MENU_CHECK_DONE = 0;
     private static final int CONTEXT_MENU_UNCHECK_DONE = 1;
+
+    private static final int NUM_OF_DAYS_IN_WEEK = 7;
+    private static final int NUM_OF_MAX_WEEKS_IN_MONTH = 6;
 
     private ViewFlipper mFlipper;
     private int mNextPageIndex = 0;
@@ -85,17 +95,9 @@ public class CalendarFragment extends Fragment {
         Intent returnIntent = new Intent();
         getActivity().setResult(TaskActivity.RESULT_CANCELED, returnIntent);
 
-        Display display = getActivity().getWindowManager().getDefaultDisplay();
-        Point displaySize = new Point();
-        display.getSize(displaySize);
-        int width = (displaySize.x - getResources().getDimensionPixelSize(R.dimen.calendar_padding_width)) / 7;
-        int height = width + getResources().getDimensionPixelSize(R.dimen.calendar_date_height_delta);
-        mCalendarCellWidth = width;
-        mCalendarCellHeight= height;
-
         mDoneIconId = Settings.getDoneIconId();
 
-        buildCalendar();
+        setOnGlobalLayoutListener(mFlipper);
     }
 
     @Override
@@ -369,5 +371,51 @@ public class CalendarFragment extends Fragment {
 
     private int getStartDayOfWeek() {
         return Settings.getWeekStartDay();
+    }
+
+    private void setOnGlobalLayoutListener(final View view) {
+        final OnGlobalLayoutListener listener = new OnGlobalLayoutListener() {
+            @TargetApi(16)
+            @SuppressWarnings("deprecation")
+            public void onGlobalLayout() {
+                ViewTreeObserver observer = view.getViewTreeObserver();
+                if (observer.isAlive()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        observer.removeOnGlobalLayoutListener(this);
+                    } else {
+                        observer.removeGlobalOnLayoutListener(this);
+                    }
+                }
+
+                calculateCalendarViewSize(view);
+                buildCalendar();
+            }
+        };
+        view.getViewTreeObserver().addOnGlobalLayoutListener(listener);
+    }
+
+    private void calculateCalendarViewSize(View view) {
+        final Display display = getActivity().getWindowManager().getDefaultDisplay();
+        final Point displaySize = new Point();
+        display.getSize(displaySize);
+        final Resources resources = getResources();
+        Configuration config = resources.getConfiguration();
+
+        int cellWidth = 0;
+        int cellHeight = 0;
+        if (config.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            cellWidth = (displaySize.x - resources.getDimensionPixelSize(R.dimen.calendar_padding_width)) / NUM_OF_DAYS_IN_WEEK;
+            cellHeight = cellWidth + resources.getDimensionPixelSize(R.dimen.calendar_date_margin_top);
+
+        } else {
+            Rect rect = new Rect();
+            view.getWindowVisibleDisplayFrame(rect);
+            int calendarHeight = displaySize.y - resources.getDimensionPixelSize(R.dimen.calendar_padding_height) - view.getTop() - rect.top - getActivity().findViewById(R.id.button_next).getHeight();
+            cellHeight = calendarHeight / NUM_OF_MAX_WEEKS_IN_MONTH;
+            cellWidth = cellHeight + resources.getDimensionPixelSize(R.dimen.calendar_date_margin_left);
+        }
+
+        mCalendarCellWidth = cellWidth;
+        mCalendarCellHeight= cellHeight;
     }
 }
