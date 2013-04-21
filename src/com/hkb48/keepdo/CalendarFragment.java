@@ -62,8 +62,6 @@ public class CalendarFragment extends Fragment {
         mDBAdapter = DatabaseAdapter.getInstance(this.getActivity());
         mTask = mDBAdapter.getTask(taskId);
 
-        setActionBar();
-
         mFlipper = (ViewFlipper) getActivity().findViewById(R.id.flipper);
 
         getActivity().findViewById(R.id.button_prev).setOnClickListener(new OnClickListener() {
@@ -129,6 +127,7 @@ public class CalendarFragment extends Fragment {
         }
     }
 
+    @Override
     public boolean onContextItemSelected(MenuItem item) {
         ImageView imageView = (ImageView) mPressedView.findViewById(R.id.imageView1);
         Date selectedDate = (Date) mPressedView.getTag();
@@ -157,15 +156,6 @@ public class CalendarFragment extends Fragment {
         getActivity().setResult(TaskActivity.RESULT_OK, returnIntent);
 
         return super.onContextItemSelected(item);
-    }
-
-    /***
-     * Set action bar
-     */
-    private void setActionBar() {
-        if (mTask != null) {
-            getActivity().setTitle(mTask.getName());
-        }
     }
 
     /***
