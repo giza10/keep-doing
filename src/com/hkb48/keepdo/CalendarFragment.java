@@ -410,7 +410,11 @@ public class CalendarFragment extends Fragment {
         } else {
             Rect rect = new Rect();
             view.getWindowVisibleDisplayFrame(rect);
-            int calendarHeight = displaySize.y - resources.getDimensionPixelSize(R.dimen.calendar_padding_height) - view.getTop() - rect.top - getActivity().findViewById(R.id.button_next).getHeight();
+            final int visibleWindowTop = rect.top;
+            final int calendarTop = view.getTop();
+            final int buttonHeight = getActivity().findViewById(R.id.button_next).getHeight();
+            final int calendarPaddingHeight = resources.getDimensionPixelSize(R.dimen.calendar_padding_height);
+            final int calendarHeight = displaySize.y - calendarPaddingHeight - calendarTop - visibleWindowTop - buttonHeight;
             cellHeight = calendarHeight / NUM_OF_MAX_WEEKS_IN_MONTH;
             cellWidth = cellHeight + resources.getDimensionPixelSize(R.dimen.calendar_date_margin_left);
         }
