@@ -4,9 +4,9 @@
     <string name="tasklist_header_today_task">今日のDo</string>
     <string name="tasklist_header_other_task">その他のDo</string>
     <string name="tasklist_lastdonedate_notyet">未実施</string>
-    <string name="tasklist_lastdonedate_today">今日</string>
-    <string name="tasklist_lastdonedate_yesterday">昨日</string>
-    <string name="tasklist_lastdonedate_diffdays">%d日前</string>
+    <string name="tasklist_lastdonedate_today">今日実施</string>
+    <string name="tasklist_lastdonedate_yesterday">昨日実施</string>
+    <string name="tasklist_lastdonedate_diffdays">%d日前実施</string>
     <string name="add_task">新規Do追加</string>
     <string name="edit_task">Doの編集</string>
     <string name="delete_task">Doの削除</string>
