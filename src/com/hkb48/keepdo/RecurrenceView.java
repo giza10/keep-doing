@@ -23,12 +23,14 @@ public class RecurrenceView extends LinearLayout {
         String separator = mContext.getString(R.string.recurrence_separator);
         int calorOffDay = getResources().getColor(R.color.recurrence_off_day);
         removeAllViewsInLayout();
+        int WeekStartDay = Settings.getWeekStartDay() - 1;
 
         for (int i = 0; i < mWeekName.length; i++) {
+        	int index = (i + WeekStartDay) % 7;
             TextView week = new TextView(mContext);
-            week.setText(mWeekName[i]);
+            week.setText(mWeekName[index]);
             week.setTextSize(mTextSize);
-            if (recurrenceFlags[i] == false) {
+            if (recurrenceFlags[index] == false) {
                 week.setTextColor(calorOffDay);
             }
             if (i != (mWeekName.length - 1)) {

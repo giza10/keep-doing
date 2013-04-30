@@ -111,6 +111,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
     @Override
     public void onResume() {
         mCheckSound.load();
+        updateTaskList();
         super.onResume();
     }
 
