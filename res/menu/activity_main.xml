@@ -8,8 +8,12 @@
         android:title="@string/settings"
         android:orderInCategory="200"
         android:showAsAction="never" />
-    <item android:id="@+id/menu_backup_restore"
+    <item android:id="@+id/menu_sort_task"
+        android:title="@string/sort_task"
         android:orderInCategory="300"
+        android:showAsAction="never" />
+    <item android:id="@+id/menu_backup_restore"
+        android:orderInCategory="400"
         android:title="@string/backup_restore"
         android:showAsAction="never" />
 </menu>

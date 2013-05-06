@@ -6,11 +6,12 @@ import java.io.Serializable;
 public class Task implements Serializable {
     public static final long INVALID_TASKID = Long.MIN_VALUE;
 
-	private long identifier;
-	private String name;
-	private String context;
-	private Recurrence recurrence;
+    private long identifier;
+    private String name;
+    private String context;
+    private Recurrence recurrence;
     private Reminder reminder;
+    private long order;
 
     public Task(String name, String context, Recurrence recurrence) {
         this.identifier = INVALID_TASKID;
@@ -18,21 +19,22 @@ public class Task implements Serializable {
         this.context = context;
         this.recurrence = recurrence;
         this.reminder = new Reminder();
+        this.order = INVALID_TASKID;
 	}
 
-	public long getTaskID() {
-		return identifier;
-	}
+    public long getTaskID() {
+        return identifier;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getContext() {
-		return context;
-	}
+    public String getContext() {
+        return context;
+    }
 
-	public Recurrence getRecurrence() {
+    public Recurrence getRecurrence() {
         return recurrence;
     }
 
@@ -40,8 +42,12 @@ public class Task implements Serializable {
         return reminder;
     }
 
+    public long getOrder() {
+        return order;
+    }
+
     protected void setTaskID(long id) {
-    	this.identifier = id;
+        this.identifier = id;
     }
 
     public void setName(String name) {
@@ -58,5 +64,9 @@ public class Task implements Serializable {
 
     public void setContext(String context) {
         this.context = context;
+    }
+
+    public void setOrder(long order) {
+        this.order = order;
     }
 }

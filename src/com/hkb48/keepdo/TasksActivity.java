@@ -34,6 +34,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
     private static final int REQUEST_ADD_TASK = 0;
     private static final int REQUEST_EDIT_TASK = 1;
     private static final int REQUEST_SHOW_CALENDAR = 2;
+    private static final int REQUEST_SORT_TASK = 3;
 
     // ID of context menu items
     private static final int CONTEXT_MENU_EDIT = 0;
@@ -149,9 +150,13 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
             intent = new Intent(TasksActivity.this, SettingsActivity.class);
             startActivity(intent);
             return true;
+        case R.id.menu_sort_task:
+            intent = new Intent(TasksActivity.this, TaskSortingActivity.class);
+            startActivityForResult(intent, REQUEST_SORT_TASK);
+            return true;
         case R.id.menu_backup_restore:
-        	showBackupRestoreDialog();
-        	return true;
+            showBackupRestoreDialog();
+            return true;
         default:
             return super.onOptionsItemSelected(item);
         }
@@ -175,6 +180,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
                 updateReminder();
                 break;
             case REQUEST_SHOW_CALENDAR:
+            case REQUEST_SORT_TASK:
                 updateTaskList();
                 break;
             default:

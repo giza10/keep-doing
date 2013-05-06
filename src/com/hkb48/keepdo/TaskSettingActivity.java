@@ -89,7 +89,7 @@ public class TaskSettingActivity extends Activity {
     private void addTaskName(EditText editText) {
         editText.addTextChangedListener( new TextWatcher() {
             public void afterTextChanged(Editable s) {
-                 Button okButton = (Button) findViewById(R.id.okButton);
+                Button okButton = (Button) findViewById(R.id.okButton);
                 if (s.length() > 0) {
                     okButton.setEnabled(true);
                 } else {

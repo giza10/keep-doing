@@ -49,8 +49,6 @@
     <string name="btn_month_next">翌月</string>
     <string name="btn_month_prev">先月</string>
 
-    <string name="accessibility_done_mark">Done mark</string>
-    <string name="accessibility_remove_reminder">Remove reminder</string>
     <string-array name="week_names">
         <item>日</item>
         <item>月</item>
@@ -65,6 +63,7 @@
     <string name="menu_settings">Settings</string>
     <string name="backup_restore">バックアップと復元</string>
     <string name="title_activity_task">TaskActivity</string>
+    <string name="sort_task">並び替え</string>
 
     <!-- The week start day on the calendar -->
     <string-array name="prefEntries_calendar_week_start_day">

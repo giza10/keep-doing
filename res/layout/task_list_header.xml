@@ -11,6 +11,7 @@
         android:background="@color/tasklist_bg_header"
         android:textColor="@color/tasklist_fg_header"
         android:textSize="16sp"
+        android:textIsSelectable="false"
         android:textStyle="bold"
         android:padding="5dp"
     />
@@ -22,6 +23,7 @@
         android:background="@color/tasklist_bg_header"
         android:gravity="right|bottom"
         android:textSize="14sp"
+        android:textIsSelectable="false"
         android:padding="5dp"
     />
 </LinearLayout>
