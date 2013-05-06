@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:gravity="left"
         android:layout_marginLeft="2dip"
+        android:textIsSelectable="false"
         android:textSize="14sp" />
 
     <LinearLayout

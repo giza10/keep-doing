@@ -18,8 +18,9 @@ public class Settings {
     private static String sAlertsVibrateWhen;
 
     public interface OnChangedListener {
-        public void onDoneIconSettingsChanged();
-        public void onDateChangeTimeSettingsChanged();
+        public void onDoneIconSettingChanged();
+        public void onDateChangeTimeSettingChanged();
+        public void onWeekStartDaySettingChanged();
     }
 
     public static void registerOnChangedListener(OnChangedListener listener) {
@@ -54,19 +55,22 @@ public class Settings {
     public static void setDoneIcon(String v) {
         sDoneIconType = v;
         for (OnChangedListener listener : sChangedListeners) {
-            listener.onDoneIconSettingsChanged();
+            listener.onDoneIconSettingChanged();
         }
     }
 
     public static void setDateChangeTime(String v) {
         sDateChangeTime = v;
         for (OnChangedListener listener : sChangedListeners) {
-            listener.onDateChangeTimeSettingsChanged();
+            listener.onDateChangeTimeSettingChanged();
         }
     }
 
     public static void setWeekStartDay(String v) {
         sWeekStartDay = v;
+        for (OnChangedListener listener : sChangedListeners) {
+            listener.onWeekStartDaySettingChanged();
+        }
     }
 
     public static void setAlertsRingTone(String v) {

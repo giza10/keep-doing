@@ -20,18 +20,19 @@ public class RecurrenceView extends LinearLayout {
     }
 
     public void update(boolean[] recurrenceFlags) {
-        String separator = mContext.getString(R.string.recurrence_separator);
-        int calorOffDay = getResources().getColor(R.color.recurrence_off_day);
+        final String separator = mContext.getString(R.string.recurrence_separator);
+        final int colorOffDay = getResources().getColor(R.color.recurrence_off_day);
+        final int weekStartDay = Settings.getWeekStartDay() - 1;
+
         removeAllViewsInLayout();
-        int WeekStartDay = Settings.getWeekStartDay() - 1;
 
         for (int i = 0; i < mWeekName.length; i++) {
-        	int index = (i + WeekStartDay) % 7;
+            int index = (i + weekStartDay) % 7;
             TextView week = new TextView(mContext);
             week.setText(mWeekName[index]);
             week.setTextSize(mTextSize);
             if (recurrenceFlags[index] == false) {
-                week.setTextColor(calorOffDay);
+                week.setTextColor(colorOffDay);
             }
             if (i != (mWeekName.length - 1)) {
                 week.append(separator);

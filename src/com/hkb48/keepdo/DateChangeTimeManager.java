@@ -19,12 +19,14 @@ public class DateChangeTimeManager {
     private final List<OnDateChangedListener> mChangedListeners = new ArrayList<OnDateChangedListener>();
 
     private Settings.OnChangedListener mSettingsChangedListener = new Settings.OnChangedListener() {
-        public void onDoneIconSettingsChanged() {}
+        public void onDoneIconSettingChanged() {}
 
-        public void onDateChangeTimeSettingsChanged() {
+        public void onDateChangeTimeSettingChanged() {
             startAlarm();
             ReminderManager.getInstance().setNextAlert(mContext);
         }
+
+        public void onWeekStartDaySettingChanged() {}
     };
 
     private DateChangeTimeManager(Context context) {

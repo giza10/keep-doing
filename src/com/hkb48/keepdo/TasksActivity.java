@@ -55,13 +55,17 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
     private int mNotDoneIconId = 0;
 
     private Settings.OnChangedListener mSettingsChangedListener = new Settings.OnChangedListener() {
-        public void onDoneIconSettingsChanged() {
+        public void onDoneIconSettingChanged() {
             mDoneIconId = Settings.getDoneIconId();
             mNotDoneIconId = Settings.getNotDoneIconId();
             updateTaskList();
         }
 
-        public void onDateChangeTimeSettingsChanged() {
+        public void onDateChangeTimeSettingChanged() {
+            updateTaskList();
+        }
+
+        public void onWeekStartDaySettingChanged() {
             updateTaskList();
         }
     };
@@ -111,7 +115,6 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
     @Override
     public void onResume() {
         mCheckSound.load();
-        updateTaskList();
         super.onResume();
     }
 
