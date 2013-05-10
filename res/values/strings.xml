@@ -8,6 +8,7 @@
     <string name="tasklist_lastdonedate_today">Today</string>
     <string name="tasklist_lastdonedate_yesterday">Yesterday</string>
     <string name="tasklist_lastdonedate_diffdays">%d days ago</string>
+    <string name="tasklist_combo">%d combo!</string>
     <string name="add_task">Create Do</string>
     <string name="edit_task">Edit Do</string>
     <string name="delete_task">Delete Do</string>

@@ -484,16 +484,26 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
 
             if (checked) {
                 imageView.setImageResource(mDoneIconId);
-                lastDoneDateTextView.setText(R.string.tasklist_lastdonedate_today);
+                ComboCount comboCount = mDBAdapter.getComboCount(taskId);
+                if (comboCount.currentCount > 1) {
+                    lastDoneDateTextView.setText(getString(R.string.tasklist_combo, comboCount.currentCount));
+                } else {
+                	lastDoneDateTextView.setText(R.string.tasklist_lastdonedate_today);
+                }
             } else {
                 imageView.setImageResource(mNotDoneIconId);
                 Date lastDoneDate = mDBAdapter.getLastDoneDate(taskId);
                 if (lastDoneDate != null) {
-                    int diffDays = (int)((today.getTime() - lastDoneDate.getTime()) / (long)(1000 * 60 * 60 * 24));
-                    if (diffDays == 1) {
-                        lastDoneDateTextView.setText(getString(R.string.tasklist_lastdonedate_yesterday));
+                    ComboCount comboCount = mDBAdapter.getComboCount(taskId);
+                    if (comboCount.currentCount > 1) {
+                        lastDoneDateTextView.setText(getString(R.string.tasklist_combo, comboCount.currentCount));
                     } else {
-                        lastDoneDateTextView.setText(getString(R.string.tasklist_lastdonedate_diffdays, diffDays));
+	                    int diffDays = (int)((today.getTime() - lastDoneDate.getTime()) / (long)(1000 * 60 * 60 * 24));
+	                    if (diffDays == 1) {
+	                    	lastDoneDateTextView.setText(getString(R.string.tasklist_lastdonedate_yesterday));
+	                    } else {
+	                        lastDoneDateTextView.setText(getString(R.string.tasklist_lastdonedate_diffdays, diffDays));
+	                    }
                     }
                 } else {
                     lastDoneDateTextView.setText(R.string.tasklist_lastdonedate_notyet);

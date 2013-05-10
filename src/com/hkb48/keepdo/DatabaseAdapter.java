@@ -3,6 +3,7 @@ package com.hkb48.keepdo;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -328,6 +329,88 @@ public class DatabaseAdapter {
         closeDatabase();
         
         return dateList;
+    }
+
+    protected ComboCount getComboCount(Long taskID) {
+    	int currentCount = 0;
+    	int maxCount = 0;
+		Calendar calIndex = null;
+
+        // Task Recurrence
+        Recurrence recurrence = getTask(taskID).getRecurrence();
+
+    	// execute SQL to get task completion dates
+        String selectQuery = SELECT_FORM + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?" 
+        					+ " order by " + TaskCompletion.TASK_COMPLETION_DATE + " asc;";
+        Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
+
+        // Count
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+            	do {
+            		Calendar calNextDone = getCalendar(getDate(cursor));
+        			if (calIndex != null) {
+	            		while (calIndex.before(calNextDone)) {
+	                		if (recurrence.isValidDay(calIndex.get(Calendar.DAY_OF_WEEK))) {
+	                			if (currentCount > maxCount) {
+	                				maxCount = currentCount;
+	                				currentCount = 0;
+	                				break;
+	                			}
+	                		}
+	            			calIndex.add(Calendar.DAY_OF_MONTH, 1);
+	            		}
+        			}
+            		currentCount ++;
+    				calIndex = calNextDone;
+        			calIndex.add(Calendar.DAY_OF_MONTH, 1);
+            	} while (cursor.moveToNext());
+            }
+            cursor.close();
+        }
+
+        closeDatabase();
+
+        // check if in-combo
+        if (calIndex != null) {
+        	Calendar calToday = getCalendar(DateChangeTimeUtil.getDateTime());
+        	calToday.set(Calendar.HOUR_OF_DAY, 0);
+        	calToday.set(Calendar.MINUTE,      0);
+        	calToday.set(Calendar.SECOND,      0);
+        	calToday.set(Calendar.MILLISECOND, 0);
+        	while (calIndex.before(calToday)) {
+        		if (recurrence.isValidDay(calIndex.get(Calendar.DAY_OF_WEEK))) {
+        			if (currentCount > maxCount) {
+        				maxCount = currentCount;
+        				currentCount = 0;
+        				break;
+        			}
+        		}
+    			calIndex.add(Calendar.DAY_OF_MONTH, 1);
+        	}
+        }
+
+        return new ComboCount(currentCount, maxCount);
+    }
+
+    private Date getDate(Cursor cursor) {
+        String dateString = cursor.getString(cursor.getColumnIndex(TaskCompletion.TASK_COMPLETION_DATE));
+        SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
+        Date date = null;
+        if (dateString != null) {
+            try {
+                date = sdf_ymd.parse(dateString);
+            } catch (ParseException e) {
+                Log.e(TAG, e.getMessage());
+            }
+        }
+        return date;
+    }
+
+    private Calendar getCalendar(Date date) {
+    	Calendar calendar = Calendar.getInstance();
+    	calendar.setTime(date);
+    	return calendar;
     }
 
     private Task getTask(Cursor cursor) {
