@@ -68,7 +68,8 @@ public class DatabaseAdapter {
 
     public List<Task> getTaskList() {
         List<Task> tasks = new ArrayList<Task>();
-        String selectQuery = SELECT_FORM + TasksToday.TABLE_NAME;
+        String selectQuery = SELECT_FORM + TasksToday.TABLE_NAME
+                + " order by " + TasksToday.TASK_LIST_ORDER + " asc;";;
 
         Cursor cursor = openDatabase().rawQuery(selectQuery, null);
 
@@ -108,7 +109,7 @@ public class DatabaseAdapter {
             contentValues.put(TasksToday.TASK_CONTEXT, taskContext);
             contentValues.put(TasksToday.REMINDER_ENABLED, String.valueOf(reminder.getEnabled()));
             contentValues.put(TasksToday.REMINDER_TIME, String.valueOf(reminder.getTimeInMillis()));
-            contentValues.put(TasksToday.REMINDER_TIME, Long.valueOf(task.getOrder()));
+            contentValues.put(TasksToday.TASK_LIST_ORDER, Long.valueOf(task.getOrder()));
 
             rowID = openDatabase().insertOrThrow(TasksToday.TABLE_NAME, null, contentValues);
             closeDatabase();
@@ -143,7 +144,7 @@ public class DatabaseAdapter {
         contentValues.put(TasksToday.TASK_CONTEXT, taskContext);
         contentValues.put(TasksToday.REMINDER_ENABLED, String.valueOf(reminder.getEnabled()));
         contentValues.put(TasksToday.REMINDER_TIME, String.valueOf(reminder.getTimeInMillis()));
-        contentValues.put(TasksToday.REMINDER_TIME, Long.valueOf(task.getOrder()));
+        contentValues.put(TasksToday.TASK_LIST_ORDER, Long.valueOf(task.getOrder()));
 
         String whereClause = TasksToday._ID + "=?";
         String whereArgs[] = {taskID.toString()};
