@@ -108,6 +108,7 @@ public class DatabaseAdapter {
             contentValues.put(TasksToday.TASK_CONTEXT, taskContext);
             contentValues.put(TasksToday.REMINDER_ENABLED, String.valueOf(reminder.getEnabled()));
             contentValues.put(TasksToday.REMINDER_TIME, String.valueOf(reminder.getTimeInMillis()));
+            contentValues.put(TasksToday.REMINDER_TIME, Long.valueOf(task.getOrder()));
 
             rowID = openDatabase().insertOrThrow(TasksToday.TABLE_NAME, null, contentValues);
             closeDatabase();
@@ -142,6 +143,8 @@ public class DatabaseAdapter {
         contentValues.put(TasksToday.TASK_CONTEXT, taskContext);
         contentValues.put(TasksToday.REMINDER_ENABLED, String.valueOf(reminder.getEnabled()));
         contentValues.put(TasksToday.REMINDER_TIME, String.valueOf(reminder.getTimeInMillis()));
+        contentValues.put(TasksToday.REMINDER_TIME, Long.valueOf(task.getOrder()));
+
         String whereClause = TasksToday._ID + "=?";
         String whereArgs[] = {taskID.toString()};
 
@@ -429,6 +432,7 @@ public class DatabaseAdapter {
         Reminder reminder;
         String reminderEnabled = cursor.getString(cursor.getColumnIndex(TasksToday.REMINDER_ENABLED));
         String reminderTime = cursor.getString(cursor.getColumnIndex(TasksToday.REMINDER_TIME));
+        long taskOrder = cursor.getInt(cursor.getColumnIndex(TasksToday.TASK_LIST_ORDER));
         if ((reminderEnabled == null) || (reminderTime == null)) {
             reminder = new Reminder();
         } else {
@@ -438,6 +442,7 @@ public class DatabaseAdapter {
         Task task = new Task(taskName, taskContext, recurrence);
         task.setReminder(reminder);
         task.setTaskID(taskID);
+        task.setOrder(taskOrder);
         return task;
     }
 }

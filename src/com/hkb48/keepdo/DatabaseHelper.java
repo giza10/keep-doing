@@ -41,7 +41,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
                                                      + TasksToday.FREQUENCY_SUN + " TEXT,"
                                                      + TasksToday.TASK_CONTEXT + " TEXT,"
                                                      + TasksToday.REMINDER_ENABLED + " TEXT,"
-                                                     + TasksToday.REMINDER_TIME + " TEXT" + ");";
+                                                     + TasksToday.REMINDER_TIME + " TEXT,"
+    												 + TasksToday.TASK_LIST_ORDER + " INTEGER" + ");";
+
 
     private static final String STRING_CREATE_COMPLETION = "CREATE TABLE " + TaskCompletion.TABLE_NAME + " ("
                                                      + TaskCompletion._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "

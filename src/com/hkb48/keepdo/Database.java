@@ -21,7 +21,7 @@ public final class Database {
         public static final String TABLE_NAME = "table_tasks";
         public static final String TABLE_URI = "table_taskrui";
         public static final Uri CONTENT_URI =  Uri.parse("content://" + AUTHORITY + "/" + TABLE_URI);
-        
+
         public static final String TASK_NAME = "task_name";
         public static final String FREQUENCY_MON = "mon_frequency";
         public static final String FREQUENCY_TUE = "tue_frequency";
@@ -34,6 +34,7 @@ public final class Database {
 
         public static final String REMINDER_ENABLED = "reminder_enabled";
         public static final String REMINDER_TIME = "reminder_time";
+        public static final String TASK_LIST_ORDER = "task_list_order";
 
         public static final String DEFAULT_SORT_ORDER = "task_name ASC";
     }
