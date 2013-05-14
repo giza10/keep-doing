@@ -454,7 +454,9 @@ public class DatabaseAdapter {
         if (cursor != null) {
             cursor.moveToFirst();
             String idString = cursor.getString(0);
-            maxOrderId = Integer.parseInt(idString);
+            if (idString != null) {
+                maxOrderId = Integer.parseInt(idString);
+            }
             cursor.close();
         }
         closeDatabase();
