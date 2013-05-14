@@ -45,7 +45,8 @@
     <string name="remind_at">Remind at</string>
     <string name="number_of_done">Total number of Done</string>
     <string name="first_done_date">First day of Done</string>
-    <string name="last_done_date">Last of Done</string>
+    <string name="last_done_date">Last day of Done</string>
+    <string name="max_combo">Max combo</string>
     <string name="number_of_times">%d times</string>
 
     <string name="btn_month_next">Next</string>

@@ -39,6 +39,7 @@ public class TaskDetailFragment extends Fragment {
 
         // Recurrence
         RecurrenceView recurrenceView = (RecurrenceView) activity.findViewById(R.id.recurrenceView);
+        recurrenceView.setTextSize(12.0f);
         recurrenceView.update(task.getRecurrence());
 
         // Reminder
@@ -71,6 +72,13 @@ public class TaskDetailFragment extends Fragment {
         // Total number of done
         TextView numOfDoneTextView = (TextView) activity.findViewById(R.id.taskDetailNumOfDoneValue);
         numOfDoneTextView.setText(getString(R.string.number_of_times, dbAdapter.getNumberOfDone(taskId)));
+
+        // Max combo
+        TextView maxComboTextView = (TextView) activity.findViewById(R.id.taskDetailMaxComboValue);
+        ComboCount combo = dbAdapter.getComboCount(taskId);
+        if (combo != null) {
+            maxComboTextView.setText(getString(R.string.number_of_times, combo.maxCount));
+        }
 
         // First date that done is set
         final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN);
