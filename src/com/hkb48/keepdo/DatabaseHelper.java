@@ -156,9 +156,12 @@ class DatabaseHelper extends SQLiteOpenHelper {
      */
     private void clearDatabase() {
     	final String data_base = mContext.getDatabasePath(DB_NAME).getPath();
+
     	File file = new File(data_base);
-    	file.delete();
-    }  
+    	if (file.delete() && (BuildConfig.DEBUG)) {
+    		Log.d(TAG, "Database removded!");
+	    }
+    }
     
     @Override
     public void onOpen(SQLiteDatabase db) {
