@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import android.content.Context;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -23,11 +24,12 @@ class DatabaseHelper extends SQLiteOpenHelper {
     private final Context mContext;
 
     /*
-     * The first version is 1, the latest version is 2
-     * version 1: initial columns
-     * version 2: adding context and reminder column
+     * The first version is 1, the latest version is 3
+     * Version [1] initial columns
+     * Version [2] adding context and reminder column
+     * Version [3] adding task order column
      */
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 3;
 
     private static final String STRING_CREATE_TASK = "CREATE TABLE " + TasksToday.TABLE_NAME + " ("
                                                      + TasksToday._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -75,24 +77,89 @@ class DatabaseHelper extends SQLiteOpenHelper {
             Log.d(TAG, "Updating database version from " + oldVersion + " to " + newVersion);
         }
 
-    	/*
-    	 *  The initial version is 1, while updated to the latest version to 2.  
-    	 */
-    	if (oldVersion < 2) {
+        boolean success = false;
+    	if (oldVersion < newVersion) {
     		db.beginTransaction();
-    		try {
-	    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.TASK_CONTEXT + " TEXT");
-	    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_ENABLED + " TEXT");
-                db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_TIME + " TEXT");		
 
-	    		db.setVersion(newVersion);
-	            db.setTransactionSuccessful();
-    		} finally {
-    			db.endTransaction();
+    		for (int version = oldVersion; version < newVersion; version++) {
+	    		int nextVersion = version + 1;
+
+	    		switch (nextVersion) {
+	    		case 2:
+	    			success = upgradeDatabase2(db);
+	    			break;
+				case 3:
+	    			success = upgradeDatabase3(db);
+					break;
+				default:
+					break;
+	    		}
+	    		
+	    		if (!success && BuildConfig.DEBUG) {
+    		    	Log.d(TAG, "Error updating database, reverting changes!");
+    		    	break;
+    		    }
+	    	}
+
+    		if (success) {
+	    		if (BuildConfig.DEBUG) {
+    		    	Log.d(TAG, "Database updated successfully!");
+    		    }
+
+    			db.setVersion(newVersion);
+    			db.setTransactionSuccessful();
     		}
-        }
+    		db.endTransaction();
+
+    	} else {
+    		clearDatabase();
+    		this.onCreate(db);
+    	}
     }
 
+	/*
+	 *  The original version is 1, while upgrade to 2.  
+	 */
+    private boolean upgradeDatabase2(SQLiteDatabase db) {
+    	try {
+    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.TASK_CONTEXT + " TEXT");
+    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_ENABLED + " TEXT");
+    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_TIME + " TEXT");
+   		} catch (SQLException eSQL) {
+            if (BuildConfig.DEBUG) {
+            	Log.e(TAG, eSQL.getMessage());
+            }
+            return false;
+   		}
+
+    	return true;
+    }
+
+	/*
+	 *  The original version is 2, while upgrade to 3.  
+	 */
+    private boolean upgradeDatabase3(SQLiteDatabase db) {
+    	try {
+    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.TASK_LIST_ORDER + " INTEGER");
+   		} catch (SQLException eSQL) {
+            if (BuildConfig.DEBUG) {
+            	Log.e(TAG, eSQL.getMessage());
+            }
+            return false;
+   		}
+
+    	return true;
+    }
+
+    /*
+     * Remove the database file.
+     */
+    private void clearDatabase() {
+    	final String data_base = mContext.getDatabasePath(DB_NAME).getPath();
+    	File file = new File(data_base);
+    	file.deleteOnExit();
+    }  
+    
     @Override
     public void onOpen(SQLiteDatabase db) {
         super.onOpen(db);
