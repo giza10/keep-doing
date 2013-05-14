@@ -338,7 +338,6 @@ public class DatabaseAdapter {
     protected ComboCount getComboCount(Long taskID) {
     	int currentCount = 0;
     	int maxCount = 0;
-		Calendar calIndex = null;
 
         // Task Recurrence
         Recurrence recurrence = getTask(taskID).getRecurrence();
@@ -350,49 +349,40 @@ public class DatabaseAdapter {
 
         // Count
         if (cursor != null) {
-            if (cursor.moveToFirst()) {
+        	if (cursor.moveToFirst()) {
+            	Calendar calToday = getCalendar(DateChangeTimeUtil.getDateTime());
+            	calToday.set(Calendar.HOUR_OF_DAY, 0);
+            	calToday.set(Calendar.MINUTE,      0);
+            	calToday.set(Calendar.SECOND,      0);
+            	calToday.set(Calendar.MILLISECOND, 0);
+        		Calendar calDone = getCalendar(getDate(cursor));
+        		Calendar calIndex = calDone;
             	do {
-            		Calendar calNextDone = getCalendar(getDate(cursor));
-        			if (calIndex != null) {
-	            		while (calIndex.before(calNextDone)) {
-	                		if (recurrence.isValidDay(calIndex.get(Calendar.DAY_OF_WEEK))) {
-	                			if (currentCount > maxCount) {
-	                				maxCount = currentCount;
-	                				currentCount = 0;
-	                				break;
-	                			}
-	                		}
-	            			calIndex.add(Calendar.DAY_OF_MONTH, 1);
-	            		}
-        			}
-            		currentCount ++;
-    				calIndex = calNextDone;
-        			calIndex.add(Calendar.DAY_OF_MONTH, 1);
-            	} while (cursor.moveToNext());
-            }
-            cursor.close();
+            		if (calIndex.equals(calDone)) {
+            			// count up combo
+            			currentCount ++;
+        				if (currentCount > maxCount) {
+            				maxCount = currentCount;
+        				}
+            			if (cursor.moveToNext()) {
+            				calDone = getCalendar(getDate(cursor));
+            			}
+            			calIndex.add(Calendar.DAY_OF_MONTH, 1);
+            		} else {
+            			if (!calIndex.equals(calToday) && recurrence.isValidDay(calIndex.get(Calendar.DAY_OF_WEEK))) {
+            				// stop combo
+            				currentCount = 0;
+            				calIndex = calDone;
+            			} else {
+                			calIndex.add(Calendar.DAY_OF_MONTH, 1);
+            			}
+            		}
+            	} while (!calIndex.after(calToday));
+        	}
+        	cursor.close();
         }
 
         closeDatabase();
-
-        // check if in-combo
-        if (calIndex != null) {
-        	Calendar calToday = getCalendar(DateChangeTimeUtil.getDateTime());
-        	calToday.set(Calendar.HOUR_OF_DAY, 0);
-        	calToday.set(Calendar.MINUTE,      0);
-        	calToday.set(Calendar.SECOND,      0);
-        	calToday.set(Calendar.MILLISECOND, 0);
-        	while (calIndex.before(calToday)) {
-        		if (recurrence.isValidDay(calIndex.get(Calendar.DAY_OF_WEEK))) {
-        			if (currentCount > maxCount) {
-        				maxCount = currentCount;
-        				currentCount = 0;
-        				break;
-        			}
-        		}
-    			calIndex.add(Calendar.DAY_OF_MONTH, 1);
-        	}
-        }
 
         return new ComboCount(currentCount, maxCount);
     }
