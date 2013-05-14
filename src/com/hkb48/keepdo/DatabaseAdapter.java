@@ -356,7 +356,8 @@ public class DatabaseAdapter {
             	calToday.set(Calendar.SECOND,      0);
             	calToday.set(Calendar.MILLISECOND, 0);
         		Calendar calDone = getCalendar(getDate(cursor));
-        		Calendar calIndex = calDone;
+        		Calendar calIndex = (Calendar)calDone.clone();
+        		boolean isCompleted = false;
             	do {
             		if (calIndex.equals(calDone)) {
             			// count up combo
@@ -366,13 +367,21 @@ public class DatabaseAdapter {
         				}
             			if (cursor.moveToNext()) {
             				calDone = getCalendar(getDate(cursor));
+            			} else {
+            				isCompleted = true;
             			}
             			calIndex.add(Calendar.DAY_OF_MONTH, 1);
             		} else {
-            			if (!calIndex.equals(calToday) && recurrence.isValidDay(calIndex.get(Calendar.DAY_OF_WEEK))) {
+            			if (recurrence.isValidDay(calIndex.get(Calendar.DAY_OF_WEEK))) {
             				// stop combo
-            				currentCount = 0;
-            				calIndex = calDone;
+            				if (!calIndex.equals(calToday)) {
+            					currentCount = 0;
+            				}
+            				if (!isCompleted) {
+            					calIndex = (Calendar)calDone.clone();
+            				} else {
+                    			calIndex.add(Calendar.DAY_OF_MONTH, 1);
+            				}
             			} else {
                 			calIndex.add(Calendar.DAY_OF_MONTH, 1);
             			}
