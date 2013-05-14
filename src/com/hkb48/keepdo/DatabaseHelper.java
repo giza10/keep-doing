@@ -157,7 +157,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
     private void clearDatabase() {
     	final String data_base = mContext.getDatabasePath(DB_NAME).getPath();
     	File file = new File(data_base);
-    	file.deleteOnExit();
+    	file.delete();
     }  
     
     @Override
