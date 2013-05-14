@@ -446,4 +446,19 @@ public class DatabaseAdapter {
         task.setOrder(taskOrder);
         return task;
     }
+
+    public int getMaxSortOrderId() {
+        int maxOrderId = 0;
+        String selectQuery =  "select max(" + TasksToday.TASK_LIST_ORDER +") from " + TasksToday.TABLE_NAME;
+        Cursor cursor = openDatabase().rawQuery(selectQuery, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            String idString = cursor.getString(0);
+            maxOrderId = Integer.parseInt(idString);
+            cursor.close();
+        }
+        closeDatabase();
+
+        return maxOrderId;
+    }
 }

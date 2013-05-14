@@ -169,6 +169,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
             switch(requestCode) {
             case REQUEST_ADD_TASK:
                 task = (Task) data.getSerializableExtra("TASK-INFO");
+                task.setOrder(mDBAdapter.getMaxSortOrderId() + 1);
                 mDBAdapter.addTask(task);
                 updateTaskList();
                 updateReminder();
