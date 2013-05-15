@@ -123,14 +123,14 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/taskDetailMaxComboContainer"
+            android:id="@+id/taskDetailComboContainer"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
             <TextView
-                android:id="@+id/taskDetailMaxCombo"
-                android:text="@string/max_combo"
+                android:id="@+id/taskDetailCombo"
+                android:text="@string/current_and_max_combo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
@@ -140,7 +140,7 @@
             </TextView>
 
             <TextView
-                android:id="@+id/taskDetailMaxComboValue"
+                android:id="@+id/taskDetailComboValue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textIsSelectable="false"
