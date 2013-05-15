@@ -208,19 +208,11 @@ public class DatabaseAdapter {
 
         if (cursor.moveToFirst()) {
             do {
-                String dateString = cursor.getString(cursor.getColumnIndex(TaskCompletion.TASK_COMPLETION_DATE));
-                if (dateString != null) {
-                    Date date = null;
-                    try {
-                        date = sdf_ymd.parse(dateString);
-                    } catch (ParseException e) {
-                        Log.e(TAG, e.getMessage());
-                    }
-                    if (date != null) {
-                        if (sdf_ymd.format(date).equals(sdf_ymd.format(day))) {
-                            isDone = true;
-                            break;
-                        }
+                Date date = getDate(cursor);
+                if (date != null) {
+                    if (sdf_ymd.format(date).equals(sdf_ymd.format(day))) {
+                        isDone = true;
+                        break;
                     }
                 }
             } while (cursor.moveToNext());
@@ -247,7 +239,8 @@ public class DatabaseAdapter {
     public Date getFirstDoneDate(Long taskID) {
         final SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
         Date date = null;
-        String selectQuery =  "select min(completion_date) from " + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
+        String selectQuery =  "select min(" + TaskCompletion.TASK_COMPLETION_DATE + ") from "
+                + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         if (cursor != null) {
             cursor.moveToFirst();
@@ -268,7 +261,8 @@ public class DatabaseAdapter {
     public Date getLastDoneDate(Long taskID) {
         final SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
         Date date = null;
-        String selectQuery =  "select max(completion_date) from " + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
+        String selectQuery =  "select max(" + TaskCompletion.TASK_COMPLETION_DATE + ") from "
+                + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         if (cursor != null) {
             cursor.moveToFirst();
@@ -307,23 +301,14 @@ public class DatabaseAdapter {
         String selectQuery = SELECT_FORM + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";;
         
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
-        SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
         SimpleDateFormat sdf_ym = new SimpleDateFormat(SDF_PATTERN_YM, Locale.JAPAN);
 
         if (cursor.moveToFirst()) {
             do {
-                String dateString = cursor.getString(cursor.getColumnIndex(TaskCompletion.TASK_COMPLETION_DATE));
-                if (dateString != null) {
-                    Date date = null;
-                    try {
-                        date = sdf_ymd.parse(dateString);
-                    } catch (ParseException e) {
-                        Log.e(TAG, e.getMessage());
-                    }
-                    if (date != null) {
-                        if (sdf_ym.format(date).equals(sdf_ym.format(month))) {
-                            dateList.add(date);
-                        }
+                Date date = getDate(cursor);
+                if (date != null) {
+                    if (sdf_ym.format(date).equals(sdf_ym.format(month))) {
+                        dateList.add(date);
                     }
                 }
             } while (cursor.moveToNext());
@@ -350,11 +335,7 @@ public class DatabaseAdapter {
         // Count
         if (cursor != null) {
         	if (cursor.moveToFirst()) {
-            	Calendar calToday = getCalendar(DateChangeTimeUtil.getDateTime());
-            	calToday.set(Calendar.HOUR_OF_DAY, 0);
-            	calToday.set(Calendar.MINUTE,      0);
-            	calToday.set(Calendar.SECOND,      0);
-            	calToday.set(Calendar.MILLISECOND, 0);
+                Calendar calToday = getCalendar(DateChangeTimeUtil.getDate());
         		Calendar calDone = getCalendar(getDate(cursor));
         		Calendar calIndex = (Calendar)calDone.clone();
         		boolean isCompleted = false;
@@ -448,7 +429,7 @@ public class DatabaseAdapter {
 
     public int getMaxSortOrderId() {
         int maxOrderId = 0;
-        String selectQuery =  "select max(" + TasksToday.TASK_LIST_ORDER +") from " + TasksToday.TABLE_NAME;
+        String selectQuery = "select max(" + TasksToday.TASK_LIST_ORDER +") from " + TasksToday.TABLE_NAME;
         Cursor cursor = openDatabase().rawQuery(selectQuery, null);
         if (cursor != null) {
             cursor.moveToFirst();
