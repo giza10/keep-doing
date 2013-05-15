@@ -140,7 +140,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
 	 */
     private boolean upgradeDatabase3(SQLiteDatabase db) {
     	try {
-    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.TASK_LIST_ORDER + " INTEGER");
+    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.TASK_LIST_ORDER + " INTEGER DEFAULT 0");
    		} catch (SQLException eSQL) {
             if (BuildConfig.DEBUG) {
             	Log.e(TAG, eSQL.getMessage());

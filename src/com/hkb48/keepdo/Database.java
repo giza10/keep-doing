@@ -36,7 +36,7 @@ public final class Database {
         public static final String REMINDER_TIME = "reminder_time";
         public static final String TASK_LIST_ORDER = "task_list_order";
 
-        public static final String DEFAULT_SORT_ORDER = "task_name ASC";
+        public static final String DEFAULT_SORT_ORDER = "_id ASC";
     }
 
     // Task Completion table
