@@ -76,6 +76,11 @@ final class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+    }   
+    
+    @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Updating database version from " + oldVersion + " to " + newVersion);
@@ -120,11 +125,6 @@ final class DatabaseHelper extends SQLiteOpenHelper {
     		this.onCreate(db);
     	}
     }
-
-    @Override
-    public void onOpen(SQLiteDatabase db) {
-        super.onOpen(db);
-    }   
 
 	/*
 	 *  The original version is 1, while upgrade to 2.  
@@ -171,8 +171,8 @@ final class DatabaseHelper extends SQLiteOpenHelper {
     		Log.d(TAG, "Database removded!");
 	    }
     }
-    
-    final String getDataPath() {
+
+    final String databasePath() {
     	return mContext.getDatabasePath(DatabaseHelper.DB_NAME).getPath();
     }    
 }

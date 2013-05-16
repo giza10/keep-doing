@@ -462,12 +462,12 @@ public class DatabaseAdapter {
     		dir.mkdir();
     	}
 
-    	final String DB_FILE_PATH = mDatabaseHelper.getDataPath();
+    	final String DB_FILE_PATH = mDatabaseHelper.databasePath();
 		copyDataBase(DB_FILE_PATH, backupDirPath + backupFileName);
     }
 
     void restoreDataBase(String backupPath) {
-    	final String DB_FILE_PATH = mDatabaseHelper.getDataPath();
+    	final String DB_FILE_PATH = mDatabaseHelper.databasePath();
     	copyDataBase(backupPath, DB_FILE_PATH);
     }
 
