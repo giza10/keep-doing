@@ -73,11 +73,15 @@ public class TaskDetailFragment extends Fragment {
         TextView numOfDoneTextView = (TextView) activity.findViewById(R.id.taskDetailNumOfDoneValue);
         numOfDoneTextView.setText(getString(R.string.number_of_times, dbAdapter.getNumberOfDone(taskId)));
 
-        // Max combo
-        TextView maxComboTextView = (TextView) activity.findViewById(R.id.taskDetailMaxComboValue);
+        // Current combo / Max combo
+        TextView comboTextView = (TextView) activity.findViewById(R.id.taskDetailComboValue);
         ComboCount combo = dbAdapter.getComboCount(taskId);
         if (combo != null) {
-            maxComboTextView.setText(getString(R.string.number_of_times, combo.maxCount));
+            StringBuilder sb = new StringBuilder();
+            sb.append(getString(R.string.number_of_times, combo.currentCount));
+            sb.append(" / ");
+            sb.append(getString(R.string.number_of_times, combo.maxCount));
+            comboTextView.setText(sb.toString());
         }
 
         // First date that done is set
