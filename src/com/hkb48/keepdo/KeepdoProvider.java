@@ -75,7 +75,7 @@ public class KeepdoProvider extends ContentProvider {
 	@Override
 	public boolean onCreate() {
         // Assumes that any failures will be reported by a thrown exception.
-		mOpenHelper = new DatabaseHelper(getContext());
+		mOpenHelper = DatabaseHelper.getInstance(getContext());
 		return false;
 	}
 

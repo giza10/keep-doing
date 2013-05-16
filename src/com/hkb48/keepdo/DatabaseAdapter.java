@@ -1,5 +1,11 @@
 package com.hkb48.keepdo;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,10 +36,10 @@ public class DatabaseAdapter {
     private SQLiteDatabase mDatabase = null;
 
     private DatabaseAdapter(Context context) {
-        mDatabaseHelper = new DatabaseHelper(context.getApplicationContext());
+        mDatabaseHelper = DatabaseHelper.getInstance(context.getApplicationContext());
     }
 
-    public static synchronized DatabaseAdapter getInstance(Context context) {
+    static synchronized DatabaseAdapter getInstance(Context context) {
     	if (INSTANCE == null) {
     		INSTANCE = new DatabaseAdapter(context);
     	}
@@ -462,4 +468,62 @@ public class DatabaseAdapter {
 
         return maxOrderId;
     }
+    
+    /**
+     * Backup and Restore database.
+     * @param backupPath
+     * @param backupFileName
+     */
+    void backupDataBase(String backupDirPath, String backupFileName) {
+    	File dir = new File(backupDirPath);
+
+    	if (!dir.exists()) {
+    		dir.mkdir();
+    	}
+
+    	final String DB_FILE_PATH = mDatabaseHelper.getDataPath();
+		copyDataBase(DB_FILE_PATH, backupDirPath + backupFileName);
+    }
+
+    void restoreDataBase(String backupPath) {
+    	final String DB_FILE_PATH = mDatabaseHelper.getDataPath();
+    	copyDataBase(backupPath, DB_FILE_PATH);
+    }
+
+    private synchronized void copyDataBase(String fromPath, String toPath) {
+		InputStream inputStream = null;
+		OutputStream outputStream = null;
+
+		try {
+			inputStream = new FileInputStream(fromPath);
+			outputStream = new FileOutputStream(toPath);
+			
+	        byte[] buffer = new byte[1024];
+	        int length;
+
+			while ((length = inputStream.read(buffer)) > 0) {
+			    outputStream.write(buffer, 0, length);
+			}    	        
+	        outputStream.flush();
+
+		} catch (IOException e) {
+            if (BuildConfig.DEBUG) {
+            	Log.e(TAG, e.getMessage());
+            }
+		} finally {
+			try {
+    	         if (outputStream != null) {
+    	        	 outputStream.close();
+    	         }
+
+    	         if (inputStream != null) {
+    	        	 inputStream.close();
+    	         }
+			} catch (IOException e) {
+                if (BuildConfig.DEBUG) {
+                	Log.e(TAG, e.getMessage());
+                }
+			}
+		}
+	}
 }

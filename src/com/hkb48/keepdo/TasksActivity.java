@@ -338,13 +338,13 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
 			}
 		});
     }
+
     private void backupTaskData() {
-    	DatabaseHelper dbHelper = new DatabaseHelper(this);
-    	dbHelper.backupDataBase(BACKUP_DIR_PATH, BACKUP_FILE_NAME );
+    	mDBAdapter.backupDataBase(BACKUP_DIR_PATH, BACKUP_FILE_NAME);
     }
+
     private void restoreTaskData() {
-    	DatabaseHelper dbHelper = new DatabaseHelper(this);
-    	dbHelper.restoreDataBase(BACKUP_DIR_PATH + BACKUP_FILE_NAME);
+    	mDBAdapter.restoreDataBase(BACKUP_DIR_PATH + BACKUP_FILE_NAME);
     }
 
     /**

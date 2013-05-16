@@ -1,11 +1,6 @@
 package com.hkb48.keepdo;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import android.content.Context;
 import android.database.SQLException;
@@ -17,12 +12,13 @@ import android.util.Log;
 import com.hkb48.keepdo.Database.TaskCompletion;
 import com.hkb48.keepdo.Database.TasksToday;
 
-class DatabaseHelper extends SQLiteOpenHelper {
+final class DatabaseHelper extends SQLiteOpenHelper {
 
 	private static final String TAG = "#KEEPDO_DB_HELPER: ";
     private static final String DB_NAME = "keepdo_tracker.db";
+    private static DatabaseHelper INSTANCE = null;
     private final Context mContext;
-
+    
     /*
      * The first version is 1, the latest version is 3
      * Version [1] initial columns
@@ -54,9 +50,17 @@ class DatabaseHelper extends SQLiteOpenHelper {
                                                      + TasksToday.TABLE_NAME + "(" + TasksToday._ID + ")" + " ON DELETE CASCADE, "
                                                      + TaskCompletion.TASK_COMPLETION_DATE + " DATE" + ");";
 
-    DatabaseHelper(Context context) {
+    private DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
         this.mContext = context;
+    }
+
+    static DatabaseHelper getInstance(Context context) {
+    	if (INSTANCE == null) {
+    		INSTANCE = new DatabaseHelper(context);
+    	}
+
+    	return INSTANCE;
     }
 
     @Override
@@ -117,6 +121,11 @@ class DatabaseHelper extends SQLiteOpenHelper {
     	}
     }
 
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+    }   
+
 	/*
 	 *  The original version is 1, while upgrade to 2.  
 	 */
@@ -163,66 +172,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
 	    }
     }
     
-    @Override
-    public void onOpen(SQLiteDatabase db) {
-        super.onOpen(db);
-    }
-
-    /**
-     * Backup and Restore database.
-     * @param backupPath
-     * @param backupFileName
-     */
-    public void backupDataBase(String backupDirPath, String backupFileName) {
-    	File dir = new File(backupDirPath);
-
-    	if (!dir.exists()) {
-    		dir.mkdir();
-    	}
-
-    	final String DB_FILE_PATH = mContext.getDatabasePath(DB_NAME).getPath();
-		copyDataBase(DB_FILE_PATH, backupDirPath + backupFileName);
-    }
-
-    public void restoreDataBase(String backupPath) {
-    	final String DB_FILE_PATH = mContext.getDatabasePath(DB_NAME).getPath();
-    	copyDataBase(backupPath, DB_FILE_PATH);
-    }
-
-    private synchronized void copyDataBase(String fromPath, String toPath) {
-		InputStream inputStream = null;
-		OutputStream outputStream = null;
-
-		try {
-			inputStream = new FileInputStream(fromPath);
-			outputStream = new FileOutputStream(toPath);
-			
-	        byte[] buffer = new byte[1024];
-	        int length;
-
-			while ((length = inputStream.read(buffer)) > 0) {
-			    outputStream.write(buffer, 0, length);
-			}    	        
-	        outputStream.flush();
-
-		} catch (IOException e) {
-            if (BuildConfig.DEBUG) {
-            	Log.e(TAG, e.getMessage());
-            }
-		} finally {
-			try {
-    	         if (outputStream != null) {
-    	        	 outputStream.close();
-    	         }
-
-    	         if (inputStream != null) {
-    	        	 inputStream.close();
-    	         }
-			} catch (IOException e) {
-                if (BuildConfig.DEBUG) {
-                	Log.e(TAG, e.getMessage());
-                }
-			}
-		}
-	}
+    final String getDataPath() {
+    	return mContext.getDatabasePath(DatabaseHelper.DB_NAME).getPath();
+    }    
 }
