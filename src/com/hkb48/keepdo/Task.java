@@ -3,7 +3,7 @@ package com.hkb48.keepdo;
 import java.io.Serializable;
 
 @SuppressWarnings("serial")
-public class Task implements Serializable {
+class Task implements Serializable {
     public static final long INVALID_TASKID = Long.MIN_VALUE;
 
     private long identifier;
@@ -46,7 +46,7 @@ public class Task implements Serializable {
         return order;
     }
 
-    protected void setTaskID(long id) {
+    void setTaskID(long id) {
         this.identifier = id;
     }
 

@@ -331,7 +331,7 @@ public class CalendarFragment extends Fragment {
     /***
      * Get font color for day of the week
      *
-     * @param color font color for day of the week
+     * @param dayOfWeek day of the week
      */
     private int getFontColorOfWeek(int dayOfWeek) {
         switch(dayOfWeek) {

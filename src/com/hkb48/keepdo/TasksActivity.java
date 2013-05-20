@@ -169,6 +169,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
             switch(requestCode) {
             case REQUEST_ADD_TASK:
                 task = (Task) data.getSerializableExtra("TASK-INFO");
+                assert task != null;
                 task.setOrder(mDBAdapter.getMaxSortOrderId() + 1);
                 mDBAdapter.addTask(task);
                 updateTaskList();
@@ -203,6 +204,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
 
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+        assert info != null;
         TaskListItem taskListItem = (TaskListItem) mAdapter.getItem(info.position);
         Task task = (Task) taskListItem.data;
         final long taskId = task.getTaskID();
@@ -315,7 +317,6 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
             		// execute backup
             		backupTaskData();
             		Toast.makeText(TasksActivity.this, R.string.backup_done, Toast.LENGTH_SHORT).show();
-            		return;
             	case 1:
             		// execute restore
             		restoreTaskData();
@@ -323,7 +324,6 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
             		Toast.makeText(TasksActivity.this, R.string.restore_done, Toast.LENGTH_SHORT).show();
             		return;
             	default:
-            		return;
             	}
             }
         });

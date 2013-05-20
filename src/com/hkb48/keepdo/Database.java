@@ -3,7 +3,7 @@ package com.hkb48.keepdo;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-public final class Database {
+final class Database {
     public static final String AUTHORITY = "com.hkb48.keepdo.keepdoprovider";
 
 	private Database() {}

@@ -14,17 +14,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.os.Build;
 import android.util.Log;
 
 import com.hkb48.keepdo.Database.TaskCompletion;
 import com.hkb48.keepdo.Database.TasksToday;
 
-public class DatabaseAdapter {
+class DatabaseAdapter {
     private static final String TAG = "#KEEPDO_DB_ADAPTER: ";
     private static final String SDF_PATTERN_YMD = "yyyy-MM-dd"; 
     private static final String SDF_PATTERN_YM = "yyyy-MM";
@@ -59,6 +61,7 @@ public class DatabaseAdapter {
     	return mDatabase;
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void closeDatabase() {
     	synchronized (this) {
 			if (mDatabase != null) {
@@ -75,7 +78,7 @@ public class DatabaseAdapter {
     public List<Task> getTaskList() {
         List<Task> tasks = new ArrayList<Task>();
         String selectQuery = SELECT_FORM + TasksToday.TABLE_NAME
-                + " order by " + TasksToday.TASK_LIST_ORDER + " asc;";;
+                + " order by " + TasksToday.TASK_LIST_ORDER + " asc;";
 
         Cursor cursor = openDatabase().rawQuery(selectQuery, null);
 
@@ -115,7 +118,7 @@ public class DatabaseAdapter {
             contentValues.put(TasksToday.TASK_CONTEXT, taskContext);
             contentValues.put(TasksToday.REMINDER_ENABLED, String.valueOf(reminder.getEnabled()));
             contentValues.put(TasksToday.REMINDER_TIME, String.valueOf(reminder.getTimeInMillis()));
-            contentValues.put(TasksToday.TASK_LIST_ORDER, Long.valueOf(task.getOrder()));
+            contentValues.put(TasksToday.TASK_LIST_ORDER, task.getOrder());
 
             rowID = openDatabase().insertOrThrow(TasksToday.TABLE_NAME, null, contentValues);
             closeDatabase();
@@ -127,7 +130,7 @@ public class DatabaseAdapter {
         return rowID;
     }
 
-    protected void editTask(Task task) {
+    void editTask(Task task) {
         Long taskID = task.getTaskID();
         String taskName = task.getName();
         String taskContext = task.getContext();
@@ -163,7 +166,7 @@ public class DatabaseAdapter {
         }
     }
 
-    protected void deleteTask(Long taskID) {
+    void deleteTask(Long taskID) {
         // Delete task from TASKS_TABLE_NAME
     	String whereClause = TasksToday._ID + "=?";
         String whereArgs[] = {taskID.toString()};
@@ -176,15 +179,14 @@ public class DatabaseAdapter {
         closeDatabase();
     }
 
-    //TODO: ROID --> _ID to be validated.
-	protected void setDoneStatus(Long taskID, Date date, Boolean doneSwitch) {
+	void setDoneStatus(Long taskID, Date date, Boolean doneSwitch) {
         if (taskID == null) {
             return;
         }
 
         SimpleDateFormat dateFormat = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
 
-        if (doneSwitch == true) {
+        if (doneSwitch != null && doneSwitch) {
             ContentValues contentValues = new ContentValues();
 
             contentValues.put(TaskCompletion.TASK_NAME_ID, taskID);
@@ -206,7 +208,7 @@ public class DatabaseAdapter {
         }
     }
 
-    protected boolean getDoneStatus(Long taskID, Date day) {
+    boolean getDoneStatus(Long taskID, Date day) {
         boolean isDone = false;
         String selectQuery = SELECT_FORM + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
@@ -286,7 +288,7 @@ public class DatabaseAdapter {
         return date;
     }
 
-    protected Task getTask(Long taskID) {
+    Task getTask(Long taskID) {
         Task task = null;
         String selectQuery = SELECT_FORM + TasksToday.TABLE_NAME + SELECT_ARG_FORM + TasksToday._ID + "=?";
 
@@ -302,10 +304,10 @@ public class DatabaseAdapter {
         return task;
     }
 
-    protected ArrayList<Date> getHistory(Long taskID, Date month) {
+    ArrayList<Date> getHistory(Long taskID, Date month) {
         ArrayList<Date> dateList = new ArrayList<Date>();
-        String selectQuery = SELECT_FORM + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";;
-        
+        String selectQuery = SELECT_FORM + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
+
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         SimpleDateFormat sdf_ym = new SimpleDateFormat(SDF_PATTERN_YM, Locale.JAPAN);
 
@@ -326,7 +328,7 @@ public class DatabaseAdapter {
         return dateList;
     }
 
-    protected ComboCount getComboCount(Long taskID) {
+    ComboCount getComboCount(Long taskID) {
     	int currentCount = 0;
     	int maxCount = 0;
 
@@ -449,10 +451,10 @@ public class DatabaseAdapter {
 
         return maxOrderId;
     }
-    
+
     /**
      * Backup and Restore database.
-     * @param backupPath
+     * @param backupDirPath
      * @param backupFileName
      */
     void backupDataBase(String backupDirPath, String backupFileName) {

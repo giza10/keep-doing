@@ -104,17 +104,14 @@ final class DatabaseHelper extends SQLiteOpenHelper {
 					break;
 	    		}
 	    		
-	    		if (!success && BuildConfig.DEBUG) {
-    		    	Log.d(TAG, "Error updating database, reverting changes!");
-    		    	break;
+	    		if (!success) {
+                    if (BuildConfig.DEBUG) Log.d(TAG, "Error updating database, reverting changes!");
+                    break;
     		    }
 	    	}
 
     		if (success) {
-	    		if (BuildConfig.DEBUG) {
-    		    	Log.d(TAG, "Database updated successfully!");
-    		    }
-
+	    		if (BuildConfig.DEBUG) Log.d(TAG, "Database updated successfully!");
     			db.setVersion(newVersion);
     			db.setTransactionSuccessful();
     		}
@@ -167,9 +164,7 @@ final class DatabaseHelper extends SQLiteOpenHelper {
     	final String data_base = mContext.getDatabasePath(DB_NAME).getPath();
 
     	File file = new File(data_base);
-    	if (file.delete() && (BuildConfig.DEBUG)) {
-    		Log.d(TAG, "Database removded!");
-	    }
+    	if (file.delete()) if (BuildConfig.DEBUG) Log.d(TAG, "Database removed!");
     }
 
     final String databasePath() {
