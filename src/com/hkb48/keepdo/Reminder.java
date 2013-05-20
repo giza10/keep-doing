@@ -57,7 +57,7 @@ public class Reminder implements Serializable {
         this.minute = minute;
     }
 
-    public void setTimeInMillis(long milliseconds) {
+    void setTimeInMillis(long milliseconds) {
         Calendar time = Calendar.getInstance();
         time.setTimeInMillis(milliseconds);
         hourOfDay = time.get(Calendar.HOUR_OF_DAY);

@@ -18,7 +18,7 @@ public class DateChangeTimeManager {
     private final Context mContext;
     private final List<OnDateChangedListener> mChangedListeners = new ArrayList<OnDateChangedListener>();
 
-    private Settings.OnChangedListener mSettingsChangedListener = new Settings.OnChangedListener() {
+    private final Settings.OnChangedListener mSettingsChangedListener = new Settings.OnChangedListener() {
         public void onDoneIconSettingChanged() {}
 
         public void onDateChangeTimeSettingChanged() {
@@ -92,9 +92,7 @@ public class DateChangeTimeManager {
     private PendingIntent getPendingIntent(Context context) {
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.setType("DateChangeTime");
-        PendingIntent pendingIntent = 
-                PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        return pendingIntent;
+        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
 

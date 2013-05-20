@@ -67,7 +67,7 @@ public class TaskSettingActivity extends Activity {
                 editTextDescription.setSelection(description.length());
             }
 
-            ((Button) findViewById(R.id.okButton)).setEnabled(true);
+            findViewById(R.id.okButton).setEnabled(true);
         }
 
         addTaskName(editTextTaskName);
@@ -188,9 +188,8 @@ public class TaskSettingActivity extends Activity {
 
     /**
      * Callback method for "Save" button
-     * @param view
      */
-    public void onSaveClicked(View view) {
+    public void onSaveClicked() {
         EditText editTextTaskName = (EditText) findViewById(R.id.editTextTaskName);
         EditText editTextDescription = (EditText) findViewById(R.id.editTextDescription);
         Recurrence recurrence = new Recurrence(
@@ -213,9 +212,8 @@ public class TaskSettingActivity extends Activity {
 
     /**
      * Callback method for "Cancel" button
-     * @param view
      */
-    public void onCancelClicked(View view) {
+    public void onCancelClicked() {
         finish();
     }
 }

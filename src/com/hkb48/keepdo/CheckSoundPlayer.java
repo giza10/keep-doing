@@ -4,8 +4,8 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
 
-public class CheckSoundPlayer {
-    private Context mContext;
+class CheckSoundPlayer {
+    private final Context mContext;
     private SoundPool mSoundPool;
     private int mSoundId;
 

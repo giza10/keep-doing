@@ -50,7 +50,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         if (numOfReminingTasks > 1) {
             builder.setContentTitle(context.getString(R.string.notification_title_multi_tasks, numOfReminingTasks));
-            StringBuffer stringBugger = new StringBuffer();
+            StringBuilder stringBugger = new StringBuilder();
             for (Task remainingTask : remainingTaskList) {
                 if (stringBugger.length() > 0) {
                     stringBugger.append(", ");

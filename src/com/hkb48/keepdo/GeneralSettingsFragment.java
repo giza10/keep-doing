@@ -14,14 +14,14 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
 
-public class GeneralSettingsFragment extends PreferenceFragment implements OnPreferenceChangeListener {
+class GeneralSettingsFragment extends PreferenceFragment implements OnPreferenceChangeListener {
 
     public static final String KEY_GENERAL_DONE_ICON = "preferences_done_icon";
     public static final String KEY_GENERAL_DATE_CHANGE_TIME = "preferences_date_change_time";
 
     public static final String KEY_CALENDAR_WEEK_START_DAY = "preferences_calendar_week_start_day";
 
-    public static final String KEY_ALERTS_CATEGORY = "preferences_alerts_category";
+    private static final String KEY_ALERTS_CATEGORY = "preferences_alerts_category";
     public static final String KEY_ALERTS_RINGTONE = "preferences_alerts_ringtone";
     public static final String KEY_ALERTS_VIBRATE_WHEN = "preferences_alerts_vibrateWhen";
 

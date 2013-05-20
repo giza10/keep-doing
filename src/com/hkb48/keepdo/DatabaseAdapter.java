@@ -21,6 +21,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
+import android.os.Environment;
 import android.util.Log;
 
 import com.hkb48.keepdo.Database.TaskCompletion;
@@ -37,13 +38,15 @@ class DatabaseAdapter {
     private DatabaseHelper mDatabaseHelper = null;
     private SQLiteDatabase mDatabase = null;
 
-    private DatabaseAdapter(Context context) {
-        mDatabaseHelper = DatabaseHelper.getInstance(context.getApplicationContext());
-    }
+    mDatabaseHelper = DatabaseHelper.getInstance(context.getApplicationContext());
+}
 
     static synchronized DatabaseAdapter getInstance(Context context) {
-    	if (INSTANCE == null) {
-    		INSTANCE = new DatabaseAdapter(context);
+        if (INSTANCE == null) {
+            INSTANCE = new DatabaseAdapter(context);
+
+
+    private DatabaseAdapter(Context context) {
     	}
 
     	return INSTANCE;
@@ -53,8 +56,11 @@ class DatabaseAdapter {
     	synchronized (this) {
 	    	try {
 	    		mDatabase = mDatabaseHelper.getWritableDatabase();
-	    	} catch (SQLiteException sqle) {
-	    		throw sqle;
+	    	} catch (SQLiteException e) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, e.getLocalizedMessage());
+                }
+	    		throw e;
 	    	}
     	}
  
@@ -94,7 +100,7 @@ class DatabaseAdapter {
         return tasks;
     }
 
-    public long addTask(Task task) {
+    public void addTask(Task task) {
         long rowID = Task.INVALID_TASKID;
         String taskName = task.getName();
         String taskContext = task.getContext();
@@ -102,7 +108,7 @@ class DatabaseAdapter {
         Reminder reminder = task.getReminder();
 
         if ((taskName == null) || (taskName.isEmpty()) || (recurrence == null) || (reminder == null)) {
-            return rowID;
+            return;
         }
 
         try {
@@ -126,8 +132,6 @@ class DatabaseAdapter {
         } catch (SQLiteException e) {
             Log.e(TAG, e.getMessage());
         }
-
-        return rowID;
     }
 
     void editTask(Task task) {
@@ -153,7 +157,7 @@ class DatabaseAdapter {
         contentValues.put(TasksToday.TASK_CONTEXT, taskContext);
         contentValues.put(TasksToday.REMINDER_ENABLED, String.valueOf(reminder.getEnabled()));
         contentValues.put(TasksToday.REMINDER_TIME, String.valueOf(reminder.getTimeInMillis()));
-        contentValues.put(TasksToday.TASK_LIST_ORDER, Long.valueOf(task.getOrder()));
+        contentValues.put(TasksToday.TASK_LIST_ORDER, task.getOrder());
 
         String whereClause = TasksToday._ID + "=?";
         String whereArgs[] = {taskID.toString()};
@@ -461,8 +465,12 @@ class DatabaseAdapter {
     	File dir = new File(backupDirPath);
 
     	if (!dir.exists()) {
-    		dir.mkdir();
-    	}
+            if (!dir.mkdir()) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "backDataBase failed.");
+                }
+            }
+        }
 
     	final String DB_FILE_PATH = mDatabaseHelper.databasePath();
 		copyDataBase(DB_FILE_PATH, backupDirPath + backupFileName);

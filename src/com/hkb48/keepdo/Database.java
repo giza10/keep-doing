@@ -19,7 +19,7 @@ final class Database {
         public static final int TABLE_ID = 20;
 
         public static final String TABLE_NAME = "table_tasks";
-        public static final String TABLE_URI = "table_taskrui";
+        public static final String TABLE_URI = "table_task_uri";
         public static final Uri CONTENT_URI =  Uri.parse("content://" + AUTHORITY + "/" + TABLE_URI);
 
         public static final String TASK_NAME = "task_name";

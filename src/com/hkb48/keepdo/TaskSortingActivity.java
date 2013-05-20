@@ -55,9 +55,8 @@ public class TaskSortingActivity extends Activity {
 
     /**
      * Callback method for "Save" button
-     * @param view
      */
-    public void onSaveClicked(View view) {
+    public void onSaveClicked() {
         for (int index=0; index<mDataList.size(); index++) {
             Task task = mDataList.get(index);
             task.setOrder(index);
@@ -70,9 +69,8 @@ public class TaskSortingActivity extends Activity {
 
     /**
      * Callback method for "Cancel" button
-     * @param view
      */
-    public void onCancelClicked(View view) {
+    public void onCancelClicked() {
         finish();
     }
 
@@ -102,7 +100,7 @@ public class TaskSortingActivity extends Activity {
                 view = inflater.inflate(R.layout.task_sorting_list_item, null);
 
                 ImageView upArrowView = ((ImageView) view.findViewById(R.id.imageView1));
-                upArrowView.setTag(Integer.valueOf(position));
+                upArrowView.setTag(position);
                 upArrowView.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         int position = (Integer) v.getTag();
@@ -115,7 +113,7 @@ public class TaskSortingActivity extends Activity {
                 });
 
                 ImageView downArrowView = ((ImageView) view.findViewById(R.id.imageView2));
-                downArrowView.setTag(Integer.valueOf(position));
+                downArrowView.setTag(position);
                 downArrowView.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         int position = (Integer) v.getTag();

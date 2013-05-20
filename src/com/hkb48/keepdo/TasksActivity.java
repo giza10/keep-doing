@@ -49,13 +49,13 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
 	private static final String BACKUP_DIR_PATH = Environment.getExternalStorageDirectory().getPath() + BACKUP_DIR_NAME;
 
     private TaskAdapter mAdapter;
-    private List<TaskListItem> mDataList = new ArrayList<TaskListItem>();
-    private CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
+    private final List<TaskListItem> mDataList = new ArrayList<TaskListItem>();
+    private final CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
     private DatabaseAdapter mDBAdapter = null;
     private int mDoneIconId = 0;
     private int mNotDoneIconId = 0;
 
-    private Settings.OnChangedListener mSettingsChangedListener = new Settings.OnChangedListener() {
+    private final Settings.OnChangedListener mSettingsChangedListener = new Settings.OnChangedListener() {
         public void onDoneIconSettingChanged() {
             mDoneIconId = Settings.getDoneIconId();
             mNotDoneIconId = Settings.getNotDoneIconId();
@@ -351,8 +351,8 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
      * 
      */
     private static class TaskListItem {
-        int type;
-        Object data;
+        final int type;
+        final Object data;
 
         public TaskListItem(int type, Object data) {
             this.type = type;
@@ -447,7 +447,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
 
                 updateView(taskId, checked, itemViewHolder);
 
-                imageView.setTag(Integer.valueOf(position));
+                imageView.setTag(position);
                 imageView.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         View parent = (View) v.getParent();

@@ -16,7 +16,7 @@ import android.widget.TextView;
 /**
  * TODO: document your custom view class.
  */
-public class TaskDetailFragment extends Fragment {
+class TaskDetailFragment extends Fragment {
 
     public TaskDetailFragment() {
     }
@@ -59,7 +59,7 @@ public class TaskDetailFragment extends Fragment {
         TextView contextTextView = (TextView) activity.findViewById(R.id.taskDetailContextDescription);
         String contextStr = task.getContext();
         if (contextStr == null || contextStr.isEmpty()) {
-            View contextLayout = (View) activity.findViewById(R.id.taskDetailContextContainer);
+            View contextLayout = activity.findViewById(R.id.taskDetailContextContainer);
             contextLayout.setVisibility(View.GONE);
             contextTitleTextView.setVisibility(View.INVISIBLE);
             contextTextView.setVisibility(View.INVISIBLE);
@@ -91,7 +91,7 @@ public class TaskDetailFragment extends Fragment {
         if (firstDoneDate != null) {
             firstDoneDateTextView.setText(dateFormat.format(firstDoneDate));
         } else {
-            View firstDoneDateLayout = (View) activity.findViewById(R.id.taskDetailFirstDoneDateContainer);
+            View firstDoneDateLayout = activity.findViewById(R.id.taskDetailFirstDoneDateContainer);
             firstDoneDateLayout.setVisibility(View.GONE);
         }
 
@@ -101,7 +101,7 @@ public class TaskDetailFragment extends Fragment {
         if (lastDoneDate != null) {
             lastDoneDateTextView.setText(dateFormat.format(lastDoneDate));
         } else {
-            View lastDoneDateLayout = (View) activity.findViewById(R.id.taskDetailLastDoneDateContainer);
+            View lastDoneDateLayout = activity.findViewById(R.id.taskDetailLastDoneDateContainer);
             lastDoneDateLayout.setVisibility(View.GONE);
         }
     }

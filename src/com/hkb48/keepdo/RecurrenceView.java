@@ -31,7 +31,7 @@ public class RecurrenceView extends LinearLayout {
             TextView week = new TextView(mContext);
             week.setText(mWeekName[index]);
             week.setTextSize(mTextSize);
-            if (recurrenceFlags[index] == false) {
+            if (!recurrenceFlags[index]) {
                 week.setTextColor(colorOffDay);
             }
             if (i != (mWeekName.length - 1)) {

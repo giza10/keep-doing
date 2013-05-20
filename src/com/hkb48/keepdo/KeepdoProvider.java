@@ -65,7 +65,8 @@ public class KeepdoProvider extends ContentProvider {
         }
   		
   		SQLiteDatabase db = mOpenHelper.getReadableDatabase();
-	    final long id = db.insertOrThrow(tableName, null, values);
+        assert db != null;
+        final long id = db.insertOrThrow(tableName, null, values);
 	    final Uri newUri = Uri.parse("random" + id);
 	    getContext().getContentResolver().notifyChange(newUri, null);
 	
@@ -103,10 +104,12 @@ public class KeepdoProvider extends ContentProvider {
         }
         
         SQLiteDatabase db = mOpenHelper.getReadableDatabase();
-        
+
+        assert db != null;
         Cursor c = qb.query(db, projection, selection, selectionArgs,
                 null /* no group */, null /* no filter */, sortOrder);
 
+        assert c != null;
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
 	}

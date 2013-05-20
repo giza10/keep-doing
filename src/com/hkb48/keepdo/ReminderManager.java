@@ -79,7 +79,7 @@ public class ReminderManager {
 
                 // Check if today's reminder time is already exceeded
                 if (time.after(DateChangeTimeUtil.getDateTimeCalendar(reminderTime))) {
-                    if (dbAdapter.getDoneStatus(task.getTaskID(), today) == false) {
+                    if (!dbAdapter.getDoneStatus(task.getTaskID(), today)) {
                         remainingList.add(task);
                     }
                 }
@@ -123,7 +123,7 @@ public class ReminderManager {
         }
 
         for (int counter=0; counter<7; counter++) {
-            if (recurrenceFlags[(dayOfWeek + counter) % 7] == true) {
+            if (recurrenceFlags[(dayOfWeek + counter) % 7]) {
                 dayOffset = dayOffset + counter;
                 isSuccess = true;
                 break;
@@ -160,9 +160,7 @@ public class ReminderManager {
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.putExtra("TASK-ID", taskId);
         intent.setType("Reminder");
-        PendingIntent pendingIntent = 
-                PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        return pendingIntent;
+        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private void dumpLog(long taskId, long timeInMillis) {

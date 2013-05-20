@@ -7,7 +7,7 @@ import java.util.List;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class Settings {
+class Settings {
     private static Settings sInstance = null;
     private static final List<OnChangedListener> sChangedListeners = new ArrayList<OnChangedListener>(1);
     private static SharedPreferences sSharedPref;
@@ -107,14 +107,14 @@ public class Settings {
 
     public static String getDateChangeTime() {
         if (sDateChangeTime == null) {
-            sDateChangeTime = new String("24:00");
+            sDateChangeTime = "24:00";
         }
         return sDateChangeTime;
     }
 
     public static int getWeekStartDay() {
         if (sWeekStartDay == null) {
-            sWeekStartDay = new String("1");
+            sWeekStartDay = "1";
         }
         int weekStartDay = Integer.parseInt(sWeekStartDay);
         if (Calendar.SUNDAY <= weekStartDay && weekStartDay <= Calendar.SATURDAY) {
