@@ -42,7 +42,7 @@ public class DoneIconPreference extends DialogPreference {
         public void onClick(View v) {
             getDialog().dismiss();
 
-            String newValue = null;
+            String newValue;
             switch (v.getId()) {
             case R.id.done_icon_2:
                 newValue = "type2";

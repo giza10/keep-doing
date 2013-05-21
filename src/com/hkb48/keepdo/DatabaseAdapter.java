@@ -454,11 +454,6 @@ class DatabaseAdapter {
         return maxOrderId;
     }
 
-    /**
-     * Backup and Restore database.
-     * @param backupDirPath
-     * @param backupFileName
-     */
     void backupDataBase() {
         File dir = new File(BACKUP_DIR_PATH);
     	if (!dir.exists()) {

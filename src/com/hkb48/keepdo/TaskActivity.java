@@ -23,6 +23,7 @@ public class TaskActivity extends FragmentActivity implements
 
         // Set up the action bar to show tabs.
         final ActionBar actionBar = getActionBar();
+        assert actionBar != null;
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         actionBar.setDisplayHomeAsUpEnabled(true);
 

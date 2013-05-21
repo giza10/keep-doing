@@ -47,7 +47,7 @@ public class KeepdoProvider extends ContentProvider {
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
         // Constructs a new query builder and sets its table name
-		String tableName = null;
+		String tableName;
   		switch (sURIMatcher.match(uri)) {
         
         case Database.TasksToday.TABLE_LIST:

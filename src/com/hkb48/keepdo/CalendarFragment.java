@@ -401,8 +401,8 @@ class CalendarFragment extends Fragment {
         final Resources resources = getResources();
         Configuration config = resources.getConfiguration();
 
-        int cellWidth = 0;
-        int cellHeight = 0;
+        int cellWidth;
+        int cellHeight;
         if (config.orientation == Configuration.ORIENTATION_PORTRAIT) {
             cellWidth = (displaySize.x - resources.getDimensionPixelSize(R.dimen.calendar_padding_width)) / NUM_OF_DAYS_IN_WEEK;
             cellHeight = cellWidth + resources.getDimensionPixelSize(R.dimen.calendar_date_margin_top);
