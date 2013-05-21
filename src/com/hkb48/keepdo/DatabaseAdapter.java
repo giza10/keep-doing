@@ -28,6 +28,11 @@ import com.hkb48.keepdo.Database.TaskCompletion;
 import com.hkb48.keepdo.Database.TasksToday;
 
 class DatabaseAdapter {
+    // Backup & Restore
+    private static final String BACKUP_FILE_NAME = "/keepdo.db";
+	private static final String BACKUP_DIR_NAME = "/keepdo";
+    private static final String BACKUP_DIR_PATH = Environment.getExternalStorageDirectory().getPath() + BACKUP_DIR_NAME;
+
     private static final String TAG = "#KEEPDO_DB_ADAPTER: ";
     private static final String SDF_PATTERN_YMD = "yyyy-MM-dd"; 
     private static final String SDF_PATTERN_YM = "yyyy-MM";
@@ -38,15 +43,13 @@ class DatabaseAdapter {
     private DatabaseHelper mDatabaseHelper = null;
     private SQLiteDatabase mDatabase = null;
 
-    mDatabaseHelper = DatabaseHelper.getInstance(context.getApplicationContext());
-}
+    private DatabaseAdapter(Context context) {
+        mDatabaseHelper = DatabaseHelper.getInstance(context.getApplicationContext());
+    }
 
     static synchronized DatabaseAdapter getInstance(Context context) {
-        if (INSTANCE == null) {
-            INSTANCE = new DatabaseAdapter(context);
-
-
-    private DatabaseAdapter(Context context) {
+    	if (INSTANCE == null) {
+    		INSTANCE = new DatabaseAdapter(context);
     	}
 
     	return INSTANCE;
@@ -101,7 +104,6 @@ class DatabaseAdapter {
     }
 
     public void addTask(Task task) {
-        long rowID = Task.INVALID_TASKID;
         String taskName = task.getName();
         String taskContext = task.getContext();
         Recurrence recurrence = task.getRecurrence();
@@ -126,7 +128,6 @@ class DatabaseAdapter {
             contentValues.put(TasksToday.REMINDER_TIME, String.valueOf(reminder.getTimeInMillis()));
             contentValues.put(TasksToday.TASK_LIST_ORDER, task.getOrder());
 
-            rowID = openDatabase().insertOrThrow(TasksToday.TABLE_NAME, null, contentValues);
             closeDatabase();
             
         } catch (SQLiteException e) {
@@ -336,15 +337,11 @@ class DatabaseAdapter {
     	int currentCount = 0;
     	int maxCount = 0;
 
-        // Task Recurrence
         Recurrence recurrence = getTask(taskID).getRecurrence();
-
-    	// execute SQL to get task completion dates
-        String selectQuery = SELECT_FORM + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?" 
+        String selectQuery = SELECT_FORM + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?"
         					+ " order by " + TaskCompletion.TASK_COMPLETION_DATE + " asc;";
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
 
-        // Count
         if (cursor != null) {
         	if (cursor.moveToFirst()) {
                 Calendar calToday = getCalendar(DateChangeTimeUtil.getDate());
@@ -392,6 +389,7 @@ class DatabaseAdapter {
     private Date getDate(Cursor cursor) {
         String dateString = cursor.getString(cursor.getColumnIndex(TaskCompletion.TASK_COMPLETION_DATE));
         SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
+
         Date date = null;
         if (dateString != null) {
             try {
@@ -461,24 +459,24 @@ class DatabaseAdapter {
      * @param backupDirPath
      * @param backupFileName
      */
-    void backupDataBase(String backupDirPath, String backupFileName) {
-    	File dir = new File(backupDirPath);
-
+    void backupDataBase() {
+        File dir = new File(BACKUP_DIR_PATH);
     	if (!dir.exists()) {
-            if (!dir.mkdir()) {
+    		if (!dir.mkdir()) {
                 if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "backDataBase failed.");
+                    Log.d(TAG, "backup Database failed.");
                 }
+                return;
             }
-        }
+    	}
 
     	final String DB_FILE_PATH = mDatabaseHelper.databasePath();
-		copyDataBase(DB_FILE_PATH, backupDirPath + backupFileName);
+		copyDataBase(DB_FILE_PATH, BACKUP_DIR_PATH + BACKUP_FILE_NAME);
     }
 
-    void restoreDataBase(String backupPath) {
+    void restoreDataBase() {
     	final String DB_FILE_PATH = mDatabaseHelper.databasePath();
-    	copyDataBase(backupPath, DB_FILE_PATH);
+    	copyDataBase(BACKUP_DIR_PATH + BACKUP_FILE_NAME, DB_FILE_PATH);
     }
 
     private synchronized void copyDataBase(String fromPath, String toPath) {
@@ -517,4 +515,17 @@ class DatabaseAdapter {
 			}
 		}
 	}
+    
+    String backupFileName() {
+    	return BACKUP_FILE_NAME;
+    }
+ 
+    String backupDirName() {
+    	return BACKUP_DIR_NAME;
+    }
+     
+    
+    String backupDirPath() {
+    	return BACKUP_DIR_PATH;
+    }
 }

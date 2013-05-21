@@ -13,7 +13,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -42,11 +41,6 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ITEM = 1;
-
-    // Backup & Restore
-    private static final String BACKUP_DIR_NAME = "/keepdo";
-    private static final String BACKUP_FILE_NAME = "/keepdo.db";
-	private static final String BACKUP_DIR_PATH = Environment.getExternalStorageDirectory().getPath() + BACKUP_DIR_NAME;
 
     private TaskAdapter mAdapter;
     private final List<TaskListItem> mDataList = new ArrayList<TaskListItem>();
@@ -292,15 +286,19 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
      * Backup & Restore
      */
     private void showBackupRestoreDialog() {
+    	final String fineName = mDBAdapter.backupFileName();
+    	final String dirName = mDBAdapter.backupDirName();
+    	final String dirPath = mDBAdapter.backupDirPath();
+    	
     	AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(TasksActivity.this);
-    	String title = getString(R.string.backup_restore) + "\n" + BACKUP_DIR_NAME + BACKUP_FILE_NAME;
+    	String title = getString(R.string.backup_restore) + "\n" + dirName + fineName;
     	dialogBuilder.setTitle(title);
     	dialogBuilder.setSingleChoiceItems(R.array.dialog_choice_backup_restore, -1, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
             	boolean enabled = true;
             	if (which == 1) {
             		// Restore
-    		    	File backupFile = new File(BACKUP_DIR_PATH + BACKUP_FILE_NAME);
+    		    	File backupFile = new File(dirPath + fineName);
     		    	if (!backupFile.exists()) {
     		    		enabled = false;
     		    		Toast.makeText(TasksActivity.this, R.string.no_backup_file, Toast.LENGTH_SHORT).show();
@@ -322,7 +320,6 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
             		restoreTaskData();
                     updateTaskList();
             		Toast.makeText(TasksActivity.this, R.string.restore_done, Toast.LENGTH_SHORT).show();
-            		return;
             	default:
             	}
             }
@@ -332,7 +329,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
 		alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
 		alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
 			public void onShow(DialogInterface dialog) {
-		    	File backupFile = new File(BACKUP_DIR_PATH + BACKUP_FILE_NAME);
+		    	File backupFile = new File(dirPath + fineName);
 		    	boolean existBackupFile = backupFile.exists();
 		    	((AlertDialog)dialog).getListView().getChildAt(1).setEnabled(existBackupFile);
 			}
@@ -340,16 +337,13 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
     }
 
     private void backupTaskData() {
-    	mDBAdapter.backupDataBase(BACKUP_DIR_PATH, BACKUP_FILE_NAME);
+    	mDBAdapter.backupDataBase();
     }
 
     private void restoreTaskData() {
-    	mDBAdapter.restoreDataBase(BACKUP_DIR_PATH + BACKUP_FILE_NAME);
+    	mDBAdapter.restoreDataBase();
     }
 
-    /**
-     * 
-     */
     private static class TaskListItem {
         final int type;
         final Object data;
