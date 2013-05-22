@@ -189,7 +189,7 @@ public class TaskSettingActivity extends Activity {
     /**
      * Callback method for "Save" button
      */
-    public void onSaveClicked() {
+    public void onSaveClicked(View view) {
         EditText editTextTaskName = (EditText) findViewById(R.id.editTextTaskName);
         EditText editTextDescription = (EditText) findViewById(R.id.editTextDescription);
         Recurrence recurrence = new Recurrence(
@@ -213,7 +213,7 @@ public class TaskSettingActivity extends Activity {
     /**
      * Callback method for "Cancel" button
      */
-    public void onCancelClicked() {
+    public void onCancelClicked(View view) {
         finish();
     }
 }

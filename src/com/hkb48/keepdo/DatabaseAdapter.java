@@ -128,6 +128,7 @@ class DatabaseAdapter {
             contentValues.put(TasksToday.REMINDER_TIME, String.valueOf(reminder.getTimeInMillis()));
             contentValues.put(TasksToday.TASK_LIST_ORDER, task.getOrder());
 
+            openDatabase().insertOrThrow(TasksToday.TABLE_NAME, null, contentValues);
             closeDatabase();
             
         } catch (SQLiteException e) {
