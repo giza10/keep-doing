@@ -1,7 +1,6 @@
 package com.hkb48.keepdo;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import android.app.ActionBar;
@@ -15,9 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 
 public class TaskSortingActivity extends Activity {
     private TaskAdapter mAdapter;
@@ -36,11 +32,11 @@ public class TaskSortingActivity extends Activity {
         mDataList = mDBAdapter.getTaskList();
 
         mAdapter = new TaskAdapter();
-        ListView taskListView = (ListView) findViewById(R.id.mainListView);
+        SortableListView taskListView = (SortableListView) findViewById(R.id.mainListView);
         taskListView.setAdapter(mAdapter);
+        taskListView.setDragAndDropListener(onDrop);
         mAdapter.notifyDataSetChanged();
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -57,7 +53,7 @@ public class TaskSortingActivity extends Activity {
      * Callback method for "Save" button
      */
     public void onSaveClicked(View view) {
-        for (int index=0; index<mDataList.size(); index++) {
+        for (int index = 0; index < mDataList.size(); index++) {
             Task task = mDataList.get(index);
             task.setOrder(index);
             mDBAdapter.editTask(task);
@@ -76,15 +72,15 @@ public class TaskSortingActivity extends Activity {
 
     private class TaskAdapter extends BaseAdapter {
 
-        public int getCount() { 
+        public int getCount() {
             return mDataList.size();
         }
 
-        public Object getItem(int position) { 
+        public Object getItem(int position) {
             return mDataList.get(position);
         }
 
-        public long getItemId(int position) { 
+        public long getItemId(int position) {
             return position;
         }
 
@@ -98,44 +94,35 @@ public class TaskSortingActivity extends Activity {
             View view = convertView;
             if (view == null) {
                 view = inflater.inflate(R.layout.task_sorting_list_item, null);
-
-                ImageView upArrowView = ((ImageView) view.findViewById(R.id.imageView1));
-                upArrowView.setTag(position);
-                upArrowView.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        int position = (Integer) v.getTag();
-                        if (position > 0) {
-                            Collections.swap(mDataList, position, position-1);
-                            mAdapter.notifyDataSetChanged();
-                            enableSaveButton();
-                        }
-                    }
-                });
-
-                ImageView downArrowView = ((ImageView) view.findViewById(R.id.imageView2));
-                downArrowView.setTag(position);
-                downArrowView.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        int position = (Integer) v.getTag();
-                        if (position < getCount() - 1) {
-                            Collections.swap(mDataList, position, position+1);
-                            mAdapter.notifyDataSetChanged();
-                            enableSaveButton();
-                        }
-                    }
-                });
             }
 
-            TextView taskName = (TextView) view.findViewById(R.id.textView1);
+            SortableListItem itemView = (SortableListItem) view;
             Task task = (Task) getItem(position);
-            taskName.setText(task.getName());
+            itemView.setText(task.getName());
 
             return view;
         }
+    }
 
-        private void enableSaveButton() {
-            Button okButton = (Button) findViewById(R.id.okButton);
-            okButton.setEnabled(true);
+    private SortableListView.DragAndDropListener onDrop = new SortableListView.DragAndDropListener() {
+        public void onDrag(int from, int to) {
+            if (from != to) {
+                Task item = (Task) mAdapter.getItem(from);
+                mDataList.remove(from);
+                mDataList.add(to, item);
+                mAdapter.notifyDataSetChanged();
+            }
+        };
+
+        public void onDrop(int from, int to) {
+            if (from != to) {
+                enableSaveButton();
+            }
         }
+    };
+
+    private void enableSaveButton() {
+        Button okButton = (Button) findViewById(R.id.okButton);
+        okButton.setEnabled(true);
     }
 }

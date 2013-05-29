@@ -8,4 +8,6 @@
 
     <dimen name="task_detailed_category_font_size">18sp</dimen>
     <dimen name="task_detailed_contents_font_size">14sp</dimen>
+
+    <dimen name="tasksort_item_height">60dp</dimen>
 </resources>

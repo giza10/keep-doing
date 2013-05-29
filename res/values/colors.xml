@@ -18,4 +18,6 @@
     <color name="calendar_bg_saturday_color">#0080FF</color>
     <color name="calendar_bg_sunday_color">#FF60C0</color>
 
+    <color name="tasksort_dragdrop_view_bg">#887ECCE8</color>
+
 </resources>
