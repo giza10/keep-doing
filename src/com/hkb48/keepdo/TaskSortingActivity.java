@@ -56,7 +56,7 @@ public class TaskSortingActivity extends Activity {
     /**
      * Callback method for "Save" button
      */
-    public void onSaveClicked() {
+    public void onSaveClicked(View view) {
         for (int index=0; index<mDataList.size(); index++) {
             Task task = mDataList.get(index);
             task.setOrder(index);
@@ -70,7 +70,7 @@ public class TaskSortingActivity extends Activity {
     /**
      * Callback method for "Cancel" button
      */
-    public void onCancelClicked() {
+    public void onCancelClicked(View view) {
         finish();
     }
 
