@@ -39,7 +39,7 @@ class TaskDetailFragment extends Fragment {
 
         // Recurrence
         RecurrenceView recurrenceView = (RecurrenceView) activity.findViewById(R.id.recurrenceView);
-        recurrenceView.setTextSize(12.0f);
+        recurrenceView.setTextSize(14.0f);
         recurrenceView.update(task.getRecurrence());
 
         // Reminder

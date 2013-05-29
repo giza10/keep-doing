@@ -5,4 +5,7 @@
 
     <dimen name="calendar_date_margin_top">12dp</dimen>
     <dimen name="calendar_date_margin_left">0dp</dimen>
+
+    <dimen name="task_detailed_category_font_size">18sp</dimen>
+    <dimen name="task_detailed_contents_font_size">14sp</dimen>
 </resources>
