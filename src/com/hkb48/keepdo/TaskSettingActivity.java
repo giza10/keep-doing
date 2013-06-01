@@ -110,7 +110,6 @@ public class TaskSettingActivity extends Activity {
     private void addRecurrence(Recurrence recurrence) {
         final String[] weekNames = getResources().getStringArray(R.array.week_names);
         final RecurrenceView recurrenceView = (RecurrenceView) findViewById(R.id.recurrenceView);
-        recurrenceView.setTextSize(12.0f);
         recurrenceView.update(recurrence);
 
         findViewById(R.id.recurrenceLayout).setOnClickListener(new OnClickListener() {

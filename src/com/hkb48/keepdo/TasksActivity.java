@@ -432,7 +432,6 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
                 textView.setText(taskName);
 
                 RecurrenceView recurrenceView = itemViewHolder.recurrenceView;
-                recurrenceView.setTextSize(12.0f);
                 recurrenceView.update(task.getRecurrence());
 
                 ImageView imageView = itemViewHolder.imageView;

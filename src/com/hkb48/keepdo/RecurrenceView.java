@@ -1,44 +1,39 @@
 package com.hkb48.keepdo;
 
 import android.content.Context;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class RecurrenceView extends LinearLayout {
-    private static final float DEFAULT_TEXT_SIZE = 16.0f;
-
-    private final Context mContext;
+public class RecurrenceView extends TextView {
     private final String[] mWeekName;
-    private float mTextSize;
 
     public RecurrenceView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mContext = context;
         mWeekName = getResources().getStringArray(R.array.week_names);
-        mTextSize = DEFAULT_TEXT_SIZE;
     }
 
     public void update(boolean[] recurrenceFlags) {
-        final String separator = mContext.getString(R.string.recurrence_separator);
+        final String separator = getContext().getString(R.string.recurrence_separator);
         final int colorOffDay = getResources().getColor(R.color.recurrence_off_day);
         final int weekStartDay = Settings.getWeekStartDay() - 1;
-
-        removeAllViewsInLayout();
+        SpannableStringBuilder ssb = new SpannableStringBuilder();
 
         for (int i = 0; i < mWeekName.length; i++) {
             int index = (i + weekStartDay) % 7;
-            TextView week = new TextView(mContext);
-            week.setText(mWeekName[index]);
-            week.setTextSize(mTextSize);
+            int start = ssb.length();
+            ssb.append(mWeekName[index]);
             if (!recurrenceFlags[index]) {
-                week.setTextColor(colorOffDay);
+                ssb.setSpan(new ForegroundColorSpan(colorOffDay), start, ssb.length(),  
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
             if (i != (mWeekName.length - 1)) {
-                week.append(separator);
+                ssb.append(separator);
             }
-            addView(week);
         }
+        setText(ssb);
     }
 
     public void update(Recurrence recurrence) {
@@ -52,9 +47,5 @@ public class RecurrenceView extends LinearLayout {
         recurrenceFlags[6] = recurrence.getSaturday();
 
         update(recurrenceFlags);
-    }
-
-    public void setTextSize(float size) {
-        mTextSize = size;
     }
 }

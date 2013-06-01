@@ -1,53 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:orientation="horizontal" >
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" >
 
     <ImageView
         android:id="@+id/taskListItemCheck"
         android:layout_width="60dp"
         android:layout_height="60dp"
+        android:contentDescription="@string/accessibility_done_mark"
         android:padding="10dp"
-        android:visibility="visible"
         android:soundEffectsEnabled="false"
-        android:contentDescription="@string/accessibility_done_mark" />
+        android:visibility="visible" />
+
     <LinearLayout
         android:id="@+id/taskListItemMain"
         android:layout_width="0.0dip"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical" >
+
         <TextView
             android:id="@+id/taskName"
-            android:textIsSelectable="false"
             android:layout_width="wrap_content"
             android:layout_height="0dip"
             android:layout_weight="1"
-            android:textSize="18sp"
-            android:paddingTop="5dp"
             android:paddingBottom="3dp"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-        />
+            android:paddingTop="5dp"
+            android:textIsSelectable="false"
+            android:textSize="18sp" />
+
         <com.hkb48.keepdo.RecurrenceView
             android:id="@+id/recurrenceView"
-            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="10dip"
             android:layout_marginLeft="10dip"
             android:layout_marginRight="26dip"
-            android:layout_marginBottom="10dip">
+            android:textSize="12sp"
+            android:orientation="horizontal" >
         </com.hkb48.keepdo.RecurrenceView>
     </LinearLayout>
-	<TextView
-		android:id="@+id/taskLastDoneDate"
-		android:textIsSelectable="false"
-		android:layout_width="wrap_content"
-		android:layout_height="match_parent"
-		android:textSize="12sp"
-		android:textColor="@color/tasklist_last_donedate"
-		android:gravity="bottom"
-		android:padding="10dp"
-	/>
+
+    <TextView
+        android:id="@+id/taskLastDoneDate"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        android:padding="10dp"
+        android:textColor="@color/tasklist_last_donedate"
+        android:textIsSelectable="false"
+        android:textSize="12sp" />
+
 </LinearLayout>

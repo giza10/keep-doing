@@ -1,144 +1,151 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true" >
+    android:fillViewport="true"
+    android:orientation="vertical" >
 
     <ScrollView
         android:id="@+id/scrollView"
-        android:layout_above="@+id/footer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:layout_above="@+id/footer" >
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:divider="?android:attr/dividerHorizontal"
+            android:orientation="vertical"
             android:showDividers="middle" >
 
             <LinearLayout
-                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
 
                 <TextView
                     android:id="@+id/textViewTaskName"
-                    android:text="@string/task_name"
-                    android:textSize="18sp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dip"
                     android:layout_marginLeft="16dip"
-                    android:layout_marginRight="16dip" >
+                    android:layout_marginRight="16dip"
+                    android:layout_marginTop="10dip"
+                    android:text="@string/task_name"
+                    android:textSize="18sp" >
                 </TextView>
 
                 <EditText
                     android:id="@+id/editTextTaskName"
-                    android:inputType="text"
-                    android:hint="@string/hint_task_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dip"
                     android:layout_marginLeft="26dip"
                     android:layout_marginRight="26dip"
-                    android:layout_marginBottom="10dip" >
+                    android:hint="@string/hint_task_name"
+                    android:inputType="text"
+                    android:textSize="14sp" >
                 </EditText>
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/recurrenceLayout"
-                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground" >
+                android:background="?android:attr/selectableItemBackground"
+                android:orientation="vertical" >
+
                 <TextView
                     android:id="@+id/textViewRecurrence"
-                    android:text="@string/recurrence"
-                    android:textSize="18sp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dip"
                     android:layout_marginLeft="16dip"
-                    android:layout_marginRight="16dip" >
+                    android:layout_marginRight="16dip"
+                    android:layout_marginTop="10dip"
+                    android:text="@string/recurrence"
+                    android:textSize="18sp" >
                 </TextView>
+
                 <com.hkb48.keepdo.RecurrenceView
                     android:id="@+id/recurrenceView"
-                    android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dip"
                     android:layout_marginLeft="26dip"
                     android:layout_marginRight="26dip"
-                    android:layout_marginBottom="10dip" >
+                    android:orientation="horizontal" >
                 </com.hkb48.keepdo.RecurrenceView>
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
                 <TextView
                     android:id="@+id/textViewReminderTitle"
-                    android:text="@string/reminder"
-                    android:textSize="18sp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dip"
                     android:layout_marginLeft="16dip"
-                    android:layout_marginRight="16dip" >
+                    android:layout_marginRight="16dip"
+                    android:layout_marginTop="10dip"
+                    android:text="@string/reminder"
+                    android:textSize="18sp" >
                 </TextView>
+
                 <LinearLayout
-                    android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" >
+
                     <Button
                         android:id="@+id/buttonReminderTime"
+                        style="@android:style/Widget.Holo.Light.Spinner"
                         android:layout_width="0dip"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        style="@android:style/Widget.Holo.Light.Spinner"
-                        android:gravity="center"
+                        android:layout_marginBottom="10dip"
                         android:layout_marginLeft="26dip"
                         android:layout_marginRight="10dip"
-                        android:layout_marginBottom="10dip" >
+                        android:layout_weight="1"
+                        android:gravity="center" >
                     </Button>
-                    <ImageButton android:id="@+id/reminder_remove"
-                        android:src="@drawable/ic_menu_cancel_holo_light"
+
+                    <ImageButton
+                        android:id="@+id/reminder_remove"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:contentDescription="@string/accessibility_remove_reminder"
+                        android:layout_marginBottom="10dip"
                         android:layout_marginLeft="10dip"
                         android:layout_marginRight="26dip"
-                        android:layout_marginBottom="10dip" >
+                        android:contentDescription="@string/accessibility_remove_reminder"
+                        android:gravity="center_vertical"
+                        android:src="@drawable/ic_menu_cancel_holo_light" >
                     </ImageButton>
                 </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
 
                 <TextView
                     android:id="@+id/textViewContext"
-                    android:text="@string/description"
-                    android:textSize="18sp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dip"
                     android:layout_marginLeft="16dip"
-                    android:layout_marginRight="16dip" >
+                    android:layout_marginRight="16dip"
+                    android:layout_marginTop="10dip"
+                    android:text="@string/description"
+                    android:textSize="18sp" >
                 </TextView>
 
                 <EditText
                     android:id="@+id/editTextDescription"
-                    android:hint="@string/hint_task_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dip"
                     android:layout_marginLeft="26dip"
                     android:layout_marginRight="26dip"
-                    android:layout_marginBottom="10dip" >
+                    android:hint="@string/hint_task_description" >
                 </EditText>
             </LinearLayout>
         </LinearLayout>
@@ -148,24 +155,24 @@
         android:id="@+id/footer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="bottom"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:gravity="bottom" >
 
         <Button
             android:id="@+id/cancelButton"
-            android:onClick="onCancelClicked"
             android:layout_width="0dip"
-            android:layout_weight="1.0"
             android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:onClick="onCancelClicked"
             android:text="@string/task_cancel" />
 
         <Button
             android:id="@+id/okButton"
-            android:onClick="onSaveClicked"
-            android:enabled="false"
             android:layout_width="0dip"
-            android:layout_weight="1.0"
             android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:enabled="false"
+            android:onClick="onSaveClicked"
             android:text="@string/task_save" />
     </LinearLayout>
 
