@@ -1,222 +1,126 @@
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:divider="?android:attr/dividerHorizontal"
+        android:orientation="vertical"
         android:showDividers="middle" >
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+        <LinearLayout style="@style/TaskDetailItemLayout" >
 
             <TextView
                 android:id="@+id/taskDetailRecurrence"
-                android:text="@string/recurrence"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/task_detailed_category_font_size"
-                android:layout_marginTop="10dip"
-                android:layout_marginLeft="16dip"
-                android:layout_marginRight="16dip" >
+                style="@style/TaskDetailItemCategory"
+                android:text="@string/recurrence" >
             </TextView>
 
             <com.hkb48.keepdo.RecurrenceView
                 android:id="@+id/recurrenceView"
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/task_detailed_contents_font_size"
-                android:layout_marginLeft="26dip"
-                android:layout_marginRight="26dip"
-                android:layout_marginBottom="10dip" >
+                style="@style/TaskDetailItemContents"
+                android:orientation="horizontal" >
             </com.hkb48.keepdo.RecurrenceView>
         </LinearLayout>
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+        <LinearLayout style="@style/TaskDetailItemLayout" >
 
             <TextView
                 android:id="@+id/taskDetailReminder"
-                android:text="@string/reminder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/task_detailed_category_font_size"
-                android:layout_marginTop="10dip"
-                android:layout_marginLeft="16dip"
-                android:layout_marginRight="16dip" >
+                style="@style/TaskDetailItemCategory"
+                android:text="@string/reminder" >
             </TextView>
 
             <TextView
                 android:id="@+id/taskDetailReminderValue"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textIsSelectable="false"
-                android:textSize="@dimen/task_detailed_contents_font_size"
-                android:layout_marginLeft="26dip"
-                android:layout_marginRight="26dip"
-                android:layout_marginBottom="10dip" >
+                style="@style/TaskDetailItemContents"
+                android:textIsSelectable="false" >
             </TextView>
-
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/taskDetailContextContainer"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            style="@style/TaskDetailItemLayout" >
 
             <TextView
                 android:id="@+id/taskDetailContext"
-                android:text="@string/description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/task_detailed_category_font_size"
-                android:layout_marginTop="10dip"
-                android:layout_marginLeft="16dip"
-                android:layout_marginRight="16dip" >
+                style="@style/TaskDetailItemCategory"
+                android:text="@string/description" >
             </TextView>
 
             <TextView
                 android:id="@+id/taskDetailContextDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textIsSelectable="false"
-                android:textSize="@dimen/task_detailed_contents_font_size"
-                android:layout_marginLeft="26dip"
-                android:layout_marginRight="26dip"
-                android:layout_marginBottom="10dip" >
+                style="@style/TaskDetailItemContents"
+                android:textIsSelectable="false" >
             </TextView>
-
         </LinearLayout>
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+        <LinearLayout style="@style/TaskDetailItemLayout" >
 
             <TextView
                 android:id="@+id/taskDetailNumOfDone"
-                android:text="@string/number_of_done"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/task_detailed_category_font_size"
-                android:layout_marginTop="10dip"
-                android:layout_marginLeft="16dip"
-                android:layout_marginRight="16dip" >
+                style="@style/TaskDetailItemCategory"
+                android:text="@string/number_of_done" >
             </TextView>
 
             <TextView
                 android:id="@+id/taskDetailNumOfDoneValue"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textIsSelectable="false"
-                android:textSize="@dimen/task_detailed_contents_font_size"
-                android:layout_marginLeft="26dip"
-                android:layout_marginRight="26dip"
-                android:layout_marginBottom="10dip" >
+                style="@style/TaskDetailItemContents"
+                android:textIsSelectable="false" >
             </TextView>
-
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/taskDetailComboContainer"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            style="@style/TaskDetailItemLayout" >
 
             <TextView
                 android:id="@+id/taskDetailCombo"
-                android:text="@string/current_and_max_combo"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/task_detailed_category_font_size"
-                android:layout_marginTop="10dip"
-                android:layout_marginLeft="16dip"
-                android:layout_marginRight="16dip" >
+                style="@style/TaskDetailItemCategory"
+                android:text="@string/current_and_max_combo" >
             </TextView>
 
             <TextView
                 android:id="@+id/taskDetailComboValue"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textIsSelectable="false"
-                android:textSize="@dimen/task_detailed_contents_font_size"
-                android:layout_marginLeft="26dip"
-                android:layout_marginRight="26dip"
-                android:layout_marginBottom="10dip" >
+                style="@style/TaskDetailItemContents"
+                android:textIsSelectable="false" >
             </TextView>
-
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/taskDetailFirstDoneDateContainer"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            style="@style/TaskDetailItemLayout" >
 
             <TextView
                 android:id="@+id/taskDetailFirstDoneDate"
-                android:text="@string/first_done_date"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/task_detailed_category_font_size"
-                android:layout_marginTop="10dip"
-                android:layout_marginLeft="16dip"
-                android:layout_marginRight="16dip" >
+                style="@style/TaskDetailItemCategory"
+                android:text="@string/first_done_date" >
             </TextView>
 
             <TextView
                 android:id="@+id/taskDetailFirstDoneDateValue"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textIsSelectable="false"
-                android:textSize="@dimen/task_detailed_contents_font_size"
-                android:layout_marginLeft="26dip"
-                android:layout_marginRight="26dip"
-                android:layout_marginBottom="10dip" >
+                style="@style/TaskDetailItemContents"
+                android:textIsSelectable="false" >
             </TextView>
-
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/taskDetailLastDoneDateContainer"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            style="@style/TaskDetailItemLayout" >
 
             <TextView
                 android:id="@+id/taskDetailLastDoneDate"
-                android:text="@string/last_done_date"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/task_detailed_category_font_size"
-                android:layout_marginTop="10dip"
-                android:layout_marginLeft="16dip"
-                android:layout_marginRight="16dip" >
+                style="@style/TaskDetailItemCategory"
+                android:text="@string/last_done_date" >
             </TextView>
 
             <TextView
                 android:id="@+id/taskDetailLastDoneDateValue"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textIsSelectable="false"
-                android:textSize="@dimen/task_detailed_contents_font_size"
-                android:layout_marginLeft="26dip"
-                android:layout_marginRight="26dip"
-                android:layout_marginBottom="10dip" >
+                style="@style/TaskDetailItemContents"
+                android:textIsSelectable="false" >
             </TextView>
-
         </LinearLayout>
-
     </LinearLayout>
 
 </ScrollView>
-
