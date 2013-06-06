@@ -203,7 +203,6 @@ class CalendarFragment extends Fragment {
 
             TextView textView1 = (TextView) child.findViewById(R.id.textView1);
             textView1.setText(weeks[dayOfWeek - 1]);
-            textView1.setTextColor(Color.WHITE);
             switch(dayOfWeek) {
             case Calendar.SUNDAY:
                 textView1.setBackgroundResource(R.drawable.bg_calendar_sunday);

@@ -1,11 +1,12 @@
 <resources>
+
     <color name="tasklist_bg_header">#33b5e5</color>
     <color name="tasklist_fg_header">#FFFFFF</color>
     <color name="tasklist_last_donedate">#33b5e5</color>
     <color name="recurrence_off_day">#C0C0C0</color>
-
     <color name="calendar_grid_color">#808080</color>
     <color name="calendar_grid_today_color">#28B9FF</color>
+    <color name="calendar_week_text">@android:color/white</color>
     <color name="calendar_bg_day_normal_color">@android:color/white</color>
     <color name="calendar_bg_day_normal_pressed_color">#84CFEF</color>
     <color name="calendar_bg_day_off_color">#DDDDDD</color>
@@ -17,7 +18,6 @@
     <color name="calendar_bg_weekday_color">#606060</color>
     <color name="calendar_bg_saturday_color">#0080FF</color>
     <color name="calendar_bg_sunday_color">#FF60C0</color>
-
     <color name="tasksort_dragdrop_view_bg">#887ECCE8</color>
 
 </resources>
