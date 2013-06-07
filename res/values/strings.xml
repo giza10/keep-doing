@@ -52,6 +52,8 @@
     <string name="btn_month_next">Next</string>
     <string name="btn_month_prev">Prev</string>
 
+    <string name="menu_share">Share</string>
+    
     <string translatable="false" name="accessibility_done_mark">Done mark</string>
     <string translatable="false" name="accessibility_remove_reminder">Remove reminder</string>
     <string translatable="false" name="accessibility_arrow">Arrow</string>

@@ -51,6 +51,8 @@
     <string name="btn_month_next">翌月</string>
     <string name="btn_month_prev">先月</string>
 
+    <string name="menu_share">共有</string>
+
     <string-array name="week_names">
         <item>日</item>
         <item>月</item>
