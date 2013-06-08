@@ -46,13 +46,9 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
     private final List<TaskListItem> mDataList = new ArrayList<TaskListItem>();
     private final CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
     private DatabaseAdapter mDBAdapter = null;
-    private int mDoneIconId = 0;
-    private int mNotDoneIconId = 0;
 
     private final Settings.OnChangedListener mSettingsChangedListener = new Settings.OnChangedListener() {
         public void onDoneIconSettingChanged() {
-            mDoneIconId = Settings.getDoneIconId();
-            mNotDoneIconId = Settings.getNotDoneIconId();
             updateTaskList();
         }
 
@@ -74,8 +70,6 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
 
         Settings.initialize(getApplicationContext());
         Settings.registerOnChangedListener(mSettingsChangedListener);
-        mDoneIconId = Settings.getDoneIconId();
-        mNotDoneIconId = Settings.getNotDoneIconId();
 
         DateChangeTimeManager.getInstance(this).registerOnDateChangedListener(this);
 
@@ -477,7 +471,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
             TextView lastDoneDateTextView = holder.lastDoneDateTextView;
 
             if (checked) {
-                imageView.setImageResource(mDoneIconId);
+                imageView.setImageResource(Settings.getDoneIconId());
                 ComboCount comboCount = mDBAdapter.getComboCount(taskId);
                 if (comboCount.currentCount > 1) {
                     lastDoneDateTextView.setText(getString(R.string.tasklist_combo, comboCount.currentCount));
@@ -485,7 +479,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
                 	lastDoneDateTextView.setText(R.string.tasklist_lastdonedate_today);
                 }
             } else {
-                imageView.setImageResource(mNotDoneIconId);
+                imageView.setImageResource(Settings.getNotDoneIconId());
                 Date lastDoneDate = mDBAdapter.getLastDoneDate(taskId);
                 if (lastDoneDate != null) {
                     ComboCount comboCount = mDBAdapter.getComboCount(taskId);
