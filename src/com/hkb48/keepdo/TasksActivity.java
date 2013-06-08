@@ -406,6 +406,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
                     itemViewHolder.viewType = TYPE_ITEM;
                     itemViewHolder.imageView = (ImageView) view.findViewById(R.id.taskListItemCheck);
                     itemViewHolder.textView1 = (TextView) view.findViewById(R.id.taskName);
+                    itemViewHolder.textView2 = (TextView) view.findViewById(R.id.taskContext);
                     itemViewHolder.recurrenceView = (RecurrenceView) view.findViewById(R.id.recurrenceView);
                     itemViewHolder.lastDoneDateTextView = (TextView) view.findViewById(R.id.taskLastDoneDate);
                     view.setTag(itemViewHolder);
@@ -419,11 +420,21 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
             }
 
             if (isTask) {
-                TextView textView = itemViewHolder.textView1;
                 Task task = (Task) taskListItem.data;
                 long taskId = task.getTaskID();
+
+                TextView textView1 = itemViewHolder.textView1;
                 String taskName = task.getName();
-                textView.setText(taskName);
+                textView1.setText(taskName);
+
+                TextView textView2 = itemViewHolder.textView2;
+                String taskContext = task.getContext();
+                if ((taskContext != null) && (! taskContext.isEmpty())) {
+                    textView2.setText(taskContext);
+                    textView2.setVisibility(View.VISIBLE);
+                } else {
+                    textView2.setVisibility(View.GONE);
+                }
 
                 RecurrenceView recurrenceView = itemViewHolder.recurrenceView;
                 recurrenceView.update(task.getRecurrence());
@@ -513,6 +524,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
 
         private class ItemViewHolder extends ViewHolder {
             TextView textView1;
+            TextView textView2;
             ImageView imageView;
             RecurrenceView recurrenceView;
             TextView lastDoneDateTextView;

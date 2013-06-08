@@ -1,5 +1,25 @@
 <resources>
 
-    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar" />
+    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+        <item name="android:windowBackground">@color/window_bg</item>
+        <item name="android:actionBarStyle">@style/actionbar_style</item>
+        <item name="@android:attr/actionBarTabTextStyle">@style/actionbar_tabtextstyle</item>
+    </style>
+
+    <!-- style for actionbar -->
+    <style name="actionbar_style" parent="@android:style/Widget.Holo.Light.ActionBar">
+        <item name="android:background">@color/actionbar_bg</item>
+        <item name="android:titleTextStyle">@style/actionbar_titletextstyle</item>
+    </style>
+
+    <!-- style for actionbar title text -->
+    <style name="actionbar_titletextstyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/actionbar_title_text</item>
+    </style>
+
+    <!-- style for actionbar tab text -->
+    <style name="actionbar_tabtextstyle" parent="android:Widget.Holo.Light.ActionBar.TabText.Inverse">
+        <item name="android:textColor">@color/actionbar_tab_text</item>
+    </style>
 
 </resources>
