@@ -26,9 +26,9 @@
                     android:id="@+id/textViewTaskName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dip"
-                    android:layout_marginRight="16dip"
-                    android:layout_marginTop="10dip"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginTop="10dp"
                     android:text="@string/task_name"
                     android:textSize="18sp" >
                 </TextView>
@@ -37,12 +37,11 @@
                     android:id="@+id/editTextTaskName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dip"
-                    android:layout_marginLeft="26dip"
-                    android:layout_marginRight="26dip"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="26dp"
+                    android:layout_marginRight="26dp"
                     android:hint="@string/hint_task_name"
-                    android:inputType="text"
-                    android:textSize="14sp" >
+                    android:inputType="text" >
                 </EditText>
             </LinearLayout>
 
@@ -57,9 +56,9 @@
                     android:id="@+id/textViewRecurrence"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dip"
-                    android:layout_marginRight="16dip"
-                    android:layout_marginTop="10dip"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginTop="10dp"
                     android:text="@string/recurrence"
                     android:textSize="18sp" >
                 </TextView>
@@ -68,9 +67,9 @@
                     android:id="@+id/recurrenceView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dip"
-                    android:layout_marginLeft="26dip"
-                    android:layout_marginRight="26dip"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="26dp"
+                    android:layout_marginRight="26dp"
                     android:orientation="horizontal" >
                 </com.hkb48.keepdo.RecurrenceView>
             </LinearLayout>
@@ -84,9 +83,9 @@
                     android:id="@+id/textViewReminderTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dip"
-                    android:layout_marginRight="16dip"
-                    android:layout_marginTop="10dip"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginTop="10dp"
                     android:text="@string/reminder"
                     android:textSize="18sp" >
                 </TextView>
@@ -99,11 +98,11 @@
                     <Button
                         android:id="@+id/buttonReminderTime"
                         style="@android:style/Widget.Holo.Light.Spinner"
-                        android:layout_width="0dip"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dip"
-                        android:layout_marginLeft="26dip"
-                        android:layout_marginRight="10dip"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginLeft="26dp"
+                        android:layout_marginRight="10dp"
                         android:layout_weight="1"
                         android:gravity="center" >
                     </Button>
@@ -112,9 +111,9 @@
                         android:id="@+id/reminder_remove"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dip"
-                        android:layout_marginLeft="10dip"
-                        android:layout_marginRight="26dip"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="26dp"
                         android:contentDescription="@string/accessibility_remove_reminder"
                         android:gravity="center_vertical"
                         android:src="@drawable/ic_menu_cancel_holo_light" >
@@ -131,9 +130,9 @@
                     android:id="@+id/textViewContext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dip"
-                    android:layout_marginRight="16dip"
-                    android:layout_marginTop="10dip"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginTop="10dp"
                     android:text="@string/description"
                     android:textSize="18sp" >
                 </TextView>
@@ -142,9 +141,9 @@
                     android:id="@+id/editTextDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dip"
-                    android:layout_marginLeft="26dip"
-                    android:layout_marginRight="26dip"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="26dp"
+                    android:layout_marginRight="26dp"
                     android:hint="@string/hint_task_description" >
                 </EditText>
             </LinearLayout>
@@ -160,7 +159,7 @@
 
         <Button
             android:id="@+id/cancelButton"
-            android:layout_width="0dip"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
             android:onClick="onCancelClicked"
@@ -168,7 +167,7 @@
 
         <Button
             android:id="@+id/okButton"
-            android:layout_width="0dip"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
             android:enabled="false"
