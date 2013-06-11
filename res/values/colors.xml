@@ -2,7 +2,8 @@
 
     <color name="tasklist_bg_header">#33b5e5</color>
     <color name="tasklist_fg_header">#FFFFFF</color>
-    <color name="tasklist_last_donedate">#33b5e5</color>
+    <color name="tasklist_last_donedate">#606060</color>
+    <color name="tasklist_combo">#0088FF</color>
     <color name="recurrence_off_day">#C0C0C0</color>
     <color name="calendar_grid_color">#808080</color>
     <color name="calendar_grid_today_color">#28B9FF</color>

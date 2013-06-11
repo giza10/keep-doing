@@ -469,11 +469,14 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
             Date today = DateChangeTimeUtil.getDateTime();
             ImageView imageView = holder.imageView;
             TextView lastDoneDateTextView = holder.lastDoneDateTextView;
+            final int colorLastDoneDate = getResources().getColor(R.color.tasklist_last_donedate);
+            lastDoneDateTextView.setTextColor(colorLastDoneDate);
 
             if (checked) {
                 imageView.setImageResource(Settings.getDoneIconId());
                 ComboCount comboCount = mDBAdapter.getComboCount(taskId);
                 if (comboCount.currentCount > 1) {
+                    lastDoneDateTextView.setTextColor(getResources().getColor(R.color.tasklist_combo));
                     lastDoneDateTextView.setText(getString(R.string.tasklist_combo, comboCount.currentCount));
                 } else {
                 	lastDoneDateTextView.setText(R.string.tasklist_lastdonedate_today);
@@ -484,6 +487,7 @@ public class TasksActivity extends Activity implements DateChangeTimeManager.OnD
                 if (lastDoneDate != null) {
                     ComboCount comboCount = mDBAdapter.getComboCount(taskId);
                     if (comboCount.currentCount > 1) {
+                        lastDoneDateTextView.setTextColor(getResources().getColor(R.color.tasklist_combo));
                         lastDoneDateTextView.setText(getString(R.string.tasklist_combo, comboCount.currentCount));
                     } else {
 	                    int diffDays = (int)((today.getTime() - lastDoneDate.getTime()) / (long)(1000 * 60 * 60 * 24));
