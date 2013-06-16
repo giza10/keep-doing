@@ -1,12 +1,21 @@
 package com.hkb48.keepdo;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 public class TaskActivity extends FragmentActivity implements
         ActionBar.TabListener {
@@ -90,8 +99,46 @@ public class TaskActivity extends FragmentActivity implements
         case android.R.id.home:
             finish();
             return true;
+        case R.id.menu_share:
+        	shareDisplayedCalendarView();
+            return true;
         default:
             return super.onOptionsItemSelected(item);
         }
     }
+
+	private void shareDisplayedCalendarView() {
+    	final String BITMAP_PATH = DatabaseAdapter.getInstance(this).backupDirPath() + "/temp_share_image.png";
+
+    	View calendarRoot = findViewById(R.id.calendar_root);
+    	calendarRoot.setDrawingCacheEnabled(true);
+
+    	File bitmapFile = new File(BITMAP_PATH);
+    	bitmapFile.getParentFile().mkdir();
+    	Bitmap bitmap = Bitmap.createBitmap(calendarRoot.getDrawingCache());
+
+    	FileOutputStream fos = null;
+    	try {
+    		fos = new FileOutputStream(bitmapFile, false);
+    		bitmap.compress(CompressFormat.PNG, 100, fos);
+    		fos.flush();
+    		fos.close();
+    		calendarRoot.setDrawingCacheEnabled(false);
+    	} catch (Exception e) {
+		} finally {
+			try {
+    	         if (fos != null) {
+    	        	 fos.close();
+    	         }
+			} catch (IOException e) {
+			}
+    	}
+
+    	Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setType("image/png");
+        intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(bitmapFile));
+        //intent.putExtra(Intent.EXTRA_TEXT, "10連続コンボ中です！ https://play.google.com/store/apps/details?id=com.hkb48.keepdo");
+        startActivity(intent);
+	}
 }
