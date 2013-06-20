@@ -9,9 +9,7 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -124,7 +122,8 @@ public class TaskActivity extends FragmentActivity implements
         Bitmap baseBitmap = Bitmap.createBitmap(bitmap.getWidth(),
                 bitmap.getHeight(), Bitmap.Config.ARGB_4444);
         Canvas bmpCanvas = new Canvas(baseBitmap);
-        bmpCanvas.drawColor(Color.WHITE);
+        bmpCanvas.drawColor(getResources().getColor(
+                R.color.calendar_bg_fargment));
         bmpCanvas.drawBitmap(bitmap, 0, 0, null);
 
         FileOutputStream fos = null;
