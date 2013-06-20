@@ -21,7 +21,8 @@ import android.widget.ImageButton;
 import android.widget.TimePicker;
 
 public class TaskSettingActivity extends Activity {
-    private boolean[] mRecurrenceFlags = {true,true,true,true,true,true,true};
+    private boolean[] mRecurrenceFlags = { true, true, true, true, true, true,
+            true };
     private Task mTask;
 
     @Override
@@ -34,14 +35,18 @@ public class TaskSettingActivity extends Activity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         EditText editTextTaskName = (EditText) findViewById(R.id.editTextTaskName);
-        EditText editTextDescription = (EditText) findViewById(R.id.editTextDescription);
-        Recurrence recurrence;
+        enableInputEmoji(editTextTaskName);
 
+        EditText editTextDescription = (EditText) findViewById(R.id.editTextDescription);
+        enableInputEmoji(editTextDescription);
+
+        Recurrence recurrence;
         Intent intent = getIntent();
         mTask = (Task) intent.getSerializableExtra("TASK-INFO");
         if (mTask == null) {
             setTitle(R.string.add_task);
-            recurrence = new Recurrence(true, true, true, true, true, true, true);
+            recurrence = new Recurrence(true, true, true, true, true, true,
+                    true);
             mTask = new Task(null, null, recurrence);
             mTask.setReminder(new Reminder());
         } else {
@@ -87,7 +92,7 @@ public class TaskSettingActivity extends Activity {
     }
 
     private void addTaskName(EditText editText) {
-        editText.addTextChangedListener( new TextWatcher() {
+        editText.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
                 Button okButton = (Button) findViewById(R.id.okButton);
                 if (s.length() > 0) {
@@ -104,40 +109,55 @@ public class TaskSettingActivity extends Activity {
             public void onTextChanged(CharSequence s, int start, int before,
                     int count) {
             }
-        } );
+        });
     }
 
     private void addRecurrence(Recurrence recurrence) {
-        final String[] weekNames = getResources().getStringArray(R.array.week_names);
+        final String[] weekNames = getResources().getStringArray(
+                R.array.week_names);
         final RecurrenceView recurrenceView = (RecurrenceView) findViewById(R.id.recurrenceView);
         recurrenceView.update(recurrence);
 
-        findViewById(R.id.recurrenceLayout).setOnClickListener(new OnClickListener() {
-            boolean tmpRecurrenceFlags[];
+        findViewById(R.id.recurrenceLayout).setOnClickListener(
+                new OnClickListener() {
+                    boolean tmpRecurrenceFlags[];
 
-            public void onClick(final View v) {
-                tmpRecurrenceFlags = Arrays.copyOf(mRecurrenceFlags, mRecurrenceFlags.length);
-                new AlertDialog.Builder(TaskSettingActivity.this)
-                .setTitle(getString(R.string.recurrence))
-                .setMultiChoiceItems(weekNames, mRecurrenceFlags,
-                        new DialogInterface.OnMultiChoiceClickListener() {
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        mRecurrenceFlags[which] = isChecked;
+                    public void onClick(final View v) {
+                        tmpRecurrenceFlags = Arrays.copyOf(mRecurrenceFlags,
+                                mRecurrenceFlags.length);
+                        new AlertDialog.Builder(TaskSettingActivity.this)
+                                .setTitle(getString(R.string.recurrence))
+                                .setMultiChoiceItems(
+                                        weekNames,
+                                        mRecurrenceFlags,
+                                        new DialogInterface.OnMultiChoiceClickListener() {
+                                            public void onClick(
+                                                    DialogInterface dialog,
+                                                    int which, boolean isChecked) {
+                                                mRecurrenceFlags[which] = isChecked;
+                                            }
+                                        })
+                                .setPositiveButton(
+                                        getString(R.string.dialog_ok),
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(
+                                                    DialogInterface dialog,
+                                                    int whichButton) {
+                                                recurrenceView
+                                                        .update(mRecurrenceFlags);
+                                            }
+                                        })
+                                .setNegativeButton(
+                                        getString(R.string.dialog_cancel),
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(
+                                                    DialogInterface dialog,
+                                                    int whichButton) {
+                                                mRecurrenceFlags = tmpRecurrenceFlags;
+                                            }
+                                        }).show();
                     }
-                })
-                .setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        recurrenceView.update(mRecurrenceFlags);
-                    }
-                })
-                .setNegativeButton(getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        mRecurrenceFlags = tmpRecurrenceFlags;
-                    }
-                })
-                .show();
-            }
-        });
+                });
     }
 
     private void addReminder() {
@@ -149,7 +169,8 @@ public class TaskSettingActivity extends Activity {
         final int minute = reminder.getMinute();
         boolean isChecked = reminder.getEnabled();
         if (isChecked) {
-            reminderTime.setText(String.format("%1$02d", hourOfDay) + ":" + String.format("%1$02d", minute));
+            reminderTime.setText(String.format("%1$02d", hourOfDay) + ":"
+                    + String.format("%1$02d", minute));
             cancelButton.setVisibility(View.VISIBLE);
         } else {
             reminderTime.setText(R.string.no_reminder);
@@ -165,18 +186,19 @@ public class TaskSettingActivity extends Activity {
             }
         });
 
-        final TimePickerDialog timePickerDialog = new TimePickerDialog(
-            this,
-            new TimePickerDialog.OnTimeSetListener() {
-                public void onTimeSet(final TimePicker view, final int hourOfDay, final int minute) {
-                    reminderTime.setText(String.format("%1$02d", hourOfDay) + ":" + String.format("%1$02d", minute));
-                    cancelButton.setVisibility(View.VISIBLE);
-                    reminder.setEnabled(true);
-                    reminder.setHourOfDay(hourOfDay);
-                    reminder.setMinute(minute);
-                    mTask.setReminder(reminder);
-                }
-            }, hourOfDay, minute, true);
+        final TimePickerDialog timePickerDialog = new TimePickerDialog(this,
+                new TimePickerDialog.OnTimeSetListener() {
+                    public void onTimeSet(final TimePicker view,
+                            final int hourOfDay, final int minute) {
+                        reminderTime.setText(String.format("%1$02d", hourOfDay)
+                                + ":" + String.format("%1$02d", minute));
+                        cancelButton.setVisibility(View.VISIBLE);
+                        reminder.setEnabled(true);
+                        reminder.setHourOfDay(hourOfDay);
+                        reminder.setMinute(minute);
+                        mTask.setReminder(reminder);
+                    }
+                }, hourOfDay, minute, true);
 
         reminderTime.setOnClickListener(new OnClickListener() {
             public void onClick(final View v) {
@@ -191,14 +213,9 @@ public class TaskSettingActivity extends Activity {
     public void onSaveClicked(View view) {
         EditText editTextTaskName = (EditText) findViewById(R.id.editTextTaskName);
         EditText editTextDescription = (EditText) findViewById(R.id.editTextDescription);
-        Recurrence recurrence = new Recurrence(
-                mRecurrenceFlags[1],
-                mRecurrenceFlags[2],
-                mRecurrenceFlags[3],
-                mRecurrenceFlags[4],
-                mRecurrenceFlags[5],
-                mRecurrenceFlags[6],
-                mRecurrenceFlags[0]);
+        Recurrence recurrence = new Recurrence(mRecurrenceFlags[1],
+                mRecurrenceFlags[2], mRecurrenceFlags[3], mRecurrenceFlags[4],
+                mRecurrenceFlags[5], mRecurrenceFlags[6], mRecurrenceFlags[0]);
         mTask.setName(editTextTaskName.getText().toString());
         mTask.setRecurrence(recurrence);
         mTask.setContext(editTextDescription.getText().toString());
@@ -214,5 +231,12 @@ public class TaskSettingActivity extends Activity {
      */
     public void onCancelClicked(View view) {
         finish();
+    }
+
+    private void enableInputEmoji(EditText editText) {
+        Bundle bundle = editText.getInputExtras(true);
+        if (bundle != null) {
+            bundle.putBoolean("allowEmoji", true);
+        }
     }
 }
