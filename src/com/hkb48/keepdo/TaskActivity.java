@@ -9,6 +9,9 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -71,74 +74,84 @@ public class TaskActivity extends FragmentActivity implements
         if (tab.getPosition() == 0) {
             Fragment fragment = new CalendarFragment();
             getSupportFragmentManager().beginTransaction()
-                     .replace(R.id.container, fragment).commit();
+                    .replace(R.id.container, fragment).commit();
         } else {
             Fragment fragment = new TaskDetailFragment();
             getSupportFragmentManager().beginTransaction()
-                     .replace(R.id.container, fragment).commit();
+                    .replace(R.id.container, fragment).commit();
         }
     }
 
     public void onTabUnselected(ActionBar.Tab tab,
-        FragmentTransaction fragmentTransaction) {
+            FragmentTransaction fragmentTransaction) {
     }
 
     public void onTabReselected(ActionBar.Tab tab,
-        FragmentTransaction fragmentTransaction) {
+            FragmentTransaction fragmentTransaction) {
     }
 
     @Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_task, menu);
-		return super.onCreateOptionsMenu(menu);
-	}
+        return super.onCreateOptionsMenu(menu);
+    }
 
-	@Override
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
         case android.R.id.home:
             finish();
             return true;
         case R.id.menu_share:
-        	shareDisplayedCalendarView();
+            shareDisplayedCalendarView();
             return true;
         default:
             return super.onOptionsItemSelected(item);
         }
     }
 
-	private void shareDisplayedCalendarView() {
-    	final String BITMAP_PATH = DatabaseAdapter.getInstance(this).backupDirPath() + "/temp_share_image.png";
+    private void shareDisplayedCalendarView() {
+        final String BITMAP_PATH = DatabaseAdapter.getInstance(this)
+                .backupDirPath() + "/temp_share_image.png";
 
-    	View calendarRoot = findViewById(R.id.calendar_root);
-    	calendarRoot.setDrawingCacheEnabled(true);
+        View calendarRoot = findViewById(R.id.calendar_root);
+        calendarRoot.setDrawingCacheEnabled(true);
 
-    	File bitmapFile = new File(BITMAP_PATH);
-    	bitmapFile.getParentFile().mkdir();
-    	Bitmap bitmap = Bitmap.createBitmap(calendarRoot.getDrawingCache());
+        File bitmapFile = new File(BITMAP_PATH);
+        bitmapFile.getParentFile().mkdir();
+        Bitmap bitmap = Bitmap.createBitmap(calendarRoot.getDrawingCache());
 
-    	FileOutputStream fos = null;
-    	try {
-    		fos = new FileOutputStream(bitmapFile, false);
-    		bitmap.compress(CompressFormat.PNG, 100, fos);
-    		fos.flush();
-    		fos.close();
-    		calendarRoot.setDrawingCacheEnabled(false);
-    	} catch (Exception e) {
-		} finally {
-			try {
-    	         if (fos != null) {
-    	        	 fos.close();
-    	         }
-			} catch (IOException e) {
-			}
-    	}
+        Bitmap baseBitmap = Bitmap.createBitmap(bitmap.getWidth(),
+                bitmap.getHeight(), Bitmap.Config.ARGB_4444);
+        Canvas bmpCanvas = new Canvas(baseBitmap);
+        bmpCanvas.drawColor(Color.WHITE);
+        bmpCanvas.drawBitmap(bitmap, 0, 0, null);
 
-    	Intent intent = new Intent(Intent.ACTION_SEND);
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(bitmapFile, false);
+            baseBitmap.compress(CompressFormat.PNG, 100, fos);
+            fos.flush();
+            fos.close();
+            calendarRoot.setDrawingCacheEnabled(false);
+        } catch (Exception e) {
+        } finally {
+            try {
+                if (fos != null) {
+                    fos.close();
+                }
+            } catch (IOException e) {
+            }
+        }
+
+        bitmap.recycle();
+        baseBitmap.recycle();
+        Intent intent = new Intent(Intent.ACTION_SEND);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setType("image/png");
         intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(bitmapFile));
-        //intent.putExtra(Intent.EXTRA_TEXT, "10連続コンボ中です！ https://play.google.com/store/apps/details?id=com.hkb48.keepdo");
+        // intent.putExtra(Intent.EXTRA_TEXT,
+        // "10連続コンボ中です！ https://play.google.com/store/apps/details?id=com.hkb48.keepdo");
         startActivity(intent);
-	}
+    }
 }
