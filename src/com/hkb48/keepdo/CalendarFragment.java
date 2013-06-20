@@ -1,5 +1,8 @@
 package com.hkb48.keepdo;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -10,21 +13,27 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.GridLayout;
@@ -52,7 +61,8 @@ class CalendarFragment extends Fragment {
     private int mCalendarCellHeight;
     private int mDoneIconId;
 
-    public CalendarFragment() {
+	public CalendarFragment() {
+		setHasOptionsMenu(true);
     }
 
     @Override
@@ -160,6 +170,23 @@ class CalendarFragment extends Fragment {
         return super.onContextItemSelected(item);
     }
 
+    @Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.activity_task, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case R.id.menu_share:
+            shareDisplayedCalendarView();
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
     /***
      * Set calendar tile with YYYY/MM format
      *
@@ -171,7 +198,7 @@ class CalendarFragment extends Fragment {
         textView1.setText(sdf.format(calendar.getTime()));
     }
 
-    /***
+	/***
      * Build calendar view
      */
     private void buildCalendar() {
@@ -420,5 +447,61 @@ class CalendarFragment extends Fragment {
 
         mCalendarCellWidth = cellWidth;
         mCalendarCellHeight= cellHeight;
+    }
+
+    private void shareDisplayedCalendarView() {
+        final String BITMAP_PATH = mDBAdapter.backupDirPath() + "/temp_share_image.png";
+
+        View calendarRoot = getActivity().findViewById(R.id.calendar_root);
+        calendarRoot.setDrawingCacheEnabled(true);
+
+        File bitmapFile = new File(BITMAP_PATH);
+        bitmapFile.getParentFile().mkdir();
+        Bitmap bitmap = Bitmap.createBitmap(calendarRoot.getDrawingCache());
+
+        Bitmap baseBitmap = Bitmap.createBitmap(bitmap.getWidth(),
+                bitmap.getHeight(), Bitmap.Config.ARGB_4444);
+        Canvas bmpCanvas = new Canvas(baseBitmap);
+        bmpCanvas.drawColor(getResources().getColor(
+                R.color.calendar_bg_fargment));
+        bmpCanvas.drawBitmap(bitmap, 0, 0, null);
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(bitmapFile, false);
+            baseBitmap.compress(CompressFormat.PNG, 100, fos);
+            fos.flush();
+            fos.close();
+            calendarRoot.setDrawingCacheEnabled(false);
+        } catch (Exception e) {
+        } finally {
+            try {
+                if (fos != null) {
+                    fos.close();
+                }
+            } catch (IOException e) {
+            }
+        }
+
+        bitmap.recycle();
+        baseBitmap.recycle();
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setType("image/png");
+        intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(bitmapFile));
+        ComboCount comboCount = mDBAdapter.getComboCount(mTask.getTaskID());
+        String extraText = "";
+        if (mMonthOffset == 0 && comboCount.currentCount > 1) {
+        	extraText += getActivity().getString(R.string.share_combo, mTask.getName(), comboCount.currentCount);
+        } else {
+            Calendar current = DateChangeTimeUtil.getDateTimeCalendar();
+            current.add(Calendar.MONTH, mMonthOffset);
+            current.set(Calendar.DAY_OF_MONTH, 1);
+            ArrayList<Date> doneDateList = mDBAdapter.getHistory(mTask.getTaskID(), current.getTime());
+        	extraText += getActivity().getString(R.string.share_non_combo, mTask.getName(), doneDateList.size());
+        }
+        extraText += " " + getActivity().getString(R.string.share_app_url);
+        intent.putExtra(Intent.EXTRA_TEXT, extraText);
+        startActivity(intent);
     }
 }

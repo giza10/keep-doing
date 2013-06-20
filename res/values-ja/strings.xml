@@ -52,6 +52,9 @@
     <string name="btn_month_prev">先月</string>
 
     <string name="menu_share">共有</string>
+    <string name="share_combo">Do「%1$s」を%2$d連続コンボ中です！</string>
+    <string name="share_non_combo">Do「%1$s」をこの月は%2$d回実施しました。</string>
+    <string name="share_app_url">from KeepDo! https://play.google.com/store/apps/details?id=com.hkb48.keepdo</string>
 
     <string-array name="week_names">
         <item>日</item>
@@ -105,5 +108,4 @@
     <string name="backup_done">バックアップ完了</string>
     <string name="restore_done">復元完了</string>
     <string name="no_backup_file">バックアップファイルがありません</string>
-    
 </resources>
