@@ -1,15 +1,7 @@
 <resources>
 
-    <color name="window_bg">#E0E0E0</color>
-    <color name="actionbar_bg">#33b5e5</color>
-    <color name="actionbar_title_text">@android:color/white</color>
-    <color name="actionbar_tab_text">@android:color/black</color>
     <color name="tasklist_bg_header">#33b5e5</color>
-    <color name="tasklist_fg_header">#808080</color>
-    <color name="tasklist_header_underbar">#CCCCCCCC</color>
-    <color name="tasklist_bg_item_normal">@android:color/white</color>
-    <color name="tasklist_bg_item_pressed">#7ECCE8</color>
-    <color name="tasklist_bg_item_shadow">#D0D0D0</color>
+    <color name="tasklist_fg_header">#FFFFFF</color>
     <color name="tasklist_last_donedate">#606060</color>
     <color name="tasklist_combo">#0088FF</color>
     <color name="recurrence_off_day">#C0C0C0</color>
