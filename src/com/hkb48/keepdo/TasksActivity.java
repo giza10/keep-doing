@@ -90,12 +90,17 @@ public class TasksActivity extends Activity implements
                     public void onItemClick(AdapterView<?> parent, View view,
                             int position, long id) {
                         // Show calendar view
-                        Task task = (Task) mDataList.get(position).data;
-                        Long taskId = task.getTaskID();
-                        Intent intent = new Intent(TasksActivity.this,
-                                TaskActivity.class);
-                        intent.putExtra("TASK-ID", taskId);
-                        startActivityForResult(intent, REQUEST_SHOW_CALENDAR);
+                        TaskListItem item = (TaskListItem) mDataList
+                                .get(position);
+                        if (item.type == TYPE_ITEM) {
+                            Task task = (Task) item.data;
+                            Long taskId = task.getTaskID();
+                            Intent intent = new Intent(TasksActivity.this,
+                                    TaskActivity.class);
+                            intent.putExtra("TASK-ID", taskId);
+                            startActivityForResult(intent,
+                                    REQUEST_SHOW_CALENDAR);
+                        }
                     }
                 });
 
