@@ -1,5 +1,18 @@
 package com.hkb48.keepdo;
 
+import android.annotation.TargetApi;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+import android.os.Build;
+import android.os.Environment;
+import android.util.Log;
+
+import com.hkb48.keepdo.Database.TaskCompletion;
+import com.hkb48.keepdo.Database.TasksToday;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -13,19 +26,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import android.annotation.TargetApi;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import android.os.Build;
-import android.os.Environment;
-import android.util.Log;
-
-import com.hkb48.keepdo.Database.TaskCompletion;
-import com.hkb48.keepdo.Database.TasksToday;
 
 class DatabaseAdapter {
     // Backup & Restore

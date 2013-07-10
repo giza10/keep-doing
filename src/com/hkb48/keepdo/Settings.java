@@ -1,11 +1,11 @@
 package com.hkb48.keepdo;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
-import android.content.Context;
-import android.content.SharedPreferences;
 
 class Settings {
     private static Settings sInstance = null;

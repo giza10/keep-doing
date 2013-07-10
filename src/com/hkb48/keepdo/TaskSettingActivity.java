@@ -1,7 +1,5 @@
 package com.hkb48.keepdo;
 
-import java.util.Arrays;
-
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -19,6 +17,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TimePicker;
+
+import java.util.Arrays;
 
 public class TaskSettingActivity extends Activity {
     private boolean[] mRecurrenceFlags = { true, true, true, true, true, true,

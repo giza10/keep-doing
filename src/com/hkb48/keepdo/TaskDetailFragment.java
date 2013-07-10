@@ -1,29 +1,30 @@
 package com.hkb48.keepdo;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-import android.support.v4.app.Fragment;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 /**
  * TODO: document your custom view class.
  */
-class TaskDetailFragment extends Fragment {
+public class TaskDetailFragment extends Fragment {
 
     public TaskDetailFragment() {
+        setHasOptionsMenu(false);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.task_detail_fragment, container, false);
     }
 
@@ -46,8 +47,8 @@ class TaskDetailFragment extends Fragment {
         Reminder reminder = task.getReminder();
         if (reminder.getEnabled()) {
             String hourOfDayStr = String.format("%1$02d", reminder.getHourOfDay());
-            String minuteStr    = String.format("%1$02d", reminder.getMinute());
-            String remindAtStr  = getString(R.string.remind_at);
+            String minuteStr = String.format("%1$02d", reminder.getMinute());
+            String remindAtStr = getString(R.string.remind_at);
             reminderTextView.setText(remindAtStr + " " + hourOfDayStr + ":" + minuteStr);
         } else {
             reminderTextView.setText(R.string.no_reminder);

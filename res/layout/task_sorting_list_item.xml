@@ -19,7 +19,7 @@
         android:maxLines="2"
     />
     <ImageView
-        android:id="@+id/imageView1"
+        android:id="@+id/imageViewSort"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:gravity="right"

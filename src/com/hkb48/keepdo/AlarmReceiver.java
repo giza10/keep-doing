@@ -1,7 +1,5 @@
 package com.hkb48.keepdo;
 
-import java.util.List;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -12,6 +10,8 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
+import java.util.List;
 
 public class AlarmReceiver extends BroadcastReceiver {
     private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";

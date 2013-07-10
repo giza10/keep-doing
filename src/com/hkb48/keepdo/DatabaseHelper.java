@@ -1,7 +1,5 @@
 package com.hkb48.keepdo;
 
-import java.io.File;
-
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -11,6 +9,8 @@ import android.util.Log;
 
 import com.hkb48.keepdo.Database.TaskCompletion;
 import com.hkb48.keepdo.Database.TasksToday;
+
+import java.io.File;
 
 final class DatabaseHelper extends SQLiteOpenHelper {
 

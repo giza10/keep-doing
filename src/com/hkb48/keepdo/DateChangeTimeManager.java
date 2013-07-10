@@ -1,15 +1,15 @@
 package com.hkb48.keepdo;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 public class DateChangeTimeManager {
     private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";

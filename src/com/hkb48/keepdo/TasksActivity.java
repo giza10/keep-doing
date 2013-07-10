@@ -1,11 +1,5 @@
 package com.hkb48.keepdo;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
@@ -27,6 +21,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 public class TasksActivity extends Activity implements
         DateChangeTimeManager.OnDateChangedListener {
@@ -88,7 +88,7 @@ public class TasksActivity extends Activity implements
         taskListView
                 .setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     public void onItemClick(AdapterView<?> parent, View view,
-                            int position, long id) {
+                                            int position, long id) {
                         // Show calendar view
                         TaskListItem item = (TaskListItem) mDataList
                                 .get(position);
@@ -222,7 +222,7 @@ public class TasksActivity extends Activity implements
                     .setPositiveButton(R.string.dialog_ok,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog,
-                                        int which) {
+                                                    int which) {
                                     mDBAdapter.deleteTask(taskId);
                                     updateTaskList();
                                     updateReminder();
@@ -231,7 +231,7 @@ public class TasksActivity extends Activity implements
                     .setNegativeButton(R.string.dialog_cancel,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog,
-                                        int which) {
+                                                    int which) {
                                 }
                             }).setCancelable(true).create().show();
             return true;
@@ -589,7 +589,7 @@ public class TasksActivity extends Activity implements
                 .setPositiveButton(R.string.dialog_ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
-                                    int which) {
+                                                int which) {
                                 updateTaskList();
                             }
                         }).setCancelable(false).create().show();

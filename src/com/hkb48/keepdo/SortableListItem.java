@@ -17,6 +17,6 @@ class SortableListItem extends LinearLayout {
     }
 
     public View getGrabberView() {
-        return findViewById(R.id.imageView1);
+        return findViewById(R.id.imageViewSort);
     }
 }
