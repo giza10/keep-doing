@@ -52,7 +52,7 @@ public class CalendarGrid extends Fragment {
     private static DatabaseAdapter mDatabaseAdapter;
     private static Task mTask;
     private static GridLayout mGridLayout;
-    public static volatile View mPressedView;
+    private static volatile View mPressedView;
 
     private int mMonthOffset;
     private CheckSoundPlayer mCheckSound;
@@ -60,7 +60,7 @@ public class CalendarGrid extends Fragment {
     private int mCalendarCellHeight;
     private int mDoneIconId;
 
-    public CalendarGrid() {
+    private CalendarGrid() {
         setHasOptionsMenu(true);
     }
 
@@ -471,6 +471,6 @@ public class CalendarGrid extends Fragment {
         current.set(Calendar.DAY_OF_MONTH, 1);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM", Locale.JAPAN);
 
-        return sdf.format(current.getTime()).toString();
+        return sdf.format(current.getTime());
     }
 }

@@ -104,7 +104,7 @@ public class TaskSortingActivity extends Activity {
         }
     }
 
-    private SortableListView.DragAndDropListener onDrop = new SortableListView.DragAndDropListener() {
+    private final SortableListView.DragAndDropListener onDrop = new SortableListView.DragAndDropListener() {
         public void onDrag(int from, int to) {
             if (from != to) {
                 Task item = (Task) mAdapter.getItem(from);
