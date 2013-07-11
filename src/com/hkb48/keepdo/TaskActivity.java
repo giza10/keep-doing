@@ -33,7 +33,6 @@ public class TaskActivity extends FragmentActivity {
         mTabHost.addTab(mTabHost.newTabSpec(getResources().getString(R.string.title_section1)).setIndicator("Calendar"), CalendarFragment.class, null);
         mTabHost.addTab(mTabHost.newTabSpec(getResources().getString(R.string.title_section2)).setIndicator("Detail"), TaskDetailFragment.class, null);
         mTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
-            @Override
             public void onTabChanged(String tabId) {
                 mCurrentSelectedTab = tabId;
             }

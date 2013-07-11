@@ -37,7 +37,7 @@ public class CalendarFragment extends Fragment {
 
         mViewPager = (ViewPager)view.findViewById(R.id.viewPager);
         mViewPager.setAdapter(new CalendarPageAdapter(getChildFragmentManager()));
-        mViewPager.setCurrentItem(this.NUM_MAXIMUM_MOUNTHS);
+        mViewPager.setCurrentItem(CalendarFragment.NUM_MAXIMUM_MOUNTHS);
     }
 
     public class CalendarPageAdapter extends FragmentPagerAdapter {

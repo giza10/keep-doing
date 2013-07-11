@@ -138,12 +138,12 @@ public class CalendarGrid extends Fragment {
 
         if (view == null) {
             Log.e(TAG, "view in onCreateContextMenu() was null!!");
+            return;
         }
-        Log.d(TAG, view.getClass().getName());
 
-        this.mPressedView = view;
+        mPressedView = view;
         Date date = (Date) mPressedView.getTag();
-        SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.date_format));
+        SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.date_format), Locale.US);
         menu.setHeaderTitle(sdf.format(date));
 
         ImageView imageView = (ImageView) mPressedView.findViewById(R.id.imageViewDone);
@@ -157,8 +157,9 @@ public class CalendarGrid extends Fragment {
 
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
-        if (this.mPressedView == null) {
+        if (mPressedView == null) {
             Log.e(TAG, "mPressedView is null!");
+            return false;
         }
 
         ImageView imageView = (ImageView) mPressedView.findViewById(R.id.imageViewDone);
