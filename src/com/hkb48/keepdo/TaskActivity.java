@@ -8,13 +8,6 @@ import android.widget.TabHost;
 
 public class TaskActivity extends FragmentActivity {
 
-    /**
-     * The serialization (saved instance state) Bundle key representing the
-     * current tab position.
-     */
-    private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
-
-    private FragmentTabHost mTabHost;
     private String mCurrentSelectedTab;
 
     @Override
@@ -22,7 +15,7 @@ public class TaskActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task);
 
-        mTabHost = new FragmentTabHost(this);
+        FragmentTabHost mTabHost = new FragmentTabHost(this);
         setContentView(mTabHost);
 
         final long taskId = getIntent().getLongExtra("TASK-ID", -1);
@@ -30,8 +23,8 @@ public class TaskActivity extends FragmentActivity {
         if (task != null) setTitle(task.getName());
 
         mTabHost.setup(this, getSupportFragmentManager(), R.layout.activity_task);
-        mTabHost.addTab(mTabHost.newTabSpec(getResources().getString(R.string.title_section1)).setIndicator("Calendar"), CalendarFragment.class, null);
-        mTabHost.addTab(mTabHost.newTabSpec(getResources().getString(R.string.title_section2)).setIndicator("Detail"), TaskDetailFragment.class, null);
+        mTabHost.addTab(mTabHost.newTabSpec(getResources().getString(R.string.title_section1)).setIndicator(getResources().getString(R.string.title_section1)), CalendarFragment.class, null);
+        mTabHost.addTab(mTabHost.newTabSpec(getResources().getString(R.string.title_section2)).setIndicator(getResources().getString(R.string.title_section2)), TaskDetailFragment.class, null);
         mTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             public void onTabChanged(String tabId) {
                 mCurrentSelectedTab = tabId;

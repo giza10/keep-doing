@@ -112,7 +112,7 @@ public class TaskSortingActivity extends Activity {
                 mDataList.add(to, item);
                 mAdapter.notifyDataSetChanged();
             }
-        };
+        }
 
         public void onDrop(int from, int to) {
             if (from != to) {

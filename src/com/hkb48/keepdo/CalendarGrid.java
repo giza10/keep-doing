@@ -42,7 +42,6 @@ public class CalendarGrid extends Fragment {
     private static final String TAG = "KEEPDO_CALENDARGRID";
 
     public static final String POSITION_KEY = "com.hkb48.keepdo.calendargrid.POSITION";
-    public static final String TITLE_KEY = "com.hkb48.keepdo.calendargrid.TITLE";
 
     private static final int CONTEXT_MENU_CHECK_DONE = 0;
     private static final int CONTEXT_MENU_UNCHECK_DONE = 1;

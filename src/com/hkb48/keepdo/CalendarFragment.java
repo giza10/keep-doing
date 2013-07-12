@@ -9,13 +9,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-class CalendarFragment extends Fragment {
+public class CalendarFragment extends Fragment {
 
     /**
      * The maximum number of months to be paging up (10 years)
      */
     public static final int NUM_MAXIMUM_MOUNTHS = 10 * 12;
-    private static ViewPager mViewPager;
 
     public CalendarFragment() {
     }
@@ -35,7 +34,7 @@ class CalendarFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mViewPager = (ViewPager)view.findViewById(R.id.viewPager);
+        ViewPager mViewPager = (ViewPager)view.findViewById(R.id.viewPager);
         mViewPager.setAdapter(new CalendarPageAdapter(getChildFragmentManager()));
         mViewPager.setCurrentItem(CalendarFragment.NUM_MAXIMUM_MOUNTHS);
     }
