@@ -28,13 +28,14 @@ import java.util.List;
 import java.util.Locale;
 
 class DatabaseAdapter {
+    private static final String TAG = "#KEEPDO_DB_ADAPTER: ";
+
     // Backup & Restore
     private static final String BACKUP_FILE_NAME = "/keepdo.db";
 	private static final String BACKUP_DIR_NAME = "/keepdo";
     private static final String BACKUP_DIR_PATH = Environment.getExternalStorageDirectory().getPath() + BACKUP_DIR_NAME;
 
-    private static final String TAG = "#KEEPDO_DB_ADAPTER: ";
-    private static final String SDF_PATTERN_YMD = "yyyy-MM-dd"; 
+    private static final String SDF_PATTERN_YMD = "yyyy-MM-dd";
     private static final String SDF_PATTERN_YM = "yyyy-MM";
     private static final String SELECT_FORM = "select * from ";
     private static final String SELECT_ARG_FORM = " where ";

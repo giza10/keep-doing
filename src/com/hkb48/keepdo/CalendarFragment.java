@@ -46,7 +46,7 @@ public class CalendarFragment extends Fragment {
 
         @Override
         public int getCount() {
-            return NUM_MAXIMUM_MOUNTHS;
+            return CalendarFragment.NUM_MAXIMUM_MOUNTHS;
         }
 
         @Override
@@ -61,5 +61,4 @@ public class CalendarFragment extends Fragment {
             return CalendarGrid.getPageTitle(position);
         }
     }
-
 }

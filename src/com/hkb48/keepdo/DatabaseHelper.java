@@ -13,8 +13,8 @@ import com.hkb48.keepdo.Database.TasksToday;
 import java.io.File;
 
 final class DatabaseHelper extends SQLiteOpenHelper {
-
 	private static final String TAG = "#KEEPDO_DB_HELPER: ";
+
     private static final String DB_NAME = "keepdo_tracker.db";
     private static DatabaseHelper INSTANCE = null;
     private final Context mContext;

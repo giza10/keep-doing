@@ -39,7 +39,7 @@ import java.util.Locale;
 
 
 public class CalendarGrid extends Fragment {
-    private static final String TAG = "KEEPDO_CALENDARGRID";
+    private static final String TAG = "#KEEPDO_CALENDARGRID: ";
 
     public static final String POSITION_KEY = "com.hkb48.keepdo.calendargrid.POSITION";
 
@@ -60,7 +60,6 @@ public class CalendarGrid extends Fragment {
     private int mDoneIconId;
 
     private CalendarGrid() {
-        setHasOptionsMenu(true);
     }
 
     public static CalendarGrid newInstance(Bundle args) {
@@ -72,6 +71,7 @@ public class CalendarGrid extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -102,9 +102,9 @@ public class CalendarGrid extends Fragment {
         getActivity().setResult(TaskActivity.RESULT_CANCELED, returnIntent);
     }
 
-    @Override
     public void onResume() {
         mCheckSound.load();
+        setHasOptionsMenu(true);
         super.onResume();
     }
 
@@ -112,6 +112,12 @@ public class CalendarGrid extends Fragment {
     public void onPause() {
         mCheckSound.unload();
         super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        setHasOptionsMenu(false);
+        super.onStop();
     }
 
     @Override
