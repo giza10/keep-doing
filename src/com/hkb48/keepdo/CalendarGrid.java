@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Display;
@@ -83,13 +84,13 @@ public class CalendarGrid extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Intent intent = getActivity().getIntent();
+        Intent intent = getContext().getIntent();
         long taskId = intent.getLongExtra("TASK-ID", -1);
-        mDatabaseAdapter = DatabaseAdapter.getInstance(this.getActivity());
+        mDatabaseAdapter = DatabaseAdapter.getInstance(getContext());
         mTask = mDatabaseAdapter.getTask(taskId);
 
         mDoneIconId = Settings.getDoneIconId();
-        mCheckSound = new CheckSoundPlayer(this.getActivity());
+        mCheckSound = new CheckSoundPlayer(getContext());
         mMonthOffset = (getArguments() != null) ? (getArguments().getInt(POSITION_KEY) - CalendarFragment.NUM_MAXIMUM_MOUNTHS  + 1) : (0);
 
         mGridLayout = (GridLayout)view.findViewById(R.id.gridLayout);
@@ -99,7 +100,7 @@ public class CalendarGrid extends Fragment {
         setOnGlobalLayoutListener(mGridLayout);
 
         Intent returnIntent = new Intent();
-        getActivity().setResult(TaskActivity.RESULT_CANCELED, returnIntent);
+        getContext().setResult(TaskActivity.RESULT_CANCELED, returnIntent);
     }
 
     public void onResume() {
@@ -186,21 +187,25 @@ public class CalendarGrid extends Fragment {
 
         Date today = DateChangeTimeUtil.getDate();
         if (selectedDate.compareTo(today) == 0) {
-            ReminderManager.getInstance().setNextAlert(this.getActivity());
+            ReminderManager.getInstance().setNextAlert(getContext());
         }
 
         // Set result of this activity as OK to inform that the done status is updated
         Intent returnIntent = new Intent();
-        getActivity().setResult(TaskActivity.RESULT_OK, returnIntent);
+        getContext().setResult(TaskActivity.RESULT_OK, returnIntent);
 
         return super.onContextItemSelected(item);
+    }
+
+    public final FragmentActivity getContext() {
+        return this.getActivity();
     }
 
     private void addDayOfWeek() {
         String[] weeks = getResources().getStringArray(R.array.week_names);
         for (int i = 0; i < 7; i++) {
             int dayOfWeek = getDayOfWeek(i);
-            View child = getActivity().getLayoutInflater().inflate(R.layout.calendar_week, null);
+            View child = getContext().getLayoutInflater().inflate(R.layout.calendar_week, null);
 
             TextView textView1 = (TextView) child.findViewById(R.id.textView1);
             textView1.setText(weeks[dayOfWeek - 1]);
@@ -266,7 +271,7 @@ public class CalendarGrid extends Fragment {
             params.width = mCalendarCellWidth;
             params.height = mCalendarCellHeight;
 
-            View child = getActivity().getLayoutInflater().inflate(R.layout.calendar_date, null);
+            View child = getContext().getLayoutInflater().inflate(R.layout.calendar_date, null);
             child.setBackgroundResource(R.drawable.bg_calendar_day_blank);
             mGridLayout.addView(child, params);
         }
@@ -278,7 +283,7 @@ public class CalendarGrid extends Fragment {
         date.set(Calendar.MILLISECOND, 0);
 
         for (int day = 1; day <= maxDate; day++) {
-            View child = getActivity().getLayoutInflater().inflate(R.layout.calendar_date, null);
+            View child = getContext().getLayoutInflater().inflate(R.layout.calendar_date, null);
             TextView textView1 = (TextView) child.findViewById(R.id.textView1);
             ImageView imageView1 = (ImageView) child.findViewById(R.id.imageViewDone);
 
@@ -332,7 +337,7 @@ public class CalendarGrid extends Fragment {
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.width = mCalendarCellWidth;
             params.height = mCalendarCellHeight;
-            View child = getActivity().getLayoutInflater().inflate(R.layout.calendar_date, null);
+            View child = getContext().getLayoutInflater().inflate(R.layout.calendar_date, null);
             child.setBackgroundResource(R.drawable.bg_calendar_day_blank);
             mGridLayout.addView(child, params);
         }
@@ -365,7 +370,7 @@ public class CalendarGrid extends Fragment {
     }
 
     private void calculateCalendarViewSize(View view) {
-        final Display display = getActivity().getWindowManager().getDefaultDisplay();
+        final Display display = getContext().getWindowManager().getDefaultDisplay();
         final Point displaySize = new Point();
         display.getSize(displaySize);
         final Resources resources = getResources();
@@ -405,6 +410,11 @@ public class CalendarGrid extends Fragment {
                     }
                 }
 
+                if (getContext() == null) {
+                    Log.d(TAG, this.getClass().getName() + "setOnGlobalLayoutListener() : getContext() null.");
+                    return;
+                }
+
                 calculateCalendarViewSize(view);
                 buildCalendar(view);
             }
@@ -415,7 +425,7 @@ public class CalendarGrid extends Fragment {
     private void shareDisplayedCalendarView() {
         final String BITMAP_PATH = mDatabaseAdapter.backupDirPath() + "/temp_share_image.png";
 
-        View calendarRoot = getActivity().findViewById(R.id.calendar_root);
+        View calendarRoot = getContext().findViewById(R.id.calendar_root);
         calendarRoot.setDrawingCacheEnabled(true);
 
         File bitmapFile = new File(BITMAP_PATH);
@@ -455,15 +465,15 @@ public class CalendarGrid extends Fragment {
         ComboCount comboCount = mDatabaseAdapter.getComboCount(mTask.getTaskID());
         String extraText = "";
         if (mMonthOffset == 0 && comboCount.currentCount > 1) {
-            extraText += getActivity().getString(R.string.share_combo, mTask.getName(), comboCount.currentCount);
+            extraText += getContext().getString(R.string.share_combo, mTask.getName(), comboCount.currentCount);
         } else {
             Calendar current = DateChangeTimeUtil.getDateTimeCalendar();
             current.add(Calendar.MONTH, mMonthOffset);
             current.set(Calendar.DAY_OF_MONTH, 1);
             ArrayList<Date> doneDateList = mDatabaseAdapter.getHistory(mTask.getTaskID(), current.getTime());
-            extraText += getActivity().getString(R.string.share_non_combo, mTask.getName(), doneDateList.size());
+            extraText += getContext().getString(R.string.share_non_combo, mTask.getName(), doneDateList.size());
         }
-        extraText += " " + getActivity().getString(R.string.share_app_url);
+        extraText += " " + getContext().getString(R.string.share_app_url);
         intent.putExtra(Intent.EXTRA_TEXT, extraText);
         startActivity(intent);
     }
