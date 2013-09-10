@@ -255,7 +255,7 @@ class SortableListView extends ListView {
         v.setImageBitmap(bm);
         mDragBitmap = bm;
 
-        mWindowManager = (WindowManager) context.getSystemService("window");
+        mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         mWindowManager.addView(v, mWindowParams);
         mDragView = v;
     }

@@ -90,7 +90,7 @@ public class TasksActivity extends Activity implements
                     public void onItemClick(AdapterView<?> parent, View view,
                                             int position, long id) {
                         // Show calendar view
-                        TaskListItem item = (TaskListItem) mDataList
+                        TaskListItem item = mDataList
                                 .get(position);
                         if (item.type == TYPE_ITEM) {
                             Task task = (Task) item.data;

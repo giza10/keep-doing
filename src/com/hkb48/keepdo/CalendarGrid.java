@@ -54,11 +54,12 @@ public class CalendarGrid extends Fragment {
     private static GridLayout mGridLayout;
     private static volatile View mPressedView;
 
-    private int mMonthOffset;
     private CheckSoundPlayer mCheckSound;
+    private int mMonthOffset;
     private int mCalendarCellWidth;
     private int mCalendarCellHeight;
     private int mDoneIconId;
+    private boolean mIsShareOnTop;
 
     private CalendarGrid() {
     }
@@ -105,7 +106,9 @@ public class CalendarGrid extends Fragment {
 
     public void onResume() {
         mCheckSound.load();
+        mIsShareOnTop = false;
         setHasOptionsMenu(true);
+
         super.onResume();
     }
 
@@ -131,7 +134,10 @@ public class CalendarGrid extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_share:
-                shareDisplayedCalendarView();
+                if (!mIsShareOnTop) {
+                    shareDisplayedCalendarView();
+                    mIsShareOnTop = true;
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -197,7 +203,7 @@ public class CalendarGrid extends Fragment {
         return super.onContextItemSelected(item);
     }
 
-    public final FragmentActivity getContext() {
+    final FragmentActivity getContext() {
         return this.getActivity();
     }
 
@@ -357,8 +363,8 @@ public class CalendarGrid extends Fragment {
     /**
      * Get dayOfWeek value from index of week.
      *
-     * @param indexOfWeek
-     * @return dayOfWeek value defined in Calendar class
+     * @param indexOfWeek The index of week.
+     * @return dayOfWeek Value defined in Calendar class.
      */
     private int getDayOfWeek(int indexOfWeek) {
         int startDayOfWeek = getStartDayOfWeek();
@@ -402,7 +408,7 @@ public class CalendarGrid extends Fragment {
             @SuppressWarnings("deprecation")
             public void onGlobalLayout() {
                 ViewTreeObserver observer = view.getViewTreeObserver();
-                if (observer.isAlive()) {
+                if ((observer != null) && (observer.isAlive())) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                         observer.removeOnGlobalLayoutListener(this);
                     } else {
