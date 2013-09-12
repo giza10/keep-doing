@@ -16,7 +16,7 @@ import java.util.Locale;
 /**
  * TODO: document your custom view class.
  */
-class TaskDetailFragment extends Fragment {
+public class TaskDetailFragment extends Fragment {
 
     public TaskDetailFragment() {
     }
