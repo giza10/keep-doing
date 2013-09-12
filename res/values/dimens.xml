@@ -1,13 +1,11 @@
 <resources>
 
-    <dimen name="calendar_padding_width">10dp</dimen>
-    <dimen name="calendar_padding_height">14dp</dimen>
-
+    <dimen name="calendar_padding_leftright">10dp</dimen>
+    <dimen name="calendar_padding_bottom">30dp</dimen>
     <dimen name="calendar_date_margin_top">12dp</dimen>
     <dimen name="calendar_date_margin_left">0dp</dimen>
-
     <dimen name="task_detailed_category_font_size">18sp</dimen>
     <dimen name="task_detailed_contents_font_size">14sp</dimen>
-
     <dimen name="tasksort_item_height">60dp</dimen>
+
 </resources>

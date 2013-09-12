@@ -1,32 +1,23 @@
 package com.hkb48.keepdo;
 
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Point;
-import android.graphics.Rect;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.Display;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.File;
@@ -38,7 +29,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-
 public class CalendarGrid extends Fragment {
     private static final String TAG = "#KEEPDO_CALENDARGRID: ";
 
@@ -47,17 +37,14 @@ public class CalendarGrid extends Fragment {
     private static final int CONTEXT_MENU_CHECK_DONE = 0;
     private static final int CONTEXT_MENU_UNCHECK_DONE = 1;
     private static final int NUM_OF_DAYS_IN_WEEK = 7;
-    private static final int NUM_OF_MAX_WEEKS_IN_MONTH = 6;
 
     private static DatabaseAdapter mDatabaseAdapter;
     private static Task mTask;
-    private static GridLayout mGridLayout;
+    private static LinearLayout mCalendarGrid;
     private static volatile View mPressedView;
 
     private CheckSoundPlayer mCheckSound;
     private int mMonthOffset;
-    private int mCalendarCellWidth;
-    private int mCalendarCellHeight;
     private int mDoneIconId;
     private boolean mIsShareOnTop;
 
@@ -77,7 +64,8 @@ public class CalendarGrid extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         return inflater.inflate(R.layout.calendar_sub_page, container, false);
     }
 
@@ -94,11 +82,9 @@ public class CalendarGrid extends Fragment {
         mCheckSound = new CheckSoundPlayer(getContext());
         mMonthOffset = (getArguments() != null) ? (getArguments().getInt(POSITION_KEY) - CalendarFragment.NUM_MAXIMUM_MOUNTHS  + 1) : (0);
 
-        mGridLayout = (GridLayout)view.findViewById(R.id.gridLayout);
+        mCalendarGrid = (LinearLayout) view.findViewById(R.id.calendar_grid);
 
-        buildCalendar(view);
-
-        setOnGlobalLayoutListener(mGridLayout);
+        buildCalendar();
 
         Intent returnIntent = new Intent();
         getContext().setResult(TaskActivity.RESULT_CANCELED, returnIntent);
@@ -145,7 +131,8 @@ public class CalendarGrid extends Fragment {
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(ContextMenu menu, View view,
+            ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, view, menuInfo);
 
         if (view == null) {
@@ -155,10 +142,12 @@ public class CalendarGrid extends Fragment {
 
         mPressedView = view;
         Date date = (Date) mPressedView.getTag();
-        SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.date_format), Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat(
+                getString(R.string.date_format), Locale.US);
         menu.setHeaderTitle(sdf.format(date));
 
-        ImageView imageView = (ImageView) mPressedView.findViewById(R.id.imageViewDone);
+        ImageView imageView = (ImageView) mPressedView
+                .findViewById(R.id.imageViewDone);
         int visibility = imageView.getVisibility();
         if (visibility == View.VISIBLE) {
             menu.add(0, CONTEXT_MENU_UNCHECK_DONE, 0, R.string.uncheck_done);
@@ -174,21 +163,24 @@ public class CalendarGrid extends Fragment {
             return false;
         }
 
-        ImageView imageView = (ImageView) mPressedView.findViewById(R.id.imageViewDone);
+        ImageView imageView = (ImageView) mPressedView
+                .findViewById(R.id.imageViewDone);
         Date selectedDate = (Date) mPressedView.getTag();
 
         switch (item.getItemId()) {
-            case CONTEXT_MENU_CHECK_DONE:
-                showDoneIcon(imageView);
-                mDatabaseAdapter.setDoneStatus(mTask.getTaskID(), selectedDate, true);
-                mCheckSound.play();
-                break;
-            case CONTEXT_MENU_UNCHECK_DONE:
-                hideDoneIcon(imageView);
-                mDatabaseAdapter.setDoneStatus(mTask.getTaskID(), selectedDate, false);
-                break;
-            default:
-                break;
+        case CONTEXT_MENU_CHECK_DONE:
+            showDoneIcon(imageView);
+            mDatabaseAdapter.setDoneStatus(mTask.getTaskID(), selectedDate,
+                    true);
+            mCheckSound.play();
+            break;
+        case CONTEXT_MENU_UNCHECK_DONE:
+            hideDoneIcon(imageView);
+            mDatabaseAdapter.setDoneStatus(mTask.getTaskID(), selectedDate,
+                    false);
+            break;
+        default:
+            break;
         }
 
         Date today = DateChangeTimeUtil.getDate();
@@ -196,7 +188,8 @@ public class CalendarGrid extends Fragment {
             ReminderManager.getInstance().setNextAlert(getContext());
         }
 
-        // Set result of this activity as OK to inform that the done status is updated
+        // Set result of this activity as OK to inform that the done status is
+        // updated
         Intent returnIntent = new Intent();
         getContext().setResult(TaskActivity.RESULT_OK, returnIntent);
 
@@ -209,39 +202,44 @@ public class CalendarGrid extends Fragment {
 
     private void addDayOfWeek() {
         String[] weeks = getResources().getStringArray(R.array.week_names);
-        for (int i = 0; i < 7; i++) {
+        LinearLayout row = new LinearLayout(getContext());
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        for (int i = 0; i < NUM_OF_DAYS_IN_WEEK; i++) {
             int dayOfWeek = getDayOfWeek(i);
             View child = getContext().getLayoutInflater().inflate(R.layout.calendar_week, null);
 
             TextView textView1 = (TextView) child.findViewById(R.id.textView1);
             textView1.setText(weeks[dayOfWeek - 1]);
             switch (dayOfWeek) {
-                case Calendar.SUNDAY:
-                    textView1.setBackgroundResource(R.drawable.bg_calendar_sunday);
-                    break;
-                case Calendar.SATURDAY:
-                    textView1.setBackgroundResource(R.drawable.bg_calendar_saturday);
-                    break;
-                default:
-                    textView1.setBackgroundResource(R.drawable.bg_calendar_weekday);
-                    break;
+            case Calendar.SUNDAY:
+                textView1.setBackgroundResource(R.drawable.bg_calendar_sunday);
+                break;
+            case Calendar.SATURDAY:
+                textView1
+                        .setBackgroundResource(R.drawable.bg_calendar_saturday);
+                break;
+            default:
+                textView1.setBackgroundResource(R.drawable.bg_calendar_weekday);
+                break;
             }
 
-            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-            params.width = mCalendarCellWidth;
-            params.setGravity(Gravity.FILL_HORIZONTAL);
-            mGridLayout.addView(child, params);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0,
+                    ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f);
+            row.addView(child, params);
         }
+        mCalendarGrid.addView(row, rowParams);
     }
 
-    private void buildCalendar(final View view) {
+    private void buildCalendar() {
         Calendar current = DateChangeTimeUtil.getDateTimeCalendar();
         current.add(Calendar.MONTH, mMonthOffset);
         current.set(Calendar.DAY_OF_MONTH, 1);
 
-        mGridLayout.removeAllViews();
-
-        calculateCalendarViewSize(view);
+        mCalendarGrid.removeAllViews();
 
         addDayOfWeek();
 
@@ -263,23 +261,29 @@ public class CalendarGrid extends Fragment {
         final int year = calendar.get(Calendar.YEAR);
         final int month = calendar.get(Calendar.MONTH);
         final int startDayOfWeek = getStartDayOfWeek();
-        final int today = DateChangeTimeUtil.getDateTimeCalendar().get(Calendar.DAY_OF_MONTH);
+        final int today = DateChangeTimeUtil.getDateTimeCalendar().get(
+                Calendar.DAY_OF_MONTH);
 
-        ArrayList<Date> doneDateList = mDatabaseAdapter.getHistory(mTask.getTaskID(), calendar.getTime());
+        ArrayList<Date> doneDateList = mDatabaseAdapter.getHistory(
+                mTask.getTaskID(), calendar.getTime());
         SimpleDateFormat sdf_d = new SimpleDateFormat("dd", Locale.JAPAN);
 
-        // Fill the days of previous month in the first week with blank rectangle
-        final int blankDaysInFirstWeek = (week - startDayOfWeek + 7) % 7;
-        for (int i = 0; i < blankDaysInFirstWeek; i++) {
-            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-            params.rowSpec = GridLayout.spec(1);
-            params.columnSpec = GridLayout.spec(i);
-            params.width = mCalendarCellWidth;
-            params.height = mCalendarCellHeight;
+        // Fill the days of previous month in the first week with blank
+        // rectangle
+        LinearLayout row = new LinearLayout(this.getContext());
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        final LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.0f);
+        final LinearLayout.LayoutParams childParams = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.MATCH_PARENT, 1.0f);
 
-            View child = getContext().getLayoutInflater().inflate(R.layout.calendar_date, null);
+        final int blankDaysInFirstWeek = (week - startDayOfWeek + NUM_OF_DAYS_IN_WEEK)
+                % NUM_OF_DAYS_IN_WEEK;
+        for (int i = 0; i < blankDaysInFirstWeek; i++) {
+            View child = getContext().getLayoutInflater().inflate(
+                    R.layout.calendar_date, null);
             child.setBackgroundResource(R.drawable.bg_calendar_day_blank);
-            mGridLayout.addView(child, params);
+            row.addView(child, childParams);
         }
 
         Calendar date = Calendar.getInstance();
@@ -288,14 +292,22 @@ public class CalendarGrid extends Fragment {
         date.set(Calendar.SECOND, 0);
         date.set(Calendar.MILLISECOND, 0);
 
+        int weekIndex = blankDaysInFirstWeek;
         for (int day = 1; day <= maxDate; day++) {
-            View child = getContext().getLayoutInflater().inflate(R.layout.calendar_date, null);
+            if (weekIndex == 0) {
+                // Go to next week
+                mCalendarGrid.addView(row, rowParams);
+                row = new LinearLayout(getContext());
+            }
+
+            View child = getContext().getLayoutInflater().inflate(
+                    R.layout.calendar_date, null);
             TextView textView1 = (TextView) child.findViewById(R.id.textView1);
-            ImageView imageView1 = (ImageView) child.findViewById(R.id.imageViewDone);
+            ImageView imageView1 = (ImageView) child
+                    .findViewById(R.id.imageViewDone);
 
             // Register context menu to change done status of past days.
-            if ((mMonthOffset < 0) ||
-                    ((mMonthOffset == 0) && (day <= today))) {
+            if ((mMonthOffset < 0) || ((mMonthOffset == 0) && (day <= today))) {
                 date.set(year, month, day);
                 child.setTag(date.getTime());
                 registerForContextMenu(child);
@@ -327,36 +339,31 @@ public class CalendarGrid extends Fragment {
                 }
             }
 
-            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-            params.width = mCalendarCellWidth;
-            params.height = mCalendarCellHeight;
-            params.setGravity(Gravity.FILL_HORIZONTAL);
-            mGridLayout.addView(child, params);
-
+            row.addView(child, childParams);
             calendar.add(Calendar.DAY_OF_MONTH, 1);
-
+            weekIndex = (weekIndex + 1) % NUM_OF_DAYS_IN_WEEK;
         }
 
         // Fill the days of next month in the last week with blank rectangle
-        final int blankDaysInLastWeek = (7 - week + (startDayOfWeek - 1)) % 7;
+        final int blankDaysInLastWeek = (NUM_OF_DAYS_IN_WEEK - week + (startDayOfWeek - 1))
+                % NUM_OF_DAYS_IN_WEEK;
         for (int i = 0; i < blankDaysInLastWeek; i++) {
-            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-            params.width = mCalendarCellWidth;
-            params.height = mCalendarCellHeight;
-            View child = getContext().getLayoutInflater().inflate(R.layout.calendar_date, null);
+            View child = getContext().getLayoutInflater().inflate(
+                    R.layout.calendar_date, null);
             child.setBackgroundResource(R.drawable.bg_calendar_day_blank);
-            mGridLayout.addView(child, params);
+            row.addView(child, childParams);
         }
+        mCalendarGrid.addView(row, rowParams);
     }
 
     private int getFontColorOfWeek(int dayOfWeek) {
         switch (dayOfWeek) {
-            case Calendar.SUNDAY:
-                return Color.RED;
-            case Calendar.SATURDAY:
-                return Color.BLUE;
-            default:
-                return Color.BLACK;
+        case Calendar.SUNDAY:
+            return Color.RED;
+        case Calendar.SATURDAY:
+            return Color.BLUE;
+        default:
+            return Color.BLACK;
         }
     }
 
@@ -368,68 +375,16 @@ public class CalendarGrid extends Fragment {
      */
     private int getDayOfWeek(int indexOfWeek) {
         int startDayOfWeek = getStartDayOfWeek();
-        return (indexOfWeek + (startDayOfWeek - 1)) % 7 + 1;
+        return (indexOfWeek + (startDayOfWeek - 1)) % NUM_OF_DAYS_IN_WEEK + 1;
     }
 
     private int getStartDayOfWeek() {
         return Settings.getWeekStartDay();
     }
 
-    private void calculateCalendarViewSize(View view) {
-        final Display display = getContext().getWindowManager().getDefaultDisplay();
-        final Point displaySize = new Point();
-        display.getSize(displaySize);
-        final Resources resources = getResources();
-        Configuration config = resources.getConfiguration();
-
-        int cellWidth;
-        int cellHeight;
-        if (config.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            cellWidth = (displaySize.x - resources.getDimensionPixelSize(R.dimen.calendar_padding_width)) / NUM_OF_DAYS_IN_WEEK;
-            cellHeight = cellWidth + resources.getDimensionPixelSize(R.dimen.calendar_date_margin_top);
-
-        } else {
-            Rect rect = new Rect();
-            view.getWindowVisibleDisplayFrame(rect);
-            final int visibleWindowTop = rect.top;
-            final int calendarTop = view.getTop();
-            final int calendarPaddingHeight = resources.getDimensionPixelSize(R.dimen.calendar_padding_height);
-            final int calendarHeight = displaySize.y - calendarPaddingHeight - calendarTop - visibleWindowTop;// - buttonHeight;
-            cellHeight = calendarHeight / NUM_OF_MAX_WEEKS_IN_MONTH;
-            cellWidth = cellHeight + resources.getDimensionPixelSize(R.dimen.calendar_date_margin_left);
-        }
-
-        mCalendarCellWidth = cellWidth;
-        mCalendarCellHeight = cellHeight;
-    }
-
-    private void setOnGlobalLayoutListener(final View view) {
-        final OnGlobalLayoutListener listener = new OnGlobalLayoutListener() {
-            @SuppressWarnings("deprecation")
-            public void onGlobalLayout() {
-                ViewTreeObserver observer = view.getViewTreeObserver();
-                if ((observer != null) && (observer.isAlive())) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        observer.removeOnGlobalLayoutListener(this);
-                    } else {
-                        observer.removeGlobalOnLayoutListener(this);
-                    }
-                }
-
-                if (getContext() == null) {
-                    Log.d(TAG, this.getClass().getName() + "setOnGlobalLayoutListener() : getContext() null.");
-                    return;
-                }
-
-                calculateCalendarViewSize(view);
-                buildCalendar(view);
-            }
-        };
-        view.getViewTreeObserver().addOnGlobalLayoutListener(listener);
-    }
-
     private void shareDisplayedCalendarView() {
-        final String BITMAP_PATH = mDatabaseAdapter.backupDirPath() + "/temp_share_image.png";
+        final String BITMAP_PATH = mDatabaseAdapter.backupDirPath()
+                + "/temp_share_image.png";
 
         View calendarRoot = getContext().findViewById(R.id.calendar_root);
         calendarRoot.setDrawingCacheEnabled(true);
@@ -438,9 +393,11 @@ public class CalendarGrid extends Fragment {
         bitmapFile.getParentFile().mkdir();
         Bitmap bitmap = Bitmap.createBitmap(calendarRoot.getDrawingCache());
 
-        Bitmap baseBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_4444);
+        Bitmap baseBitmap = Bitmap.createBitmap(bitmap.getWidth(),
+                bitmap.getHeight(), Bitmap.Config.ARGB_4444);
         Canvas bmpCanvas = new Canvas(baseBitmap);
-        bmpCanvas.drawColor(getResources().getColor(R.color.calendar_bg_fargment));
+        bmpCanvas.drawColor(getResources().getColor(
+                R.color.calendar_bg_fargment));
         bmpCanvas.drawBitmap(bitmap, 0, 0, null);
 
         FileOutputStream fos = null;
@@ -468,7 +425,8 @@ public class CalendarGrid extends Fragment {
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setType("image/png");
         intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(bitmapFile));
-        ComboCount comboCount = mDatabaseAdapter.getComboCount(mTask.getTaskID());
+        ComboCount comboCount = mDatabaseAdapter.getComboCount(mTask
+                .getTaskID());
         String extraText = "";
         if (mMonthOffset == 0 && comboCount.currentCount > 1) {
             extraText += getContext().getString(R.string.share_combo, mTask.getName(), comboCount.currentCount);
@@ -485,7 +443,8 @@ public class CalendarGrid extends Fragment {
     }
 
     public static CharSequence getPageTitle(int position) {
-        final int pageNumber = position - CalendarFragment.NUM_MAXIMUM_MOUNTHS + 1;
+        final int pageNumber = position - CalendarFragment.NUM_MAXIMUM_MOUNTHS
+                + 1;
 
         Calendar current = DateChangeTimeUtil.getDateTimeCalendar();
         current.add(Calendar.MONTH, pageNumber);

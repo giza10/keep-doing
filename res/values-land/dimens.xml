@@ -1,4 +1,8 @@
 <resources>
+
     <dimen name="calendar_date_margin_top">0dp</dimen>
     <dimen name="calendar_date_margin_left">12dp</dimen>
+    <dimen name="calendar_padding_leftright">30dp</dimen>
+    <dimen name="calendar_padding_bottom">5dp</dimen>
+
 </resources>
