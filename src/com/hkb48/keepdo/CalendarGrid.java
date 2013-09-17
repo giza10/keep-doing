@@ -294,12 +294,6 @@ public class CalendarGrid extends Fragment {
 
         int weekIndex = blankDaysInFirstWeek;
         for (int day = 1; day <= maxDate; day++) {
-            if (weekIndex == 0) {
-                // Go to next week
-                mCalendarGrid.addView(row, rowParams);
-                row = new LinearLayout(getContext());
-            }
-
             View child = getContext().getLayoutInflater().inflate(
                     R.layout.calendar_date, null);
             TextView textView1 = (TextView) child.findViewById(R.id.textView1);
@@ -342,18 +336,26 @@ public class CalendarGrid extends Fragment {
             row.addView(child, childParams);
             calendar.add(Calendar.DAY_OF_MONTH, 1);
             weekIndex = (weekIndex + 1) % NUM_OF_DAYS_IN_WEEK;
+
+            if (weekIndex == 0) {
+                // Go to next week
+                mCalendarGrid.addView(row, rowParams);
+                row = new LinearLayout(getContext());
+            }
         }
 
         // Fill the days of next month in the last week with blank rectangle
         final int blankDaysInLastWeek = (NUM_OF_DAYS_IN_WEEK - week + (startDayOfWeek - 1))
                 % NUM_OF_DAYS_IN_WEEK;
-        for (int i = 0; i < blankDaysInLastWeek; i++) {
-            View child = getContext().getLayoutInflater().inflate(
-                    R.layout.calendar_date, null);
-            child.setBackgroundResource(R.drawable.bg_calendar_day_blank);
-            row.addView(child, childParams);
+        if (blankDaysInLastWeek > 0) {
+            for (int i = 0; i < blankDaysInLastWeek; i++) {
+                View child = getContext().getLayoutInflater().inflate(
+                        R.layout.calendar_date, null);
+                child.setBackgroundResource(R.drawable.bg_calendar_day_blank);
+                row.addView(child, childParams);
+            }
+            mCalendarGrid.addView(row, rowParams);
         }
-        mCalendarGrid.addView(row, rowParams);
     }
 
     private int getFontColorOfWeek(int dayOfWeek) {
