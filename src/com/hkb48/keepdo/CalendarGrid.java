@@ -143,7 +143,7 @@ public class CalendarGrid extends Fragment {
         mPressedView = view;
         Date date = (Date) mPressedView.getTag();
         SimpleDateFormat sdf = new SimpleDateFormat(
-                getString(R.string.date_format), Locale.US);
+                getString(R.string.date_format), Locale.getDefault());
         menu.setHeaderTitle(sdf.format(date));
 
         ImageView imageView = (ImageView) mPressedView
