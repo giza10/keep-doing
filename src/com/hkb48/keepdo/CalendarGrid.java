@@ -158,6 +158,7 @@ public class CalendarGrid extends Fragment {
 
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
+        boolean consumed = false;
         if (mPressedView == null) {
             Log.e(TAG, "mPressedView is null!");
             return false;
@@ -173,11 +174,13 @@ public class CalendarGrid extends Fragment {
             mDatabaseAdapter.setDoneStatus(mTask.getTaskID(), selectedDate,
                     true);
             mCheckSound.play();
+            consumed = true;
             break;
         case CONTEXT_MENU_UNCHECK_DONE:
             hideDoneIcon(imageView);
             mDatabaseAdapter.setDoneStatus(mTask.getTaskID(), selectedDate,
                     false);
+            consumed = true;
             break;
         default:
             break;
@@ -193,7 +196,11 @@ public class CalendarGrid extends Fragment {
         Intent returnIntent = new Intent();
         getContext().setResult(TaskActivity.RESULT_OK, returnIntent);
 
-        return super.onContextItemSelected(item);
+        if (consumed) {
+            return true;
+        } else {
+            return super.onContextItemSelected(item);
+        }
     }
 
     final FragmentActivity getContext() {
