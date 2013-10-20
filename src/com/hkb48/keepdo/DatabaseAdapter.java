@@ -39,6 +39,7 @@ class DatabaseAdapter {
     private static final String SDF_PATTERN_YM = "yyyy-MM";
     private static final String SELECT_FORM = "select * from ";
     private static final String SELECT_ARG_FORM = " where ";
+    private static final String SELECT_FORM_DISTINCT = "select * distinct from ";
 
     private static DatabaseAdapter INSTANCE = null;
     private DatabaseHelper mDatabaseHelper = null;
@@ -241,7 +242,7 @@ class DatabaseAdapter {
 
     public int getNumberOfDone(Long taskID) {
         int numberOfDone = 0;
-        String selectQuery = SELECT_FORM + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
+        String selectQuery = SELECT_FORM_DISTINCT + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         if (cursor != null) {
             numberOfDone = cursor.getCount();

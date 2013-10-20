@@ -18,7 +18,7 @@ final class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "keepdo_tracker.db";
     private static DatabaseHelper INSTANCE = null;
     private final Context mContext;
-    
+
     /*
      * The first version is 1, the latest version is 3
      * Version [1] initial columns
@@ -79,7 +79,7 @@ final class DatabaseHelper extends SQLiteOpenHelper {
     public void onOpen(SQLiteDatabase db) {
         super.onOpen(db);
     }   
-    
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (BuildConfig.DEBUG) {
@@ -103,7 +103,7 @@ final class DatabaseHelper extends SQLiteOpenHelper {
 				default:
 					break;
 	    		}
-	    		
+
 	    		if (!success) {
                     if (BuildConfig.DEBUG) Log.d(TAG, "Error updating database, reverting changes!");
                     break;
@@ -169,5 +169,5 @@ final class DatabaseHelper extends SQLiteOpenHelper {
 
     final String databasePath() {
     	return mContext.getDatabasePath(DatabaseHelper.DB_NAME).getPath();
-    }    
+    }
 }
