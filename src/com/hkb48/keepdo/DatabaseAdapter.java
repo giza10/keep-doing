@@ -39,7 +39,7 @@ class DatabaseAdapter {
     private static final String SDF_PATTERN_YM = "yyyy-MM";
     private static final String SELECT_FORM = "select * from ";
     private static final String SELECT_ARG_FORM = " where ";
-    private static final String SELECT_FORM_DISTINCT = "select * distinct from ";
+    private static final String SELECT_FORM_DISTINCT = "select distinct * from ";
 
     private static DatabaseAdapter INSTANCE = null;
     private DatabaseHelper mDatabaseHelper = null;
