@@ -39,7 +39,7 @@ class DatabaseAdapter {
     private static final String SDF_PATTERN_YM = "yyyy-MM";
     private static final String SELECT_FORM = "select * from ";
     private static final String SELECT_ARG_FORM = " where ";
-    private static final String SELECT_FORM_DISTINCT = "select distinct * from ";
+    private static final String SELECT_FORM_TASK_COMPLETION_DISTINCT = "select distinct "+ TaskCompletion.TASK_COMPLETION_DATE + " from ";
 
     private static DatabaseAdapter INSTANCE = null;
     private DatabaseHelper mDatabaseHelper = null;
@@ -218,7 +218,7 @@ class DatabaseAdapter {
 
     boolean getDoneStatus(Long taskID, Date day) {
         boolean isDone = false;
-        String selectQuery = SELECT_FORM + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
+        String selectQuery = SELECT_FORM_TASK_COMPLETION_DISTINCT + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
 
@@ -242,7 +242,7 @@ class DatabaseAdapter {
 
     public int getNumberOfDone(Long taskID) {
         int numberOfDone = 0;
-        String selectQuery = SELECT_FORM_DISTINCT + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
+        String selectQuery = SELECT_FORM_TASK_COMPLETION_DISTINCT + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         if (cursor != null) {
             numberOfDone = cursor.getCount();
@@ -314,7 +314,7 @@ class DatabaseAdapter {
 
     ArrayList<Date> getHistory(Long taskID, Date month) {
         ArrayList<Date> dateList = new ArrayList<Date>();
-        String selectQuery = SELECT_FORM + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
+        String selectQuery = SELECT_FORM_TASK_COMPLETION_DISTINCT + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
 
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
         SimpleDateFormat sdf_ym = new SimpleDateFormat(SDF_PATTERN_YM, Locale.JAPAN);
@@ -341,7 +341,7 @@ class DatabaseAdapter {
     	int maxCount = 0;
 
         Recurrence recurrence = getTask(taskID).getRecurrence();
-        String selectQuery = SELECT_FORM + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?"
+        String selectQuery = SELECT_FORM_TASK_COMPLETION_DISTINCT + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?"
         					+ " order by " + TaskCompletion.TASK_COMPLETION_DATE + " asc;";
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
 
