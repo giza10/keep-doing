@@ -16,7 +16,8 @@ public class ReminderManager {
     private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";
     private static ReminderManager sInstance;
 
-    private ReminderManager() {}
+    private ReminderManager() {
+    }
 
     public static ReminderManager getInstance() {
         if (sInstance == null) {
@@ -35,10 +36,12 @@ public class ReminderManager {
         for (Task task : taskList) {
             Reminder reminder = task.getReminder();
             if (reminder.getEnabled()) {
-                boolean isDoneToday = dbAdapter.getDoneStatus(task.getTaskID(), today);
+                boolean isDoneToday = dbAdapter.getDoneStatus(task.getTaskID(),
+                        today);
                 int hourOfDay = reminder.getHourOfDay();
                 int minute = reminder.getMinute();
-                Calendar nextSchedule = getNextSchedule(task.getRecurrence(), isDoneToday, hourOfDay, minute);
+                Calendar nextSchedule = getNextSchedule(task.getRecurrence(),
+                        isDoneToday, hourOfDay, minute);
                 if (nextSchedule != null) {
                     long nextTime = nextSchedule.getTimeInMillis();
                     if (minTime > nextTime) {
@@ -63,7 +66,8 @@ public class ReminderManager {
         Date today = time.getTime();
         final int dayOfWeek = time.get(Calendar.DAY_OF_WEEK);
 
-        // Add 1 minute to avoid that the next alarm is set to current time again.
+        // Add 1 minute to avoid that the next alarm is set to current time
+        // again.
         time.add(Calendar.MINUTE, 1);
 
         for (Task task : dbAdapter.getTaskList()) {
@@ -78,7 +82,8 @@ public class ReminderManager {
                 reminderTime.set(Calendar.MINUTE, minute);
 
                 // Check if today's reminder time is already exceeded
-                if (time.after(DateChangeTimeUtil.getDateTimeCalendar(reminderTime))) {
+                if (time.after(DateChangeTimeUtil
+                        .getDateTimeCalendar(reminderTime))) {
                     if (!dbAdapter.getDoneStatus(task.getTaskID(), today)) {
                         remainingList.add(task);
                     }
@@ -88,53 +93,72 @@ public class ReminderManager {
         return remainingList;
     }
 
-    private Calendar getNextSchedule(Recurrence recurrence, boolean isDoneToday, int hourOfDay, int minute) {
-        Calendar time = DateChangeTimeUtil.getDateTimeCalendar();
+    private Calendar getNextSchedule(Recurrence recurrence,
+            boolean isDoneToday, int hourOfDay, int minute) {
+        Calendar realTime = Calendar.getInstance();
+        realTime.setTimeInMillis(System.currentTimeMillis());
 
-        boolean todayAlreadyExceeded = false;
         int dayOffset = 0;
         boolean isSuccess = false;
 
-        boolean[] recurrenceFlags = {
-                recurrence.getSunday(),
-                recurrence.getMonday(),
-                recurrence.getTuesday(),
-                recurrence.getWednesday(),
-                recurrence.getThurday(),
-                recurrence.getFriday(),
-                recurrence.getSaturday()};
-        int dayOfWeek = time.get(Calendar.DAY_OF_WEEK) - 1;
+        boolean[] recurrenceFlags = { recurrence.getSunday(),
+                recurrence.getMonday(), recurrence.getTuesday(),
+                recurrence.getWednesday(), recurrence.getThurday(),
+                recurrence.getFriday(), recurrence.getSaturday() };
+        int dayOfWeek = DateChangeTimeUtil.getDateTimeCalendar(realTime).get(
+                Calendar.DAY_OF_WEEK) - 1;
 
         Calendar reminderTime = Calendar.getInstance();
         reminderTime.setTimeInMillis(System.currentTimeMillis());
         reminderTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
         reminderTime.set(Calendar.MINUTE, minute);
 
-        // Add 1 minute to avoid that the next alarm is set to current time again.
-        time.add(Calendar.MINUTE, 1);
+        final boolean isRealTimeDateAdjusted = DateChangeTimeUtil
+                .isDateAdjusted(realTime);
+        final boolean isReminderTimeDateAdjusted = DateChangeTimeUtil
+                .isDateAdjusted(reminderTime);
 
-        // Check if today's reminder time is already exceeded
-        if (time.after(DateChangeTimeUtil.getDateTimeCalendar(reminderTime))) {
-            todayAlreadyExceeded = true;
-        }
-        if (isDoneToday || todayAlreadyExceeded) {
-            dayOfWeek = (dayOfWeek + 1) % 7;
-            dayOffset++;
+        // Add 1 minute to avoid that the next alarm is set to current time
+        // again.
+        realTime.add(Calendar.MINUTE, 1);
+        final boolean todayAlreadyExceeded = realTime.after(reminderTime);
+
+        if (isRealTimeDateAdjusted) {
+            if (isReminderTimeDateAdjusted) {
+                if (isDoneToday || todayAlreadyExceeded) {
+                    // Next alarm will be tomorrow onward
+                    dayOffset++;
+                }
+            }
+        } else {
+            if (isReminderTimeDateAdjusted) {
+                // Next alarm will be tomorrow onward
+                dayOffset++;
+                if (isDoneToday) {
+                    // Next alarm will be day after tomorrow onward
+                    dayOffset++;
+                }
+            } else {
+                if (isDoneToday || todayAlreadyExceeded) {
+                    // Next alarm will be tomorrow onward
+                    dayOffset++;
+                }
+            }
         }
 
-        for (int counter=0; counter<7; counter++) {
+        dayOfWeek = (dayOfWeek + dayOffset) % 7;
+
+        for (int counter = 0; counter < 7; counter++) {
             if (recurrenceFlags[(dayOfWeek + counter) % 7]) {
                 dayOffset = dayOffset + counter;
                 isSuccess = true;
                 break;
             }
         }
-        if (! isSuccess) {
+        if (!isSuccess) {
             return null;
         }
 
-        Calendar realTime = Calendar.getInstance();
-        realTime.setTimeInMillis(System.currentTimeMillis());
         realTime.add(Calendar.DAY_OF_MONTH, dayOffset);
         realTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
         realTime.set(Calendar.MINUTE, minute);
@@ -144,15 +168,16 @@ public class ReminderManager {
     }
 
     private void startAlarm(Context context, long taskId, long timeInMillis) {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC_WAKEUP,
-                timeInMillis,
+        AlarmManager alarmManager = (AlarmManager) context
+                .getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis,
                 getPendingIntent(context, taskId));
         dumpLog(taskId, timeInMillis);
     }
 
     private void stopAlarm(Context context, long taskId) {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        AlarmManager alarmManager = (AlarmManager) context
+                .getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(getPendingIntent(context, taskId));
     }
 
@@ -160,7 +185,8 @@ public class ReminderManager {
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.putExtra("TASK-ID", taskId);
         intent.setType("Reminder");
-        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        return PendingIntent.getBroadcast(context, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private void dumpLog(long taskId, long timeInMillis) {
@@ -168,9 +194,10 @@ public class ReminderManager {
             Calendar time = Calendar.getInstance();
             time.setTimeInMillis(timeInMillis);
             MessageFormat mf = new MessageFormat("{0,date,yyyy/MM/dd HH:mm:ss}");
-            Object[] objs = {time.getTime()};
+            Object[] objs = { time.getTime() };
             String result = mf.format(objs);
-            Log.v(TAG_KEEPDO + "ReminderManager", "taskId:" + taskId + ", time:" + result);
+            Log.v(TAG_KEEPDO + "ReminderManager", "taskId:" + taskId
+                    + ", time:" + result);
         }
     }
 }

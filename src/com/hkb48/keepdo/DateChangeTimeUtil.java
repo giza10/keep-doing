@@ -41,6 +41,16 @@ public class DateChangeTimeUtil {
         return dateChangeTime;
     }
 
+    public static boolean isDateAdjusted(Calendar realTime) {
+        Calendar dateChangeTime = getDateTimeCalendar(realTime);
+        if (realTime.get(Calendar.DAY_OF_MONTH) > dateChangeTime
+                .get(Calendar.DAY_OF_MONTH)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public static class DateChangeTime {
         int hourOfDay;
         int minute;
