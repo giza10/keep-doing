@@ -62,13 +62,16 @@ public class ReminderManager {
     public List<Task> getRemainingUndoneTaskList(final Context context) {
         DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(context);
         List<Task> remainingList = new ArrayList<Task>();
-        Calendar time = DateChangeTimeUtil.getDateTimeCalendar();
-        Date today = time.getTime();
-        final int dayOfWeek = time.get(Calendar.DAY_OF_WEEK);
+        Calendar realTime = Calendar.getInstance();
+        realTime.setTimeInMillis(System.currentTimeMillis());
+        final Date today = DateChangeTimeUtil.getDateTimeCalendar(realTime)
+                .getTime();
+        final int dayOfWeek = DateChangeTimeUtil.getDateTimeCalendar(realTime)
+                .get(Calendar.DAY_OF_WEEK);
 
         // Add 1 minute to avoid that the next alarm is set to current time
         // again.
-        time.add(Calendar.MINUTE, 1);
+        realTime.add(Calendar.MINUTE, 1);
 
         for (Task task : dbAdapter.getTaskList()) {
             Reminder reminder = task.getReminder();
@@ -82,8 +85,7 @@ public class ReminderManager {
                 reminderTime.set(Calendar.MINUTE, minute);
 
                 // Check if today's reminder time is already exceeded
-                if (time.after(DateChangeTimeUtil
-                        .getDateTimeCalendar(reminderTime))) {
+                if (hasReminderAlreadyExceeded(realTime, reminderTime)) {
                     if (!dbAdapter.getDoneStatus(task.getTaskID(), today)) {
                         remainingList.add(task);
                     }
@@ -121,7 +123,8 @@ public class ReminderManager {
         // Add 1 minute to avoid that the next alarm is set to current time
         // again.
         realTime.add(Calendar.MINUTE, 1);
-        final boolean todayAlreadyExceeded = realTime.after(reminderTime);
+        final boolean todayAlreadyExceeded = hasReminderAlreadyExceeded(
+                realTime, reminderTime);
 
         if (isRealTimeDateAdjusted) {
             if (isReminderTimeDateAdjusted) {
@@ -165,6 +168,22 @@ public class ReminderManager {
         realTime.set(Calendar.SECOND, 0);
         realTime.set(Calendar.MILLISECOND, 0);
         return realTime;
+    }
+
+    private boolean hasReminderAlreadyExceeded(Calendar realTime,
+            Calendar reminderTime) {
+        final boolean isRealTimeDateAdjusted = DateChangeTimeUtil
+                .isDateAdjusted(realTime);
+        final boolean isReminderTimeDateAdjusted = DateChangeTimeUtil
+                .isDateAdjusted(reminderTime);
+
+        if (isRealTimeDateAdjusted && !isReminderTimeDateAdjusted) {
+            return true;
+        } else if (!isRealTimeDateAdjusted && isReminderTimeDateAdjusted) {
+            return false;
+        } else {
+            return realTime.after(reminderTime);
+        }
     }
 
     private void startAlarm(Context context, long taskId, long timeInMillis) {
