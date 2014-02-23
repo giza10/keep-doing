@@ -62,6 +62,24 @@
         	android:exported="false" >
         </provider>
 
-    </application>
+		<receiver android:name=".widget.TasksWidget" android:label="@string/app_name">
+			<intent-filter>
+				<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+			</intent-filter>
+			<meta-data android:name="android.appwidget.provider" android:resource="@xml/taskswidget" />
+		</receiver>
+
+		<service
+			android:name=".widget.TasksWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"
+            android:exported="false" />
+
+		<!-- The content provider serving the (fake) weather data -->
+        <provider android:name=".widget.DummyWeatherDataProvider"
+              android:authorities="com.hkb48.keepdo.widget.dummyprovider"
+              android:exported="true" >
+		</provider>
+
+	</application>
 
 </manifest>
