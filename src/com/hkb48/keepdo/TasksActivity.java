@@ -337,6 +337,7 @@ public class TasksActivity extends Activity implements
                             Toast.makeText(TasksActivity.this,
                                     R.string.backup_done, Toast.LENGTH_SHORT)
                                     .show();
+                            break;
                         case 1:
                             // execute restore
                             restoreTaskData();
@@ -344,7 +345,9 @@ public class TasksActivity extends Activity implements
                             Toast.makeText(TasksActivity.this,
                                     R.string.restore_done, Toast.LENGTH_SHORT)
                                     .show();
+                            break;
                         default:
+                            break;
                         }
                     }
                 });
