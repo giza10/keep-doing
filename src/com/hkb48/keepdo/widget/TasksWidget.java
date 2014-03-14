@@ -21,6 +21,7 @@ import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.hkb48.keepdo.R;
+import com.hkb48.keepdo.TasksActivity;
 
 class WeatherDataProviderObserver extends ContentObserver {
     private AppWidgetManager mAppWidgetManager;
@@ -124,9 +125,11 @@ public class TasksWidget extends AppWidgetProvider {
             // Show a toast
 //            final int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
 //                    AppWidgetManager.INVALID_APPWIDGET_ID);
-            final String day = intent.getStringExtra(EXTRA_DAY_ID);
-            final String formatStr = ctx.getResources().getString(R.string.toast_format_string);
-            Toast.makeText(ctx, String.format(formatStr, day), Toast.LENGTH_SHORT).show();
+            // Launch top activity of KeepDo
+            final Context context = ctx;
+            Intent activityLaunchIntent = new Intent(context, TasksActivity.class);
+            activityLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(activityLaunchIntent);
         }
 
         super.onReceive(ctx, intent);
