@@ -3,6 +3,7 @@
 
     <string name="tasklist_header_today_task">今日のDo</string>
     <string name="tasklist_header_other_task">その他のDo</string>
+    <string name="tasklist_header_today_remaining_task">今日未実施のDo</string>
     <string name="tasklist_lastdonedate_notyet">未実施</string>
     <string name="tasklist_lastdonedate_today">今日実施</string>
     <string name="tasklist_lastdonedate_yesterday">昨日実施</string>

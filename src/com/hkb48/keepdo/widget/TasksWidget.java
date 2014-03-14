@@ -53,7 +53,7 @@ public class TasksWidget extends AppWidgetProvider {
     private static final int sMaxDegrees = 96;
 
     private boolean mIsLargeLayout = true;
-    private int mHeaderWeatherState = 0;
+//    private int mHeaderWeatherState = 0;
 
     public TasksWidget() {
         // Start the worker thread
@@ -118,12 +118,12 @@ public class TasksWidget extends AppWidgetProvider {
                 }
             });
 
-            final int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
-                    AppWidgetManager.INVALID_APPWIDGET_ID);
+//            final int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+//                    AppWidgetManager.INVALID_APPWIDGET_ID);
         } else if (action.equals(CLICK_ACTION)) {
             // Show a toast
-            final int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
-                    AppWidgetManager.INVALID_APPWIDGET_ID);
+//            final int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+//                    AppWidgetManager.INVALID_APPWIDGET_ID);
             final String day = intent.getStringExtra(EXTRA_DAY_ID);
             final String formatStr = ctx.getResources().getString(R.string.toast_format_string);
             Toast.makeText(ctx, String.format(formatStr, day), Toast.LENGTH_SHORT).show();
@@ -190,9 +190,6 @@ public class TasksWidget extends AppWidgetProvider {
             // Bind the click intent for the refresh button on the widget
             final Intent refreshIntent = new Intent(context, TasksWidget.class);
             refreshIntent.setAction(TasksWidget.REFRESH_ACTION);
-            final PendingIntent refreshPendingIntent = PendingIntent.getBroadcast(context, 0,
-                    refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            rv.setOnClickPendingIntent(R.id.refresh, refreshPendingIntent);
 
             // Restore the minimal header
             rv.setTextViewText(R.id.city_name, context.getString(R.string.city_name));

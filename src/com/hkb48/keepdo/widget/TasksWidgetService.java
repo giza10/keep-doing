@@ -1,16 +1,11 @@
 package com.hkb48.keepdo.widget;
 
-import android.app.Service;
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
-import android.widget.RemoteViewsService.RemoteViewsFactory;
 
 import com.hkb48.keepdo.R;
 
@@ -24,12 +19,12 @@ public class TasksWidgetService extends RemoteViewsService {
 class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     private Context mContext;
     private Cursor mCursor;
-    private int mAppWidgetId;
+//    private int mAppWidgetId;
 
     public StackRemoteViewsFactory(Context context, Intent intent) {
         mContext = context;
-        mAppWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
-                AppWidgetManager.INVALID_APPWIDGET_ID);
+//        mAppWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+//                AppWidgetManager.INVALID_APPWIDGET_ID);
     }
 
     public void onCreate() {

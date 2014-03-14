@@ -4,6 +4,7 @@
 
     <string name="tasklist_header_today_task">Today\'s Do</string>
     <string name="tasklist_header_other_task">Other Do</string>
+    <string name="tasklist_header_today_remaining_task">Today\'s remaining Do</string>
     <string name="tasklist_lastdonedate_notyet">Not yet</string>
     <string name="tasklist_lastdonedate_today">Today</string>
     <string name="tasklist_lastdonedate_yesterday">Yesterday</string>
