@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
+import com.hkb48.keepdo.KeepdoProvider;
 import com.hkb48.keepdo.R;
 
 public class TasksWidgetService extends RemoteViewsService {
@@ -44,26 +45,27 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     public RemoteViews getViewAt(int position) {
         // Get the data for this position from the content provider
-        String day = "Unknown Day";
-        int temp = 0;
+        String taskName = "Unknown Day";
+//        int temp = 0;
         if (mCursor.moveToPosition(position)) {
-            final int dayColIndex = mCursor.getColumnIndex(DummyWeatherDataProvider.Columns.DAY);
-            final int tempColIndex = mCursor.getColumnIndex(
-                    DummyWeatherDataProvider.Columns.TEMPERATURE);
-            day = mCursor.getString(dayColIndex);
-            temp = mCursor.getInt(tempColIndex);
+            final int taskNameColIndex = mCursor.getColumnIndex(KeepdoProvider.Columns.TASK_NAME);
+//            final int dayColIndex = mCursor.getColumnIndex(KeepdoProvider.Columns.TASK_NAME);
+//            final int tempColIndex = mCursor.getColumnIndex(
+//                    DummyWeatherDataProvider.Columns.TEMPERATURE);
+            taskName = mCursor.getString(taskNameColIndex);
+//            temp = mCursor.getInt(tempColIndex);
         }
 
         // Return a proper item with the proper day and temperature
-        final String formatStr = mContext.getResources().getString(R.string.item_format_string);
+//        final String formatStr = mContext.getResources().getString(R.string.item_format_string);
         final int itemId = R.layout.widget_item;
         RemoteViews rv = new RemoteViews(mContext.getPackageName(), itemId);
-        rv.setTextViewText(R.id.widget_item, String.format(formatStr, temp, day));
+        rv.setTextViewText(R.id.widget_item, taskName);
 
         // Set the click intent so that we can handle it and show a toast message
         final Intent fillInIntent = new Intent();
         final Bundle extras = new Bundle();
-        extras.putString(TasksWidget.EXTRA_DAY_ID, day);
+//        extras.putString(TasksWidget.EXTRA_DAY_ID, day);
         fillInIntent.putExtras(extras);
         rv.setOnClickFillInIntent(R.id.widget_item, fillInIntent);
 
@@ -92,7 +94,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         if (mCursor != null) {
             mCursor.close();
         }
-        mCursor = mContext.getContentResolver().query(DummyWeatherDataProvider.CONTENT_URI, null, null,
+        mCursor = mContext.getContentResolver().query(KeepdoProvider.CONTENT_URI, null, null,
                 null, null);
     }
 }

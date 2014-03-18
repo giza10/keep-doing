@@ -58,8 +58,8 @@
 
         <provider
             android:name=".KeepdoProvider"
-        	android:authorities="com.hkb48.keepdo.keepdoprovider"
-        	android:exported="false" >
+            android:authorities="com.hkb48.keepdo.keepdoprovider"
+            android:exported="true" >
         </provider>
 
 		<receiver android:name=".widget.TasksWidget" android:label="@string/app_name">
@@ -73,12 +73,6 @@
 			android:name=".widget.TasksWidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS"
             android:exported="false" />
-
-		<!-- The content provider serving the (fake) weather data -->
-        <provider android:name=".widget.DummyWeatherDataProvider"
-              android:authorities="com.hkb48.keepdo.widget.dummyprovider"
-              android:exported="true" >
-		</provider>
 
 	</application>
 

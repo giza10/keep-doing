@@ -1,4 +1,5 @@
 package com.hkb48.keepdo;
+
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -8,7 +9,13 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
 public class KeepdoProvider extends ContentProvider {
-    private static final String TAG = "#KEEPDO_PROVIDER: ";
+//    private static final String TAG = "#KEEPDO_PROVIDER: ";
+    public static final Uri CONTENT_URI = Database.TasksToday.CONTENT_URI;
+
+    public static class Columns {
+        public static final String TASK_ID = Database.TasksToday._ID;
+        public static final String TASK_NAME = Database.TasksToday.TASK_NAME;
+    }
 
     private DatabaseHelper mOpenHelper;
 

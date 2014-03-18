@@ -47,7 +47,7 @@
             android:gravity="center"
             android:visibility="gone"
             android:textColor="#ffffff"
-            android:text="@string/empty_view_text"
+            android:text="@string/task_empty"
             android:textSize="20sp" />
 
 	</FrameLayout>
