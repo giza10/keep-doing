@@ -27,11 +27,12 @@ public class KeepdoProvider extends ContentProvider {
     	sURIMatcher.addURI(Database.AUTHORITY, Database.TaskCompletion.TABLE_URI + "/#", Database.TaskCompletion.TABLE_ID);
     }
 
-	@Override
-	public int delete(Uri arg0, String arg1, String[] arg2) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public boolean onCreate() {
+        // Assumes that any failures will be reported by a thrown exception.
+        mOpenHelper = DatabaseHelper.getInstance(getContext());
+        return false;
+    }
 
 	@Override
 	public String getType(Uri uri) {
@@ -51,51 +52,43 @@ public class KeepdoProvider extends ContentProvider {
     	}
 	}
 
-	@Override
-	public Uri insert(Uri uri, ContentValues values) {
+    @Override
+    public Uri insert(Uri uri, ContentValues values) {
         // Constructs a new query builder and sets its table name
-		String tableName;
-  		switch (sURIMatcher.match(uri)) {
-        
+        String tableName;
+        switch (sURIMatcher.match(uri)) {
+
         case Database.TasksToday.TABLE_LIST:
         case Database.TasksToday.TABLE_ID:
-        	tableName = Database.TasksToday.TABLE_NAME;
-        	break;
+            tableName = Database.TasksToday.TABLE_NAME;
+            break;
 
         case Database.TaskCompletion.TABLE_LIST:
         case Database.TaskCompletion.TABLE_ID:
-        	tableName = Database.TaskCompletion.TABLE_NAME;
-        	break;
+            tableName = Database.TaskCompletion.TABLE_NAME;
+            break;
 
         default:
             throw new IllegalArgumentException("Unknown URI " + uri);
         }
-  		
-  		SQLiteDatabase db = mOpenHelper.getReadableDatabase();
+
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         assert db != null;
-        final long id = db.insertOrThrow(tableName, null, values);
-	    final Uri newUri = Uri.parse("random" + id);
-	    getContext().getContentResolver().notifyChange(newUri, null);
-	
-	    return newUri;
-	}
+        db.insertOrThrow(tableName, null, values);
+        getContext().getContentResolver().notifyChange(uri, null);
 
-	@Override
-	public boolean onCreate() {
-        // Assumes that any failures will be reported by a thrown exception.
-		mOpenHelper = DatabaseHelper.getInstance(getContext());
-		return false;
-	}
+        return null;
+    }
 
-	@Override
-	public Cursor query(Uri uri, String[] projection, String selection,
-			String[] selectionArgs, String sortOrder) {
-	
+    @Override
+    public Cursor query(Uri uri, String[] projection, String selection,
+            String[] selectionArgs, String sortOrder) {
+
         // Constructs a new query builder and sets its table name
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
         switch (sURIMatcher.match(uri)) {
-        
+
             case Database.TasksToday.TABLE_LIST:
             case Database.TasksToday.TABLE_ID:
                 qb.setTables(Database.TasksToday.TABLE_NAME);
@@ -121,10 +114,58 @@ public class KeepdoProvider extends ContentProvider {
         return c;
 	}
 
-	@Override
-	public int update(Uri uri, ContentValues values, String selection,
-			String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+    @Override
+    public int update(Uri uri, ContentValues values, String selection,
+            String[] selectionArgs) {
+        String tableName;
+        switch (sURIMatcher.match(uri)) {
+
+        case Database.TasksToday.TABLE_LIST:
+        case Database.TasksToday.TABLE_ID:
+            tableName = Database.TasksToday.TABLE_NAME;
+            break;
+
+        case Database.TaskCompletion.TABLE_LIST:
+        case Database.TaskCompletion.TABLE_ID:
+            tableName = Database.TaskCompletion.TABLE_NAME;
+            break;
+
+        default:
+            throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        assert db != null;
+        final int id = db.update(tableName, values, selection, selectionArgs);
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return id;
 	}
+
+    @Override
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        String tableName;
+        switch (sURIMatcher.match(uri)) {
+
+        case Database.TasksToday.TABLE_LIST:
+        case Database.TasksToday.TABLE_ID:
+            tableName = Database.TasksToday.TABLE_NAME;
+            break;
+
+        case Database.TaskCompletion.TABLE_LIST:
+        case Database.TaskCompletion.TABLE_ID:
+            tableName = Database.TaskCompletion.TABLE_NAME;
+            break;
+
+        default:
+            throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        assert db != null;
+        final int id = db.delete(tableName, selection, selectionArgs);
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return id;
+    }
 }

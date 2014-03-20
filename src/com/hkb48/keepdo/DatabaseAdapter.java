@@ -1,6 +1,7 @@
 package com.hkb48.keepdo;
 
 import android.annotation.TargetApi;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -44,9 +45,11 @@ class DatabaseAdapter {
     private static DatabaseAdapter INSTANCE = null;
     private DatabaseHelper mDatabaseHelper = null;
     private SQLiteDatabase mDatabase = null;
+    private final ContentResolver mContentResolver;
 
     private DatabaseAdapter(Context context) {
         mDatabaseHelper = DatabaseHelper.getInstance(context.getApplicationContext());
+        mContentResolver = context.getContentResolver();
     }
 
     static synchronized DatabaseAdapter getInstance(Context context) {
@@ -130,9 +133,8 @@ class DatabaseAdapter {
             contentValues.put(TasksToday.REMINDER_TIME, String.valueOf(reminder.getTimeInMillis()));
             contentValues.put(TasksToday.TASK_LIST_ORDER, task.getOrder());
 
-            openDatabase().insertOrThrow(TasksToday.TABLE_NAME, null, contentValues);
-            closeDatabase();
-            
+            mContentResolver.insert(KeepdoProvider.CONTENT_URI, contentValues);
+
         } catch (SQLiteException e) {
             Log.e(TAG, e.getMessage());
         }
@@ -167,8 +169,7 @@ class DatabaseAdapter {
         String whereArgs[] = {taskID.toString()};
 
         try {
-        	openDatabase().update(TasksToday.TABLE_NAME, contentValues, whereClause, whereArgs);
-        	closeDatabase();
+            mContentResolver.update(KeepdoProvider.CONTENT_URI, contentValues, whereClause, whereArgs);
         } catch (SQLiteException e) {
             Log.e(TAG, e.getMessage());
         }
@@ -178,8 +179,7 @@ class DatabaseAdapter {
         // Delete task from TASKS_TABLE_NAME
     	String whereClause = TasksToday._ID + "=?";
         String whereArgs[] = {taskID.toString()};
-        openDatabase().delete(TasksToday.TABLE_NAME, whereClause, whereArgs);
-        closeDatabase();
+        mContentResolver.delete(KeepdoProvider.CONTENT_URI, whereClause, whereArgs);
 
         // Delete records of deleted task from TASK_COMPLETION_TABLE_NAME
         whereClause = TaskCompletion.TASK_NAME_ID + "=?";

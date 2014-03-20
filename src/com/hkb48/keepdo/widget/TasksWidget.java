@@ -195,7 +195,7 @@ public class TasksWidget extends AppWidgetProvider {
             // Restore the minimal header
 //            rv.setTextViewText(R.id.city_name, context.getString(R.string.city_name));
         } else {
-            rv = new RemoteViews(context.getPackageName(), R.layout.widget_layout_small);
+            rv = new RemoteViews(context.getPackageName(), R.layout.tasks_widget);
 
             // Update the header to reflect the weather for "today"
             Cursor c = context.getContentResolver().query(KeepdoProvider.CONTENT_URI, null,
