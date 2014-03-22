@@ -1,9 +1,14 @@
 package com.hkb48.keepdo;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
@@ -49,14 +54,14 @@ public class KeepdoProvider extends ContentProvider {
     public static final class TaskCompletion implements BaseColumns {
 
         private TaskCompletion() {}
-        
+
         // Incoming URI matches the main table URI pattern
         public static final int TABLE_LIST = 30;
         // Incoming URI matches the main table row ID URI pattern
         public static final int TABLE_ID = 40;
 
         public static final String TABLE_NAME = "table_completions";
-        public static final String TABLE_URI = "table_completionuri"; 
+        public static final String TABLE_URI = "table_completion_uri";
 
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
 
@@ -66,14 +71,28 @@ public class KeepdoProvider extends ContentProvider {
         public static final String DEFAULT_SORT_ORDER = "task_id ASC";
     }
 
+    public static final class DateChangeTime implements BaseColumns {
+        // Incoming URI matches the main table URI pattern
+        public static final int TABLE_LIST = 50;
+        // Incoming URI matches the main table row ID URI pattern
+        public static final int TABLE_ID = 60;
+
+        public static final String TABLE_URI = "table_datechangetime_uri";
+
+        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
+        public static final String DATE = "date";
+    }
+
     private DatabaseHelper mOpenHelper;
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     static {
-    	sURIMatcher.addURI(AUTHORITY, Tasks.TABLE_URI, Tasks.TABLE_LIST);
-    	sURIMatcher.addURI(AUTHORITY, Tasks.TABLE_URI + "/#", Tasks.TABLE_ID);
-    	sURIMatcher.addURI(AUTHORITY, TaskCompletion.TABLE_URI, TaskCompletion.TABLE_LIST);
-    	sURIMatcher.addURI(AUTHORITY, TaskCompletion.TABLE_URI + "/#", TaskCompletion.TABLE_ID);
+        sURIMatcher.addURI(AUTHORITY, Tasks.TABLE_URI, Tasks.TABLE_LIST);
+        sURIMatcher.addURI(AUTHORITY, Tasks.TABLE_URI + "/#", Tasks.TABLE_ID);
+        sURIMatcher.addURI(AUTHORITY, TaskCompletion.TABLE_URI, TaskCompletion.TABLE_LIST);
+        sURIMatcher.addURI(AUTHORITY, TaskCompletion.TABLE_URI + "/#", TaskCompletion.TABLE_ID);
+        sURIMatcher.addURI(AUTHORITY, DateChangeTime.TABLE_URI, DateChangeTime.TABLE_LIST);
+        sURIMatcher.addURI(AUTHORITY, DateChangeTime.TABLE_URI + "/#", DateChangeTime.TABLE_ID);
     }
 
     @Override
@@ -147,6 +166,15 @@ public class KeepdoProvider extends ContentProvider {
             case TaskCompletion.TABLE_ID:
             	qb.setTables(TaskCompletion.TABLE_NAME);
             	break;
+
+            case DateChangeTime.TABLE_LIST:
+            case DateChangeTime.TABLE_ID:
+                final String SDF_PATTERN_YMD = "yyyy-MM-dd";
+                final SimpleDateFormat dateFormat = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
+                final MatrixCursor mc = new MatrixCursor(new String[]{DateChangeTime.DATE});
+                Date today = DateChangeTimeUtil.getDateTime();
+                mc.addRow(new Object[]{dateFormat.format(today)});
+                return mc;
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);

@@ -1,10 +1,7 @@
 package com.hkb48.keepdo.widget;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +10,7 @@ import android.os.Bundle;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
+import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
 import com.hkb48.keepdo.KeepdoProvider.TaskCompletion;
 import com.hkb48.keepdo.KeepdoProvider.Tasks;
 import com.hkb48.keepdo.R;
@@ -99,10 +97,11 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         Cursor cursor = mContext.getContentResolver().query(Tasks.CONTENT_URI, null, null,
                 null, null);
         if (cursor.moveToFirst()) {
+            final String today = getDateChangeTime();
             do {
                 final int taskIdColIndex = cursor.getColumnIndex(Tasks._ID);
                 final long taskId = cursor.getLong(taskIdColIndex);
-                if (! getDoneStatus(taskId)) {
+                if (! getDoneStatus(taskId, today)) {
                     final int taskNameColIndex = cursor.getColumnIndex(Tasks.TASK_NAME);
                     mTaskList.add(cursor.getString(taskNameColIndex));
                 }
@@ -111,14 +110,23 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         cursor.close();
     }
 
-    private boolean getDoneStatus(long taskId) {
+    private String getDateChangeTime() {
+        String date = "";
+        Cursor cursor = mContext.getContentResolver().query(DateChangeTime.CONTENT_URI, null, null,
+                null, null);
+        if (cursor.moveToFirst()) {
+            final int dateColIndex = cursor.getColumnIndex(DateChangeTime.DATE);
+            date = cursor.getString(dateColIndex);
+        }
+        cursor.close();
+        return date;
+    }
+
+    private boolean getDoneStatus(long taskId, String date) {
         boolean isDone = false;
-        final String SDF_PATTERN_YMD = "yyyy-MM-dd";
-        final SimpleDateFormat dateFormat = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
-        // TODO: should be DateChangeTime
-        Date date = new Date();
+
         String selection = TaskCompletion.TASK_NAME_ID + "=? and " + TaskCompletion.TASK_COMPLETION_DATE + "=?";
-        String selectionArgs[] = {String.valueOf(taskId), dateFormat.format(date)};
+        String selectionArgs[] = {String.valueOf(taskId), date};
         Cursor cursor = mContext.getContentResolver().query(TaskCompletion.CONTENT_URI, null, selection,
                 selectionArgs, null);
         if (cursor.getCount() > 0) {

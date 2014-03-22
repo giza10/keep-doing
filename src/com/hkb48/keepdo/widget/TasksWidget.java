@@ -70,8 +70,7 @@ public class TasksWidget extends AppWidgetProvider {
             final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
             final ComponentName cn = new ComponentName(context, TasksWidget.class);
             sDataObserver = new TasksDataProviderObserver(mgr, cn, sWorkerQueue);
-            r.registerContentObserver(KeepdoProvider.Tasks.CONTENT_URI, true, sDataObserver);
-            r.registerContentObserver(KeepdoProvider.TaskCompletion.CONTENT_URI, true, sDataObserver);
+            r.registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, sDataObserver);
         }
 	}
 
