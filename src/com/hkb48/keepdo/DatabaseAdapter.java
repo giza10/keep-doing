@@ -11,8 +11,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
-import com.hkb48.keepdo.Database.TaskCompletion;
-import com.hkb48.keepdo.Database.TasksToday;
+import com.hkb48.keepdo.KeepdoProvider.TaskCompletion;
+import com.hkb48.keepdo.KeepdoProvider.Tasks;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -77,12 +77,12 @@ class DatabaseAdapter {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void closeDatabase() {
-    	synchronized (this) {
-			if (mDatabase != null) {
-				mDatabase.close();
-				mDatabase = null;
-			}
-    	}
+//    	synchronized (this) {
+//			if (mDatabase != null) {
+//				mDatabase.close();
+//				mDatabase = null;
+//			}
+//    	}
     }
 
     public synchronized void close() {
@@ -91,8 +91,8 @@ class DatabaseAdapter {
 
     public List<Task> getTaskList() {
         List<Task> tasks = new ArrayList<Task>();
-        String selectQuery = SELECT_FORM + TasksToday.TABLE_NAME
-                + " order by " + TasksToday.TASK_LIST_ORDER + " asc;";
+        String selectQuery = SELECT_FORM + Tasks.TABLE_NAME
+                + " order by " + Tasks.TASK_LIST_ORDER + " asc;";
 
         Cursor cursor = openDatabase().rawQuery(selectQuery, null);
 
@@ -120,20 +120,20 @@ class DatabaseAdapter {
 
         try {
             ContentValues contentValues = new ContentValues();
-            contentValues.put(TasksToday.TASK_NAME, taskName);
-            contentValues.put(TasksToday.FREQUENCY_MON, String.valueOf(recurrence.getMonday()));
-            contentValues.put(TasksToday.FREQUENCY_TUE, String.valueOf(recurrence.getTuesday()));
-            contentValues.put(TasksToday.FREQUENCY_WEN, String.valueOf(recurrence.getWednesday()));
-            contentValues.put(TasksToday.FREQUENCY_THR, String.valueOf(recurrence.getThurday()));
-            contentValues.put(TasksToday.FREQUENCY_FRI, String.valueOf(recurrence.getFriday()));
-            contentValues.put(TasksToday.FREQUENCY_SAT, String.valueOf(recurrence.getSaturday()));
-            contentValues.put(TasksToday.FREQUENCY_SUN, String.valueOf(recurrence.getSunday()));
-            contentValues.put(TasksToday.TASK_CONTEXT, taskContext);
-            contentValues.put(TasksToday.REMINDER_ENABLED, String.valueOf(reminder.getEnabled()));
-            contentValues.put(TasksToday.REMINDER_TIME, String.valueOf(reminder.getTimeInMillis()));
-            contentValues.put(TasksToday.TASK_LIST_ORDER, task.getOrder());
+            contentValues.put(Tasks.TASK_NAME, taskName);
+            contentValues.put(Tasks.FREQUENCY_MON, String.valueOf(recurrence.getMonday()));
+            contentValues.put(Tasks.FREQUENCY_TUE, String.valueOf(recurrence.getTuesday()));
+            contentValues.put(Tasks.FREQUENCY_WEN, String.valueOf(recurrence.getWednesday()));
+            contentValues.put(Tasks.FREQUENCY_THR, String.valueOf(recurrence.getThurday()));
+            contentValues.put(Tasks.FREQUENCY_FRI, String.valueOf(recurrence.getFriday()));
+            contentValues.put(Tasks.FREQUENCY_SAT, String.valueOf(recurrence.getSaturday()));
+            contentValues.put(Tasks.FREQUENCY_SUN, String.valueOf(recurrence.getSunday()));
+            contentValues.put(Tasks.TASK_CONTEXT, taskContext);
+            contentValues.put(Tasks.REMINDER_ENABLED, String.valueOf(reminder.getEnabled()));
+            contentValues.put(Tasks.REMINDER_TIME, String.valueOf(reminder.getTimeInMillis()));
+            contentValues.put(Tasks.TASK_LIST_ORDER, task.getOrder());
 
-            mContentResolver.insert(KeepdoProvider.CONTENT_URI, contentValues);
+            mContentResolver.insert(Tasks.CONTENT_URI, contentValues);
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.getMessage());
@@ -152,24 +152,24 @@ class DatabaseAdapter {
         }
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put(TasksToday.TASK_NAME, taskName);
-        contentValues.put(TasksToday.FREQUENCY_MON, String.valueOf(recurrence.getMonday()));
-        contentValues.put(TasksToday.FREQUENCY_TUE, String.valueOf(recurrence.getTuesday()));
-        contentValues.put(TasksToday.FREQUENCY_WEN, String.valueOf(recurrence.getWednesday()));
-        contentValues.put(TasksToday.FREQUENCY_THR, String.valueOf(recurrence.getThurday()));
-        contentValues.put(TasksToday.FREQUENCY_FRI, String.valueOf(recurrence.getFriday()));
-        contentValues.put(TasksToday.FREQUENCY_SAT, String.valueOf(recurrence.getSaturday()));
-        contentValues.put(TasksToday.FREQUENCY_SUN, String.valueOf(recurrence.getSunday()));
-        contentValues.put(TasksToday.TASK_CONTEXT, taskContext);
-        contentValues.put(TasksToday.REMINDER_ENABLED, String.valueOf(reminder.getEnabled()));
-        contentValues.put(TasksToday.REMINDER_TIME, String.valueOf(reminder.getTimeInMillis()));
-        contentValues.put(TasksToday.TASK_LIST_ORDER, task.getOrder());
+        contentValues.put(Tasks.TASK_NAME, taskName);
+        contentValues.put(Tasks.FREQUENCY_MON, String.valueOf(recurrence.getMonday()));
+        contentValues.put(Tasks.FREQUENCY_TUE, String.valueOf(recurrence.getTuesday()));
+        contentValues.put(Tasks.FREQUENCY_WEN, String.valueOf(recurrence.getWednesday()));
+        contentValues.put(Tasks.FREQUENCY_THR, String.valueOf(recurrence.getThurday()));
+        contentValues.put(Tasks.FREQUENCY_FRI, String.valueOf(recurrence.getFriday()));
+        contentValues.put(Tasks.FREQUENCY_SAT, String.valueOf(recurrence.getSaturday()));
+        contentValues.put(Tasks.FREQUENCY_SUN, String.valueOf(recurrence.getSunday()));
+        contentValues.put(Tasks.TASK_CONTEXT, taskContext);
+        contentValues.put(Tasks.REMINDER_ENABLED, String.valueOf(reminder.getEnabled()));
+        contentValues.put(Tasks.REMINDER_TIME, String.valueOf(reminder.getTimeInMillis()));
+        contentValues.put(Tasks.TASK_LIST_ORDER, task.getOrder());
 
-        String whereClause = TasksToday._ID + "=?";
+        String whereClause = Tasks._ID + "=?";
         String whereArgs[] = {taskID.toString()};
 
         try {
-            mContentResolver.update(KeepdoProvider.CONTENT_URI, contentValues, whereClause, whereArgs);
+            mContentResolver.update(Tasks.CONTENT_URI, contentValues, whereClause, whereArgs);
         } catch (SQLiteException e) {
             Log.e(TAG, e.getMessage());
         }
@@ -177,14 +177,13 @@ class DatabaseAdapter {
 
     void deleteTask(Long taskID) {
         // Delete task from TASKS_TABLE_NAME
-    	String whereClause = TasksToday._ID + "=?";
+    	String whereClause = Tasks._ID + "=?";
         String whereArgs[] = {taskID.toString()};
-        mContentResolver.delete(KeepdoProvider.CONTENT_URI, whereClause, whereArgs);
+        mContentResolver.delete(Tasks.CONTENT_URI, whereClause, whereArgs);
 
         // Delete records of deleted task from TASK_COMPLETION_TABLE_NAME
         whereClause = TaskCompletion.TASK_NAME_ID + "=?";
-        openDatabase().delete(TaskCompletion.TABLE_NAME, whereClause, whereArgs);
-        closeDatabase();
+        mContentResolver.delete(TaskCompletion.CONTENT_URI, whereClause, whereArgs);
     }
 
 	void setDoneStatus(Long taskID, Date date, Boolean doneSwitch) {
@@ -201,54 +200,43 @@ class DatabaseAdapter {
             contentValues.put(TaskCompletion.TASK_COMPLETION_DATE, dateFormat.format(date));
 
             try {
-            	openDatabase().insertOrThrow(TaskCompletion.TABLE_NAME, null, contentValues);
+                mContentResolver.insert(TaskCompletion.CONTENT_URI, contentValues);
             } catch (SQLiteException e) {
                 Log.e(TAG, e.getMessage());
-            } finally {
-            	closeDatabase();
             }
-
         } else {
             String whereClause = TaskCompletion.TASK_NAME_ID + "=? and " + TaskCompletion.TASK_COMPLETION_DATE + "=?";
             String whereArgs[] = {taskID.toString(), dateFormat.format(date)};
-            openDatabase().delete(TaskCompletion.TABLE_NAME, whereClause, whereArgs);
-            closeDatabase();
+            mContentResolver.delete(TaskCompletion.CONTENT_URI, whereClause, whereArgs);
         }
     }
 
     boolean getDoneStatus(Long taskID, Date day) {
         boolean isDone = false;
-        String selectQuery = SELECT_FORM_TASK_COMPLETION_DISTINCT + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
-        Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
-        SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
+        String selection = TaskCompletion.TASK_NAME_ID + "=? and " + TaskCompletion.TASK_COMPLETION_DATE + "=?";
+        String selectionArgs[] = {String.valueOf(taskID), dateFormat.format(day)};
 
-        if (cursor.moveToFirst()) {
-            do {
-                Date date = getDate(cursor);
-                if (date != null) {
-                    if (sdf_ymd.format(date).equals(sdf_ymd.format(day))) {
-                        isDone = true;
-                        break;
-                    }
-                }
-            } while (cursor.moveToNext());
+        Cursor cursor = mContentResolver.query(TaskCompletion.CONTENT_URI, null, selection,
+                selectionArgs, null);
+        if (cursor.getCount() > 0) {
+            isDone =  true;
         }
-
         cursor.close();
-        closeDatabase();
 
         return isDone;
     }
 
     public int getNumberOfDone(Long taskID) {
         int numberOfDone = 0;
-        String selectQuery = SELECT_FORM_TASK_COMPLETION_DISTINCT + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
-        Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
+        String selection = TaskCompletion.TASK_NAME_ID + "=?";
+        String selectionArgs[] = {String.valueOf(taskID)};
+        Cursor cursor = mContentResolver.query(TaskCompletion.CONTENT_URI, null, selection,
+                selectionArgs, null);
         if (cursor != null) {
             numberOfDone = cursor.getCount();
             cursor.close();
         }
-        closeDatabase();
         return numberOfDone;
     }
 
@@ -258,6 +246,7 @@ class DatabaseAdapter {
         String selectQuery =  "select min(" + TaskCompletion.TASK_COMPLETION_DATE + ") from "
                 + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
         Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
+
         if (cursor != null) {
             cursor.moveToFirst();
             String dateString = cursor.getString(0);
@@ -298,25 +287,25 @@ class DatabaseAdapter {
 
     Task getTask(Long taskID) {
         Task task = null;
-        String selectQuery = SELECT_FORM + TasksToday.TABLE_NAME + SELECT_ARG_FORM + TasksToday._ID + "=?";
-
-        Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
+        String selection = Tasks._ID + "=?";
+        String selectionArgs[] = {String.valueOf(taskID)};
+        Cursor cursor = mContentResolver.query(Tasks.CONTENT_URI, null, selection,
+                selectionArgs, null);
         if (cursor != null){
             cursor.moveToFirst();
             task = getTask(cursor);
             cursor.close();
         }
 
-        closeDatabase();
-
         return task;
     }
 
     ArrayList<Date> getHistory(Long taskID, Date month) {
         ArrayList<Date> dateList = new ArrayList<Date>();
-        String selectQuery = SELECT_FORM_TASK_COMPLETION_DISTINCT + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
-
-        Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
+        String selection = TaskCompletion.TASK_NAME_ID + "=?";
+        String selectionArgs[] = {String.valueOf(taskID)};
+        Cursor cursor = mContentResolver.query(TaskCompletion.CONTENT_URI, null, selection,
+                selectionArgs, null);
         SimpleDateFormat sdf_ym = new SimpleDateFormat(SDF_PATTERN_YM, Locale.JAPAN);
 
         if (cursor.moveToFirst()) {
@@ -331,8 +320,7 @@ class DatabaseAdapter {
         }
 
         cursor.close();
-        closeDatabase();
-        
+
         return dateList;
     }
 
@@ -411,22 +399,22 @@ class DatabaseAdapter {
     }
 
     private Task getTask(Cursor cursor) {
-        Long taskID = Long.parseLong(cursor.getString(cursor.getColumnIndex(TasksToday._ID)));
-        String taskName = cursor.getString(cursor.getColumnIndex(TasksToday.TASK_NAME));
-        String taskContext = cursor.getString(cursor.getColumnIndex(TasksToday.TASK_CONTEXT));
+        Long taskID = Long.parseLong(cursor.getString(cursor.getColumnIndex(Tasks._ID)));
+        String taskName = cursor.getString(cursor.getColumnIndex(Tasks.TASK_NAME));
+        String taskContext = cursor.getString(cursor.getColumnIndex(Tasks.TASK_CONTEXT));
 
-        Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_MON))),
-                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_TUE))),
-                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_WEN))),
-                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_THR))),
-                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_FRI))),
-                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_SAT))),
-                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(TasksToday.FREQUENCY_SUN))));
+        Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_MON))),
+                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_TUE))),
+                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_WEN))),
+                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_THR))),
+                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_FRI))),
+                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_SAT))),
+                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_SUN))));
 
         Reminder reminder;
-        String reminderEnabled = cursor.getString(cursor.getColumnIndex(TasksToday.REMINDER_ENABLED));
-        String reminderTime = cursor.getString(cursor.getColumnIndex(TasksToday.REMINDER_TIME));
-        long taskOrder = cursor.getInt(cursor.getColumnIndex(TasksToday.TASK_LIST_ORDER));
+        String reminderEnabled = cursor.getString(cursor.getColumnIndex(Tasks.REMINDER_ENABLED));
+        String reminderTime = cursor.getString(cursor.getColumnIndex(Tasks.REMINDER_TIME));
+        long taskOrder = cursor.getInt(cursor.getColumnIndex(Tasks.TASK_LIST_ORDER));
         if ((reminderEnabled == null) || (reminderTime == null)) {
             reminder = new Reminder();
         } else {
@@ -442,7 +430,7 @@ class DatabaseAdapter {
 
     public int getMaxSortOrderId() {
         int maxOrderId = 0;
-        String selectQuery = "select max(" + TasksToday.TASK_LIST_ORDER +") from " + TasksToday.TABLE_NAME;
+        String selectQuery = "select max(" + Tasks.TASK_LIST_ORDER +") from " + Tasks.TABLE_NAME;
         Cursor cursor = openDatabase().rawQuery(selectQuery, null);
         if (cursor != null) {
             cursor.moveToFirst();
@@ -513,16 +501,15 @@ class DatabaseAdapter {
 			}
 		}
 	}
-    
+
     String backupFileName() {
     	return BACKUP_FILE_NAME;
     }
- 
+
     String backupDirName() {
     	return BACKUP_DIR_NAME;
     }
-     
-    
+
     String backupDirPath() {
     	return BACKUP_DIR_PATH;
     }

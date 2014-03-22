@@ -7,24 +7,73 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.provider.BaseColumns;
 
 public class KeepdoProvider extends ContentProvider {
 //    private static final String TAG = "#KEEPDO_PROVIDER: ";
-    public static final Uri CONTENT_URI = Database.TasksToday.CONTENT_URI;
+    public static final String AUTHORITY = "com.hkb48.keepdo.keepdoprovider";
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
-    public static class Columns {
-        public static final String TASK_ID = Database.TasksToday._ID;
-        public static final String TASK_NAME = Database.TasksToday.TASK_NAME;
+    // Task table
+    public static final class Tasks implements BaseColumns {
+
+        private Tasks() {}
+
+        // Incoming URI matches the main table URI pattern
+        public static final int TABLE_LIST = 10;
+        // Incoming URI matches the main table row ID URI pattern
+        public static final int TABLE_ID = 20;
+
+        public static final String TABLE_NAME = "table_tasks";
+        public static final String TABLE_URI = "table_task_uri";
+        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
+
+        public static final String TASK_NAME = "task_name";
+        public static final String FREQUENCY_MON = "mon_frequency";
+        public static final String FREQUENCY_TUE = "tue_frequency";
+        public static final String FREQUENCY_WEN = "wen_frequency";
+        public static final String FREQUENCY_THR = "thr_frequency";
+        public static final String FREQUENCY_FRI = "fri_frequency";
+        public static final String FREQUENCY_SAT = "sat_frequency";
+        public static final String FREQUENCY_SUN = "sun_frequency";
+        public static final String TASK_CONTEXT = "task_context";
+
+        public static final String REMINDER_ENABLED = "reminder_enabled";
+        public static final String REMINDER_TIME = "reminder_time";
+        public static final String TASK_LIST_ORDER = "task_list_order";
+
+        public static final String DEFAULT_SORT_ORDER = "_id ASC";
+    }
+
+    // Task Completion table
+    public static final class TaskCompletion implements BaseColumns {
+
+        private TaskCompletion() {}
+        
+        // Incoming URI matches the main table URI pattern
+        public static final int TABLE_LIST = 30;
+        // Incoming URI matches the main table row ID URI pattern
+        public static final int TABLE_ID = 40;
+
+        public static final String TABLE_NAME = "table_completions";
+        public static final String TABLE_URI = "table_completionuri"; 
+
+        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
+
+        public static final String TASK_NAME_ID = "task_id";
+        public static final String TASK_COMPLETION_DATE = "completion_date";
+        
+        public static final String DEFAULT_SORT_ORDER = "task_id ASC";
     }
 
     private DatabaseHelper mOpenHelper;
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     static {
-    	sURIMatcher.addURI(Database.AUTHORITY, Database.TasksToday.TABLE_URI, Database.TasksToday.TABLE_LIST);
-    	sURIMatcher.addURI(Database.AUTHORITY, Database.TasksToday.TABLE_URI + "/#", Database.TasksToday.TABLE_ID);
-    	sURIMatcher.addURI(Database.AUTHORITY, Database.TaskCompletion.TABLE_URI, Database.TaskCompletion.TABLE_LIST);
-    	sURIMatcher.addURI(Database.AUTHORITY, Database.TaskCompletion.TABLE_URI + "/#", Database.TaskCompletion.TABLE_ID);
+    	sURIMatcher.addURI(AUTHORITY, Tasks.TABLE_URI, Tasks.TABLE_LIST);
+    	sURIMatcher.addURI(AUTHORITY, Tasks.TABLE_URI + "/#", Tasks.TABLE_ID);
+    	sURIMatcher.addURI(AUTHORITY, TaskCompletion.TABLE_URI, TaskCompletion.TABLE_LIST);
+    	sURIMatcher.addURI(AUTHORITY, TaskCompletion.TABLE_URI + "/#", TaskCompletion.TABLE_ID);
     }
 
     @Override
@@ -39,14 +88,14 @@ public class KeepdoProvider extends ContentProvider {
 
 		//TODO: have to be corrected
 		switch (sURIMatcher.match(uri)) {
-		case Database.TasksToday.TABLE_LIST:		        	
-        	return String.valueOf(Database.TasksToday.TABLE_LIST);	        	
-        case Database.TasksToday.TABLE_ID:
-        	return String.valueOf(Database.TasksToday.TABLE_ID);	        	
-        case Database.TaskCompletion.TABLE_LIST:		        	
-        	return String.valueOf(Database.TaskCompletion.TABLE_LIST);	        	
-        case Database.TaskCompletion.TABLE_ID:
-        	return String.valueOf(Database.TaskCompletion.TABLE_ID);	        	
+		case Tasks.TABLE_LIST:	
+        	return String.valueOf(Tasks.TABLE_LIST);
+        case Tasks.TABLE_ID:
+        	return String.valueOf(Tasks.TABLE_ID);
+        case TaskCompletion.TABLE_LIST:
+        	return String.valueOf(TaskCompletion.TABLE_LIST);
+        case TaskCompletion.TABLE_ID:
+        	return String.valueOf(TaskCompletion.TABLE_ID);
         default:
         	throw new IllegalArgumentException("Unknown URI " + uri);
     	}
@@ -58,14 +107,14 @@ public class KeepdoProvider extends ContentProvider {
         String tableName;
         switch (sURIMatcher.match(uri)) {
 
-        case Database.TasksToday.TABLE_LIST:
-        case Database.TasksToday.TABLE_ID:
-            tableName = Database.TasksToday.TABLE_NAME;
+        case Tasks.TABLE_LIST:
+        case Tasks.TABLE_ID:
+            tableName = Tasks.TABLE_NAME;
             break;
 
-        case Database.TaskCompletion.TABLE_LIST:
-        case Database.TaskCompletion.TABLE_ID:
-            tableName = Database.TaskCompletion.TABLE_NAME;
+        case TaskCompletion.TABLE_LIST:
+        case TaskCompletion.TABLE_ID:
+            tableName = TaskCompletion.TABLE_NAME;
             break;
 
         default:
@@ -89,20 +138,20 @@ public class KeepdoProvider extends ContentProvider {
 
         switch (sURIMatcher.match(uri)) {
 
-            case Database.TasksToday.TABLE_LIST:
-            case Database.TasksToday.TABLE_ID:
-                qb.setTables(Database.TasksToday.TABLE_NAME);
+            case Tasks.TABLE_LIST:
+            case Tasks.TABLE_ID:
+                qb.setTables(Tasks.TABLE_NAME);
             	break;
 
-            case Database.TaskCompletion.TABLE_LIST:
-            case Database.TaskCompletion.TABLE_ID:
-            	qb.setTables(Database.TaskCompletion.TABLE_NAME);
+            case TaskCompletion.TABLE_LIST:
+            case TaskCompletion.TABLE_ID:
+            	qb.setTables(TaskCompletion.TABLE_NAME);
             	break;
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
-        
+
         SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 
         assert db != null;
@@ -120,14 +169,14 @@ public class KeepdoProvider extends ContentProvider {
         String tableName;
         switch (sURIMatcher.match(uri)) {
 
-        case Database.TasksToday.TABLE_LIST:
-        case Database.TasksToday.TABLE_ID:
-            tableName = Database.TasksToday.TABLE_NAME;
+        case Tasks.TABLE_LIST:
+        case Tasks.TABLE_ID:
+            tableName = Tasks.TABLE_NAME;
             break;
 
-        case Database.TaskCompletion.TABLE_LIST:
-        case Database.TaskCompletion.TABLE_ID:
-            tableName = Database.TaskCompletion.TABLE_NAME;
+        case TaskCompletion.TABLE_LIST:
+        case TaskCompletion.TABLE_ID:
+            tableName = TaskCompletion.TABLE_NAME;
             break;
 
         default:
@@ -147,14 +196,14 @@ public class KeepdoProvider extends ContentProvider {
         String tableName;
         switch (sURIMatcher.match(uri)) {
 
-        case Database.TasksToday.TABLE_LIST:
-        case Database.TasksToday.TABLE_ID:
-            tableName = Database.TasksToday.TABLE_NAME;
+        case Tasks.TABLE_LIST:
+        case Tasks.TABLE_ID:
+            tableName = Tasks.TABLE_NAME;
             break;
 
-        case Database.TaskCompletion.TABLE_LIST:
-        case Database.TaskCompletion.TABLE_ID:
-            tableName = Database.TaskCompletion.TABLE_NAME;
+        case TaskCompletion.TABLE_LIST:
+        case TaskCompletion.TABLE_ID:
+            tableName = TaskCompletion.TABLE_NAME;
             break;
 
         default:

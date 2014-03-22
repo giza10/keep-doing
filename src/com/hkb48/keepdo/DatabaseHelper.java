@@ -7,8 +7,8 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.hkb48.keepdo.Database.TaskCompletion;
-import com.hkb48.keepdo.Database.TasksToday;
+import com.hkb48.keepdo.KeepdoProvider.TaskCompletion;
+import com.hkb48.keepdo.KeepdoProvider.Tasks;
 
 import java.io.File;
 
@@ -27,27 +27,27 @@ final class DatabaseHelper extends SQLiteOpenHelper {
      */
     private static final int DB_VERSION = 3;
 
-    private static final String STRING_CREATE_TASK = "CREATE TABLE " + TasksToday.TABLE_NAME + " ("
-                                                     + TasksToday._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                                                     + TasksToday.TASK_NAME + " TEXT NOT NULL, "
-                                                     + TasksToday.FREQUENCY_MON + " TEXT, "
-                                                     + TasksToday.FREQUENCY_TUE + " TEXT, "
-                                                     + TasksToday.FREQUENCY_WEN + " TEXT, "
-                                                     + TasksToday.FREQUENCY_THR + " TEXT, "
-                                                     + TasksToday.FREQUENCY_FRI + " TEXT, "
-                                                     + TasksToday.FREQUENCY_SAT + " TEXT, "
-                                                     + TasksToday.FREQUENCY_SUN + " TEXT,"
-                                                     + TasksToday.TASK_CONTEXT + " TEXT,"
-                                                     + TasksToday.REMINDER_ENABLED + " TEXT,"
-                                                     + TasksToday.REMINDER_TIME + " TEXT,"
-    												 + TasksToday.TASK_LIST_ORDER + " INTEGER" + ");";
+    private static final String STRING_CREATE_TASK = "CREATE TABLE " + Tasks.TABLE_NAME + " ("
+                                                     + Tasks._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                                                     + Tasks.TASK_NAME + " TEXT NOT NULL, "
+                                                     + Tasks.FREQUENCY_MON + " TEXT, "
+                                                     + Tasks.FREQUENCY_TUE + " TEXT, "
+                                                     + Tasks.FREQUENCY_WEN + " TEXT, "
+                                                     + Tasks.FREQUENCY_THR + " TEXT, "
+                                                     + Tasks.FREQUENCY_FRI + " TEXT, "
+                                                     + Tasks.FREQUENCY_SAT + " TEXT, "
+                                                     + Tasks.FREQUENCY_SUN + " TEXT,"
+                                                     + Tasks.TASK_CONTEXT + " TEXT,"
+                                                     + Tasks.REMINDER_ENABLED + " TEXT,"
+                                                     + Tasks.REMINDER_TIME + " TEXT,"
+    												 + Tasks.TASK_LIST_ORDER + " INTEGER" + ");";
 
 
     private static final String STRING_CREATE_COMPLETION = "CREATE TABLE " + TaskCompletion.TABLE_NAME + " ("
                                                      + TaskCompletion._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                                                      + TaskCompletion.TASK_NAME_ID + " INTEGER NOT NULL CONSTRAINT "
                                                      + TaskCompletion.TASK_NAME_ID + " REFERENCES "
-                                                     + TasksToday.TABLE_NAME + "(" + TasksToday._ID + ")" + " ON DELETE CASCADE, "
+                                                     + Tasks.TABLE_NAME + "(" + Tasks._ID + ")" + " ON DELETE CASCADE, "
                                                      + TaskCompletion.TASK_COMPLETION_DATE + " DATE" + ");";
 
     private DatabaseHelper(Context context) {
@@ -128,9 +128,9 @@ final class DatabaseHelper extends SQLiteOpenHelper {
 	 */
     private boolean upgradeDatabase2(SQLiteDatabase db) {
     	try {
-    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.TASK_CONTEXT + " TEXT");
-    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_ENABLED + " TEXT");
-    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.REMINDER_TIME + " TEXT");
+    		db.execSQL("ALTER TABLE " + Tasks.TABLE_NAME + " ADD COLUMN " + Tasks.TASK_CONTEXT + " TEXT");
+    		db.execSQL("ALTER TABLE " + Tasks.TABLE_NAME + " ADD COLUMN " + Tasks.REMINDER_ENABLED + " TEXT");
+    		db.execSQL("ALTER TABLE " + Tasks.TABLE_NAME + " ADD COLUMN " + Tasks.REMINDER_TIME + " TEXT");
    		} catch (SQLException eSQL) {
             if (BuildConfig.DEBUG) {
             	Log.e(TAG, eSQL.getMessage());
@@ -146,7 +146,7 @@ final class DatabaseHelper extends SQLiteOpenHelper {
 	 */
     private boolean upgradeDatabase3(SQLiteDatabase db) {
     	try {
-    		db.execSQL("ALTER TABLE " + TasksToday.TABLE_NAME + " ADD COLUMN " + TasksToday.TASK_LIST_ORDER + " INTEGER DEFAULT 0");
+    		db.execSQL("ALTER TABLE " + Tasks.TABLE_NAME + " ADD COLUMN " + Tasks.TASK_LIST_ORDER + " INTEGER DEFAULT 0");
    		} catch (SQLException eSQL) {
             if (BuildConfig.DEBUG) {
             	Log.e(TAG, eSQL.getMessage());

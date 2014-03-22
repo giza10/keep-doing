@@ -1,5 +1,11 @@
 package com.hkb48.keepdo.widget;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -7,7 +13,8 @@ import android.os.Bundle;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
-import com.hkb48.keepdo.KeepdoProvider;
+import com.hkb48.keepdo.KeepdoProvider.TaskCompletion;
+import com.hkb48.keepdo.KeepdoProvider.Tasks;
 import com.hkb48.keepdo.R;
 
 public class TasksWidgetService extends RemoteViewsService {
@@ -19,7 +26,7 @@ public class TasksWidgetService extends RemoteViewsService {
 
 class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     private Context mContext;
-    private Cursor mCursor;
+    private final List<String> mTaskList = new ArrayList<String>();
 //    private int mAppWidgetId;
 
     public StackRemoteViewsFactory(Context context, Intent intent) {
@@ -34,33 +41,30 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public void onDestroy() {
-        if (mCursor != null) {
-            mCursor.close();
-        }
     }
 
     public int getCount() {
-        return mCursor.getCount();
+        return mTaskList.size();
     }
 
     public RemoteViews getViewAt(int position) {
         // Get the data for this position from the content provider
-        String taskName = "Unknown Day";
+//        String taskName = "Unknown Task";
 //        int temp = 0;
-        if (mCursor.moveToPosition(position)) {
-            final int taskNameColIndex = mCursor.getColumnIndex(KeepdoProvider.Columns.TASK_NAME);
+//        if (mCursor.moveToPosition(position)) {
+//            final int taskNameColIndex = mCursor.getColumnIndex(KeepdoProvider.Columns.TASK_NAME);
 //            final int dayColIndex = mCursor.getColumnIndex(KeepdoProvider.Columns.TASK_NAME);
 //            final int tempColIndex = mCursor.getColumnIndex(
 //                    DummyWeatherDataProvider.Columns.TEMPERATURE);
-            taskName = mCursor.getString(taskNameColIndex);
+//            taskName = mCursor.getString(taskNameColIndex);
 //            temp = mCursor.getInt(tempColIndex);
-        }
+//        }
 
         // Return a proper item with the proper day and temperature
 //        final String formatStr = mContext.getResources().getString(R.string.item_format_string);
         final int itemId = R.layout.widget_item;
         RemoteViews rv = new RemoteViews(mContext.getPackageName(), itemId);
-        rv.setTextViewText(R.id.widget_item, taskName);
+        rv.setTextViewText(R.id.widget_item, mTaskList.get(position));
 
         // Set the click intent so that we can handle it and show a toast message
         final Intent fillInIntent = new Intent();
@@ -71,6 +75,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         return rv;
     }
+
     public RemoteViews getLoadingView() {
         // We aren't going to return a default loading view in this sample
         return null;
@@ -90,11 +95,36 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public void onDataSetChanged() {
-        // Refresh the cursor
-        if (mCursor != null) {
-            mCursor.close();
-        }
-        mCursor = mContext.getContentResolver().query(KeepdoProvider.CONTENT_URI, null, null,
+        mTaskList.clear();
+        Cursor cursor = mContext.getContentResolver().query(Tasks.CONTENT_URI, null, null,
                 null, null);
+        if (cursor.moveToFirst()) {
+            do {
+                final int taskIdColIndex = cursor.getColumnIndex(Tasks._ID);
+                final long taskId = cursor.getLong(taskIdColIndex);
+                if (! getDoneStatus(taskId)) {
+                    final int taskNameColIndex = cursor.getColumnIndex(Tasks.TASK_NAME);
+                    mTaskList.add(cursor.getString(taskNameColIndex));
+                }
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+    }
+
+    private boolean getDoneStatus(long taskId) {
+        boolean isDone = false;
+        final String SDF_PATTERN_YMD = "yyyy-MM-dd";
+        final SimpleDateFormat dateFormat = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
+        // TODO: should be DateChangeTime
+        Date date = new Date();
+        String selection = TaskCompletion.TASK_NAME_ID + "=? and " + TaskCompletion.TASK_COMPLETION_DATE + "=?";
+        String selectionArgs[] = {String.valueOf(taskId), dateFormat.format(date)};
+        Cursor cursor = mContext.getContentResolver().query(TaskCompletion.CONTENT_URI, null, selection,
+                selectionArgs, null);
+        if (cursor.getCount() > 0) {
+            isDone =  true;
+        }
+        cursor.close();
+        return isDone;
     }
 }

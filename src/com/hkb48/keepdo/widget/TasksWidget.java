@@ -8,7 +8,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,7 +35,7 @@ class TasksDataProviderObserver extends ContentObserver {
         // In response, the factory's onDataSetChanged() will be called which will requery the
         // cursor for the new data.
         mAppWidgetManager.notifyAppWidgetViewDataChanged(
-                mAppWidgetManager.getAppWidgetIds(mComponentName), R.id.weather_list);
+                mAppWidgetManager.getAppWidgetIds(mComponentName), R.id.task_list);
     }
 }
 
@@ -71,7 +70,8 @@ public class TasksWidget extends AppWidgetProvider {
             final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
             final ComponentName cn = new ComponentName(context, TasksWidget.class);
             sDataObserver = new TasksDataProviderObserver(mgr, cn, sWorkerQueue);
-            r.registerContentObserver(KeepdoProvider.CONTENT_URI, true, sDataObserver);
+            r.registerContentObserver(KeepdoProvider.Tasks.CONTENT_URI, true, sDataObserver);
+            r.registerContentObserver(KeepdoProvider.TaskCompletion.CONTENT_URI, true, sDataObserver);
         }
 	}
 
@@ -147,10 +147,10 @@ public class TasksWidget extends AppWidgetProvider {
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager,
             int appWidgetId, Bundle newOptions) {
 
-        int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
-        int maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
+//        int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
+//        int maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
         int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
-        int maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT);
+//        int maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT);
 
         RemoteViews layout;
         if (minHeight < 100) {
@@ -164,20 +164,20 @@ public class TasksWidget extends AppWidgetProvider {
 
     private RemoteViews buildLayout(Context context, int appWidgetId, boolean largeLayout) {
         RemoteViews rv;
-        if (largeLayout) {
+//        if (largeLayout) {
             // Specify the service to provide data for the collection widget.  Note that we need to
             // embed the appWidgetId via the data otherwise it will be ignored.
             final Intent intent = new Intent(context, TasksWidgetService.class);
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
             intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
             rv = new RemoteViews(context.getPackageName(), R.layout.tasks_widget);
-            rv.setRemoteAdapter(appWidgetId, R.id.weather_list, intent);
+            rv.setRemoteAdapter(R.id.task_list, intent);
 
             // Set the empty view to be displayed if the collection is empty.  It must be a sibling
             // view of the collection view.
-            rv.setEmptyView(R.id.weather_list, R.id.empty_view);
+            rv.setEmptyView(R.id.task_list, R.id.empty_view);
 
-            // Bind a click listener template for the contents of the weather list.  Note that we
+            // Bind a click listener template for the contents of the task list.  Note that we
             // need to update the intent's data if we set an extra, since the extras will be
             // ignored otherwise.
             final Intent onClickIntent = new Intent(context, TasksWidget.class);
@@ -186,7 +186,7 @@ public class TasksWidget extends AppWidgetProvider {
             onClickIntent.setData(Uri.parse(onClickIntent.toUri(Intent.URI_INTENT_SCHEME)));
             final PendingIntent onClickPendingIntent = PendingIntent.getBroadcast(context, 0,
                     onClickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            rv.setPendingIntentTemplate(R.id.weather_list, onClickPendingIntent);
+            rv.setPendingIntentTemplate(R.id.task_list, onClickPendingIntent);
 
             // Bind the click intent for the refresh button on the widget
 //            final Intent refreshIntent = new Intent(context, TasksWidget.class);
@@ -194,22 +194,22 @@ public class TasksWidget extends AppWidgetProvider {
 
             // Restore the minimal header
 //            rv.setTextViewText(R.id.city_name, context.getString(R.string.city_name));
-        } else {
-            rv = new RemoteViews(context.getPackageName(), R.layout.tasks_widget);
+//        } else {
+//            rv = new RemoteViews(context.getPackageName(), R.layout.tasks_widget);
 
             // Update the header to reflect the weather for "today"
-            Cursor c = context.getContentResolver().query(KeepdoProvider.CONTENT_URI, null,
-                    null, null, null);
-            if (c.moveToPosition(0)) {
+//            Cursor c = context.getContentResolver().query(KeepdoProvider.CONTENT_URI, null,
+//                    null, null, null);
+//            if (c.moveToPosition(0)) {
 //                int tempColIndex = c.getColumnIndex(KeepdoProvider.Columns.TASK_NAME);
 //                int temp = c.getInt(tempColIndex);
 //                String formatStr = context.getResources().getString(R.string.header_format_string);
 //                String header = String.format(formatStr, temp,
 //                        context.getString(R.string.city_name));
 //                rv.setTextViewText(R.id.city_name, header);
-            }
-            c.close();
-        }
+//            }
+//            c.close();
+//        }
         return rv;
     }
 }
