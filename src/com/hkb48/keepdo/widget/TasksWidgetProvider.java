@@ -1,5 +1,9 @@
 package com.hkb48.keepdo.widget;
 
+import java.text.MessageFormat;
+import java.util.Calendar;
+
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -8,16 +12,19 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 import android.widget.RemoteViews;
 
-
+import com.hkb48.keepdo.BuildConfig;
 import com.hkb48.keepdo.KeepdoProvider;
 import com.hkb48.keepdo.R;
 import com.hkb48.keepdo.TasksActivity;
+import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
 
 class TasksDataProviderObserver extends ContentObserver {
     private AppWidgetManager mAppWidgetManager;
@@ -39,8 +46,9 @@ class TasksDataProviderObserver extends ContentObserver {
     }
 }
 
-public class TasksWidget extends AppWidgetProvider {
-    public static String CLICK_ACTION = "com.hkb48.keepdo.widget.CLICK";
+public class TasksWidgetProvider extends AppWidgetProvider {
+    public static final String CLICK_ACTION = "com.hkb48.keepdo.widget.CLICK";
+    public static final String ACTION_ON_DATE_CHANGED = "com.hkb48.keepdo.ON_DATE_CHANGED";
 //    public static String REFRESH_ACTION = "com.hkb48.keepdo.widget.REFRESH";
 //    public static String EXTRA_DAY_ID = "com.hkb48.keepdo.widget.day";
 
@@ -52,7 +60,7 @@ public class TasksWidget extends AppWidgetProvider {
     private boolean mIsLargeLayout = true;
 //    private int mHeaderWeatherState = 0;
 
-    public TasksWidget() {
+    public TasksWidgetProvider() {
         // Start the worker thread
         sWorkerThread = new HandlerThread("TasksWidget-worker");
         sWorkerThread.start();
@@ -68,14 +76,16 @@ public class TasksWidget extends AppWidgetProvider {
         final ContentResolver r = context.getContentResolver();
         if (sDataObserver == null) {
             final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
-            final ComponentName cn = new ComponentName(context, TasksWidget.class);
+            final ComponentName cn = new ComponentName(context, TasksWidgetProvider.class);
             sDataObserver = new TasksDataProviderObserver(mgr, cn, sWorkerQueue);
             r.registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, sDataObserver);
         }
+        startAlarm(context);
 	}
 
 	@Override
 	public void onDisabled(Context context) {
+	    stopAlarm(context);
 		super.onDisabled(context);
 	}
 
@@ -127,6 +137,8 @@ public class TasksWidget extends AppWidgetProvider {
             Intent activityLaunchIntent = new Intent(context, TasksActivity.class);
             activityLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(activityLaunchIntent);
+        } else if (action.equals(ACTION_ON_DATE_CHANGED)) {
+            ctx.getContentResolver().notifyChange(DateChangeTime.CONTENT_URI, null);
         }
 
         super.onReceive(ctx, intent);
@@ -139,6 +151,7 @@ public class TasksWidget extends AppWidgetProvider {
             RemoteViews layout = buildLayout(context, appWidgetIds[i], mIsLargeLayout);
             appWidgetManager.updateAppWidget(appWidgetIds[i], layout);
         }
+        startAlarm(context);
         super.onUpdate(context, appWidgetManager, appWidgetIds);
     }
 
@@ -179,8 +192,8 @@ public class TasksWidget extends AppWidgetProvider {
             // Bind a click listener template for the contents of the task list.  Note that we
             // need to update the intent's data if we set an extra, since the extras will be
             // ignored otherwise.
-            final Intent onClickIntent = new Intent(context, TasksWidget.class);
-            onClickIntent.setAction(TasksWidget.CLICK_ACTION);
+            final Intent onClickIntent = new Intent(context, TasksWidgetProvider.class);
+            onClickIntent.setAction(TasksWidgetProvider.CLICK_ACTION);
             onClickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
             onClickIntent.setData(Uri.parse(onClickIntent.toUri(Intent.URI_INTENT_SCHEME)));
             final PendingIntent onClickPendingIntent = PendingIntent.getBroadcast(context, 0,
@@ -210,5 +223,39 @@ public class TasksWidget extends AppWidgetProvider {
 //            c.close();
 //        }
         return rv;
+    }
+
+    private void startAlarm(Context context) {
+        Cursor cursor = context.getContentResolver().query(DateChangeTime.CONTENT_URI, null, null,
+                null, null);
+        if (cursor.moveToFirst()) {
+            final int colIndex = cursor.getColumnIndex(DateChangeTime.NEXT_DATE_CHANGE_TIME);
+            long nextAlarmTime = cursor.getLong(colIndex);
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            alarmManager.setRepeating(AlarmManager.RTC, nextAlarmTime, AlarmManager.INTERVAL_DAY, getPendingIntent(context));
+            dumpLog(nextAlarmTime);
+        }
+        cursor.close();
+    }
+
+    private void stopAlarm(Context context) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(getPendingIntent(context));
+    }
+
+    private PendingIntent getPendingIntent(Context context) {
+        Intent intent = new Intent(ACTION_ON_DATE_CHANGED);
+        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    private void dumpLog(long timeInMillis) {
+        if (BuildConfig.DEBUG) {
+            Calendar time = Calendar.getInstance();
+            time.setTimeInMillis(timeInMillis);
+            MessageFormat mf = new MessageFormat("{0,date,yyyy/MM/dd HH:mm:ss}");
+            Object[] objs = {time.getTime()};
+            String result = mf.format(objs);
+            Log.v("LOG_KEEPDO:" + "TasksWidgetProvider", "time:" + result);
+        }
     }
 }

@@ -115,7 +115,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         Cursor cursor = mContext.getContentResolver().query(DateChangeTime.CONTENT_URI, null, null,
                 null, null);
         if (cursor.moveToFirst()) {
-            final int dateColIndex = cursor.getColumnIndex(DateChangeTime.DATE);
+            final int dateColIndex = cursor.getColumnIndex(DateChangeTime.ADJUSTED_DATE);
             date = cursor.getString(dateColIndex);
         }
         cursor.close();

@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
+
 public class DateChangeTimeManager {
     private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";
 
@@ -24,6 +26,7 @@ public class DateChangeTimeManager {
         public void onDateChangeTimeSettingChanged() {
             startAlarm();
             ReminderManager.getInstance().setNextAlert(mContext);
+            mContext.getContentResolver().notifyChange(DateChangeTime.CONTENT_URI, null);
         }
 
         public void onWeekStartDaySettingChanged() {}

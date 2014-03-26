@@ -1,6 +1,7 @@
 package com.hkb48.keepdo;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -80,7 +81,8 @@ public class KeepdoProvider extends ContentProvider {
         public static final String TABLE_URI = "table_datechangetime_uri";
 
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
-        public static final String DATE = "date";
+        public static final String ADJUSTED_DATE = "date";
+        public static final String NEXT_DATE_CHANGE_TIME = "next_date_change_time";
     }
 
     private DatabaseHelper mOpenHelper;
@@ -171,9 +173,16 @@ public class KeepdoProvider extends ContentProvider {
             case DateChangeTime.TABLE_ID:
                 final String SDF_PATTERN_YMD = "yyyy-MM-dd";
                 final SimpleDateFormat dateFormat = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
-                final MatrixCursor mc = new MatrixCursor(new String[]{DateChangeTime.DATE});
+                final MatrixCursor mc = new MatrixCursor(new String[]{DateChangeTime.ADJUSTED_DATE, DateChangeTime.NEXT_DATE_CHANGE_TIME});
                 Date today = DateChangeTimeUtil.getDateTime();
-                mc.addRow(new Object[]{dateFormat.format(today)});
+                DateChangeTimeUtil.DateChangeTime dateChangeTime = DateChangeTimeUtil.getDateChangeTime();
+                Calendar dateChangeTimeCalendar = DateChangeTimeUtil.getDateTimeCalendar();
+                dateChangeTimeCalendar.add(Calendar.DATE, 1);
+                dateChangeTimeCalendar.set(Calendar.HOUR_OF_DAY, dateChangeTime.hourOfDay);
+                dateChangeTimeCalendar.set(Calendar.MINUTE, dateChangeTime.minute);
+                dateChangeTimeCalendar.set(Calendar.SECOND, 0);
+                dateChangeTimeCalendar.set(Calendar.MILLISECOND, 0);
+                mc.addRow(new Object[]{dateFormat.format(today), Long.valueOf(dateChangeTimeCalendar.getTimeInMillis())});
                 return mc;
 
             default:
