@@ -200,6 +200,8 @@ public class TasksWidgetProvider extends AppWidgetProvider {
                     onClickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             rv.setPendingIntentTemplate(R.id.task_list, onClickPendingIntent);
 
+            rv.setOnClickPendingIntent(R.id.empty_view, onClickPendingIntent);
+
             // Bind the click intent for the refresh button on the widget
 //            final Intent refreshIntent = new Intent(context, TasksWidget.class);
 //            refreshIntent.setAction(TasksWidget.REFRESH_ACTION);
