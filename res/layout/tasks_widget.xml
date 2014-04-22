@@ -1,13 +1,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#EEEEEEEE"
     android:orientation="vertical" >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/tasklist_bg_header"
+        android:background="@color/widget_tasklist_bg_header"
         android:orientation="horizontal" >
 
         <ImageView
@@ -22,7 +21,6 @@
             android:id="@+id/tasksWidgetTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/tasklist_bg_header"
             android:padding="5dp"
             android:text="@string/tasklist_header_today_remaining_task"
             android:textColor="@color/tasklist_fg_header"
@@ -36,8 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_gravity="center"
-        android:layout_weight="1"
-        android:background="#F8F8F8" >
+        android:layout_weight="1" >
 
         <ListView
             android:id="@+id/task_list"
@@ -47,11 +44,12 @@
         <TextView
             android:id="@+id/empty_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="60dp"
             android:gravity="center"
             android:text="@string/task_empty"
             android:textColor="@android:color/black"
             android:textSize="20sp"
+            android:background="@color/widget_tasklist_bg_item"
             android:visibility="gone" />
     </FrameLayout>
 

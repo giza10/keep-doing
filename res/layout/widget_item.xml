@@ -3,7 +3,7 @@
     android:id="@+id/widget_item"
     android:layout_width="match_parent"
     android:layout_height="36dp"
-    android:background="#F0F0F0"
+    android:background="@color/widget_tasklist_bg_item"
     android:ellipsize="end"
     android:gravity="center_vertical"
     android:paddingLeft="5dp"

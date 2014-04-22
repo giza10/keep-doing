@@ -22,4 +22,6 @@
     <color name="calendar_bg_sunday_color">#FF60C0</color>
     <color name="tasksort_dragdrop_view_bg">#887ECCE8</color>
 
+    <color name="widget_tasklist_bg_header">#CC33b5e5</color>
+    <color name="widget_tasklist_bg_item">#CCF0F0F0</color>
 </resources>
