@@ -109,4 +109,7 @@
     <string name="backup_done">バックアップ完了</string>
     <string name="restore_done">復元完了</string>
     <string name="no_backup_file">バックアップファイルがありません</string>
+
+    <!-- Widget -->
+    <string name="task_empty">今日のDoは完了しました</string>
 </resources>

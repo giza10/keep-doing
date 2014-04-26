@@ -7,44 +7,19 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
-import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.hkb48.keepdo.BuildConfig;
-import com.hkb48.keepdo.KeepdoProvider;
 import com.hkb48.keepdo.R;
 import com.hkb48.keepdo.TasksActivity;
 import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
 
-class TasksDataProviderObserver extends ContentObserver {
-    private AppWidgetManager mAppWidgetManager;
-    private ComponentName mComponentName;
-
-    TasksDataProviderObserver(AppWidgetManager mgr, ComponentName cn, Handler h) {
-        super(h);
-        mAppWidgetManager = mgr;
-        mComponentName = cn;
-    }
-
-    @Override
-    public void onChange(boolean selfChange) {
-        // The data has changed, so notify the widget that the collection view needs to be updated.
-        // In response, the factory's onDataSetChanged() will be called which will requery the
-        // cursor for the new data.
-        mAppWidgetManager.notifyAppWidgetViewDataChanged(
-                mAppWidgetManager.getAppWidgetIds(mComponentName), R.id.task_list);
-    }
-}
 
 public class TasksWidgetProvider extends AppWidgetProvider {
     public static final String CLICK_ACTION = "com.hkb48.keepdo.widget.CLICK";
@@ -52,9 +27,9 @@ public class TasksWidgetProvider extends AppWidgetProvider {
 //    public static String REFRESH_ACTION = "com.hkb48.keepdo.widget.REFRESH";
 //    public static String EXTRA_DAY_ID = "com.hkb48.keepdo.widget.day";
 
-    private static HandlerThread sWorkerThread;
-    private static Handler sWorkerQueue;
-    private static TasksDataProviderObserver sDataObserver;
+//    private static HandlerThread sWorkerThread;
+//    private static Handler sWorkerQueue;
+//    private static TasksDataProviderObserver sDataObserver;
 //    private static final int sMaxDegrees = 96;
 
     private boolean mIsLargeLayout = true;
@@ -62,9 +37,10 @@ public class TasksWidgetProvider extends AppWidgetProvider {
 
     public TasksWidgetProvider() {
         // Start the worker thread
-        sWorkerThread = new HandlerThread("TasksWidget-worker");
-        sWorkerThread.start();
-        sWorkerQueue = new Handler(sWorkerThread.getLooper());
+//        sWorkerThread = new HandlerThread("TasksWidget-worker");
+//        sWorkerThread.start();
+//        sWorkerQueue = new Handler(sWorkerThread.getLooper());
+//        sWorkerQueue = new Handler();
     }
 
 	@Override
@@ -73,13 +49,13 @@ public class TasksWidgetProvider extends AppWidgetProvider {
         // content providers, the data is often updated via a background service, or in response to
         // user interaction in the main app.  To ensure that the widget always reflects the current
         // state of the data, we must listen for changes and update ourselves accordingly.
-        final ContentResolver r = context.getContentResolver();
-        if (sDataObserver == null) {
-            final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
-            final ComponentName cn = new ComponentName(context, TasksWidgetProvider.class);
-            sDataObserver = new TasksDataProviderObserver(mgr, cn, sWorkerQueue);
-            r.registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, sDataObserver);
-        }
+//        final ContentResolver r = context.getContentResolver();
+//        if (sDataObserver == null) {
+//            final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
+//            final ComponentName cn = new ComponentName(context, TasksWidgetProvider.class);
+//            sDataObserver = new TasksDataProviderObserver(mgr, cn, sWorkerQueue);
+//            r.registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, sDataObserver);
+//        }
         startAlarm(context);
 	}
 
