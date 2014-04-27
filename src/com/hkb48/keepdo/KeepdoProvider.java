@@ -68,7 +68,7 @@ public class KeepdoProvider extends ContentProvider {
 
         public static final String TASK_NAME_ID = "task_id";
         public static final String TASK_COMPLETION_DATE = "completion_date";
-        
+
         public static final String DEFAULT_SORT_ORDER = "task_id ASC";
     }
 

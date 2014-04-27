@@ -125,8 +125,9 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     public void onDataSetChanged() {
         mTaskList.clear();
+        String sortOrder = Tasks.TASK_LIST_ORDER + " asc";
         Cursor cursor = mContext.getContentResolver().query(Tasks.CONTENT_URI, null, null,
-                null, null);
+                null, sortOrder);
         if (cursor.moveToFirst()) {
             final String today = getDateChangeTime();
             do {

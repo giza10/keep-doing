@@ -1,13 +1,10 @@
 package com.hkb48.keepdo;
 
-import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
@@ -38,13 +35,9 @@ class DatabaseAdapter {
 
     private static final String SDF_PATTERN_YMD = "yyyy-MM-dd";
     private static final String SDF_PATTERN_YM = "yyyy-MM";
-    private static final String SELECT_FORM = "select * from ";
-    private static final String SELECT_ARG_FORM = " where ";
-    private static final String SELECT_FORM_TASK_COMPLETION_DISTINCT = "select distinct "+ TaskCompletion.TASK_COMPLETION_DATE + " from ";
 
     private static DatabaseAdapter INSTANCE = null;
     private DatabaseHelper mDatabaseHelper = null;
-    private SQLiteDatabase mDatabase = null;
     private final ContentResolver mContentResolver;
 
     private DatabaseAdapter(Context context) {
@@ -60,41 +53,15 @@ class DatabaseAdapter {
     	return INSTANCE;
     }
 
-    private SQLiteDatabase openDatabase() {
-    	synchronized (this) {
-	    	try {
-	    		mDatabase = mDatabaseHelper.getWritableDatabase();
-	    	} catch (SQLiteException e) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, e.getLocalizedMessage());
-                }
-	    		throw e;
-	    	}
-    	}
- 
-    	return mDatabase;
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private void closeDatabase() {
-//    	synchronized (this) {
-//			if (mDatabase != null) {
-//				mDatabase.close();
-//				mDatabase = null;
-//			}
-//    	}
-    }
-
     public synchronized void close() {
 		mDatabaseHelper.close();
     }
 
     public List<Task> getTaskList() {
         List<Task> tasks = new ArrayList<Task>();
-        String selectQuery = SELECT_FORM + Tasks.TABLE_NAME
-                + " order by " + Tasks.TASK_LIST_ORDER + " asc;";
-
-        Cursor cursor = openDatabase().rawQuery(selectQuery, null);
+        String sortOrder = Tasks.TASK_LIST_ORDER + " asc";
+        Cursor cursor = mContentResolver.query(Tasks.CONTENT_URI, null, null,
+                null, sortOrder);
 
         if (cursor.moveToFirst()) {
             do {
@@ -103,7 +70,6 @@ class DatabaseAdapter {
         }
 
         cursor.close();
-        closeDatabase();
 
         return tasks;
     }
@@ -243,9 +209,11 @@ class DatabaseAdapter {
     public Date getFirstDoneDate(Long taskID) {
         final SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
         Date date = null;
-        String selectQuery =  "select min(" + TaskCompletion.TASK_COMPLETION_DATE + ") from "
-                + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
-        Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
+        String[] projection = { "min(" + TaskCompletion.TASK_COMPLETION_DATE + ")" };
+        String selection = TaskCompletion.TASK_NAME_ID + "=?";
+        String selectionArgs[] = {String.valueOf(taskID)};
+        Cursor cursor = mContentResolver.query(TaskCompletion.CONTENT_URI, projection, selection,
+                selectionArgs, null);
 
         if (cursor != null) {
             cursor.moveToFirst();
@@ -259,16 +227,18 @@ class DatabaseAdapter {
             }
             cursor.close();
         }
-        closeDatabase();
         return date;
     }
 
     public Date getLastDoneDate(Long taskID) {
         final SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
         Date date = null;
-        String selectQuery =  "select max(" + TaskCompletion.TASK_COMPLETION_DATE + ") from "
-                + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?";
-        Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
+        String[] projection = { "max(" + TaskCompletion.TASK_COMPLETION_DATE + ")" };
+        String selection = TaskCompletion.TASK_NAME_ID + "=?";
+        String selectionArgs[] = {String.valueOf(taskID)};
+        Cursor cursor = mContentResolver.query(TaskCompletion.CONTENT_URI, projection, selection,
+                selectionArgs, null);
+
         if (cursor != null) {
             cursor.moveToFirst();
             String dateString = cursor.getString(0);
@@ -281,7 +251,6 @@ class DatabaseAdapter {
             }
             cursor.close();
         }
-        closeDatabase();
         return date;
     }
 
@@ -329,9 +298,12 @@ class DatabaseAdapter {
     	int maxCount = 0;
 
         Recurrence recurrence = getTask(taskID).getRecurrence();
-        String selectQuery = SELECT_FORM_TASK_COMPLETION_DISTINCT + TaskCompletion.TABLE_NAME + SELECT_ARG_FORM + TaskCompletion.TASK_NAME_ID + "=?"
-        					+ " order by " + TaskCompletion.TASK_COMPLETION_DATE + " asc;";
-        Cursor cursor = openDatabase().rawQuery(selectQuery, new String[] {String.valueOf(taskID)});
+        String[] projection = { "distinct " + TaskCompletion.TASK_COMPLETION_DATE };
+        String selection = TaskCompletion.TASK_NAME_ID + "=?";
+        String selectionArgs[] = {String.valueOf(taskID)};
+        String sortOrder = TaskCompletion.TASK_COMPLETION_DATE + " asc";
+        Cursor cursor = mContentResolver.query(TaskCompletion.CONTENT_URI, projection, selection,
+                selectionArgs, sortOrder);
 
         if (cursor != null) {
         	if (cursor.moveToFirst()) {
@@ -371,8 +343,6 @@ class DatabaseAdapter {
         	}
         	cursor.close();
         }
-
-        closeDatabase();
 
         return new ComboCount(currentCount, maxCount);
     }
@@ -430,8 +400,9 @@ class DatabaseAdapter {
 
     public int getMaxSortOrderId() {
         int maxOrderId = 0;
-        String selectQuery = "select max(" + Tasks.TASK_LIST_ORDER +") from " + Tasks.TABLE_NAME;
-        Cursor cursor = openDatabase().rawQuery(selectQuery, null);
+        String[] projection = { "max(" + Tasks.TASK_LIST_ORDER + ")" };
+        Cursor cursor = mContentResolver.query(Tasks.CONTENT_URI, projection, null,
+                null, null);
         if (cursor != null) {
             cursor.moveToFirst();
             String idString = cursor.getString(0);
@@ -440,7 +411,6 @@ class DatabaseAdapter {
             }
             cursor.close();
         }
-        closeDatabase();
 
         return maxOrderId;
     }
