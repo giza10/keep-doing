@@ -28,8 +28,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import com.hkb48.keepdo.widget.TasksWidgetService;
-
 public class TasksActivity extends Activity implements
         DateChangeTimeManager.OnDateChangedListener {
     // Request code when launching sub-activity
@@ -109,10 +107,6 @@ public class TasksActivity extends Activity implements
         registerForContextMenu(taskListView);
 
         updateTaskList();
-
-        // Launch service of Widget
-        Intent service = new Intent(getApplicationContext(), TasksWidgetService.class);
-        getApplicationContext().startService(service);
     }
 
     @Override

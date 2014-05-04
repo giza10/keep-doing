@@ -7,19 +7,42 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.hkb48.keepdo.BuildConfig;
+import com.hkb48.keepdo.KeepdoProvider;
 import com.hkb48.keepdo.R;
 import com.hkb48.keepdo.TasksActivity;
 import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
 
+class TasksDataProviderObserver extends ContentObserver {
+    private final AppWidgetManager mAppWidgetManager;
+    private final ComponentName mComponentName;
+
+    TasksDataProviderObserver(AppWidgetManager mgr, ComponentName cn, Handler h) {
+        super(h);
+        mAppWidgetManager = mgr;
+        mComponentName = cn;
+    }
+
+    @Override
+    public void onChange(boolean selfChange) {
+        // The data has changed, so notify the widget that the collection view needs to be updated.
+        // In response, the factory's onDataSetChanged() will be called which will requery the
+        // cursor for the new data.
+        mAppWidgetManager.notifyAppWidgetViewDataChanged(
+                mAppWidgetManager.getAppWidgetIds(mComponentName), R.id.task_list);
+    }
+}
 
 public class TasksWidgetProvider extends AppWidgetProvider {
     public static final String CLICK_ACTION = "com.hkb48.keepdo.widget.CLICK";
@@ -31,6 +54,7 @@ public class TasksWidgetProvider extends AppWidgetProvider {
 //    private static Handler sWorkerQueue;
 //    private static TasksDataProviderObserver sDataObserver;
 //    private static final int sMaxDegrees = 96;
+    private ContentObserver mContentObserver;
 
     private boolean mIsLargeLayout = true;
 //    private int mHeaderWeatherState = 0;
@@ -43,8 +67,8 @@ public class TasksWidgetProvider extends AppWidgetProvider {
 //        sWorkerQueue = new Handler();
     }
 
-	@Override
-	public void onEnabled(Context context) {
+    @Override
+    public void onEnabled(Context context) {
         // Register for external updates to the data to trigger an update of the widget.  When using
         // content providers, the data is often updated via a background service, or in response to
         // user interaction in the main app.  To ensure that the widget always reflects the current
@@ -56,18 +80,21 @@ public class TasksWidgetProvider extends AppWidgetProvider {
 //            sDataObserver = new TasksDataProviderObserver(mgr, cn, sWorkerQueue);
 //            r.registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, sDataObserver);
 //        }
+        registerContentObserver(context);
         startAlarm(context);
-	}
+    }
 
-	@Override
-	public void onDisabled(Context context) {
-	    stopAlarm(context);
-		super.onDisabled(context);
-	}
+    @Override
+    public void onDisabled(Context context) {
+        stopAlarm(context);
+        unregisterContentObserver(context);
+        super.onDisabled(context);
+    }
 
 	@Override
     public void onReceive(Context ctx, Intent intent) {
         final String action = intent.getAction();
+        final Context context = ctx;
 //        if (action.equals(REFRESH_ACTION)) {
 //            // BroadcastReceivers have a limited amount of time to do work, so for this sample, we
 //            // are triggering an update of the data on another thread.  In practice, this update
@@ -109,15 +136,20 @@ public class TasksWidgetProvider extends AppWidgetProvider {
 //            final int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
 //                    AppWidgetManager.INVALID_APPWIDGET_ID);
             // Launch top activity of KeepDo
-            final Context context = ctx;
+            registerContentObserver(context);
+            final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
+            final ComponentName cn = new ComponentName(context, TasksWidgetProvider.class);
+            mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.task_list);
             Intent activityLaunchIntent = new Intent(context, TasksActivity.class);
             activityLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(activityLaunchIntent);
         } else if (action.equals(ACTION_ON_DATE_CHANGED)) {
-            ctx.getContentResolver().notifyChange(DateChangeTime.CONTENT_URI, null);
+            final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
+            final ComponentName cn = new ComponentName(context, TasksWidgetProvider.class);
+            mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.task_list);
         }
 
-        super.onReceive(ctx, intent);
+        super.onReceive(context, intent);
     }
 
 	@Override
@@ -203,7 +235,22 @@ public class TasksWidgetProvider extends AppWidgetProvider {
         return rv;
     }
 
-    private void startAlarm(Context context) {
+    private void registerContentObserver(final Context context) {
+        if (mContentObserver == null) {
+            final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
+            final ComponentName cn = new ComponentName(context, TasksWidgetProvider.class);
+            mContentObserver = new TasksDataProviderObserver(mgr, cn, new Handler());
+        }
+        context.getContentResolver().registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, mContentObserver);
+    }
+
+    private void unregisterContentObserver(final Context context) {
+        if (mContentObserver != null) {
+            context.getContentResolver().unregisterContentObserver(mContentObserver);
+        }
+    }
+
+    private void startAlarm(final Context context) {
         Cursor cursor = context.getContentResolver().query(DateChangeTime.CONTENT_URI, null, null,
                 null, null);
         if (cursor.moveToFirst()) {
@@ -216,7 +263,7 @@ public class TasksWidgetProvider extends AppWidgetProvider {
         cursor.close();
     }
 
-    private void stopAlarm(Context context) {
+    private void stopAlarm(final Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(getPendingIntent(context));
     }

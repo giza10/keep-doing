@@ -3,21 +3,16 @@ package com.hkb48.keepdo.widget;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
 import com.hkb48.keepdo.KeepdoProvider.TaskCompletion;
 import com.hkb48.keepdo.KeepdoProvider.Tasks;
-import com.hkb48.keepdo.KeepdoProvider;
 import com.hkb48.keepdo.R;
 
 public class TasksWidgetService extends RemoteViewsService {
@@ -27,31 +22,10 @@ public class TasksWidgetService extends RemoteViewsService {
     }
 }
 
-class TasksDataProviderObserver extends ContentObserver {
-    private final AppWidgetManager mAppWidgetManager;
-    private final ComponentName mComponentName;
-
-    TasksDataProviderObserver(AppWidgetManager mgr, ComponentName cn, Handler h) {
-        super(h);
-        mAppWidgetManager = mgr;
-        mComponentName = cn;
-    }
-
-    @Override
-    public void onChange(boolean selfChange) {
-        // The data has changed, so notify the widget that the collection view needs to be updated.
-        // In response, the factory's onDataSetChanged() will be called which will requery the
-        // cursor for the new data.
-        mAppWidgetManager.notifyAppWidgetViewDataChanged(
-                mAppWidgetManager.getAppWidgetIds(mComponentName), R.id.task_list);
-    }
-}
-
 class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     private final Context mContext;
     private final List<String> mTaskList = new ArrayList<String>();
 //    private int mAppWidgetId;
-    private ContentObserver mContentObserver;
 
     public StackRemoteViewsFactory(Context context, Intent intent) {
         mContext = context;
@@ -62,14 +36,9 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public void onCreate() {
         // Since we reload the cursor in onDataSetChanged() which gets called immediately after
         // onCreate(), we do nothing here.
-        final AppWidgetManager mgr = AppWidgetManager.getInstance(mContext);
-        final ComponentName cn = new ComponentName(mContext, TasksWidgetProvider.class);
-        mContentObserver = new TasksDataProviderObserver(mgr, cn, new Handler());
-        mContext.getContentResolver().registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, mContentObserver);
     }
 
     public void onDestroy() {
-        mContext.getContentResolver().unregisterContentObserver(mContentObserver);
     }
 
     public int getCount() {
