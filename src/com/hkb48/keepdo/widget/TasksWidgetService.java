@@ -1,12 +1,18 @@
 package com.hkb48.keepdo.widget;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -23,8 +29,10 @@ public class TasksWidgetService extends RemoteViewsService {
 }
 
 class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
+    private static final String TAG = "#TasksWidgetService: ";
     private final Context mContext;
     private final List<String> mTaskList = new ArrayList<String>();
+    private static final String SDF_PATTERN_YMD = "yyyy-MM-dd";
 //    private int mAppWidgetId;
 
     public StackRemoteViewsFactory(Context context, Intent intent) {
@@ -102,7 +110,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             do {
                 final int taskIdColIndex = cursor.getColumnIndex(Tasks._ID);
                 final long taskId = cursor.getLong(taskIdColIndex);
-                if (! getDoneStatus(taskId, today)) {
+                if (! getDoneStatus(taskId, today) && isValidDay(cursor, today)) {
                     final int taskNameColIndex = cursor.getColumnIndex(Tasks.TASK_NAME);
                     mTaskList.add(cursor.getString(taskNameColIndex));
                 }
@@ -135,5 +143,33 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         }
         cursor.close();
         return isDone;
+    }
+
+    private boolean isValidDay(Cursor cursor, String dateString) {
+        final SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
+        Date date = null;
+        if (dateString != null) {
+            try {
+                date = sdf_ymd.parse(dateString);
+            } catch (ParseException e) {
+                Log.e(TAG, e.getMessage());
+                return false;
+            }
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        String columnString;
+        switch(calendar.get(Calendar.DAY_OF_WEEK)) {
+            case Calendar.MONDAY: columnString = Tasks.FREQUENCY_MON;  break;
+            case Calendar.TUESDAY: columnString = Tasks.FREQUENCY_TUE;  break;
+            case Calendar.WEDNESDAY: columnString = Tasks.FREQUENCY_WEN;  break;
+            case Calendar.THURSDAY: columnString = Tasks.FREQUENCY_THR;  break;
+            case Calendar.FRIDAY: columnString = Tasks.FREQUENCY_FRI;  break;
+            case Calendar.SATURDAY: columnString = Tasks.FREQUENCY_SAT;  break;
+            case Calendar.SUNDAY: columnString = Tasks.FREQUENCY_SUN; break;
+            default: return false;
+        }
+        return Boolean.valueOf(cursor.getString(cursor.getColumnIndex(columnString)));
     }
 }
