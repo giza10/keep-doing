@@ -9,4 +9,4 @@
     android:paddingLeft="5dp"
     android:singleLine="true"
     android:textColor="#232323"
-    android:textSize="20sp" />
+    android:textSize="@dimen/widget_list_item_font_size" />

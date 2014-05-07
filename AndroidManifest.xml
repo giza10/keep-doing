@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hkb48.keepdo"
-    android:versionCode="21"
+    android:versionCode="22"
     android:versionName="1.5.0" >
 
     <uses-sdk

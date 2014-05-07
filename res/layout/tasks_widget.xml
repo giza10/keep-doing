@@ -26,8 +26,7 @@
             android:textColor="@color/tasklist_fg_header"
             android:ellipsize="end"
             android:singleLine="true"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textSize="@dimen/widget_header_font_size" />
     </LinearLayout>
 
     <TextView
@@ -54,7 +53,7 @@
             android:gravity="center"
             android:text="@string/task_empty"
             android:textColor="@android:color/black"
-            android:textSize="20sp"
+            android:textSize="@dimen/widget_list_item_font_size"
             android:background="@color/widget_tasklist_bg_item"
             android:visibility="gone" />
     </FrameLayout>
