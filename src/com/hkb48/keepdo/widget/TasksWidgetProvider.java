@@ -45,8 +45,9 @@ class TasksDataProviderObserver extends ContentObserver {
 }
 
 public class TasksWidgetProvider extends AppWidgetProvider {
-    public static final String CLICK_ACTION = "com.hkb48.keepdo.widget.CLICK";
-    public static final String ACTION_ON_DATE_CHANGED = "com.hkb48.keepdo.ON_DATE_CHANGED";
+    private static final String ACTION_CLICK = "com.hkb48.keepdo.widget.action.CLICK";
+    public static final String ACTION_APPWIDGET_UPDATE = "com.hkb48.keepdo.action.APPWIDGET_UPDATE";
+    public static final String ACTION_PROVIDER_CREATED = "com.hkb48.keepdo.action.PROVIDER_CREATED";
 //    public static String REFRESH_ACTION = "com.hkb48.keepdo.widget.REFRESH";
 //    public static String EXTRA_DAY_ID = "com.hkb48.keepdo.widget.day";
 
@@ -131,22 +132,20 @@ public class TasksWidgetProvider extends AppWidgetProvider {
 ////            final int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
 ////                    AppWidgetManager.INVALID_APPWIDGET_ID);
 //        } else if (action.equals(CLICK_ACTION)) {
-        if (action.equals(CLICK_ACTION)) {
+        if (action.equals(ACTION_CLICK)) {
             // Show a toast
 //            final int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
 //                    AppWidgetManager.INVALID_APPWIDGET_ID);
             // Launch top activity of KeepDo
-            registerContentObserver(context);
-            final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
-            final ComponentName cn = new ComponentName(context, TasksWidgetProvider.class);
-            mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.task_list);
             Intent activityLaunchIntent = new Intent(context, TasksActivity.class);
             activityLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(activityLaunchIntent);
-        } else if (action.equals(ACTION_ON_DATE_CHANGED)) {
+        } else if (action.equals(ACTION_APPWIDGET_UPDATE)) {
             final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
             final ComponentName cn = new ComponentName(context, TasksWidgetProvider.class);
             mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.task_list);
+        } else if (action.equals(ACTION_PROVIDER_CREATED)) {
+            registerContentObserver(context);
         }
 
         super.onReceive(context, intent);
@@ -201,7 +200,7 @@ public class TasksWidgetProvider extends AppWidgetProvider {
             // need to update the intent's data if we set an extra, since the extras will be
             // ignored otherwise.
             final Intent onClickIntent = new Intent(context, TasksWidgetProvider.class);
-            onClickIntent.setAction(TasksWidgetProvider.CLICK_ACTION);
+            onClickIntent.setAction(TasksWidgetProvider.ACTION_CLICK);
             onClickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
             onClickIntent.setData(Uri.parse(onClickIntent.toUri(Intent.URI_INTENT_SCHEME)));
             final PendingIntent onClickPendingIntent = PendingIntent.getBroadcast(context, 0,
@@ -269,7 +268,7 @@ public class TasksWidgetProvider extends AppWidgetProvider {
     }
 
     private PendingIntent getPendingIntent(Context context) {
-        Intent intent = new Intent(ACTION_ON_DATE_CHANGED);
+        Intent intent = new Intent(ACTION_APPWIDGET_UPDATE);
         return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
