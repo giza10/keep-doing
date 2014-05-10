@@ -15,12 +15,15 @@ import java.util.List;
 
 public class AlarmReceiver extends BroadcastReceiver {
     private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";
+    public static final String ACTION_REMINDER = "com.hkb48.keepdo.action.REMINDER";
+    public static final String ACTION_DATE_CHANGED = "com.hkb48.keepdo.action.DATE_CHANGED";
+    public static final String PARAM_TASK_ID = "TASK-ID";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getType().equals("Reminder")) {
+        if (intent.getType().equals(ACTION_REMINDER)) {
             dispatchReminderEvent(context, intent);
-        } else if (intent.getType().equals("DateChangeTime")) {
+        } else if (intent.getType().equals(ACTION_DATE_CHANGED)) {
             dispatchDateChangedEvent(context);
         } else {
             Log.e(TAG_KEEPDO + "RemindAlarmReceiver#onReceive()", "Unknown intent type");
@@ -28,7 +31,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
     private void dispatchReminderEvent(Context context, Intent intent) {
-        long taskId = intent.getLongExtra("TASK-ID", -1);
+        long taskId = intent.getLongExtra(PARAM_TASK_ID, -1);
         Task task = DatabaseAdapter.getInstance(context).getTask(taskId);
         String taskName = null;
         if (task != null) {

@@ -45,7 +45,6 @@ class TasksDataProviderObserver extends ContentObserver {
 }
 
 public class TasksWidgetProvider extends AppWidgetProvider {
-    private static final String ACTION_CLICK = "com.hkb48.keepdo.widget.action.CLICK";
     public static final String ACTION_APPWIDGET_UPDATE = "com.hkb48.keepdo.action.APPWIDGET_UPDATE";
     public static final String ACTION_PROVIDER_CREATED = "com.hkb48.keepdo.action.PROVIDER_CREATED";
 //    public static String REFRESH_ACTION = "com.hkb48.keepdo.widget.REFRESH";
@@ -132,20 +131,16 @@ public class TasksWidgetProvider extends AppWidgetProvider {
 ////            final int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
 ////                    AppWidgetManager.INVALID_APPWIDGET_ID);
 //        } else if (action.equals(CLICK_ACTION)) {
-        if (action.equals(ACTION_CLICK)) {
-            // Show a toast
-//            final int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
-//                    AppWidgetManager.INVALID_APPWIDGET_ID);
-            // Launch top activity of KeepDo
-            Intent activityLaunchIntent = new Intent(context, TasksActivity.class);
-            activityLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(activityLaunchIntent);
-        } else if (action.equals(ACTION_APPWIDGET_UPDATE)) {
+        if (action.equals(ACTION_APPWIDGET_UPDATE)) {
             final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
             final ComponentName cn = new ComponentName(context, TasksWidgetProvider.class);
             mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.task_list);
         } else if (action.equals(ACTION_PROVIDER_CREATED)) {
             registerContentObserver(context);
+        } else if (action.equalsIgnoreCase("android.intent.action.TIME_SET") ||
+                   action.equalsIgnoreCase("android.intent.action.TIMEZONE_CHANGED") ||
+                   action.equalsIgnoreCase("android.intent.action.LOCALE_CHANGED")) {
+            startAlarm(context);
         }
 
         super.onReceive(context, intent);
@@ -199,12 +194,9 @@ public class TasksWidgetProvider extends AppWidgetProvider {
             // Bind a click listener template for the contents of the task list.  Note that we
             // need to update the intent's data if we set an extra, since the extras will be
             // ignored otherwise.
-            final Intent onClickIntent = new Intent(context, TasksWidgetProvider.class);
-            onClickIntent.setAction(TasksWidgetProvider.ACTION_CLICK);
-            onClickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-            onClickIntent.setData(Uri.parse(onClickIntent.toUri(Intent.URI_INTENT_SCHEME)));
-            final PendingIntent onClickPendingIntent = PendingIntent.getBroadcast(context, 0,
-                    onClickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            final Intent onClickIntent = new Intent(context, TasksActivity.class);
+            final int flags = Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Intent.FLAG_ACTIVITY_NEW_TASK;
+            final PendingIntent onClickPendingIntent = PendingIntent.getActivity(context, 0, onClickIntent, flags);
             rv.setPendingIntentTemplate(R.id.task_list, onClickPendingIntent);
 
             rv.setOnClickPendingIntent(R.id.empty_view, onClickPendingIntent);

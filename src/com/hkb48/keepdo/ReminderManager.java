@@ -202,8 +202,8 @@ public class ReminderManager {
 
     private PendingIntent getPendingIntent(Context context, long taskId) {
         Intent intent = new Intent(context, AlarmReceiver.class);
-        intent.putExtra("TASK-ID", taskId);
-        intent.setType("Reminder");
+        intent.putExtra(AlarmReceiver.PARAM_TASK_ID, taskId);
+        intent.setType(AlarmReceiver.ACTION_REMINDER);
         return PendingIntent.getBroadcast(context, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
     }

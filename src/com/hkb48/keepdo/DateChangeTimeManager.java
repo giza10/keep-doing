@@ -94,7 +94,7 @@ public class DateChangeTimeManager {
 
     private PendingIntent getPendingIntent(Context context) {
         Intent intent = new Intent(context, AlarmReceiver.class);
-        intent.setType("DateChangeTime");
+        intent.setType(AlarmReceiver.ACTION_DATE_CHANGED);
         return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
