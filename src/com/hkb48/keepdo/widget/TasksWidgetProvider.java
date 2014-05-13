@@ -131,16 +131,15 @@ public class TasksWidgetProvider extends AppWidgetProvider {
 ////            final int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
 ////                    AppWidgetManager.INVALID_APPWIDGET_ID);
 //        } else if (action.equals(CLICK_ACTION)) {
-        if (action.equals(ACTION_APPWIDGET_UPDATE)) {
+        if (action.equals(ACTION_APPWIDGET_UPDATE) ||
+                action.equalsIgnoreCase("android.intent.action.TIME_SET") ||
+                action.equalsIgnoreCase("android.intent.action.TIMEZONE_CHANGED") ||
+                action.equalsIgnoreCase("android.intent.action.LOCALE_CHANGED")) {
             final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
             final ComponentName cn = new ComponentName(context, TasksWidgetProvider.class);
             mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.task_list);
         } else if (action.equals(ACTION_PROVIDER_CREATED)) {
             registerContentObserver(context);
-        } else if (action.equalsIgnoreCase("android.intent.action.TIME_SET") ||
-                   action.equalsIgnoreCase("android.intent.action.TIMEZONE_CHANGED") ||
-                   action.equalsIgnoreCase("android.intent.action.LOCALE_CHANGED")) {
-            startAlarm(context);
         }
 
         super.onReceive(context, intent);
