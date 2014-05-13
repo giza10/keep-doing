@@ -195,7 +195,7 @@ public class TasksWidgetProvider extends AppWidgetProvider {
             // ignored otherwise.
             final Intent onClickIntent = new Intent(context, TasksActivity.class);
             final int flags = Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Intent.FLAG_ACTIVITY_NEW_TASK;
-            final PendingIntent onClickPendingIntent = PendingIntent.getActivity(context, 0, onClickIntent, flags);
+            final PendingIntent onClickPendingIntent = PendingIntent.getActivity(context, appWidgetId, onClickIntent, flags);
             rv.setPendingIntentTemplate(R.id.task_list, onClickPendingIntent);
 
             rv.setOnClickPendingIntent(R.id.empty_view, onClickPendingIntent);
