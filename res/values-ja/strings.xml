@@ -111,5 +111,5 @@
     <string name="no_backup_file">バックアップファイルがありません</string>
 
     <!-- Widget -->
-    <string name="task_empty">今日のDoは完了しました</string>
+    <string name="task_empty">全件完了しました</string>
 </resources>

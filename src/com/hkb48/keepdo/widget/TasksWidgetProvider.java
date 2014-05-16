@@ -47,39 +47,23 @@ class TasksDataProviderObserver extends ContentObserver {
 public class TasksWidgetProvider extends AppWidgetProvider {
     public static final String ACTION_APPWIDGET_UPDATE = "com.hkb48.keepdo.action.APPWIDGET_UPDATE";
     public static final String ACTION_PROVIDER_CREATED = "com.hkb48.keepdo.action.PROVIDER_CREATED";
-//    public static String REFRESH_ACTION = "com.hkb48.keepdo.widget.REFRESH";
-//    public static String EXTRA_DAY_ID = "com.hkb48.keepdo.widget.day";
+    private static final String ACTION_ITEM_CLICKED = "com.hkb48.keepdo.action.ITEM_CLICKED";
 
-//    private static HandlerThread sWorkerThread;
-//    private static Handler sWorkerQueue;
-//    private static TasksDataProviderObserver sDataObserver;
-//    private static final int sMaxDegrees = 96;
-    private ContentObserver mContentObserver;
+    public static final String PARAM_POSITION = "position";
+    public static final String PARAM_TASK_ID = "task-id";
+    public static final String PARAM_VIEWID = "view-id";
+    public static final int VIEWID_DONE_ICON = 1;
 
-    private boolean mIsLargeLayout = true;
-//    private int mHeaderWeatherState = 0;
+    public static final int INVALID_INDEX = -1;
+
+    private static int sSelectedPosition = INVALID_INDEX;
+    private static ContentObserver sContentObserver;
 
     public TasksWidgetProvider() {
-        // Start the worker thread
-//        sWorkerThread = new HandlerThread("TasksWidget-worker");
-//        sWorkerThread.start();
-//        sWorkerQueue = new Handler(sWorkerThread.getLooper());
-//        sWorkerQueue = new Handler();
     }
 
     @Override
     public void onEnabled(Context context) {
-        // Register for external updates to the data to trigger an update of the widget.  When using
-        // content providers, the data is often updated via a background service, or in response to
-        // user interaction in the main app.  To ensure that the widget always reflects the current
-        // state of the data, we must listen for changes and update ourselves accordingly.
-//        final ContentResolver r = context.getContentResolver();
-//        if (sDataObserver == null) {
-//            final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
-//            final ComponentName cn = new ComponentName(context, TasksWidgetProvider.class);
-//            sDataObserver = new TasksDataProviderObserver(mgr, cn, sWorkerQueue);
-//            r.registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, sDataObserver);
-//        }
         registerContentObserver(context);
         startAlarm(context);
     }
@@ -95,51 +79,37 @@ public class TasksWidgetProvider extends AppWidgetProvider {
     public void onReceive(Context ctx, Intent intent) {
         final String action = intent.getAction();
         final Context context = ctx;
-//        if (action.equals(REFRESH_ACTION)) {
-//            // BroadcastReceivers have a limited amount of time to do work, so for this sample, we
-//            // are triggering an update of the data on another thread.  In practice, this update
-//            // can be triggered from a background service, or perhaps as a result of user actions
-//            // inside the main application.
-//            final Context context = ctx;
-//            sWorkerQueue.removeMessages(0);
-//            sWorkerQueue.post(new Runnable() {
-////                @Override
-//                public void run() {
-//                    final ContentResolver r = context.getContentResolver();
-//                    final Cursor c = r.query(KeepdoProvider.CONTENT_URI, null, null, null, 
-//                            null);
-//                    final int count = c.getCount();
-//
-//                    // We disable the data changed observer temporarily since each of the updates
-//                    // will trigger an onChange() in our data observer.
-//                    r.unregisterContentObserver(sDataObserver);
-//                    for (int i = 0; i < count; ++i) {
-//                        final Uri uri = ContentUris.withAppendedId(KeepdoProvider.CONTENT_URI, i);
-//                        final ContentValues values = new ContentValues();
-//                        values.put(DummyWeatherDataProvider.Columns.TEMPERATURE,
-//                                new Random().nextInt(sMaxDegrees));
-//                        r.update(uri, values, null, null);
-//                    }
-//                    r.registerContentObserver(KeepdoProvider.CONTENT_URI, true, sDataObserver);
-//
-//                    final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
-//                    final ComponentName cn = new ComponentName(context, TasksWidget.class);
-//                    mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.weather_list);
-//                }
-//            });
-//
-////            final int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
-////                    AppWidgetManager.INVALID_APPWIDGET_ID);
-//        } else if (action.equals(CLICK_ACTION)) {
+
         if (action.equals(ACTION_APPWIDGET_UPDATE) ||
                 action.equalsIgnoreCase("android.intent.action.TIME_SET") ||
                 action.equalsIgnoreCase("android.intent.action.TIMEZONE_CHANGED") ||
                 action.equalsIgnoreCase("android.intent.action.LOCALE_CHANGED")) {
-            final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
-            final ComponentName cn = new ComponentName(context, TasksWidgetProvider.class);
-            mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.task_list);
+            updateWidgetList(context);
         } else if (action.equals(ACTION_PROVIDER_CREATED)) {
             registerContentObserver(context);
+        } else if (action.equals(ACTION_ITEM_CLICKED)) {
+            final int viewId = intent.getIntExtra(PARAM_VIEWID, -1);
+            if (viewId == VIEWID_DONE_ICON) {
+                sSelectedPosition = intent.getIntExtra(PARAM_POSITION, -1);
+                updateWidgetList(context);
+
+                final long taskId = intent.getLongExtra(PARAM_TASK_ID, -1);
+                new Handler().postDelayed(new Runnable() {
+                    public void run() {
+                        TasksWidgetModel model = new TasksWidgetModel(context);
+                        String date = model.getTodayDate();
+                        boolean doneToday = model.getDoneStatus(taskId, date);
+                        if (! doneToday) {
+                            model.setDoneStatus(taskId, date);
+                        }
+                        sSelectedPosition = INVALID_INDEX;
+                    }
+                }, 500);
+            } else {
+                Intent activityLaunchIntent = new Intent(context, TasksActivity.class);
+                activityLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(activityLaunchIntent);
+            }
         }
 
         super.onReceive(context, intent);
@@ -149,7 +119,7 @@ public class TasksWidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // Update each of the widgets with the remote adapter
         for (int i = 0; i < appWidgetIds.length; ++i) {
-            RemoteViews layout = buildLayout(context, appWidgetIds[i], mIsLargeLayout);
+            RemoteViews layout = buildLayout(context, appWidgetIds[i]);
             appWidgetManager.updateAppWidget(appWidgetIds[i], layout);
         }
         startAlarm(context);
@@ -159,84 +129,59 @@ public class TasksWidgetProvider extends AppWidgetProvider {
     @Override
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager,
             int appWidgetId, Bundle newOptions) {
-
-//        int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
-//        int maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
-        int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
-//        int maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT);
-
-        RemoteViews layout;
-        if (minHeight < 100) {
-            mIsLargeLayout = false;
-        } else {
-            mIsLargeLayout = true;
-        }
-        layout = buildLayout(context, appWidgetId, mIsLargeLayout);
+         RemoteViews layout = buildLayout(context, appWidgetId);
         appWidgetManager.updateAppWidget(appWidgetId, layout);
     }
 
-    private RemoteViews buildLayout(Context context, int appWidgetId, boolean largeLayout) {
+    public static int getSelectedItemIndex() {
+        return sSelectedPosition;
+    }
+
+    private RemoteViews buildLayout(Context context, int appWidgetId) {
         RemoteViews rv;
-//        if (largeLayout) {
-            // Specify the service to provide data for the collection widget.  Note that we need to
-            // embed the appWidgetId via the data otherwise it will be ignored.
-            final Intent intent = new Intent(context, TasksWidgetService.class);
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-            intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
-            rv = new RemoteViews(context.getPackageName(), R.layout.tasks_widget);
-            rv.setRemoteAdapter(R.id.task_list, intent);
 
-            // Set the empty view to be displayed if the collection is empty.  It must be a sibling
-            // view of the collection view.
-            rv.setEmptyView(R.id.task_list, R.id.empty_view);
+        // Specify the service to provide data for the collection widget.  Note that we need to
+        // embed the appWidgetId via the data otherwise it will be ignored.
+        final Intent intent = new Intent(context, TasksWidgetService.class);
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
+        rv = new RemoteViews(context.getPackageName(), R.layout.tasks_widget);
+        rv.setRemoteAdapter(R.id.task_list, intent);
 
-            // Bind a click listener template for the contents of the task list.  Note that we
-            // need to update the intent's data if we set an extra, since the extras will be
-            // ignored otherwise.
-            final Intent onClickIntent = new Intent(context, TasksActivity.class);
-            final int flags = Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Intent.FLAG_ACTIVITY_NEW_TASK;
-            final PendingIntent onClickPendingIntent = PendingIntent.getActivity(context, appWidgetId, onClickIntent, flags);
-            rv.setPendingIntentTemplate(R.id.task_list, onClickPendingIntent);
+        // Set the empty view to be displayed if the collection is empty.  It must be a sibling
+        // view of the collection view.
+        rv.setEmptyView(R.id.task_list, R.id.empty_view);
 
-            rv.setOnClickPendingIntent(R.id.empty_view, onClickPendingIntent);
+        // Bind a click listener template for the contents of the task list.  Note that we
+        // need to update the intent's data if we set an extra, since the extras will be
+        // ignored otherwise.
+        final Intent onItemClickIntent = new Intent(context, TasksWidgetProvider.class);
+        onItemClickIntent.setAction(ACTION_ITEM_CLICKED);
+        onItemClickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        final PendingIntent onClickPendingIntent = PendingIntent.getBroadcast(context, appWidgetId, onItemClickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        rv.setPendingIntentTemplate(R.id.task_list, onClickPendingIntent);
 
-            // Bind the click intent for the refresh button on the widget
-//            final Intent refreshIntent = new Intent(context, TasksWidget.class);
-//            refreshIntent.setAction(TasksWidget.REFRESH_ACTION);
-
-            // Restore the minimal header
-//            rv.setTextViewText(R.id.city_name, context.getString(R.string.city_name));
-//        } else {
-//            rv = new RemoteViews(context.getPackageName(), R.layout.tasks_widget);
-
-            // Update the header to reflect the weather for "today"
-//            Cursor c = context.getContentResolver().query(KeepdoProvider.CONTENT_URI, null,
-//                    null, null, null);
-//            if (c.moveToPosition(0)) {
-//                int tempColIndex = c.getColumnIndex(KeepdoProvider.Columns.TASK_NAME);
-//                int temp = c.getInt(tempColIndex);
-//                String formatStr = context.getResources().getString(R.string.header_format_string);
-//                String header = String.format(formatStr, temp,
-//                        context.getString(R.string.city_name));
-//                rv.setTextViewText(R.id.city_name, header);
-//            }
-//            c.close();
-//        }
+        rv.setOnClickPendingIntent(R.id.empty_view, onClickPendingIntent);
         return rv;
     }
 
+    private void updateWidgetList(final Context context) {
+        final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
+        final ComponentName cn = new ComponentName(context, TasksWidgetProvider.class);
+        mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.task_list);
+    }
     private void registerContentObserver(final Context context) {
-        if (mContentObserver == null) {
+        if (sContentObserver == null) {
             final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
             final ComponentName cn = new ComponentName(context, TasksWidgetProvider.class);
-            mContentObserver = new TasksDataProviderObserver(mgr, cn, new Handler());
+            sContentObserver = new TasksDataProviderObserver(mgr, cn, new Handler());
         }
-        context.getContentResolver().registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, mContentObserver);
+        context.getContentResolver().registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, sContentObserver);
     }
 
     private void unregisterContentObserver(final Context context) {
-        if (mContentObserver != null) {
-            context.getContentResolver().unregisterContentObserver(mContentObserver);
+        if (sContentObserver != null) {
+            context.getContentResolver().unregisterContentObserver(sContentObserver);
         }
     }
 
