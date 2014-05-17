@@ -5,12 +5,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import com.hkb48.keepdo.widget.TasksWidgetProvider;
-
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -105,9 +102,6 @@ public class KeepdoProvider extends ContentProvider {
     public boolean onCreate() {
         // Assumes that any failures will be reported by a thrown exception.
         final Context context = getContext();
-        Intent intent = new Intent(context, TasksWidgetProvider.class);
-        intent.setAction(TasksWidgetProvider.ACTION_PROVIDER_CREATED);
-        context.sendBroadcast(intent);
         mOpenHelper = DatabaseHelper.getInstance(context);
         Settings.initialize(context);
         return false;

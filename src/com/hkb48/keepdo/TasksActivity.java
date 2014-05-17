@@ -28,6 +28,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.hkb48.keepdo.widget.TasksWidgetProvider;
+
 public class TasksActivity extends Activity implements
         DateChangeTimeManager.OnDateChangedListener {
     // Request code when launching sub-activity
@@ -161,6 +163,7 @@ public class TasksActivity extends Activity implements
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        final Context context = getApplicationContext();
         if (resultCode == RESULT_OK) {
             Task task;
             switch (requestCode) {
@@ -171,12 +174,14 @@ public class TasksActivity extends Activity implements
                 mDBAdapter.addTask(task);
                 updateTaskList();
                 updateReminder();
+                TasksWidgetProvider.notifyDatasetChanged(context);
                 break;
             case REQUEST_EDIT_TASK:
                 task = (Task) data.getSerializableExtra("TASK-INFO");
                 mDBAdapter.editTask(task);
                 updateTaskList();
                 updateReminder();
+                TasksWidgetProvider.notifyDatasetChanged(context);
                 break;
             case REQUEST_SHOW_CALENDAR:
             case REQUEST_SORT_TASK:
@@ -226,6 +231,7 @@ public class TasksActivity extends Activity implements
                                     mDBAdapter.deleteTask(taskId);
                                     updateTaskList();
                                     updateReminder();
+                                    TasksWidgetProvider.notifyDatasetChanged(getApplicationContext());
                                 }
                             })
                     .setNegativeButton(R.string.dialog_cancel,
@@ -504,6 +510,7 @@ public class TasksActivity extends Activity implements
                         mDBAdapter.setDoneStatus(taskId, today, checked);
                         updateView(taskId, checked, itemViewHolder);
                         updateReminder();
+                        TasksWidgetProvider.notifyDatasetChanged(getApplicationContext());
 
                         if (checked) {
                             mCheckSound.play();

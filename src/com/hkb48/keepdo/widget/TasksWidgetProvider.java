@@ -19,7 +19,6 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.hkb48.keepdo.BuildConfig;
-import com.hkb48.keepdo.KeepdoProvider;
 import com.hkb48.keepdo.R;
 import com.hkb48.keepdo.TasksActivity;
 import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
@@ -46,32 +45,29 @@ class TasksDataProviderObserver extends ContentObserver {
 
 public class TasksWidgetProvider extends AppWidgetProvider {
     public static final String ACTION_APPWIDGET_UPDATE = "com.hkb48.keepdo.action.APPWIDGET_UPDATE";
-    public static final String ACTION_PROVIDER_CREATED = "com.hkb48.keepdo.action.PROVIDER_CREATED";
     private static final String ACTION_ITEM_CLICKED = "com.hkb48.keepdo.action.ITEM_CLICKED";
 
     public static final String PARAM_POSITION = "position";
     public static final String PARAM_TASK_ID = "task-id";
     public static final String PARAM_VIEWID = "view-id";
+    public static final int VIEWID_TEXT = 0;
     public static final int VIEWID_DONE_ICON = 1;
 
     public static final int INVALID_INDEX = -1;
 
     private static int sSelectedPosition = INVALID_INDEX;
-    private static ContentObserver sContentObserver;
 
     public TasksWidgetProvider() {
     }
 
     @Override
     public void onEnabled(Context context) {
-        registerContentObserver(context);
         startAlarm(context);
     }
 
     @Override
     public void onDisabled(Context context) {
         stopAlarm(context);
-        unregisterContentObserver(context);
         super.onDisabled(context);
     }
 
@@ -85,8 +81,6 @@ public class TasksWidgetProvider extends AppWidgetProvider {
                 action.equalsIgnoreCase("android.intent.action.TIMEZONE_CHANGED") ||
                 action.equalsIgnoreCase("android.intent.action.LOCALE_CHANGED")) {
             updateWidgetList(context);
-        } else if (action.equals(ACTION_PROVIDER_CREATED)) {
-            registerContentObserver(context);
         } else if (action.equals(ACTION_ITEM_CLICKED)) {
             final int viewId = intent.getIntExtra(PARAM_VIEWID, -1);
             if (viewId == VIEWID_DONE_ICON) {
@@ -103,6 +97,7 @@ public class TasksWidgetProvider extends AppWidgetProvider {
                             model.setDoneStatus(taskId, date);
                         }
                         sSelectedPosition = INVALID_INDEX;
+                        updateWidgetList(context);
                     }
                 }, 500);
             } else {
@@ -129,12 +124,18 @@ public class TasksWidgetProvider extends AppWidgetProvider {
     @Override
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager,
             int appWidgetId, Bundle newOptions) {
-         RemoteViews layout = buildLayout(context, appWidgetId);
+        RemoteViews layout = buildLayout(context, appWidgetId);
         appWidgetManager.updateAppWidget(appWidgetId, layout);
     }
 
     public static int getSelectedItemIndex() {
         return sSelectedPosition;
+    }
+
+    public static void notifyDatasetChanged(final Context context) {
+        final Intent intent = new Intent(context, TasksWidgetProvider.class);
+        intent.setAction(ACTION_APPWIDGET_UPDATE);
+        context.sendBroadcast(intent);
     }
 
     private RemoteViews buildLayout(Context context, int appWidgetId) {
@@ -169,20 +170,6 @@ public class TasksWidgetProvider extends AppWidgetProvider {
         final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
         final ComponentName cn = new ComponentName(context, TasksWidgetProvider.class);
         mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.task_list);
-    }
-    private void registerContentObserver(final Context context) {
-        if (sContentObserver == null) {
-            final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
-            final ComponentName cn = new ComponentName(context, TasksWidgetProvider.class);
-            sContentObserver = new TasksDataProviderObserver(mgr, cn, new Handler());
-        }
-        context.getContentResolver().registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, sContentObserver);
-    }
-
-    private void unregisterContentObserver(final Context context) {
-        if (sContentObserver != null) {
-            context.getContentResolver().unregisterContentObserver(sContentObserver);
-        }
     }
 
     private void startAlarm(final Context context) {

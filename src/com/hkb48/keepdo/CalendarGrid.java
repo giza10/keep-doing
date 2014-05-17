@@ -29,6 +29,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import com.hkb48.keepdo.widget.TasksWidgetProvider;
+
 public class CalendarGrid extends Fragment {
     private static final String TAG = "#KEEPDO_CALENDARGRID: ";
 
@@ -173,6 +175,7 @@ public class CalendarGrid extends Fragment {
             showDoneIcon(imageView);
             mDatabaseAdapter.setDoneStatus(mTask.getTaskID(), selectedDate,
                     true);
+            TasksWidgetProvider.notifyDatasetChanged(getContext());
             mCheckSound.play();
             consumed = true;
             break;
@@ -180,6 +183,7 @@ public class CalendarGrid extends Fragment {
             hideDoneIcon(imageView);
             mDatabaseAdapter.setDoneStatus(mTask.getTaskID(), selectedDate,
                     false);
+            TasksWidgetProvider.notifyDatasetChanged(getContext());
             consumed = true;
             break;
         default:

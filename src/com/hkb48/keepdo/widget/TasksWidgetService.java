@@ -43,7 +43,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         final Intent intentForListItem = new Intent();
         final Bundle extras = new Bundle();
-        extras.putInt("view-id", 0);
+        extras.putInt(TasksWidgetProvider.PARAM_VIEWID, TasksWidgetProvider.VIEWID_TEXT);
         intentForListItem.putExtras(extras);
         rv.setOnClickFillInIntent(R.id.widget_item, intentForListItem);
 
