@@ -80,12 +80,14 @@ public class TasksWidgetProvider extends AppWidgetProvider {
                 action.equalsIgnoreCase("android.intent.action.TIME_SET") ||
                 action.equalsIgnoreCase("android.intent.action.TIMEZONE_CHANGED") ||
                 action.equalsIgnoreCase("android.intent.action.LOCALE_CHANGED")) {
-            updateWidgetList(context);
+            updateAllWidgetsList(context);
         } else if (action.equals(ACTION_ITEM_CLICKED)) {
             final int viewId = intent.getIntExtra(PARAM_VIEWID, -1);
             if (viewId == VIEWID_DONE_ICON) {
-                sSelectedPosition = intent.getIntExtra(PARAM_POSITION, -1);
-                updateWidgetList(context);
+                sSelectedPosition = intent.getIntExtra(PARAM_POSITION, INVALID_INDEX);
+                final int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+                        AppWidgetManager.INVALID_APPWIDGET_ID);
+                updateWidgetList(context, appWidgetId);
 
                 final long taskId = intent.getLongExtra(PARAM_TASK_ID, -1);
                 new Handler().postDelayed(new Runnable() {
@@ -97,7 +99,7 @@ public class TasksWidgetProvider extends AppWidgetProvider {
                             model.setDoneStatus(taskId, date);
                         }
                         sSelectedPosition = INVALID_INDEX;
-                        updateWidgetList(context);
+                        updateAllWidgetsList(context);
                     }
                 }, 500);
             } else {
@@ -166,10 +168,15 @@ public class TasksWidgetProvider extends AppWidgetProvider {
         return rv;
     }
 
-    private void updateWidgetList(final Context context) {
+    private void updateAllWidgetsList(final Context context) {
         final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
         final ComponentName cn = new ComponentName(context, TasksWidgetProvider.class);
         mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.task_list);
+    }
+
+    private void updateWidgetList(final Context context, final int widgetId) {
+        final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
+        mgr.notifyAppWidgetViewDataChanged(widgetId, R.id.task_list);
     }
 
     private void startAlarm(final Context context) {
