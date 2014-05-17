@@ -50,8 +50,8 @@ public class TasksWidgetProvider extends AppWidgetProvider {
     public static final String PARAM_POSITION = "position";
     public static final String PARAM_TASK_ID = "task-id";
     public static final String PARAM_VIEWID = "view-id";
-    public static final int VIEWID_TEXT = 0;
-    public static final int VIEWID_DONE_ICON = 1;
+    public static final int VIEWID_LIST_ITEM = 0;
+    public static final int VIEWID_LIST_ITEM_ICON = 1;
 
     public static final int INVALID_INDEX = -1;
 
@@ -83,7 +83,7 @@ public class TasksWidgetProvider extends AppWidgetProvider {
             updateAllWidgetsList(context);
         } else if (action.equals(ACTION_ITEM_CLICKED)) {
             final int viewId = intent.getIntExtra(PARAM_VIEWID, -1);
-            if (viewId == VIEWID_DONE_ICON) {
+            if (viewId == VIEWID_LIST_ITEM_ICON) {
                 sSelectedPosition = intent.getIntExtra(PARAM_POSITION, INVALID_INDEX);
                 final int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
                         AppWidgetManager.INVALID_APPWIDGET_ID);

@@ -24,4 +24,5 @@
 
     <color name="widget_tasklist_bg_header">#CC33b5e5</color>
     <color name="widget_tasklist_bg_item">#CCF0F0F0</color>
+    <color name="widget_tasklist_bg_item_pressed">#CC84CFEF</color>
 </resources>
