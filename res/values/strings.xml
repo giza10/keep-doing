@@ -11,7 +11,7 @@
     <string name="tasklist_lastdonedate_diffdays">%d days ago</string>
     <string name="tasklist_combo">%d combo!</string>
     <string name="add_task">Create Do</string>
-    <string name="edit_task">Edit Do</string>日
+    <string name="edit_task">Edit Do</string>
     <string name="delete_task">Delete Do</string>
     <string name="task_name">Title</string>
     <string name="hint_task_name">Input title of Do</string>
