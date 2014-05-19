@@ -1,0 +1,115 @@
+<resources>
+    <string name="app_name">Keep Do!</string>
+
+    <string name="tasklist_header_today_task">今天的作业</string>
+    <string name="tasklist_header_other_task">其他作业</string>
+    <string name="tasklist_header_today_remaining_task">今天未完成作业</string>
+    <string name="tasklist_lastdonedate_notyet">未完成</string>
+    <string name="tasklist_lastdonedate_today">今天完成</string>
+    <string name="tasklist_lastdonedate_yesterday">昨天完成</string>
+    <string name="tasklist_lastdonedate_diffdays">前%d天完成</string>
+    <string name="tasklist_combo">%d天连续完成！</string>
+    <string name="add_task">新作业追加</string>
+    <string name="edit_task">作业编辑</string>
+    <string name="delete_task">删除作业</string>
+    <string name="settings">设定</string>
+    <string name="general_setting">共同设定</string>
+    <string name="history_calendar_setting">履历设定</string>
+    <string name="reminder_setting">通知设定</string>
+    <string name="preferences_done_icon_title">完成图标</string>
+    <string name="preferences_date_change_time_title">日期更改时刻</string>
+    <string name="preferences_date_change_time_summary">作业更改为%s</string>
+    <string name="preferences_calendar_week_start_day_title">周开始日</string>
+    <string name="preferences_alerts_ringtone_title">通知音</string>
+    <string name="preferences_alerts_vibrateWhen_title">震动</string>
+    <string name="task_name">标题</string>
+    <string name="hint_task_name">作业标题</string>
+    <string name="recurrence">实行频率</string>
+    <string name="recurrence_separator">，</string>
+    <string name="dialog_ok">是</string>
+    <string name="dialog_cancel">否</string>
+    <string name="dialog_start">开始</string>
+    <string name="reminder">通知功能</string>
+    <string name="no_reminder">不通知</string>
+    <string name="description">详细</string>
+    <string name="hint_task_description">说明</string>
+    <string name="task_save">保存</string>
+    <string name="task_cancel">取消</string>
+    <string name="delete_confirmation">进行作业删除吗?</string>
+    <string name="date_changed">日期更改成功</string>
+    <string name="date_format">MM月dd日(E)</string>
+    <string name="check_done">标记作业完成</string>
+    <string name="uncheck_done">消除作业完成</string>
+    <string name="notification_title_one_task">拥有未完成作业！</string>
+    <string name="notification_title_multi_tasks">拥有%d件未完成作业！</string>
+    <string name="remind_at">有通知</string>
+    <string name="number_of_done">完成作业次数</string>
+    <string name="current_and_max_combo">当前连续完成数 / 最多连续完成数</string>
+    <string name="first_done_date">作业最早完成日</string>
+    <string name="last_done_date">作业最后完成日</string>
+    <string name="number_of_times">%d次</string>
+
+    <string name="btn_month_next">下月</string>
+    <string name="btn_month_prev">上月</string>
+
+    <string name="menu_share">共享</string>
+    <string name="share_combo">连续完成「%1$s」作业%2$d次！</string>
+    <string name="share_non_combo">本月连续完成「%1$s」作业%2$d次。</string>
+    <string name="share_app_url">from KeepDo! https://play.google.com/store/apps/details?id=com.hkb48.keepdo</string>
+
+    <string-array name="week_names">
+        <item>星期日</item>
+        <item>星期一</item>
+        <item>星期二</item>
+        <item>星期三</item>
+        <item>星期四</item>
+        <item>星期五</item>
+        <item>星期六</item>
+    </string-array>
+    <string name="title_section2">详细</string>
+    <string name="title_section1">日历</string>
+    <string name="menu_settings">设定</string>
+    <string name="backup_restore">备份与恢复</string>
+    <string name="title_activity_task">作业项目</string>
+    <string name="sort_task">排序</string>
+
+    <!-- The week start day on the calendar -->
+    <string-array name="prefEntries_calendar_week_start_day">
+        <item>星期日</item>
+        <item>星期一</item>
+    </string-array>
+
+    <!-- The vibrate notification modes -->
+    <string-array name="prefEntries_alerts_vibrateWhen">
+        <item>标准使用</item>
+        <item>震动模式</item>
+        <item>不使用</item>
+    </string-array>
+
+    <!-- Dialog title for the Done icon dialog -->
+    <string name="prefDialogTitle_selectDoneIcon">选择完成日</string>
+
+    <!-- Dialog title for the Date change time dialog -->
+    <string name="prefDialogTitle_date_change_time">时刻变更日</string>
+
+    <!-- Dialog title for the Date change time dialog -->
+    <string name="prefDialogTitle_calendar_week_start_day">周开始日</string>
+
+    <!-- Dialog title for the Vibrate dialog -->
+    <string name="prefDialogTitle_vibrateWhen">震动</string>
+
+    <!-- Toas message to encourage create new tasks -->
+    <string name="tasklist_msg_newtask">点击「+」可生成新作业！</string>
+
+    <!-- Backup & Restore -->
+    <string-array name="dialog_choice_backup_restore">
+        <item>备份</item>
+        <item>恢复(覆盖)</item>
+    </string-array>
+    <string name="backup_done">备份成功</string>
+    <string name="restore_done">复制成功</string>
+    <string name="no_backup_file">没有备份文件</string>
+
+    <!-- Widget -->
+    <string name="task_empty">没有未完成作业</string>
+</resources>
