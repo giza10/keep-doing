@@ -53,7 +53,8 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.TIME_SET" />
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
-                <action android:name="android.intent.action.LOCALE_CHANGED"/>
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+                <action android:name="com.hkb48.keepdo.action.UPDATE_REMINDER" />
             </intent-filter>
         </receiver>
 

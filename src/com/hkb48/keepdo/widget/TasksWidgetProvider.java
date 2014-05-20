@@ -20,6 +20,7 @@ import android.widget.RemoteViews;
 
 import com.hkb48.keepdo.BuildConfig;
 import com.hkb48.keepdo.R;
+import com.hkb48.keepdo.RemindAlarmInitReceiver;
 import com.hkb48.keepdo.TasksActivity;
 import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
 
@@ -100,6 +101,7 @@ public class TasksWidgetProvider extends AppWidgetProvider {
                         }
                         sSelectedPosition = INVALID_INDEX;
                         updateAllWidgetsList(context);
+                        RemindAlarmInitReceiver.updateReminder(context);
                     }
                 }, 500);
             } else {
