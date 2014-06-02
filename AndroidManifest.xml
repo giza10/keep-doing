@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hkb48.keepdo"
-    android:versionCode="32"
-    android:versionName="1.5.1" >
+    android:versionCode="34"
+    android:versionName="1.5.3" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -53,7 +53,8 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.TIME_SET" />
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
-                <action android:name="android.intent.action.LOCALE_CHANGED"/>
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+                <action android:name="com.hkb48.keepdo.action.UPDATE_REMINDER" />
             </intent-filter>
         </receiver>
 
