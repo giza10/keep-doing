@@ -27,7 +27,7 @@
     <string name="recurrence">实行频率</string>
     <string name="recurrence_separator">，</string>
     <string name="dialog_ok">成功</string>
-    <string name="dialog_cancel">否</string>
+    <string name="dialog_cancel">取消</string>
     <string name="dialog_start">开始</string>
     <string name="reminder">通知功能</string>
     <string name="no_reminder">不通知</string>
