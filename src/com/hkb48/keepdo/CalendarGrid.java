@@ -50,7 +50,7 @@ public class CalendarGrid extends Fragment {
     private int mDoneIconId;
     private boolean mIsShareOnTop;
 
-    private CalendarGrid() {
+    public CalendarGrid() {
     }
 
     public static CalendarGrid newInstance(Bundle args) {
