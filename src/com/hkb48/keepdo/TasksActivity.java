@@ -2,7 +2,6 @@ package com.hkb48.keepdo;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -78,8 +77,7 @@ public class TasksActivity extends Activity implements
                 this);
 
         // Cancel notification (if displayed)
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(R.string.app_name);
+        NotificationHelper.cancelReminder(this);
 
         ListView taskListView = (ListView) findViewById(R.id.mainListView);
         mAdapter = new TaskAdapter();

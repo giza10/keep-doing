@@ -5,7 +5,7 @@
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="20" />
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -75,6 +75,8 @@
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/taskswidget" />
         </receiver>
 
+        <service
+            android:name="com.hkb48.keepdo.KeepdoActionService" />
         <service
             android:name=".widget.TasksWidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS"
