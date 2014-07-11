@@ -25,7 +25,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     private void dispatchReminderEvent(Context context, Intent intent) {
         long taskId = intent.getLongExtra(PARAM_TASK_ID, -1);
 
-        NotificationHelper.showReminder(context, taskId);
+        NotificationController.showReminder(context, taskId);
 
         ReminderManager.getInstance().setNextAlert(context);
     }

@@ -8,12 +8,12 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 
-public class KeepdoActionService extends IntentService {
-    private static final String SERVICE_NAME = "KeepdoActionService";
-    private static final String PACKAGE_NAME = KeepdoActionService.class.getPackage().getName();
+public class NotificationActionHandler extends IntentService {
+    private static final String SERVICE_NAME = "NotificationActionHandler";
+    private static final String PACKAGE_NAME = NotificationActionHandler.class.getPackage().getName();
     public static final String INTENT_EXTRA_MESSAGE_ID = PACKAGE_NAME + ".intent_extra_task_id";
 
-    public KeepdoActionService() {
+    public NotificationActionHandler() {
         super(SERVICE_NAME);
     }
 
@@ -24,7 +24,12 @@ public class KeepdoActionService extends IntentService {
         contentValues.put(TaskCompletion.TASK_NAME_ID, taskId);
         contentValues.put(TaskCompletion.TASK_COMPLETION_DATE, getTodayDate());
         getContentResolver().insert(TaskCompletion.CONTENT_URI, contentValues);
-        NotificationHelper.cancelReminder(this);
+
+        // Dismiss notification on wearable
+        NotificationController.cancelReminder(this, (int)taskId);
+
+        // Dismiss notification on handheld
+        NotificationController.cancelReminder(this, NotificationController.NOTIFICATION_ID_HANDHELD);
     }
 
     private String getTodayDate() {

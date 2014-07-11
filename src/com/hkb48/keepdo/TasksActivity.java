@@ -77,7 +77,7 @@ public class TasksActivity extends Activity implements
                 this);
 
         // Cancel notification (if displayed)
-        NotificationHelper.cancelReminder(this);
+        NotificationController.cancelReminder(this);
 
         ListView taskListView = (ListView) findViewById(R.id.mainListView);
         mAdapter = new TaskAdapter();

@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-class SortableListItem extends LinearLayout {
+public class SortableListItem extends LinearLayout {
     public SortableListItem(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
