@@ -57,8 +57,8 @@ public class NotificationController {
         builder.setContentIntent(launchPendingIntent);
         builder.setAutoCancel(true);
 
-        Intent actionIntent = new Intent(context, NotificationActionHandler.class);
-        actionIntent.putExtra(NotificationActionHandler.INTENT_EXTRA_MESSAGE_ID, taskId);
+        Intent actionIntent = new Intent(context, ActionHandler.class);
+        actionIntent.putExtra(ActionHandler.INTENT_EXTRA_TASK_ID, taskId);
         PendingIntent actionPendingIntent = PendingIntent.getService(context, (int)taskId, actionIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         
         // Notification for hand-held device
@@ -84,7 +84,7 @@ public class NotificationController {
         } else {
             builder.setContentTitle(context.getString(R.string.notification_title_one_task));
             builder.setContentText(taskName);
-            builder.addAction(R.drawable.ic_not_done_3, context.getText(R.string.check_done), actionPendingIntent);
+            builder.addAction(R.drawable.ic_notification_check, context.getText(R.string.check_done), actionPendingIntent);
         }
 
         NotificationManagerCompat.from(context).notify(NOTIFICATION_ID_HANDHELD, builder.build());
@@ -93,8 +93,9 @@ public class NotificationController {
         Notification wearableNotification = new NotificationCompat.Builder(context)
             .setContentTitle(context.getString(R.string.notification_title_one_task))
             .setContentText(taskName)
+            .setContentIntent(launchPendingIntent)
             .setSmallIcon(R.drawable.ic_launcher)
-            .addAction(R.drawable.ic_not_done_3, context.getText(R.string.check_done), actionPendingIntent)
+            .addAction(R.drawable.ic_notification_check, context.getText(R.string.check_done), actionPendingIntent)
             .setGroup(GROUP_KEY_REMINDERS)
             .build();
 
@@ -105,7 +106,8 @@ public class NotificationController {
         NotificationManagerCompat.from(context).cancelAll();
     }
 
-    public static void cancelReminder(final Context context, int id) {
-        NotificationManagerCompat.from(context).cancel(id);
+    public static void cancelReminder(final Context context, long id) {
+        int notificationId = (int) id;
+        NotificationManagerCompat.from(context).cancel(notificationId);
     }
 }

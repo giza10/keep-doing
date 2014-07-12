@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import com.hkb48.keepdo.ActionHandler;
 import com.hkb48.keepdo.BuildConfig;
 import com.hkb48.keepdo.R;
 import com.hkb48.keepdo.RemindAlarmInitReceiver;
@@ -97,10 +98,11 @@ public class TasksWidgetProvider extends AppWidgetProvider {
                         String date = model.getTodayDate();
                         boolean doneToday = model.getDoneStatus(taskId, date);
                         if (! doneToday) {
-                            model.setDoneStatus(taskId, date);
+                            Intent intent = new Intent(context, ActionHandler.class);
+                            intent.putExtra(ActionHandler.INTENT_EXTRA_TASK_ID, taskId);
+                            context.startService(intent);
                         }
                         sSelectedPosition = INVALID_INDEX;
-                        updateAllWidgetsList(context);
                         RemindAlarmInitReceiver.updateReminder(context);
                     }
                 }, 500);

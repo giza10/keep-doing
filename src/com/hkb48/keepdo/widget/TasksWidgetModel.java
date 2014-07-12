@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
@@ -27,6 +26,7 @@ public class TasksWidgetModel {
     public TasksWidgetModel (Context context) {
         mContext = context;
     }
+
     public void reload() {
         mTaskList.clear();
         String sortOrder = Tasks.TASK_LIST_ORDER + " asc";
@@ -41,7 +41,6 @@ public class TasksWidgetModel {
                     final int taskNameColIndex = cursor.getColumnIndex(Tasks.TASK_NAME);
                     final Task task = new Task(taskId, cursor.getString(taskNameColIndex));
                     mTaskList.add(task);
-
                 }
             } while (cursor.moveToNext());
         }
@@ -84,13 +83,6 @@ public class TasksWidgetModel {
         }
         cursor.close();
         return isDone;
-    }
-
-    public void setDoneStatus(long taskId, String date) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(TaskCompletion.TASK_NAME_ID, taskId);
-        contentValues.put(TaskCompletion.TASK_COMPLETION_DATE, date);
-        mContext.getContentResolver().insert(TaskCompletion.CONTENT_URI, contentValues);
     }
 
     public boolean isValidDay(Cursor cursor, String dateString) {

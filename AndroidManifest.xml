@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hkb48.keepdo"
-    android:versionCode="36"
+    android:versionCode="37"
     android:versionName="1.5.4" >
 
     <uses-sdk
@@ -76,7 +76,7 @@
         </receiver>
 
         <service
-            android:name="com.hkb48.keepdo.NotificationActionHandler"
+            android:name="com.hkb48.keepdo.ActionHandler"
             android:exported="false" />
 
         <service
