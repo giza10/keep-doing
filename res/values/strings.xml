@@ -58,6 +58,8 @@
     <string name="share_non_combo">Do "%1$s" has been done %2$d times.</string>
     <string name="share_app_url">from KeepDo! https://play.google.com/store/apps/details?id=com.hkb48.keepdo</string>
 
+    <string name="menu_edit">Edit</string>
+
     <string translatable="false" name="accessibility_done_mark">Done mark</string>
     <string translatable="false" name="accessibility_remove_reminder">Remove reminder</string>
     <string translatable="false" name="accessibility_arrow">Arrow</string>

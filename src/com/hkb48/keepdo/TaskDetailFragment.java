@@ -1,22 +1,29 @@
 package com.hkb48.keepdo;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-/**
- * TODO: document your custom view class.
- */
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.hkb48.keepdo.widget.TasksWidgetProvider;
+
 public class TaskDetailFragment extends Fragment {
+    // Request code when launching sub-activity
+    private static final int REQUEST_EDIT_TASK = 1;
+
+    private Task mTask = null;
 
     public TaskDetailFragment() {
     }
@@ -24,7 +31,7 @@ public class TaskDetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(false);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -34,14 +41,64 @@ public class TaskDetailFragment extends Fragment {
     }
 
     @Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.activity_detail, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case R.id.menu_edit:
+            Intent intent = new Intent(getActivity(),
+                    TaskSettingActivity.class);
+            intent.putExtra("TASK-INFO", mTask);
+            startActivityForResult(intent, REQUEST_EDIT_TASK);
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
+	}
+
+	@Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        updateDetails();
+    }
 
-        final Activity activity = getActivity();
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+            case REQUEST_EDIT_TASK:
+                final Task task = (Task) data.getSerializableExtra("TASK-INFO");
+                DatabaseAdapter.getInstance(getActivity()).editTask(task);
+                updateDetails();
+                // updateReminder();
+                ReminderManager.getInstance().setNextAlert(getActivity());
+                final Context context = getActivity().getApplicationContext();
+                TasksWidgetProvider.notifyDatasetChanged(context);
+                // Set result of this activity as OK to inform that the done status is
+                // updated
+                Intent returnIntent = new Intent();
+                getActivity().setResult(TaskActivity.RESULT_OK, returnIntent);
+                break;
+            default:
+                break;
+            }
+        }
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	private void updateDetails() {
+		final Activity activity = getActivity();
         Intent intent = activity.getIntent();
         long taskId = intent.getLongExtra("TASK-ID", -1);
         DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(activity);
         Task task = dbAdapter.getTask(taskId);
+        if (mTask == null) {
+        	mTask = task;
+        }
 
         // Recurrence
         RecurrenceView recurrenceView = (RecurrenceView) activity.findViewById(R.id.recurrenceView);
@@ -109,5 +166,5 @@ public class TaskDetailFragment extends Fragment {
             View lastDoneDateLayout = activity.findViewById(R.id.taskDetailLastDoneDateContainer);
             lastDoneDateLayout.setVisibility(View.GONE);
         }
-    }
+	}
 }
