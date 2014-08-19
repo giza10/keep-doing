@@ -56,6 +56,7 @@
     <string name="share_combo">連續完成「%1$s」作業%2$d次！</string>
     <string name="share_non_combo">本月連續完成「%1$s」作業%2$d次。</string>
     <string name="share_app_url">from KeepDo! https://play.google.com/store/apps/details?id=com.hkb48.keepdo</string>
+    <string name="menu_edit">編輯</string>
 
     <string-array name="week_names">
         <item>週日</item>
