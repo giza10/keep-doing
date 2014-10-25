@@ -108,8 +108,8 @@ public class TaskDetailFragment extends Fragment {
         TextView reminderTextView = (TextView) activity.findViewById(R.id.taskDetailReminderValue);
         Reminder reminder = task.getReminder();
         if (reminder.getEnabled()) {
-            String hourOfDayStr = String.format("%1$02d", reminder.getHourOfDay());
-            String minuteStr = String.format("%1$02d", reminder.getMinute());
+            String hourOfDayStr = String.format(Locale.getDefault(), "%1$02d", reminder.getHourOfDay());
+            String minuteStr = String.format(Locale.getDefault(), "%1$02d", reminder.getMinute());
             String remindAtStr = getString(R.string.remind_at);
             reminderTextView.setText(remindAtStr + " " + hourOfDayStr + ":" + minuteStr);
         } else {

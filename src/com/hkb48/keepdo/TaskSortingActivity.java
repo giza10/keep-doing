@@ -93,7 +93,7 @@ public class TaskSortingActivity extends Activity {
             final LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = convertView;
             if (view == null) {
-                view = inflater.inflate(R.layout.task_sorting_list_item, null);
+                view = inflater.inflate(R.layout.task_sorting_list_item, parent);
             }
 
             SortableListItem itemView = (SortableListItem) view;
