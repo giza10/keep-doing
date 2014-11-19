@@ -35,6 +35,7 @@ public class DoneIconPreference extends DialogPreference {
         view.findViewById(R.id.done_icon_1).setOnClickListener(new OnClickListener());
         view.findViewById(R.id.done_icon_2).setOnClickListener(new OnClickListener());
         view.findViewById(R.id.done_icon_3).setOnClickListener(new OnClickListener());
+        view.findViewById(R.id.done_icon_4).setOnClickListener(new OnClickListener());
         return view;
     }
 
@@ -49,6 +50,9 @@ public class DoneIconPreference extends DialogPreference {
                 break;
             case R.id.done_icon_3:
                 newValue = "type3";
+                break;
+            case R.id.done_icon_4:
+                newValue = "type4";
                 break;
             case R.id.done_icon_1:
             default:

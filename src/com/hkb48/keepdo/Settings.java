@@ -88,6 +88,8 @@ class Settings {
                 doneIconId = R.drawable.ic_done_2;
             } else if (sDoneIconType.equals("type3")) {
                 doneIconId = R.drawable.ic_done_3;
+            } else if (sDoneIconType.equals("type4")) {
+                doneIconId = R.drawable.ic_done_4;
             }
         }
         return doneIconId;
@@ -100,6 +102,8 @@ class Settings {
                 notDoneIconId = R.drawable.ic_not_done_2;
             } else if (sDoneIconType.equals("type3")) {
                 notDoneIconId = R.drawable.ic_not_done_3;
+            } else if (sDoneIconType.equals("type4")) {
+                notDoneIconId = R.drawable.ic_not_done_4;
             }
         }
         return notDoneIconId;

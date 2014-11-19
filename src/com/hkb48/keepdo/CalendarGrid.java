@@ -333,7 +333,7 @@ public class CalendarGrid extends Fragment {
             }
 
             int fontColorOfWeek = getFontColorOfWeek(week);
-            textView1.setText(Integer.toString(day));
+            textView1.setText(String.valueOf(day));
             textView1.setTextColor(fontColorOfWeek);
 
             // Put done mark
