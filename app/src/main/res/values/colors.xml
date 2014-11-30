@@ -1,0 +1,29 @@
+<resources>
+
+    <color name="bg_actionbar">#303030</color>
+    <color name="tasklist_bg_header">#33b5e5</color>
+    <color name="tasklist_fg_header">#FFFFFF</color>
+    <color name="tasklist_last_donedate">#606060</color>
+    <color name="tasklist_combo">#0088FF</color>
+    <color name="recurrence_off_day">#C0C0C0</color>
+    <color name="calendar_bg_fargment">@android:color/white</color>
+    <color name="calendar_grid_color">#808080</color>
+    <color name="calendar_grid_today_color">#28B9FF</color>
+    <color name="calendar_week_text">@android:color/white</color>
+    <color name="calendar_bg_day_normal_color">@android:color/white</color>
+    <color name="calendar_bg_day_normal_pressed_color">#84CFEF</color>
+    <color name="calendar_bg_day_off_color">#DDDDDD</color>
+    <color name="calendar_bg_day_off_pressed_color">#84CFEF</color>
+    <color name="calendar_bg_day_today_color">#FFFFCF</color>
+    <color name="calendar_bg_day_today_pressed_color">#8DB7FE</color>
+    <color name="calendar_bg_day_today_off_color">#DDDDDD</color>
+    <color name="calendar_bg_day_today_off_pressed_color">#8DB7FE</color>
+    <color name="calendar_bg_weekday_color">#606060</color>
+    <color name="calendar_bg_saturday_color">#0080FF</color>
+    <color name="calendar_bg_sunday_color">#FF60C0</color>
+    <color name="tasksort_dragdrop_view_bg">#887ECCE8</color>
+
+    <color name="widget_tasklist_bg_header">#CC33b5e5</color>
+    <color name="widget_tasklist_bg_item">#CCF0F0F0</color>
+    <color name="widget_tasklist_bg_item_pressed">#CC84CFEF</color>
+</resources>

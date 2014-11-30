@@ -1,2 +1,12 @@
-bin
-gen
+bin/
+gen/
+local.properties
+.idea/
+.settings/
+.project
+*.iml
+**/*.iml
+app/build/
+build/intermediates/
+
+
