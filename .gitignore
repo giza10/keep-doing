@@ -8,5 +8,5 @@ local.properties
 **/*.iml
 app/build/
 build/intermediates/
-
+taskArchifacts/
 

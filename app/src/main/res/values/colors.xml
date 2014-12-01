@@ -1,6 +1,6 @@
 <resources>
 
-    <color name="bg_actionbar">#303030</color>
+    <color name="primary">#303030</color>
     <color name="tasklist_bg_header">#33b5e5</color>
     <color name="tasklist_fg_header">#FFFFFF</color>
     <color name="tasklist_last_donedate">#606060</color>

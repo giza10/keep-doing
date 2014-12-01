@@ -2,7 +2,7 @@
 <resources>
 
     <style name="Theme.AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@color/bg_actionbar</item>
+        <item name="colorPrimary">@color/primary</item>
     </style>
 
 </resources>

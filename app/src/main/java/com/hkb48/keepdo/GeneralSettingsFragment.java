@@ -14,7 +14,7 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
 
-class GeneralSettingsFragment extends PreferenceFragment implements OnPreferenceChangeListener {
+public class GeneralSettingsFragment extends PreferenceFragment implements OnPreferenceChangeListener {
 
     public static final String KEY_GENERAL_DONE_ICON = "preferences_done_icon";
     public static final String KEY_GENERAL_DATE_CHANGE_TIME = "preferences_date_change_time";
