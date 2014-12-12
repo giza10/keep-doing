@@ -3,10 +3,11 @@ gen/
 local.properties
 .idea/
 .settings/
+.gradle/
 .project
 *.iml
+*.apk
 **/*.iml
 app/build/
 build/intermediates/
-taskArchifacts/
-
+manifestmerger-release-report.txt
