@@ -10,11 +10,11 @@ android {
 
     defaultConfig {
         applicationId "com.hkb48.keepdo"
-        minSdkVersion 11
+        minSdkVersion 14
         targetSdkVersion 21
         compileOptions {
-            sourceCompatibility JavaVersion.VERSION_1_5
-            targetCompatibility JavaVersion.VERSION_1_5
+            sourceCompatibility JavaVersion.VERSION_1_7
+            targetCompatibility JavaVersion.VERSION_1_7
         }
     }
 
