@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hkb48.keepdo"
     android:versionCode="41"
@@ -5,46 +6,52 @@
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:allowBackup="false"
         android:theme="@style/Theme.AppTheme" >
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
         <activity
             android:name=".TasksActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".TaskSettingActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" >
         </activity>
-
         <activity
             android:name=".TaskActivity"
             android:label="@string/title_activity_task" >
         </activity>
-
-        <activity android:name=".SettingsActivity"
+        <activity
+            android:name=".SettingsActivity"
             android:label="@string/settings" >
         </activity>
-
         <activity
             android:name=".TaskSortingActivity"
             android:label="@string/sort_task" >
         </activity>
+        <activity
+            android:name=".BackupFileInGoogleDrive"
+            android:label="" >
+        </activity>
 
-        <receiver android:name=".AlarmReceiver"/>
-
-        <receiver android:name=".RemindAlarmInitReceiver">
+        <receiver android:name=".AlarmReceiver" />
+        <receiver android:name=".RemindAlarmInitReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.TIME_SET" />
@@ -60,26 +67,29 @@
             android:exported="true" >
         </provider>
 
-        <receiver android:name=".widget.TasksWidgetProvider" android:label="@string/app_name">
+        <receiver
+            android:name=".widget.TasksWidgetProvider"
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.hkb48.keepdo.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.TIME_SET" />
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
-                <action android:name="android.intent.action.LOCALE_CHANGED"/>
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
             </intent-filter>
-            <meta-data android:name="android.appwidget.provider" android:resource="@xml/taskswidget" />
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/taskswidget" />
         </receiver>
 
         <service
-            android:name="com.hkb48.keepdo.ActionHandler"
+            android:name=".ActionHandler"
             android:exported="false" />
-
         <service
             android:name=".widget.TasksWidgetService"
-            android:permission="android.permission.BIND_REMOTEVIEWS"
-            android:exported="false" />
-
-	</application>
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+    </application>
 
 </manifest>

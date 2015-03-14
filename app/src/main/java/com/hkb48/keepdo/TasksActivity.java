@@ -343,10 +343,13 @@ public class TasksActivity extends ActionBarActivity implements
                                 .getCheckedItemPosition()) {
                         case 0:
                             // execute backup
-                            backupTaskData();
-                            Toast.makeText(TasksActivity.this,
-                                    R.string.backup_done, Toast.LENGTH_SHORT)
-                                    .show();
+//                            backupTaskData();
+//                            Toast.makeText(TasksActivity.this,
+//                                    R.string.backup_done, Toast.LENGTH_SHORT)
+//                                    .show();
+                            // backup to Google drive
+                            Intent intent = new Intent(TasksActivity.this, BackupFileInGoogleDrive.class);
+                            startActivity(intent);
                             break;
                         case 1:
                             // execute restore
