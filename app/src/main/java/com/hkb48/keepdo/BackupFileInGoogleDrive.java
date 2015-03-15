@@ -1,7 +1,7 @@
 package com.hkb48.keepdo;
 
 import android.content.Intent;
-import android.content.IntentSender;
+import android.content.IntentSender.SendIntentException;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,36 +23,45 @@ public class BackupFileInGoogleDrive extends ActionBarActivity implements
 
     private static final String TAG = "BackupFileInGoogleDrive";
 
-    /**
-     * Request code for auto Google Play Services error resolution.
-     */
-    protected static final int REQUEST_CODE_RESOLUTION = 1;
+    // Request code for auto Google Play Services error resolution.
+    private static final int REQUEST_CODE_RESOLUTION = 1;
 
-    /**
-     * Google API client.
-     */
+    // Google API client.
     private GoogleApiClient mGoogleApiClient;
 
+    // Bool to track whether the app is already resolving an error
+    private boolean mResolvingError = false;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Drive.API)
                 .addScope(Drive.SCOPE_FILE)
+                .addScope(Drive.SCOPE_APPFOLDER)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
-        mGoogleApiClient.connect();
+        if (!mResolvingError) {
+            mGoogleApiClient.connect();
+        }
     }
 
     @Override
-    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQUEST_CODE_RESOLUTION:
                 if (resultCode == RESULT_OK) {
@@ -103,8 +112,8 @@ public class BackupFileInGoogleDrive extends ActionBarActivity implements
      * Called when {@code mGoogleApiClient} is disconnected.
      */
     @Override
-    public void onConnectionSuspended(int cause) {
-        Log.i(TAG, "GoogleApiClient connection suspended");
+    public void onConnectionSuspended(int cause){
+            Log.i(TAG, "GoogleApiClient connection suspended");
     }
 
     /**
@@ -114,23 +123,28 @@ public class BackupFileInGoogleDrive extends ActionBarActivity implements
      */
     @Override
     public void onConnectionFailed(ConnectionResult result) {
-        Log.i(TAG, "GoogleApiClient connection failed: " + result.toString());
-        if (!result.hasResolution()) {
-            // show the localized error dialog.
-            GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(), this, 0).show();
+        if (mResolvingError) {
+            // Already attempting to resolve an error.
             return;
-        }
-        try {
-            result.startResolutionForResult(this, REQUEST_CODE_RESOLUTION);
-        } catch (IntentSender.SendIntentException e) {
-            Log.e(TAG, "Exception while starting resolution activity", e);
+        } else if (result.hasResolution()) {
+            try {
+                mResolvingError = true;
+                result.startResolutionForResult(this, REQUEST_CODE_RESOLUTION);
+            } catch (SendIntentException e) {
+                // There was an error with the resolution intent. Try again.
+                mGoogleApiClient.connect();
+            }
+        } else {
+            // Show dialog using GooglePlayServicesUtil.getErrorDialog()
+            GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(), this, 0).show();
+            mResolvingError = true;
         }
     }
 
     /**
      * Shows a toast message.
      */
-    public void showMessage(String message) {
+    private void showMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 }
