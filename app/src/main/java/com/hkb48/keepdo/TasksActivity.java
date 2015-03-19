@@ -349,6 +349,7 @@ public class TasksActivity extends ActionBarActivity implements
 //                                    .show();
                             // backup to Google drive
                             Intent intent = new Intent(TasksActivity.this, BackupFileInGoogleDrive.class);
+//                            Intent intent = new Intent(TasksActivity.this, GooglePlayServicesActivity.class);
                             startActivity(intent);
                             break;
                         case 1:
