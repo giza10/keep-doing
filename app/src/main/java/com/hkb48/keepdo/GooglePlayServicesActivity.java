@@ -62,16 +62,16 @@ public class GooglePlayServicesActivity extends Activity implements
     /**
      * DriveId reference of an existing folder of client data file.
      */
-    private static final String DRIVE_ID_PREFERENCE_FOLDER_KEY = "hkb_data_file_id_key";
+    private static final String DRIVE_ID_PREFERENCE_FOLDER_KEY = "hkb_data_folder_id_key";
 
     /**
      * DriveId reference of an existing client data file.
      */
     private static final String DRIVE_ID_PREFERENCE_FILE_KEY = "hkb_data_file_id_key";
 
-    private SharedPreferences mSharedpreferences;
-    private DriveId mClientDataFolderDeviceId;
-    private DriveId mClientDataFileDeviceId;
+    private SharedPreferences mSharedPreferences;
+    private DriveId mClientDataFolderDriveId;
+    private DriveId mClientDataFileDriveId;
 
     /**
      * Called when the activity is starting. Restores the activity state.
@@ -82,10 +82,10 @@ public class GooglePlayServicesActivity extends Activity implements
         if (savedInstanceState != null) {
             mIsInResolution = savedInstanceState.getBoolean(KEY_IN_RESOLUTION, false);
 
-            mSharedpreferences = this.getSharedPreferences(DRIVE_ID_PREFERENCE, getApplicationContext().MODE_PRIVATE);
-            if (mSharedpreferences.contains(DRIVE_ID_PREFERENCE_FILE_KEY)) {
-                mClientDataFolderDeviceId = DriveId.decodeFromString(mSharedpreferences.getString(DRIVE_ID_PREFERENCE_FOLDER_KEY, null));
-                mClientDataFileDeviceId = DriveId.decodeFromString(mSharedpreferences.getString(DRIVE_ID_PREFERENCE_FILE_KEY, null));
+            mSharedPreferences = this.getSharedPreferences(DRIVE_ID_PREFERENCE, getApplicationContext().MODE_PRIVATE);
+            if (mSharedPreferences.contains(DRIVE_ID_PREFERENCE_FILE_KEY)) {
+                mClientDataFolderDriveId = DriveId.decodeFromString(mSharedPreferences.getString(DRIVE_ID_PREFERENCE_FOLDER_KEY, null));
+                mClientDataFileDriveId = DriveId.decodeFromString(mSharedPreferences.getString(DRIVE_ID_PREFERENCE_FILE_KEY, null));
             }
         }
     }
@@ -104,6 +104,7 @@ public class GooglePlayServicesActivity extends Activity implements
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addApi(Drive.API)
                     .addScope(Drive.SCOPE_FILE)
+                    .addScope(Drive.SCOPE_APPFOLDER)
                             // Optionally, add additional APIs and scopes if required.
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
@@ -158,8 +159,10 @@ public class GooglePlayServicesActivity extends Activity implements
      */
     @Override
     public void onConnected(Bundle connectionHint) {
-        Log.i(TAG, "GoogleApiClient connected");
+        Log.i(TAG, "onConnected()");
+
         // TODO: Start making API requests.
+        storeDataToGoogleDrive();
     }
 
     /**
@@ -167,7 +170,7 @@ public class GooglePlayServicesActivity extends Activity implements
      */
     @Override
     public void onConnectionSuspended(int cause) {
-        Log.i(TAG, "GoogleApiClient connection suspended");
+        Log.i(TAG, "onConnectionSuspended()");
         retryConnecting();
     }
 
@@ -178,7 +181,8 @@ public class GooglePlayServicesActivity extends Activity implements
      */
     @Override
     public void onConnectionFailed(ConnectionResult result) {
-        Log.i(TAG, "GoogleApiClient connection failed: " + result.toString());
+        Log.i(TAG, "onConnectionFailed(): " + result.toString());
+
         if (!result.hasResolution()) {
             // Show a localized error dialog.
             GooglePlayServicesUtil.getErrorDialog(
@@ -190,12 +194,14 @@ public class GooglePlayServicesActivity extends Activity implements
                     }).show();
             return;
         }
+
         // If there is an existing resolution error being displayed or a resolution
         // activity has started before, do nothing and wait for resolution
         // progress to be completed.
         if (mIsInResolution) {
             return;
         }
+
         mIsInResolution = true;
         try {
             result.startResolutionForResult(this, REQUEST_CODE_RESOLUTION);
@@ -206,25 +212,26 @@ public class GooglePlayServicesActivity extends Activity implements
     }
 
     private final void storeDataToGoogleDrive() {
-        if (mClientDataFileDeviceId == null) {
+        // If no client data exist, create folder/file
+        if (mClientDataFileDriveId == null) {
             MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle(DRIVE_FOLDER_NAME).build();
             Drive.DriveApi.getRootFolder(getGoogleApiClient()).createFolder(
-                    getGoogleApiClient(), changeSet).setResultCallback(callbackCreateFolder);
+                    getGoogleApiClient(), changeSet).setResultCallback(createFolderCallback);
         } else {
-            //@todo: replace client data file.
+            //@TODO: replace client data file.
         }
     }
 
-    final ResultCallback<DriveFolder.DriveFolderResult> callbackCreateFolder = new ResultCallback<DriveFolder.DriveFolderResult>() {
+    final private ResultCallback<DriveFolder.DriveFolderResult> createFolderCallback = new ResultCallback<DriveFolder.DriveFolderResult>() {
         @Override
         public void onResult(DriveFolder.DriveFolderResult result) {
             if (!result.getStatus().isSuccess()) {
                 showMessage("Error while trying to create the folder");
                 return;
             }
-            showMessage("Created a folder: " + result.getDriveFolder().getDriveId());
 
-            mClientDataFolderDeviceId = result.getDriveFolder().getDriveId();
+            mClientDataFolderDriveId = result.getDriveFolder().getDriveId();
+            showMessage("Created folder: " + mClientDataFolderDriveId);
             Drive.DriveApi.newDriveContents(getGoogleApiClient())
                     .setResultCallback(driveContentsCallback);
         }
@@ -238,39 +245,49 @@ public class GooglePlayServicesActivity extends Activity implements
                 showMessage("Error while trying to create new file contents");
                 return;
             }
-            DriveFolder folder = Drive.DriveApi.getFolder(getGoogleApiClient(), mClientDataFolderDeviceId);
+
+            DriveFolder folder = Drive.DriveApi.getFolder(getGoogleApiClient(), mClientDataFolderDriveId);
             MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                    //@todo: save client data file.
-                    .setTitle("New file")
+                    //@TODO: save client data file.
+                    .setTitle(DRIVE_FILE_NAME)
                     .setMimeType("text/plain")
                     .setStarred(true).build();
             folder.createFile(getGoogleApiClient(), changeSet, result.getDriveContents())
-                    .setResultCallback(fileCallback);
+                    .setResultCallback(createFileCallback);
         }
     };
 
-    final private ResultCallback<DriveFolder.DriveFileResult> fileCallback = new ResultCallback<DriveFolder.DriveFileResult>() {
+    final private ResultCallback<DriveFolder.DriveFileResult> createFileCallback = new ResultCallback<DriveFolder.DriveFileResult>() {
         @Override
         public void onResult(DriveFolder.DriveFileResult result) {
             if (!result.getStatus().isSuccess()) {
                 showMessage("Error while trying to create the file");
                 return;
             }
-            showMessage("Created a file: " + result.getDriveFile().getDriveId());
+            showMessage("Created file: " + result.getDriveFile().getDriveId());
+
+            try {
+                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                editor.putString(DRIVE_ID_PREFERENCE_FOLDER_KEY, mClientDataFolderDriveId.toString());
+                editor.putString(DRIVE_ID_PREFERENCE_FILE_KEY, mClientDataFileDriveId.toString());
+                editor.commit();
+            } catch (Exception e) {
+                Log.e(TAG, e.getStackTrace().toString());
+            }
         }
     };
 
     /**
      * Shows a toast message.
      */
-    public void showMessage(String message) {
+    private void showMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     /**
      * Getter for the {@code GoogleApiClient}.
      */
-    public GoogleApiClient getGoogleApiClient() {
+    private GoogleApiClient getGoogleApiClient() {
         return mGoogleApiClient;
     }
 }

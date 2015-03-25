@@ -348,8 +348,8 @@ public class TasksActivity extends ActionBarActivity implements
 //                                    R.string.backup_done, Toast.LENGTH_SHORT)
 //                                    .show();
                             // backup to Google drive
-                            Intent intent = new Intent(TasksActivity.this, BackupFileInGoogleDrive.class);
-//                            Intent intent = new Intent(TasksActivity.this, GooglePlayServicesActivity.class);
+//                            Intent intent = new Intent(TasksActivity.this, BackupFileInGoogleDrive.class);
+                            Intent intent = new Intent(TasksActivity.this, GooglePlayServicesActivity.class);
                             startActivity(intent);
                             break;
                         case 1:
