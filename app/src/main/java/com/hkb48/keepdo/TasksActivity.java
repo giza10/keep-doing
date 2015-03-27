@@ -383,7 +383,7 @@ public class TasksActivity extends ActionBarActivity implements
     }
 
     private void restoreTaskData() {
-        mDBAdapter.restoreDataBase();
+        mDBAdapter.restoreDatabase();
     }
 
     private static class TaskListItem {

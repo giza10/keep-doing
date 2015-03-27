@@ -5,12 +5,15 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+import android.media.MediaCodec;
 import android.os.Environment;
 import android.util.Log;
 
 import com.hkb48.keepdo.KeepdoProvider.TaskCompletion;
 import com.hkb48.keepdo.KeepdoProvider.Tasks;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -415,6 +418,10 @@ class DatabaseAdapter {
         return maxOrderId;
     }
 
+    String getBackupFilePath() {
+        return (BACKUP_DIR_PATH + BACKUP_FILE_NAME);
+    }
+
     void backupDataBase() {
         File dir = new File(BACKUP_DIR_PATH);
     	if (!dir.exists()) {
@@ -426,13 +433,60 @@ class DatabaseAdapter {
             }
     	}
 
-    	final String DB_FILE_PATH = mDatabaseHelper.databasePath();
-		copyDataBase(DB_FILE_PATH, BACKUP_DIR_PATH + BACKUP_FILE_NAME);
+		copyDataBase(mDatabaseHelper.databasePath(), getBackupFilePath());
     }
 
-    void restoreDataBase() {
-    	final String DB_FILE_PATH = mDatabaseHelper.databasePath();
-    	copyDataBase(BACKUP_DIR_PATH + BACKUP_FILE_NAME, DB_FILE_PATH);
+    void restoreDatabase() {
+        copyDataBase(getBackupFilePath(), mDatabaseHelper.databasePath());
+    }
+
+    synchronized final FileInputStream readDatabaseStream() {
+        FileInputStream inputStream = null;
+
+        try {
+            inputStream = new FileInputStream(mDatabaseHelper.databasePath());
+        } catch (IOException e) {
+            Log.e(TAG, e.getLocalizedMessage());
+        }
+
+        return inputStream;
+    }
+
+    synchronized void writeDatabaseStream(final InputStream in) {
+        BufferedOutputStream bufferOutStream = null;
+        BufferedInputStream bufferInputStream = null;
+
+         try {
+             OutputStream outputStream = new FileOutputStream(mDatabaseHelper.databasePath());
+             bufferOutStream = new BufferedOutputStream(outputStream);
+
+             bufferInputStream = new BufferedInputStream(in);
+             byte[] buffer = new byte[1024];
+
+             while (bufferInputStream.read(buffer) >= 0) {
+                bufferOutStream.write(buffer);
+             }
+
+             bufferOutStream.flush();
+         } catch (IOException e) {
+             Log.e(TAG, e.getStackTrace().toString());
+         } finally {
+             if (bufferOutStream != null) {
+                 try {
+                     bufferOutStream.close();
+                 } catch (IOException e) {
+                     Log.e(TAG, e.getMessage());
+                 }
+             }
+
+             if (bufferInputStream != null) {
+                 try {
+                     bufferInputStream.close();
+                 } catch (IOException e) {
+                     Log.e(TAG, e.getMessage());
+                 }
+             }
+         }
     }
 
     private synchronized void copyDataBase(String fromPath, String toPath) {
