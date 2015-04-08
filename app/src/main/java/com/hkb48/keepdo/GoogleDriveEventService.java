@@ -12,6 +12,8 @@ public class GoogleDriveEventService extends DriveEventService {
     private final String TAG = "GoogleDriveEventService";
 
     public static final String CONFLICT_RESOLVED = "com.hkb48.keepdo.CONFLICT_RESOLVED";
+    public static final String COMMIT_COMPLETED = "com.hkb48.keepdo.COMMIT_COMPLETED";
+    public static final String COMMIT_COMPLETED_KEY = "commitCompleted";
 
     @Override
     public void onCompletion(CompletionEvent event) {
@@ -19,26 +21,22 @@ public class GoogleDriveEventService extends DriveEventService {
 
         if (event.getStatus() == CompletionEvent.STATUS_SUCCESS) {
             // Commit completed successfully.
-            Log.d(TAG, " event.getDriveId(): " + event.getDriveId().toString());
-            Log.d(TAG, " event.getDriveId().getResourceId(): " + event.getDriveId().getResourceId());
-            sendResult(this, event.getDriveId().encodeToString());
+            sendResult(this, COMMIT_COMPLETED, event.getDriveId().encodeToString(), COMMIT_COMPLETED_KEY);
         }
 
         // Once CompletionEvent is handled, dismiss it.
         event.dismiss();
     }
 
-
     /**
      * Notify the UI that the list should be updated
      *
      * @param resolution Resolved grocery list.
      */
-    private void sendResult(Context context, String resolution) {
+    private void sendResult(Context context, String action, String resolution, String key) {
         LocalBroadcastManager broadcaster = LocalBroadcastManager.getInstance(context);
-
-        Intent intent = new Intent(CONFLICT_RESOLVED);
-        intent.putExtra("conflictResolution", resolution);
+        Intent intent = new Intent(action);
+        intent.putExtra(key, resolution);
         broadcaster.sendBroadcast(intent);
     }
 }

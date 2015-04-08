@@ -1,13 +1,5 @@
 package com.hkb48.keepdo.widget;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
@@ -15,6 +7,14 @@ import android.util.Log;
 import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
 import com.hkb48.keepdo.KeepdoProvider.TaskCompletion;
 import com.hkb48.keepdo.KeepdoProvider.Tasks;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class TasksWidgetModel {
     private static final String TAG = "#TasksWidgetModel: ";

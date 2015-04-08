@@ -49,9 +49,6 @@
     <string name="last_done_date">作业最后完成日</string>
     <string name="number_of_times">%d次</string>
 
-    <string name="btn_month_next">下月</string>
-    <string name="btn_month_prev">上月</string>
-
     <string name="menu_share">共享</string>
     <string name="share_combo">连续完成「%1$s」作业%2$d次！</string>
     <string name="share_non_combo">本月连续完成「%1$s」作业%2$d次。</string>

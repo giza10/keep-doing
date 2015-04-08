@@ -21,18 +21,22 @@ import java.util.concurrent.CountDownLatch;
 public abstract class ApiClientAsyncTask<Params, Progress, Result>
         extends AsyncTask<Params, Progress, Result> {
 
+    private static final String TAG = "ApiClientAsyncTask";
+
     private GoogleApiClient mClient;
 
     public ApiClientAsyncTask(Context context) {
         GoogleApiClient.Builder builder = new GoogleApiClient.Builder(context)
                 .addApi(Drive.API)
+                //.addScope(Drive.SCOPE_APPFOLDER)
                 .addScope(Drive.SCOPE_FILE);
         mClient = builder.build();
     }
 
     @Override
     protected final Result doInBackground(Params... params) {
-        Log.d("TAG", "in background");
+        Log.d(TAG, "doInBackground()");
+
         final CountDownLatch latch = new CountDownLatch(1);
         mClient.registerConnectionCallbacks(new ConnectionCallbacks() {
             @Override
@@ -44,21 +48,25 @@ public abstract class ApiClientAsyncTask<Params, Progress, Result>
                 latch.countDown();
             }
         });
+
         mClient.registerConnectionFailedListener(new OnConnectionFailedListener() {
             @Override
             public void onConnectionFailed(ConnectionResult arg0) {
                 latch.countDown();
             }
         });
+
         mClient.connect();
         try {
             latch.await();
         } catch (InterruptedException e) {
             return null;
         }
+
         if (!mClient.isConnected()) {
             return null;
         }
+
         try {
             return doInBackgroundConnected(params);
         } finally {

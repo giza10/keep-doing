@@ -164,5 +164,4 @@
 
     <!-- Widget -->
     <string name="task_empty">No remaining tasks</string>
-    <string name="title_activity_google_play_services">GooglePlayServicesActivity</string>
 </resources>

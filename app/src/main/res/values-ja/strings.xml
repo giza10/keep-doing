@@ -49,9 +49,6 @@
     <string name="last_done_date">最後にDoを実施した日</string>
     <string name="number_of_times">%d 回</string>
 
-    <string name="btn_month_next">翌月</string>
-    <string name="btn_month_prev">先月</string>
-
     <string name="menu_share">共有</string>
     <string name="share_combo">Do「%1$s」を%2$d連続コンボ中です！</string>
     <string name="share_non_combo">Do「%1$s」をこの月は%2$d回実施しました。</string>

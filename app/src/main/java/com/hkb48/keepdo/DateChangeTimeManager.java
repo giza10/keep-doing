@@ -6,13 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
+import com.hkb48.keepdo.widget.TasksWidgetProvider;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
-import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
-import com.hkb48.keepdo.widget.TasksWidgetProvider;
 
 public class DateChangeTimeManager {
     private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";

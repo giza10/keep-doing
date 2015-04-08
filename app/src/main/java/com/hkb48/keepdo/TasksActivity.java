@@ -22,13 +22,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hkb48.keepdo.widget.TasksWidgetProvider;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import com.hkb48.keepdo.widget.TasksWidgetProvider;
 
 public class TasksActivity extends ActionBarActivity implements
         DateChangeTimeManager.OnDateChangedListener {
@@ -348,8 +348,7 @@ public class TasksActivity extends ActionBarActivity implements
 //                                    R.string.backup_done, Toast.LENGTH_SHORT)
 //                                    .show();
                             // backup to Google drive
-//                            Intent intent = new Intent(TasksActivity.this, BackupFileInGoogleDrive.class);
-                            Intent intent = new Intent(TasksActivity.this, GooglePlayServicesActivity.class);
+                            Intent intent = new Intent(TasksActivity.this, GoogleDriveServicesActivity.class);
                             startActivity(intent);
                             break;
                         case 1:

@@ -1,6 +1,7 @@
 package com.hkb48.keepdo;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,10 +9,11 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender.SendIntentException;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -27,63 +29,34 @@ import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.ExecutionOptions;
 import com.google.android.gms.drive.MetadataChangeSet;
+import com.google.android.gms.drive.query.Filters;
+import com.google.android.gms.drive.query.Query;
+import com.google.android.gms.drive.query.SearchableField;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class GooglePlayServicesActivity extends Activity implements
+public class GoogleDriveServicesActivity extends Activity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = "GoogleDriveActivity";
+
+    private static final int REQUEST_CODE_RESOLUTION = 1;
     private static final String KEY_IN_RESOLUTION = "is_in_resolution";
-
-    /**
-     * Receiver used to update the EditText once conflicts have been resolved.
-     */
-    protected BroadcastReceiver broadcastReceiver;
-
-    /**
-     * Google API client.
-     */
-    private GoogleApiClient mGoogleApiClient;
-
-    /**
-     * Determines if the client is in a resolution state, and
-     * waiting for resolution intent to return.
-     */
-    private boolean mIsInResolution;
-
-    /**
-     * Request code for auto Google Play Services error resolution.
-     */
-    protected static final int REQUEST_CODE_RESOLUTION = 1;
-
-    /**
-     * Reference to the folder name on google drive.
-     */
     private static final String DRIVE_FOLDER_NAME = "hkb_keepdo";
-
-    /**
-     * Reference to the file name on google drive.
-     */
     private static final String DRIVE_FILE_NAME = "keepdo.db";
+    private static final String DRIVE_FILE_MIME_TYPE = "application/octet-stream";
 
-    /**
-     * DriveId reference of an existing folder of client data file.
-     */
-    private static final String DRIVE_ID_PREFERENCE_FOLDER_KEY = "hkb_data_folder_id_key";
-
-    /**
-     * DriveId reference of an existing client data file.
-     */
-    private static final String DRIVE_ID_PREFERENCE_FILE_KEY = "hkb_data_file_id_key";
-
-    private SharedPreferences mSharedPreferences = null;
-    private DriveId mClientDataFolderDriveId;
-    private DriveId mClientDataFileDriveId;
     private DatabaseAdapter mDBAdapter = null;
+    protected BroadcastReceiver mBroadcastReceiver;
+    private boolean mIsInResolution = false;
+    private GoogleApiClient mGoogleApiClient;
+    private DriveId mClientDataFolderDriveId = null;
+    private DriveFile driveFile = null;
+    private ProgressBar mSpinner = null;
+    private ProgressDialog mProgressDialog = null;
 
     /**
      * Called when the activity is starting. Restores the activity state.
@@ -91,42 +64,29 @@ public class GooglePlayServicesActivity extends Activity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_drive);
 
-        mDBAdapter = DatabaseAdapter.getInstance(this);
+        mSpinner = (ProgressBar)findViewById(R.id.progressBarDrive);
+        mSpinner.setVisibility(View.VISIBLE);
 
         if (savedInstanceState != null) {
             Log.d(TAG, "saveInstanceStat is not null");
             mIsInResolution = savedInstanceState.getBoolean(KEY_IN_RESOLUTION, false);
-        }
-
-        mSharedPreferences = this.getPreferences(getApplicationContext().MODE_PRIVATE);
-        if (mSharedPreferences.contains(DRIVE_ID_PREFERENCE_FILE_KEY)) {
-            Log.d(TAG, "mSharedPreferences.contains(DRIVE_ID_PREFERENCE_FILE_KEY)");
-
-            mClientDataFolderDriveId = DriveId.decodeFromString(mSharedPreferences.getString(DRIVE_ID_PREFERENCE_FOLDER_KEY, null));
-            mClientDataFileDriveId = DriveId.decodeFromString(mSharedPreferences.getString(DRIVE_ID_PREFERENCE_FILE_KEY, null));
-
         } else {
-            // When conflicts are resolved, update the EditText with the resolved list
-            // then open the contents so it contains the resolved list.
-            SharedPreferences.Editor editor = mSharedPreferences.edit();
-            editor.clear();
-            editor.commit();
-        }
+            mDBAdapter = DatabaseAdapter.getInstance(this);
 
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(GoogleDriveEventService.CONFLICT_RESOLVED)) {
-                    String resolvedStr = intent.getStringExtra("conflictResolution");
-
-                    DriveId id = DriveId.decodeFromString(resolvedStr);
-                    Log.d(TAG, "original mClientDataFileDriveId " + mClientDataFileDriveId);
-                    Log.d(TAG, "Received DriveId in intent  " + resolvedStr);
-                    Log.d(TAG, "Received resourceId in intent  " + id.getResourceId());
+            mBroadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    if (intent.getAction().equals(GoogleDriveEventService.COMMIT_COMPLETED)) {
+                        // Receives DriveId
+                        String resolvedStr = intent.getStringExtra(GoogleDriveEventService.COMMIT_COMPLETED_KEY);
+                        Log.d(TAG, "Received resourceId is " + DriveId.decodeFromString(resolvedStr).toString());
+                        finishActivity();
+                    }
                 }
-            }
-        };
+            };
+        }
     }
 
     /**
@@ -139,6 +99,7 @@ public class GooglePlayServicesActivity extends Activity implements
     @Override
     protected void onStart() {
         super.onStart();
+
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addApi(Drive.API)
@@ -150,7 +111,7 @@ public class GooglePlayServicesActivity extends Activity implements
         }
         mGoogleApiClient.connect();
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(GoogleDriveEventService.CONFLICT_RESOLVED));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, new IntentFilter(GoogleDriveEventService.COMMIT_COMPLETED));
     }
 
     /**
@@ -163,7 +124,10 @@ public class GooglePlayServicesActivity extends Activity implements
             mGoogleApiClient.disconnect();
         }
 
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+        if (mBroadcastReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+        }
+
         super.onStop();
     }
 
@@ -201,10 +165,7 @@ public class GooglePlayServicesActivity extends Activity implements
      */
     @Override
     public void onConnected(Bundle connectionHint) {
-        Log.i(TAG, "onConnected()");
-
-        storeDataToGoogleDrive();
-        //Drive.DriveApi.requestSync(getGoogleApiClient()).setResultCallback(syncCallback);
+        Drive.DriveApi.requestSync(getGoogleApiClient()).setResultCallback(syncCallback);
     }
 
     /**
@@ -212,7 +173,6 @@ public class GooglePlayServicesActivity extends Activity implements
      */
     @Override
     public void onConnectionSuspended(int cause) {
-        Log.i(TAG, "onConnectionSuspended()");
         retryConnecting();
     }
 
@@ -248,7 +208,7 @@ public class GooglePlayServicesActivity extends Activity implements
         try {
             result.startResolutionForResult(this, REQUEST_CODE_RESOLUTION);
         } catch (SendIntentException e) {
-            Log.e(TAG, "Exception while starting resolution activity", e);
+            Log.e(TAG, "Exception while starting resolution activity: " + e.getLocalizedMessage());
             retryConnecting();
         }
     }
@@ -261,40 +221,42 @@ public class GooglePlayServicesActivity extends Activity implements
                 Log.e(TAG, "Unable to sync.");
             }
 
-            mClientDataFileDriveId = DriveId.decodeFromString(mSharedPreferences.getString(DRIVE_ID_PREFERENCE_FILE_KEY, null));
+            Query query = new Query.Builder()
+                    .addFilter(Filters.and(
+                            Filters.eq(SearchableField.MIME_TYPE, DRIVE_FILE_MIME_TYPE),
+                            Filters.eq(SearchableField.TITLE, DRIVE_FILE_NAME),
+                            Filters.eq(SearchableField.STARRED, true),
+                            Filters.eq(SearchableField.TRASHED, false))).build();
+            Drive.DriveApi.query(getGoogleApiClient(), query).setResultCallback(metadataCallback);
         }
     };
 
-    private void storeDataToGoogleDrive() {
-        final ResultCallback<DriveApi.DriveIdResult> fileCheckedCallback = new ResultCallback<DriveApi.DriveIdResult>() {
+    private ResultCallback<DriveApi.MetadataBufferResult> metadataCallback =
+        new ResultCallback<DriveApi.MetadataBufferResult>() {
             @Override
-            public void onResult(DriveApi.DriveIdResult result) {
-                if (!result.getStatus().isSuccess() || mClientDataFileDriveId == null) {
-                    showMessage("Cannot find DriveId. Are you authorized to view this file?");
-                    Log.d(TAG, "mClientDataFileDriveId: " + mClientDataFileDriveId.encodeToString());
-                    finishActivity();
+            public void onResult(DriveApi.MetadataBufferResult metadataBufferResult) {
+                if (!metadataBufferResult.getStatus().isSuccess()) {
+                    showMessage("Problem while retrieving results");
                     return;
+                }
+
+                int results = metadataBufferResult.getMetadataBuffer().getCount();
+                if (results > 0) {
+                    // If the file exists then use it.
+                    DriveId driveId = metadataBufferResult.getMetadataBuffer().get(0).getDriveId();
+                    driveFile = Drive.DriveApi.getFile(getGoogleApiClient(), driveId);
+                    //driveFile.open(getGoogleApiClient(), DriveFile.MODE_READ_ONLY, null).setResultCallback(driveContentsCallback);
+                    Log.d(TAG, "Found metadata DriveId: " + driveId.toString() + " , to edit");
+                    new UpdateClientDataAsyncTask(GoogleDriveServicesActivity.this).execute(driveFile);
                 } else {
-                    return;
-                    // Overwrite the data to google drive
-                    // DriveFile file = Drive.DriveApi.getFile(getGoogleApiClient(), result.getDriveId());
-                    // Log.d(TAG, "storeDataToGoogleDrive result.getDriveId().getResourceId(): " + result.getDriveId().getResourceId().toString());
-                    // new UpdateClientDataAsyncTask(GooglePlayServicesActivity.this).execute(file);
+                    Log.d(TAG, "Create new client drive file");
+                    MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle(DRIVE_FOLDER_NAME).build();
+                    Drive.DriveApi.getRootFolder(getGoogleApiClient()).createFolder(
+                            //Drive.DriveApi.getAppFolder(getGoogleApiClient()).createFolder(
+                            getGoogleApiClient(), changeSet).setResultCallback(folderCreatedCallback);
                 }
             }
         };
-
-        // Check if the client data file has exist
-        if (mClientDataFileDriveId == null) {
-            MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle(DRIVE_FOLDER_NAME).build();
-            Drive.DriveApi.getRootFolder(getGoogleApiClient()).createFolder(
-            //Drive.DriveApi.getAppFolder(getGoogleApiClient()).createFolder(
-                    getGoogleApiClient(), changeSet).setResultCallback(folderCreatedCallback);
-        } else {
-            Drive.DriveApi.fetchDriveId(getGoogleApiClient(), "0B44y-UJJZy2rVDdneU9saUxRN2s"/*mClientDataFileDriveId.encodeToString()*/)
-                    .setResultCallback(fileCheckedCallback);
-        }
-    }
 
     public class UpdateClientDataAsyncTask extends ApiClientAsyncTask<DriveFile, Void, Boolean> {
         public UpdateClientDataAsyncTask(Context context) {
@@ -303,14 +265,14 @@ public class GooglePlayServicesActivity extends Activity implements
 
         @Override
         protected Boolean doInBackgroundConnected(DriveFile... args) {
-            Log.i(TAG, "doInBackgroundConnected()");
+            Log.i(TAG, "doInBackgroundConnected()...");
 
             DriveFile file = args[0];
             try {
                 DriveApi.DriveContentsResult driveContentsResult = file.open(
                         getGoogleApiClient(), DriveFile.MODE_WRITE_ONLY, null).await();
                 if (!driveContentsResult.getStatus().isSuccess()) {
-                    Log.i(TAG, "doInBackgroundConnected() file.open() failed...");
+                    Log.i(TAG, "doInBackgroundConnected() failed");
                     return false;
                 }
 
@@ -322,10 +284,12 @@ public class GooglePlayServicesActivity extends Activity implements
                 BufferedInputStream in = new BufferedInputStream(mDBAdapter.readDatabaseStream());
                 byte[] buffer = new byte[1024];
                 while (in.read(buffer) >= 0) {
-                    Log.i(TAG, "doInBackgroundConnected() writing...");
                     outputStream.write(buffer);
                 }
 
+                /**
+                 * Toggle to send back a completion event
+                 */
                 com.google.android.gms.common.api.Status status =
                         driveContents.commit(getGoogleApiClient(), null, executionOptions).await();
 
@@ -339,17 +303,6 @@ public class GooglePlayServicesActivity extends Activity implements
             return false;
         }
 
-        // Callback when file has been written locally.
-        private ResultCallback<com.google.android.gms.common.api.Status> fileWrittenCallback = new ResultCallback<com.google.android.gms.common.api.Status>() {
-            @Override
-            public void onResult(com.google.android.gms.common.api.Status status) {
-                if (!status.isSuccess()) {
-                    Log.e(TAG, "Unable to write grocery list.");
-                }
-                Log.d(TAG, "File saved locally.");
-            }
-        };
-
         @Override
         protected void onPostExecute(Boolean result) {
             if (!result) {
@@ -358,8 +311,12 @@ public class GooglePlayServicesActivity extends Activity implements
                 return;
             }
 
-            showMessage("Successfully edited contents");
-//            finishActivity();
+            mSpinner.setVisibility(View.GONE);
+            if (mProgressDialog != null && mProgressDialog.isShowing()) {
+                mProgressDialog.dismiss();
+            }
+            //finishActivity();
+            showMessage(getResources().getString(R.string.backup_done));
         }
     }
 
@@ -372,11 +329,10 @@ public class GooglePlayServicesActivity extends Activity implements
             }
 
             mClientDataFolderDriveId = result.getDriveFolder().getDriveId();
-            showMessage(this.getClass().getName() + "Created a folder: " + mClientDataFolderDriveId.encodeToString());
+            showMessage("Created new folder");
 
             // create new contents resource
-            Drive.DriveApi.newDriveContents(getGoogleApiClient())
-                    .setResultCallback(driveContentsCallback);
+            Drive.DriveApi.newDriveContents(getGoogleApiClient()).setResultCallback(driveContentsCallback);
         }
     };
 
@@ -384,17 +340,15 @@ public class GooglePlayServicesActivity extends Activity implements
             new ResultCallback<DriveApi.DriveContentsResult>() {
         @Override
         public void onResult(DriveApi.DriveContentsResult result) {
-            Log.i(TAG, this.getClass().getName() + "onResult()");
-
             if (!result.getStatus().isSuccess()) {
-                showMessage("Error while trying to create new file contents");
+                showMessage("Error while trying to create new contents");
                 return;
             }
 
             DriveFolder folder = Drive.DriveApi.getFolder(getGoogleApiClient(), mClientDataFolderDriveId);
             MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
                     .setTitle(DRIVE_FILE_NAME)
-                    .setMimeType("application/octet-stream")
+                    .setMimeType(DRIVE_FILE_MIME_TYPE)
                     .setStarred(true).build();
             folder.createFile(getGoogleApiClient(), changeSet, result.getDriveContents())
                     .setResultCallback(fileCreatedCallback);
@@ -409,23 +363,11 @@ public class GooglePlayServicesActivity extends Activity implements
                 return;
             }
 
-            showMessage(this.getClass().getName() + "Created a file: " + result.getDriveFile().getDriveId().encodeToString());
-            mClientDataFileDriveId = result.getDriveFile().getDriveId();
-
-            try {
-                if (mSharedPreferences == null)
-                    mSharedPreferences = getPreferences(getApplication().MODE_PRIVATE);
-                SharedPreferences.Editor editor = mSharedPreferences.edit();
-                editor.putString(DRIVE_ID_PREFERENCE_FOLDER_KEY, mClientDataFolderDriveId.encodeToString());
-                editor.putString(DRIVE_ID_PREFERENCE_FILE_KEY, mClientDataFileDriveId.encodeToString());
-                editor.commit();
-            } catch (Exception e) {
-                Log.e(TAG, e.getLocalizedMessage());
-            }
+            showMessage("Created new file");
 
             // Fed content to the empty file have created
             DriveFile file = Drive.DriveApi.getFile(getGoogleApiClient(), result.getDriveFile().getDriveId());
-            new UpdateClientDataAsyncTask(GooglePlayServicesActivity.this).execute(file);
+            new UpdateClientDataAsyncTask(GoogleDriveServicesActivity.this).execute(file);
         }
     };
 
@@ -433,7 +375,7 @@ public class GooglePlayServicesActivity extends Activity implements
      * Terminate the Google Drive activity
      */
     private void finishActivity() {
-        GooglePlayServicesActivity.this.finish();
+        GoogleDriveServicesActivity.this.finish();
     }
 
     /**

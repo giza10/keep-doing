@@ -1,8 +1,5 @@
 package com.hkb48.keepdo.widget;
 
-import java.text.MessageFormat;
-import java.util.Calendar;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -20,10 +17,13 @@ import android.widget.RemoteViews;
 
 import com.hkb48.keepdo.ActionHandler;
 import com.hkb48.keepdo.BuildConfig;
+import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
 import com.hkb48.keepdo.R;
 import com.hkb48.keepdo.RemindAlarmInitReceiver;
 import com.hkb48.keepdo.TasksActivity;
-import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
+
+import java.text.MessageFormat;
+import java.util.Calendar;
 
 class TasksDataProviderObserver extends ContentObserver {
     private final AppWidgetManager mAppWidgetManager;

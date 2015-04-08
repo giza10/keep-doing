@@ -1,10 +1,5 @@
 package com.hkb48.keepdo;
 
-import java.util.List;
-
-import com.hkb48.keepdo.BuildConfig;
-import com.hkb48.keepdo.R;
-
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -16,6 +11,8 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
+
+import java.util.List;
 
 public class NotificationController {
     private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";

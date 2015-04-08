@@ -1,9 +1,5 @@
 package com.hkb48.keepdo;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +14,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.hkb48.keepdo.widget.TasksWidgetProvider;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class TaskDetailFragment extends Fragment {
     // Request code when launching sub-activity

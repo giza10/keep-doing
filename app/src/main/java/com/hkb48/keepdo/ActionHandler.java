@@ -1,13 +1,13 @@
 package com.hkb48.keepdo;
 
-import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
-import com.hkb48.keepdo.KeepdoProvider.TaskCompletion;
-import com.hkb48.keepdo.widget.TasksWidgetProvider;
-
 import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+
+import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
+import com.hkb48.keepdo.KeepdoProvider.TaskCompletion;
+import com.hkb48.keepdo.widget.TasksWidgetProvider;
 
 public class ActionHandler extends IntentService {
     private static final String SERVICE_NAME = "ActionHandler";

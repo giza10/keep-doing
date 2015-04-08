@@ -20,6 +20,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.hkb48.keepdo.widget.TasksWidgetProvider;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,8 +30,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-
-import com.hkb48.keepdo.widget.TasksWidgetProvider;
 
 public class CalendarGrid extends Fragment {
     private static final String TAG = "#KEEPDO_CALENDARGRID: ";

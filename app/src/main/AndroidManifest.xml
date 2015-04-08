@@ -47,12 +47,8 @@
             android:label="@string/sort_task" >
         </activity>
         <activity
-            android:name=".BackupFileInGoogleDrive"
-            android:label="" >
-        </activity>
-        <activity
-            android:name=".GooglePlayServicesActivity"
-            android:label="@string/title_activity_google_play_services" >
+            android:name=".GoogleDriveServicesActivity"
+            android:label="">
         </activity>
 
         <receiver android:name=".AlarmReceiver" />

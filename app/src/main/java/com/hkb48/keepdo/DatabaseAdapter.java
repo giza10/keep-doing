@@ -5,7 +5,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
-import android.media.MediaCodec;
 import android.os.Environment;
 import android.util.Log;
 
