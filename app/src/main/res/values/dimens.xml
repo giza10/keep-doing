@@ -10,4 +10,5 @@
 
     <dimen name="widget_header_font_size">16dp</dimen>
     <dimen name="widget_list_item_font_size">16dp</dimen>
+    <dimen name="nav_drawer_width">280dp</dimen>
 </resources>

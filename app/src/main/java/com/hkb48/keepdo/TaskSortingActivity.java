@@ -3,8 +3,8 @@ package com.hkb48.keepdo;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,10 +23,11 @@ public class TaskSortingActivity extends ActionBarActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.task_sorting_activity);
+        setContentView(R.layout.activity_task_sorting);
 
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mDBAdapter = DatabaseAdapter.getInstance(this);
         mDataList = mDBAdapter.getTaskList();
@@ -58,8 +59,6 @@ public class TaskSortingActivity extends ActionBarActivity {
             task.setOrder(index);
             mDBAdapter.editTask(task);
         }
-        Intent data = new Intent();
-        setResult(RESULT_OK, data);
         finish();
     }
 

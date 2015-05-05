@@ -2,6 +2,8 @@
 
     <string name="app_name">KeepDo!</string>
 
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
     <string name="tasklist_header_today_task">Today\'s Do</string>
     <string name="tasklist_header_other_task">Other Do</string>
     <string name="tasklist_header_today_remaining_task">Today\'s remaining Do</string>
@@ -164,4 +166,7 @@
 
     <!-- Widget -->
     <string name="task_empty">No remaining tasks</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

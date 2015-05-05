@@ -4,9 +4,13 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -35,8 +39,6 @@ public class TasksActivity extends ActionBarActivity implements
     // Request code when launching sub-activity
     private static final int REQUEST_ADD_TASK = 0;
     private static final int REQUEST_EDIT_TASK = 1;
-    private static final int REQUEST_SHOW_CALENDAR = 2;
-    private static final int REQUEST_SORT_TASK = 3;
 
     // ID of context menu items
     private static final int CONTEXT_MENU_EDIT = 0;
@@ -46,9 +48,11 @@ public class TasksActivity extends ActionBarActivity implements
     private static final int TYPE_ITEM = 1;
 
     private TaskAdapter mAdapter;
+    private boolean mModelUpdated;
     private final List<TaskListItem> mDataList = new ArrayList<TaskListItem>();
     private final CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
     private DatabaseAdapter mDBAdapter = null;
+    private NavigationDrawerFragment mNavigationDrawerFragment;
 
     private final Settings.OnChangedListener mSettingsChangedListener = new Settings.OnChangedListener() {
         public void onDoneIconSettingChanged() {
@@ -69,10 +73,12 @@ public class TasksActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setDisplayUseLogoEnabled(true);
-        actionBar.setLogo(R.drawable.ic_launcher);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+        mNavigationDrawerFragment.setup(R.id.navigation_drawer, (DrawerLayout)findViewById(R.id.drawer_layout), toolbar);
 
         mDBAdapter = DatabaseAdapter.getInstance(this);
 
@@ -104,20 +110,32 @@ public class TasksActivity extends ActionBarActivity implements
                             Intent intent = new Intent(TasksActivity.this,
                                     TaskActivity.class);
                             intent.putExtra("TASK-ID", taskId);
-                            startActivityForResult(intent,
-                                    REQUEST_SHOW_CALENDAR);
+                            startActivity(intent);
                         }
                     }
                 });
 
+        ContentObserver contentObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean selfChange) {
+                super.onChange(selfChange);
+                mModelUpdated = true;
+            }
+        };
+        getContentResolver().registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, contentObserver);
+        mModelUpdated = true;
+
         registerForContextMenu(taskListView);
 
-        updateTaskList();
     }
 
     @Override
     public void onResume() {
         mCheckSound.load();
+        if (mModelUpdated) {
+            mModelUpdated = false;
+            updateTaskList();
+        }
         super.onResume();
     }
 
@@ -135,10 +153,19 @@ public class TasksActivity extends ActionBarActivity implements
         super.onDestroy();
     }
 
+    /* Called whenever we call invalidateOptionsMenu() */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // If the nav drawer is open, hide action items related to the content view
+        boolean drawerOpen = mNavigationDrawerFragment.isDrawerOpen();
+        menu.findItem(R.id.menu_add_task).setVisible(!drawerOpen);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -148,14 +175,6 @@ public class TasksActivity extends ActionBarActivity implements
         case R.id.menu_add_task:
             intent = new Intent(TasksActivity.this, TaskSettingActivity.class);
             startActivityForResult(intent, REQUEST_ADD_TASK);
-            return true;
-        case R.id.menu_settings:
-            intent = new Intent(TasksActivity.this, SettingsActivity.class);
-            startActivity(intent);
-            return true;
-        case R.id.menu_sort_task:
-            intent = new Intent(TasksActivity.this, TaskSortingActivity.class);
-            startActivityForResult(intent, REQUEST_SORT_TASK);
             return true;
         case R.id.menu_backup_restore:
             showBackupRestoreDialog();
@@ -187,16 +206,22 @@ public class TasksActivity extends ActionBarActivity implements
                 updateReminder();
                 TasksWidgetProvider.notifyDatasetChanged(context);
                 break;
-            case REQUEST_SHOW_CALENDAR:
-            case REQUEST_SORT_TASK:
-                updateTaskList();
-                break;
             default:
                 break;
             }
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (mNavigationDrawerFragment.isDrawerOpen()) {
+            mNavigationDrawerFragment.closeDrawer();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View view,
             ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, view, menuInfo);
@@ -210,6 +235,7 @@ public class TasksActivity extends ActionBarActivity implements
         menu.add(0, CONTEXT_MENU_DELETE, 1, R.string.delete_task);
     }
 
+    @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
                 .getMenuInfo();

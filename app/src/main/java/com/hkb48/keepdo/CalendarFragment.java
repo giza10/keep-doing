@@ -14,7 +14,7 @@ public class CalendarFragment extends Fragment {
     /**
      * The maximum number of months to be paging up (10 years)
      */
-    public static final int NUM_MAXIMUM_MOUNTHS = 10 * 12;
+    public static final int NUM_MAXIMUM_MONTHS = 10 * 12;
 
     public CalendarFragment() {
     }
@@ -36,7 +36,7 @@ public class CalendarFragment extends Fragment {
 
         ViewPager mViewPager = (ViewPager)view.findViewById(R.id.viewPager);
         mViewPager.setAdapter(new CalendarPageAdapter(getChildFragmentManager()));
-        mViewPager.setCurrentItem(CalendarFragment.NUM_MAXIMUM_MOUNTHS);
+        mViewPager.setCurrentItem(CalendarFragment.NUM_MAXIMUM_MONTHS);
     }
 
     public class CalendarPageAdapter extends FragmentPagerAdapter {
@@ -46,7 +46,7 @@ public class CalendarFragment extends Fragment {
 
         @Override
         public int getCount() {
-            return CalendarFragment.NUM_MAXIMUM_MOUNTHS;
+            return CalendarFragment.NUM_MAXIMUM_MONTHS;
         }
 
         @Override

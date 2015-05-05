@@ -82,14 +82,11 @@ public class CalendarGrid extends Fragment {
 
         mDoneIconId = Settings.getDoneIconId();
         mCheckSound = new CheckSoundPlayer(getContext());
-        mMonthOffset = (getArguments() != null) ? (getArguments().getInt(POSITION_KEY) - CalendarFragment.NUM_MAXIMUM_MOUNTHS  + 1) : (0);
+        mMonthOffset = (getArguments() != null) ? (getArguments().getInt(POSITION_KEY) - CalendarFragment.NUM_MAXIMUM_MONTHS  + 1) : (0);
 
         mCalendarGrid = (LinearLayout) view.findViewById(R.id.calendar_grid);
 
         buildCalendar();
-
-        Intent returnIntent = new Intent();
-        getContext().setResult(TaskActivity.RESULT_CANCELED, returnIntent);
     }
 
     public void onResume() {
@@ -194,11 +191,6 @@ public class CalendarGrid extends Fragment {
         if (selectedDate.compareTo(today) == 0) {
             ReminderManager.getInstance().setNextAlert(getContext());
         }
-
-        // Set result of this activity as OK to inform that the done status is
-        // updated
-        Intent returnIntent = new Intent();
-        getContext().setResult(TaskActivity.RESULT_OK, returnIntent);
 
         if (consumed) {
             return true;
@@ -456,7 +448,7 @@ public class CalendarGrid extends Fragment {
     }
 
     public static CharSequence getPageTitle(int position) {
-        final int pageNumber = position - CalendarFragment.NUM_MAXIMUM_MOUNTHS
+        final int pageNumber = position - CalendarFragment.NUM_MAXIMUM_MONTHS
                 + 1;
 
         Calendar current = DateChangeTimeUtil.getDateTimeCalendar();
