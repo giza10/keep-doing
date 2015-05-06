@@ -18,6 +18,7 @@ import java.util.Locale;
 public class TaskDetailActivity extends ActionBarActivity {
     private long mTaskId;
     private boolean mModelUpdated;
+    private ContentObserver mContentObserver;
 
     public TaskDetailActivity() {
     }
@@ -33,14 +34,14 @@ public class TaskDetailActivity extends ActionBarActivity {
 
         mTaskId = getIntent().getLongExtra("TASK-ID", -1);
 
-        ContentObserver contentObserver = new ContentObserver(new Handler()) {
+        mContentObserver = new ContentObserver(new Handler()) {
             @Override
             public void onChange(boolean selfChange) {
                 super.onChange(selfChange);
                 mModelUpdated = true;
             }
         };
-        getContentResolver().registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, contentObserver);
+        getContentResolver().registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, mContentObserver);
         mModelUpdated = true;
     }
 
@@ -52,6 +53,12 @@ public class TaskDetailActivity extends ActionBarActivity {
             updateDetails();
         }
         super.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        getContentResolver().unregisterContentObserver(mContentObserver);
+        super.onDestroy();
     }
 
     @Override

@@ -32,7 +32,7 @@ class DatabaseAdapter {
 
     // Backup & Restore
     private static final String BACKUP_FILE_NAME = "/keepdo.db";
-	private static final String BACKUP_DIR_NAME = "/keepdo";
+    private static final String BACKUP_DIR_NAME = "/keepdo";
     private static final String BACKUP_DIR_PATH = Environment.getExternalStorageDirectory().getPath() + BACKUP_DIR_NAME;
 
     private static final String SDF_PATTERN_YMD = "yyyy-MM-dd";
@@ -48,19 +48,19 @@ class DatabaseAdapter {
     }
 
     static synchronized DatabaseAdapter getInstance(Context context) {
-    	if (INSTANCE == null) {
-    		INSTANCE = new DatabaseAdapter(context);
-    	}
+        if (INSTANCE == null) {
+            INSTANCE = new DatabaseAdapter(context);
+        }
 
-    	return INSTANCE;
+        return INSTANCE;
     }
 
     public synchronized void close() {
-		mDatabaseHelper.close();
+        mDatabaseHelper.close();
     }
 
     public List<Task> getTaskList() {
-        List<Task> tasks = new ArrayList<Task>();
+        List<Task> tasks = new ArrayList<>();
         String sortOrder = Tasks.TASK_LIST_ORDER + " asc";
         Cursor cursor = mContentResolver.query(Tasks.CONTENT_URI, null, null,
                 null, sortOrder);
@@ -145,7 +145,7 @@ class DatabaseAdapter {
 
     void deleteTask(Long taskID) {
         // Delete task from TASKS_TABLE_NAME
-    	String whereClause = Tasks._ID + "=?";
+        String whereClause = Tasks._ID + "=?";
         String whereArgs[] = {taskID.toString()};
         mContentResolver.delete(Tasks.CONTENT_URI, whereClause, whereArgs);
 
@@ -154,7 +154,7 @@ class DatabaseAdapter {
         mContentResolver.delete(TaskCompletion.CONTENT_URI, whereClause, whereArgs);
     }
 
-	void setDoneStatus(Long taskID, Date date, Boolean doneSwitch) {
+    void setDoneStatus(Long taskID, Date date, Boolean doneSwitch) {
         if (taskID == null) {
             return;
         }
@@ -188,7 +188,7 @@ class DatabaseAdapter {
         Cursor cursor = mContentResolver.query(TaskCompletion.CONTENT_URI, null, selection,
                 selectionArgs, null);
         if (cursor.getCount() > 0) {
-            isDone =  true;
+            isDone = true;
         }
         cursor.close();
 
@@ -211,7 +211,7 @@ class DatabaseAdapter {
     public Date getFirstDoneDate(Long taskID) {
         final SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
         Date date = null;
-        String[] projection = { "min(" + TaskCompletion.TASK_COMPLETION_DATE + ")" };
+        String[] projection = {"min(" + TaskCompletion.TASK_COMPLETION_DATE + ")"};
         String selection = TaskCompletion.TASK_NAME_ID + "=?";
         String selectionArgs[] = {String.valueOf(taskID)};
         Cursor cursor = mContentResolver.query(TaskCompletion.CONTENT_URI, projection, selection,
@@ -235,7 +235,7 @@ class DatabaseAdapter {
     public Date getLastDoneDate(Long taskID) {
         final SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
         Date date = null;
-        String[] projection = { "max(" + TaskCompletion.TASK_COMPLETION_DATE + ")" };
+        String[] projection = {"max(" + TaskCompletion.TASK_COMPLETION_DATE + ")"};
         String selection = TaskCompletion.TASK_NAME_ID + "=?";
         String selectionArgs[] = {String.valueOf(taskID)};
         Cursor cursor = mContentResolver.query(TaskCompletion.CONTENT_URI, projection, selection,
@@ -262,7 +262,7 @@ class DatabaseAdapter {
         String selectionArgs[] = {String.valueOf(taskID)};
         Cursor cursor = mContentResolver.query(Tasks.CONTENT_URI, null, selection,
                 selectionArgs, null);
-        if (cursor != null){
+        if (cursor != null) {
             cursor.moveToFirst();
             task = getTask(cursor);
             cursor.close();
@@ -272,7 +272,7 @@ class DatabaseAdapter {
     }
 
     ArrayList<Date> getHistory(Long taskID, Date month) {
-        ArrayList<Date> dateList = new ArrayList<Date>();
+        ArrayList<Date> dateList = new ArrayList<>();
         String selection = TaskCompletion.TASK_NAME_ID + "=?";
         String selectionArgs[] = {String.valueOf(taskID)};
         Cursor cursor = mContentResolver.query(TaskCompletion.CONTENT_URI, null, selection,
@@ -296,11 +296,11 @@ class DatabaseAdapter {
     }
 
     ComboCount getComboCount(Long taskID) {
-    	int currentCount = 0;
-    	int maxCount = 0;
+        int currentCount = 0;
+        int maxCount = 0;
 
         Recurrence recurrence = getTask(taskID).getRecurrence();
-        String[] projection = { "distinct " + TaskCompletion.TASK_COMPLETION_DATE };
+        String[] projection = {"distinct " + TaskCompletion.TASK_COMPLETION_DATE};
         String selection = TaskCompletion.TASK_NAME_ID + "=?";
         String selectionArgs[] = {String.valueOf(taskID)};
         String sortOrder = TaskCompletion.TASK_COMPLETION_DATE + " asc";
@@ -308,42 +308,42 @@ class DatabaseAdapter {
                 selectionArgs, sortOrder);
 
         if (cursor != null) {
-        	if (cursor.moveToFirst()) {
+            if (cursor.moveToFirst()) {
                 Calendar calToday = getCalendar(DateChangeTimeUtil.getDate());
-        		Calendar calDone = getCalendar(getDate(cursor));
-        		Calendar calIndex = (Calendar)calDone.clone();
-        		boolean isCompleted = false;
-            	do {
-            		if (calIndex.equals(calDone)) {
-            			// count up combo
-            			currentCount ++;
-        				if (currentCount > maxCount) {
-            				maxCount = currentCount;
-        				}
-            			if (cursor.moveToNext()) {
-            				calDone = getCalendar(getDate(cursor));
-            			} else {
-            				isCompleted = true;
-            			}
-            			calIndex.add(Calendar.DAY_OF_MONTH, 1);
-            		} else {
-            			if (recurrence.isValidDay(calIndex.get(Calendar.DAY_OF_WEEK))) {
-            				// stop combo
-            				if (!calIndex.equals(calToday)) {
-            					currentCount = 0;
-            				}
-            				if (!isCompleted) {
-            					calIndex = (Calendar)calDone.clone();
-            				} else {
-                    			calIndex.add(Calendar.DAY_OF_MONTH, 1);
-            				}
-            			} else {
-                			calIndex.add(Calendar.DAY_OF_MONTH, 1);
-            			}
-            		}
-            	} while (!calIndex.after(calToday));
-        	}
-        	cursor.close();
+                Calendar calDone = getCalendar(getDate(cursor));
+                Calendar calIndex = (Calendar) calDone.clone();
+                boolean isCompleted = false;
+                do {
+                    if (calIndex.equals(calDone)) {
+                        // count up combo
+                        currentCount++;
+                        if (currentCount > maxCount) {
+                            maxCount = currentCount;
+                        }
+                        if (cursor.moveToNext()) {
+                            calDone = getCalendar(getDate(cursor));
+                        } else {
+                            isCompleted = true;
+                        }
+                        calIndex.add(Calendar.DAY_OF_MONTH, 1);
+                    } else {
+                        if (recurrence.isValidDay(calIndex.get(Calendar.DAY_OF_WEEK))) {
+                            // stop combo
+                            if (!calIndex.equals(calToday)) {
+                                currentCount = 0;
+                            }
+                            if (!isCompleted) {
+                                calIndex = (Calendar) calDone.clone();
+                            } else {
+                                calIndex.add(Calendar.DAY_OF_MONTH, 1);
+                            }
+                        } else {
+                            calIndex.add(Calendar.DAY_OF_MONTH, 1);
+                        }
+                    }
+                } while (!calIndex.after(calToday));
+            }
+            cursor.close();
         }
 
         return new ComboCount(currentCount, maxCount);
@@ -365,9 +365,9 @@ class DatabaseAdapter {
     }
 
     private Calendar getCalendar(Date date) {
-    	Calendar calendar = Calendar.getInstance();
-    	calendar.setTime(date);
-    	return calendar;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar;
     }
 
     private Task getTask(Cursor cursor) {
@@ -376,12 +376,12 @@ class DatabaseAdapter {
         String taskContext = cursor.getString(cursor.getColumnIndex(Tasks.TASK_CONTEXT));
 
         Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_MON))),
-                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_TUE))),
-                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_WEN))),
-                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_THR))),
-                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_FRI))),
-                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_SAT))),
-                                               Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_SUN))));
+                Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_TUE))),
+                Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_WEN))),
+                Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_THR))),
+                Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_FRI))),
+                Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_SAT))),
+                Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_SUN))));
 
         Reminder reminder;
         String reminderEnabled = cursor.getString(cursor.getColumnIndex(Tasks.REMINDER_ENABLED));
@@ -402,7 +402,7 @@ class DatabaseAdapter {
 
     public int getMaxSortOrderId() {
         int maxOrderId = 0;
-        String[] projection = { "max(" + Tasks.TASK_LIST_ORDER + ")" };
+        String[] projection = {"max(" + Tasks.TASK_LIST_ORDER + ")"};
         Cursor cursor = mContentResolver.query(Tasks.CONTENT_URI, projection, null,
                 null, null);
         if (cursor != null) {
@@ -423,20 +423,21 @@ class DatabaseAdapter {
 
     void backupDataBase() {
         File dir = new File(BACKUP_DIR_PATH);
-    	if (!dir.exists()) {
-    		if (!dir.mkdir()) {
+        if (!dir.exists()) {
+            if (!dir.mkdir()) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "backup Database failed.");
                 }
                 return;
             }
-    	}
+        }
 
-		copyDataBase(mDatabaseHelper.databasePath(), getBackupFilePath());
+        copyDataBase(mDatabaseHelper.databasePath(), getBackupFilePath());
     }
 
     void restoreDatabase() {
         copyDataBase(getBackupFilePath(), mDatabaseHelper.databasePath());
+        mContentResolver.notifyChange(KeepdoProvider.BASE_CONTENT_URI, null);
     }
 
     synchronized final FileInputStream readDatabaseStream() {
@@ -455,85 +456,85 @@ class DatabaseAdapter {
         BufferedOutputStream bufferOutStream = null;
         BufferedInputStream bufferInputStream = null;
 
-         try {
-             OutputStream outputStream = new FileOutputStream(mDatabaseHelper.databasePath());
-             bufferOutStream = new BufferedOutputStream(outputStream);
+        try {
+            OutputStream outputStream = new FileOutputStream(mDatabaseHelper.databasePath());
+            bufferOutStream = new BufferedOutputStream(outputStream);
 
-             bufferInputStream = new BufferedInputStream(in);
-             byte[] buffer = new byte[1024];
+            bufferInputStream = new BufferedInputStream(in);
+            byte[] buffer = new byte[1024];
 
-             while (bufferInputStream.read(buffer) >= 0) {
+            while (bufferInputStream.read(buffer) >= 0) {
                 bufferOutStream.write(buffer);
-             }
+            }
 
-             bufferOutStream.flush();
-         } catch (IOException e) {
-             Log.e(TAG, e.getStackTrace().toString());
-         } finally {
-             if (bufferOutStream != null) {
-                 try {
-                     bufferOutStream.close();
-                 } catch (IOException e) {
-                     Log.e(TAG, e.getMessage());
-                 }
-             }
+            bufferOutStream.flush();
+        } catch (IOException e) {
+            Log.e(TAG, e.getStackTrace().toString());
+        } finally {
+            if (bufferOutStream != null) {
+                try {
+                    bufferOutStream.close();
+                } catch (IOException e) {
+                    Log.e(TAG, e.getMessage());
+                }
+            }
 
-             if (bufferInputStream != null) {
-                 try {
-                     bufferInputStream.close();
-                 } catch (IOException e) {
-                     Log.e(TAG, e.getMessage());
-                 }
-             }
-         }
+            if (bufferInputStream != null) {
+                try {
+                    bufferInputStream.close();
+                } catch (IOException e) {
+                    Log.e(TAG, e.getMessage());
+                }
+            }
+        }
     }
 
     private synchronized void copyDataBase(String fromPath, String toPath) {
-		InputStream inputStream = null;
-		OutputStream outputStream = null;
+        InputStream inputStream = null;
+        OutputStream outputStream = null;
 
-		try {
-			inputStream = new FileInputStream(fromPath);
-			outputStream = new FileOutputStream(toPath);
-			
-	        byte[] buffer = new byte[1024];
-	        int length;
+        try {
+            inputStream = new FileInputStream(fromPath);
+            outputStream = new FileOutputStream(toPath);
 
-			while ((length = inputStream.read(buffer)) > 0) {
-			    outputStream.write(buffer, 0, length);
-			}    	        
-	        outputStream.flush();
+            byte[] buffer = new byte[1024];
+            int length;
 
-		} catch (IOException e) {
-            if (BuildConfig.DEBUG) {
-            	Log.e(TAG, e.getMessage());
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
             }
-		} finally {
-			try {
-    	         if (outputStream != null) {
-    	        	 outputStream.close();
-    	         }
+            outputStream.flush();
 
-    	         if (inputStream != null) {
-    	        	 inputStream.close();
-    	         }
-			} catch (IOException e) {
-                if (BuildConfig.DEBUG) {
-                	Log.e(TAG, e.getMessage());
+        } catch (IOException e) {
+            if (BuildConfig.DEBUG) {
+                Log.e(TAG, e.getMessage());
+            }
+        } finally {
+            try {
+                if (outputStream != null) {
+                    outputStream.close();
                 }
-			}
-		}
-	}
+
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+                if (BuildConfig.DEBUG) {
+                    Log.e(TAG, e.getMessage());
+                }
+            }
+        }
+    }
 
     String backupFileName() {
-    	return BACKUP_FILE_NAME;
+        return BACKUP_FILE_NAME;
     }
 
     String backupDirName() {
-    	return BACKUP_DIR_NAME;
+        return BACKUP_DIR_NAME;
     }
 
     String backupDirPath() {
-    	return BACKUP_DIR_PATH;
+        return BACKUP_DIR_PATH;
     }
 }

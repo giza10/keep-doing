@@ -10,6 +10,7 @@ import android.view.MenuItem;
 public class TaskActivity extends ActionBarActivity {
     private long mTaskId;
     private boolean mModelUpdated;
+    private ContentObserver mContentObserver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,14 +23,14 @@ public class TaskActivity extends ActionBarActivity {
 
         mTaskId = getIntent().getLongExtra("TASK-ID", -1);
 
-        ContentObserver contentObserver = new ContentObserver(new Handler()) {
+        mContentObserver = new ContentObserver(new Handler()) {
             @Override
             public void onChange(boolean selfChange) {
                 super.onChange(selfChange);
                 mModelUpdated = true;
             }
         };
-        getContentResolver().registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, contentObserver);
+        getContentResolver().registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, mContentObserver);
         mModelUpdated = true;
 
         CalendarFragment fragment = new CalendarFragment();
@@ -44,6 +45,12 @@ public class TaskActivity extends ActionBarActivity {
             updateTitle();
         }
         super.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        getContentResolver().unregisterContentObserver(mContentObserver);
+        super.onDestroy();
     }
 
     @Override

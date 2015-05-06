@@ -17,14 +17,15 @@ import java.util.Date;
 import java.util.Locale;
 
 public class KeepdoProvider extends ContentProvider {
-//    private static final String TAG = "#KEEPDO_PROVIDER: ";
+    //    private static final String TAG = "#KEEPDO_PROVIDER: ";
     public static final String AUTHORITY = "com.hkb48.keepdo.keepdoprovider";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
     // Task table
     public static final class Tasks implements BaseColumns {
 
-        private Tasks() {}
+        private Tasks() {
+        }
 
         // Incoming URI matches the main table URI pattern
         public static final int TABLE_LIST = 10;
@@ -53,7 +54,8 @@ public class KeepdoProvider extends ContentProvider {
     // Task Completion table
     public static final class TaskCompletion implements BaseColumns {
 
-        private TaskCompletion() {}
+        private TaskCompletion() {
+        }
 
         // Incoming URI matches the main table URI pattern
         public static final int TABLE_LIST = 30;
@@ -85,6 +87,7 @@ public class KeepdoProvider extends ContentProvider {
     private DatabaseHelper mOpenHelper;
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
     static {
         sURIMatcher.addURI(AUTHORITY, Tasks.TABLE_URI, Tasks.TABLE_LIST);
         sURIMatcher.addURI(AUTHORITY, Tasks.TABLE_URI + "/#", Tasks.TABLE_ID);
@@ -103,42 +106,38 @@ public class KeepdoProvider extends ContentProvider {
         return false;
     }
 
-	@Override
-	public String getType(Uri uri) {
-
-		//TODO: have to be corrected
-		switch (sURIMatcher.match(uri)) {
-		case Tasks.TABLE_LIST:	
-        	return String.valueOf(Tasks.TABLE_LIST);
-        case Tasks.TABLE_ID:
-        	return String.valueOf(Tasks.TABLE_ID);
-        case TaskCompletion.TABLE_LIST:
-        	return String.valueOf(TaskCompletion.TABLE_LIST);
-        case TaskCompletion.TABLE_ID:
-        	return String.valueOf(TaskCompletion.TABLE_ID);
-        default:
-        	throw new IllegalArgumentException("Unknown URI " + uri);
-    	}
-	}
+    @Override
+    public String getType(Uri uri) {
+        //TODO: have to be corrected
+        switch (sURIMatcher.match(uri)) {
+            case Tasks.TABLE_LIST:
+                return String.valueOf(Tasks.TABLE_LIST);
+            case Tasks.TABLE_ID:
+                return String.valueOf(Tasks.TABLE_ID);
+            case TaskCompletion.TABLE_LIST:
+                return String.valueOf(TaskCompletion.TABLE_LIST);
+            case TaskCompletion.TABLE_ID:
+                return String.valueOf(TaskCompletion.TABLE_ID);
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+    }
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         // Constructs a new query builder and sets its table name
         String tableName;
         switch (sURIMatcher.match(uri)) {
-
-        case Tasks.TABLE_LIST:
-        case Tasks.TABLE_ID:
-            tableName = Tasks.TABLE_NAME;
-            break;
-
-        case TaskCompletion.TABLE_LIST:
-        case TaskCompletion.TABLE_ID:
-            tableName = TaskCompletion.TABLE_NAME;
-            break;
-
-        default:
-            throw new IllegalArgumentException("Unknown URI " + uri);
+            case Tasks.TABLE_LIST:
+            case Tasks.TABLE_ID:
+                tableName = Tasks.TABLE_NAME;
+                break;
+            case TaskCompletion.TABLE_LIST:
+            case TaskCompletion.TABLE_ID:
+                tableName = TaskCompletion.TABLE_NAME;
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -151,7 +150,7 @@ public class KeepdoProvider extends ContentProvider {
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
-            String[] selectionArgs, String sortOrder) {
+                        String[] selectionArgs, String sortOrder) {
 
         // Constructs a new query builder and sets its table name
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
@@ -161,12 +160,12 @@ public class KeepdoProvider extends ContentProvider {
             case Tasks.TABLE_LIST:
             case Tasks.TABLE_ID:
                 qb.setTables(Tasks.TABLE_NAME);
-            	break;
+                break;
 
             case TaskCompletion.TABLE_LIST:
             case TaskCompletion.TABLE_ID:
-            	qb.setTables(TaskCompletion.TABLE_NAME);
-            	break;
+                qb.setTables(TaskCompletion.TABLE_NAME);
+                break;
 
             case DateChangeTime.TABLE_LIST:
             case DateChangeTime.TABLE_ID:
@@ -197,26 +196,26 @@ public class KeepdoProvider extends ContentProvider {
         assert c != null;
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
-	}
+    }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection,
-            String[] selectionArgs) {
+                      String[] selectionArgs) {
         String tableName;
         switch (sURIMatcher.match(uri)) {
 
-        case Tasks.TABLE_LIST:
-        case Tasks.TABLE_ID:
-            tableName = Tasks.TABLE_NAME;
-            break;
+            case Tasks.TABLE_LIST:
+            case Tasks.TABLE_ID:
+                tableName = Tasks.TABLE_NAME;
+                break;
 
-        case TaskCompletion.TABLE_LIST:
-        case TaskCompletion.TABLE_ID:
-            tableName = TaskCompletion.TABLE_NAME;
-            break;
+            case TaskCompletion.TABLE_LIST:
+            case TaskCompletion.TABLE_ID:
+                tableName = TaskCompletion.TABLE_NAME;
+                break;
 
-        default:
-            throw new IllegalArgumentException("Unknown URI " + uri);
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -225,25 +224,25 @@ public class KeepdoProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
 
         return id;
-	}
+    }
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         String tableName;
         switch (sURIMatcher.match(uri)) {
 
-        case Tasks.TABLE_LIST:
-        case Tasks.TABLE_ID:
-            tableName = Tasks.TABLE_NAME;
-            break;
+            case Tasks.TABLE_LIST:
+            case Tasks.TABLE_ID:
+                tableName = Tasks.TABLE_NAME;
+                break;
 
-        case TaskCompletion.TABLE_LIST:
-        case TaskCompletion.TABLE_ID:
-            tableName = TaskCompletion.TABLE_NAME;
-            break;
+            case TaskCompletion.TABLE_LIST:
+            case TaskCompletion.TABLE_ID:
+                tableName = TaskCompletion.TABLE_NAME;
+                break;
 
-        default:
-            throw new IllegalArgumentException("Unknown URI " + uri);
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();

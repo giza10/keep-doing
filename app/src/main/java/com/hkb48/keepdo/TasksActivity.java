@@ -44,6 +44,7 @@ public class TasksActivity extends ActionBarActivity implements
 
     private TaskAdapter mAdapter;
     private boolean mModelUpdated;
+    private ContentObserver mContentObserver;
     private final List<TaskListItem> mDataList = new ArrayList<>();
     private final CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
     private DatabaseAdapter mDBAdapter = null;
@@ -110,14 +111,14 @@ public class TasksActivity extends ActionBarActivity implements
                     }
                 });
 
-        ContentObserver contentObserver = new ContentObserver(new Handler()) {
+        mContentObserver = new ContentObserver(new Handler()) {
             @Override
             public void onChange(boolean selfChange) {
                 super.onChange(selfChange);
                 mModelUpdated = true;
             }
         };
-        getContentResolver().registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, contentObserver);
+        getContentResolver().registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, mContentObserver);
         mModelUpdated = true;
 
         registerForContextMenu(taskListView);
@@ -145,6 +146,7 @@ public class TasksActivity extends ActionBarActivity implements
         mDBAdapter.close();
         DateChangeTimeManager.getInstance(this)
                 .unregisterOnDateChangedListener(this);
+        getContentResolver().unregisterContentObserver(mContentObserver);
         super.onDestroy();
     }
 
