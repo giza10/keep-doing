@@ -25,7 +25,7 @@ public class NotificationController {
         if (task != null) {
             taskName = task.getName();
             if (BuildConfig.DEBUG) {
-                Log.v(TAG_KEEPDO + "RemindAlarmReceiver#onReceive()", "taskId:" + taskId + ", taskName:" + taskName);
+                Log.v(TAG_KEEPDO, "taskId:" + taskId + ", taskName:" + taskName);
             }
         }
 

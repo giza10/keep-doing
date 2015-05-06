@@ -8,7 +8,6 @@ import android.database.ContentObserver;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.ContextMenu;
@@ -36,9 +35,6 @@ import java.util.List;
 
 public class TasksActivity extends ActionBarActivity implements
         DateChangeTimeManager.OnDateChangedListener {
-    // Request code when launching sub-activity
-    private static final int REQUEST_ADD_TASK = 0;
-    private static final int REQUEST_EDIT_TASK = 1;
 
     // ID of context menu items
     private static final int CONTEXT_MENU_EDIT = 0;
@@ -49,7 +45,7 @@ public class TasksActivity extends ActionBarActivity implements
 
     private TaskAdapter mAdapter;
     private boolean mModelUpdated;
-    private final List<TaskListItem> mDataList = new ArrayList<TaskListItem>();
+    private final List<TaskListItem> mDataList = new ArrayList<>();
     private final CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
     private DatabaseAdapter mDBAdapter = null;
     private NavigationDrawerFragment mNavigationDrawerFragment;
@@ -174,41 +170,13 @@ public class TasksActivity extends ActionBarActivity implements
         switch (item.getItemId()) {
         case R.id.menu_add_task:
             intent = new Intent(TasksActivity.this, TaskSettingActivity.class);
-            startActivityForResult(intent, REQUEST_ADD_TASK);
+            startActivity(intent);
             return true;
         case R.id.menu_backup_restore:
             showBackupRestoreDialog();
             return true;
         default:
             return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        final Context context = getApplicationContext();
-        if (resultCode == RESULT_OK) {
-            Task task;
-            switch (requestCode) {
-            case REQUEST_ADD_TASK:
-                task = (Task) data.getSerializableExtra("TASK-INFO");
-                assert task != null;
-                task.setOrder(mDBAdapter.getMaxSortOrderId() + 1);
-                mDBAdapter.addTask(task);
-                updateTaskList();
-                updateReminder();
-                TasksWidgetProvider.notifyDatasetChanged(context);
-                break;
-            case REQUEST_EDIT_TASK:
-                task = (Task) data.getSerializableExtra("TASK-INFO");
-                mDBAdapter.editTask(task);
-                updateTaskList();
-                updateReminder();
-                TasksWidgetProvider.notifyDatasetChanged(context);
-                break;
-            default:
-                break;
-            }
         }
     }
 
@@ -248,8 +216,8 @@ public class TasksActivity extends ActionBarActivity implements
         case CONTEXT_MENU_EDIT:
             Intent intent = new Intent(TasksActivity.this,
                     TaskSettingActivity.class);
-            intent.putExtra("TASK-INFO", task);
-            startActivityForResult(intent, REQUEST_EDIT_TASK);
+            intent.putExtra(TaskSettingActivity.EXTRA_TASK_INFO, task);
+            startActivity(intent);
             return true;
         case CONTEXT_MENU_DELETE:
             new AlertDialog.Builder(this)
@@ -283,8 +251,8 @@ public class TasksActivity extends ActionBarActivity implements
     private void updateTaskList() {
         List<Task> taskList = mDBAdapter.getTaskList();
 
-        List<Task> taskListToday = new ArrayList<Task>();
-        List<Task> taskListNotToday = new ArrayList<Task>();
+        List<Task> taskListToday = new ArrayList<>();
+        List<Task> taskListNotToday = new ArrayList<>();
         int dayOfWeek = DateChangeTimeUtil.getDateTimeCalendar().get(
                 Calendar.DAY_OF_WEEK);
 

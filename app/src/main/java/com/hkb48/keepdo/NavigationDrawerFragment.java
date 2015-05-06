@@ -25,6 +25,7 @@ public class NavigationDrawerFragment extends Fragment {
     private static final int NAVDRAWER_ITEM_BACKUP_RESTORE = 4;
     private static final int NAVDRAWER_ITEM_SETTINGS = 5;
 
+    //Todo: to be declared in strings.xml
     private static final String[] NAVDRAWER_TITLE_RES_ID = {
             "Sort",
             "Export",
@@ -40,7 +41,7 @@ public class NavigationDrawerFragment extends Fragment {
             R.drawable.ic_settings
     };
 
-    // delay to launch nav drawer item, to allow close animation to play
+    // Delay to launch nav drawer item, to allow close animation to play
     private static final int NAVDRAWER_LAUNCH_DELAY = 250;
 
     private ActionBarDrawerToggle mDrawerToggle;
@@ -100,10 +101,7 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     public boolean isDrawerOpen() {
-        if ((mDrawerLayout != null) && (mContainerView != null)) {
-            return mDrawerLayout.isDrawerOpen(mContainerView);
-        }
-        return false;
+        return (mDrawerLayout != null) && (mContainerView != null) && mDrawerLayout.isDrawerOpen(mContainerView);
     }
 
     public void closeDrawer() {
@@ -147,15 +145,11 @@ public class NavigationDrawerFragment extends Fragment {
 
     public class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.ViewHolder> {
 
-        private static final int TYPE_HEADER = 0;  // Declaring Variable to Understand which View is being worked on
-        // IF the view under inflation and population is header or Item
+        private static final int TYPE_HEADER = 0;
         private static final int TYPE_ITEM = 1;
 
-        private String mNavTitles[]; // String Array to store the passed titles Value from MainActivity.java
-        private int mIcons[];       // Int Array to store the passed icons resource value from MainActivity.java
-
-        // Creating a ViewHolder which extends the RecyclerView View Holder
-        // ViewHolder are used to to store the inflated views in order to recycle them
+        private String mNavTitles[];
+        private int mIcons[];
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             int Holderid;
@@ -163,66 +157,49 @@ public class NavigationDrawerFragment extends Fragment {
             TextView textView;
             ImageView imageView;
 
-            public ViewHolder(View itemView, int ViewType) {                 // Creating ViewHolder Constructor with View and viewType As a parameter
+            public ViewHolder(View itemView, int ViewType) {
                 super(itemView);
 
-                // Here we set the appropriate view in accordance with the the view type as passed when the holder object is created
                 if (ViewType == TYPE_ITEM) {
-                    textView = (TextView) itemView.findViewById(R.id.title); // Creating TextView object with the id of textView from item_row.xml
-                    imageView = (ImageView) itemView.findViewById(R.id.icon);// Creating ImageView object with the id of ImageView from item_row.xml
-                    Holderid = 1;                                               // setting holder id as 1 as the object being populated are of type item row
+                    textView = (TextView) itemView.findViewById(R.id.title);
+                    imageView = (ImageView) itemView.findViewById(R.id.icon);
+                    Holderid = 1;
                 } else {
-                    Holderid = 0;                                                // Setting holder id = 0 as the object being populated are of type header view
+                    Holderid = 0;
                 }
             }
         }
 
-        DrawerAdapter(String Titles[], int Icons[]) { // MyAdapter Constructor with titles and icons parameter
-            // titles, icons, name, email, profile pic are passed from the main activity as we
-            mNavTitles = Titles;                //have seen earlier
+        DrawerAdapter(String Titles[], int Icons[]) {
+            mNavTitles = Titles;
             mIcons = Icons;
-            //in adapter
         }
-
-        //Below first we ovverride the method onCreateViewHolder which is called when the ViewHolder is
-        //Created, In this method we inflate the item_row.xml layout if the viewType is Type_ITEM or else we inflate header.xml
-        // if the viewType is TYPE_HEADER
-        // and pass it to the view holder
 
         @Override
         public DrawerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             if (viewType == TYPE_ITEM) {
-                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.drawer_item_row, parent, false); //Inflating the layout
-                ViewHolder vhItem = new ViewHolder(v, viewType); //Creating ViewHolder and passing the object of type view
-                return vhItem; // Returning the created object
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.drawer_item_row, parent, false);
+                return new ViewHolder(v, viewType);
             } else if (viewType == TYPE_HEADER) {
-                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.drawer_header, parent, false); //Inflating the layout
-                ViewHolder vhHeader = new ViewHolder(v, viewType); //Creating ViewHolder and passing the object of type view
-                return vhHeader; //returning the object created
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.drawer_header, parent, false);
+                return new ViewHolder(v, viewType);
             }
             return null;
         }
 
-        //Next we override a method which is called when the item in a row is needed to be displayed, here the int position
-        // Tells us item at which position is being constructed to be displayed and the holder id of the holder object tell us
-        // which view type is being created 1 for item row
         @Override
         public void onBindViewHolder(DrawerAdapter.ViewHolder holder, int position) {
-            if (holder.Holderid == 1) {                              // as the list view is going to be called after the header view so we decrement the
-                // position by 1 and pass it to the holder while setting the text and image
-                holder.textView.setText(mNavTitles[position - 1]); // Setting the Text with the array of our Titles
-                holder.imageView.setImageResource(mIcons[position - 1]);// Settimg the image with array of our icons
+            if (holder.Holderid == 1) {
+                holder.textView.setText(mNavTitles[position - 1]);
+                holder.imageView.setImageResource(mIcons[position - 1]);
             }
         }
 
-        // This method returns the number of items present in the list
         @Override
         public int getItemCount() {
-            return mNavTitles.length + 1; // the number of items in the list will be +1 the titles including the header view.
+            return mNavTitles.length + 1;
         }
 
-
-        // Witht the following method we check what type of view is being passed
         @Override
         public int getItemViewType(int position) {
             if (isPositionHeader(position))

@@ -21,7 +21,7 @@ public class TasksWidgetModel {
     private static final String SDF_PATTERN_YMD = "yyyy-MM-dd";
 
     private final Context mContext;
-    private final List<Task> mTaskList = new ArrayList<Task>();
+    private final List<Task> mTaskList = new ArrayList<>();
 
     public TasksWidgetModel (Context context) {
         mContext = context;

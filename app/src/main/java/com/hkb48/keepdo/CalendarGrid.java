@@ -174,35 +174,30 @@ public class CalendarGrid extends Fragment {
         Date selectedDate = (Date) mPressedView.getTag();
 
         switch (item.getItemId()) {
-        case CONTEXT_MENU_CHECK_DONE:
-            showDoneIcon(imageView);
-            mDatabaseAdapter.setDoneStatus(mTask.getTaskID(), selectedDate,
-                    true);
-            TasksWidgetProvider.notifyDatasetChanged(getContext());
-            mCheckSound.play();
-            consumed = true;
-            break;
-        case CONTEXT_MENU_UNCHECK_DONE:
-            hideDoneIcon(imageView);
-            mDatabaseAdapter.setDoneStatus(mTask.getTaskID(), selectedDate,
-                    false);
-            TasksWidgetProvider.notifyDatasetChanged(getContext());
-            consumed = true;
-            break;
-        default:
-            break;
+            case CONTEXT_MENU_CHECK_DONE:
+                showDoneIcon(imageView);
+                mDatabaseAdapter.setDoneStatus(mTask.getTaskID(), selectedDate,
+                        true);
+                mCheckSound.play();
+                consumed = true;
+                break;
+            case CONTEXT_MENU_UNCHECK_DONE:
+                hideDoneIcon(imageView);
+                mDatabaseAdapter.setDoneStatus(mTask.getTaskID(), selectedDate,
+                        false);
+                consumed = true;
+                break;
+            default:
+                break;
         }
 
         Date today = DateChangeTimeUtil.getDate();
-        if (selectedDate.compareTo(today) == 0) {
+        if (consumed && (selectedDate.compareTo(today) == 0)) {
             ReminderManager.getInstance().setNextAlert(getContext());
+            TasksWidgetProvider.notifyDatasetChanged(getContext());
         }
 
-        if (consumed) {
-            return true;
-        } else {
-            return super.onContextItemSelected(item);
-        }
+        return consumed || super.onContextItemSelected(item);
     }
 
     final FragmentActivity getContext() {

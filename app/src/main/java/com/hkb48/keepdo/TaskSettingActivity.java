@@ -18,12 +18,19 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TimePicker;
 
+import com.hkb48.keepdo.widget.TasksWidgetProvider;
+
 import java.util.Arrays;
 
 public class TaskSettingActivity extends ActionBarActivity {
+    public static final String EXTRA_TASK_INFO = "TASK-INFO";
+    private static final int MODE_NEW_TASK = 0;
+    private static final int MODE_EDIT_TASK = 1;
+
     private boolean[] mRecurrenceFlags = { true, true, true, true, true, true,
             true };
     private Task mTask;
+    private int mMode;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,12 +52,14 @@ public class TaskSettingActivity extends ActionBarActivity {
         Intent intent = getIntent();
         mTask = (Task) intent.getSerializableExtra("TASK-INFO");
         if (mTask == null) {
+            mMode = MODE_NEW_TASK;
             setTitle(R.string.add_task);
             recurrence = new Recurrence(true, true, true, true, true, true,
                     true);
             mTask = new Task(null, null, recurrence);
             mTask.setReminder(new Reminder());
         } else {
+            mMode = MODE_EDIT_TASK;
             setTitle(R.string.edit_task);
             String taskName = mTask.getName();
             if (taskName != null) {
@@ -104,11 +113,11 @@ public class TaskSettingActivity extends ActionBarActivity {
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count,
-                    int after) {
+                                          int after) {
             }
 
             public void onTextChanged(CharSequence s, int start, int before,
-                    int count) {
+                                      int count) {
             }
         });
     }
@@ -221,9 +230,15 @@ public class TaskSettingActivity extends ActionBarActivity {
         mTask.setRecurrence(recurrence);
         mTask.setContext(editTextDescription.getText().toString());
 
-        Intent data = new Intent();
-        data.putExtra("TASK-INFO", mTask);
-        setResult(RESULT_OK, data);
+        DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(this);
+        if(mMode == MODE_NEW_TASK) {
+            mTask.setOrder(dbAdapter.getMaxSortOrderId() + 1);
+            dbAdapter.addTask(mTask);
+        } else {
+            dbAdapter.editTask(mTask);
+        }
+        ReminderManager.getInstance().setNextAlert(this);
+        TasksWidgetProvider.notifyDatasetChanged(this);
         finish();
     }
 

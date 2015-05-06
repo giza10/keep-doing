@@ -1,7 +1,6 @@
 package com.hkb48.keepdo;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,7 +17,7 @@ import java.util.List;
 public class TaskSortingActivity extends ActionBarActivity {
     private TaskAdapter mAdapter;
     private DatabaseAdapter mDBAdapter = null;
-    private List<Task> mDataList = new ArrayList<Task>();
+    private List<Task> mDataList = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

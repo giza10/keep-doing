@@ -9,7 +9,7 @@ import java.util.List;
 
 class Settings {
     private static Settings sInstance = null;
-    private static final List<OnChangedListener> sChangedListeners = new ArrayList<OnChangedListener>(1);
+    private static final List<OnChangedListener> sChangedListeners = new ArrayList<>(1);
     private static SharedPreferences sSharedPref;
     private static String sDoneIconType;
     private static String sDateChangeTime;
@@ -18,9 +18,9 @@ class Settings {
     private static String sAlertsVibrateWhen;
 
     public interface OnChangedListener {
-        public void onDoneIconSettingChanged();
-        public void onDateChangeTimeSettingChanged();
-        public void onWeekStartDaySettingChanged();
+        void onDoneIconSettingChanged();
+        void onDateChangeTimeSettingChanged();
+        void onWeekStartDaySettingChanged();
     }
 
     public static void registerOnChangedListener(OnChangedListener listener) {
@@ -84,12 +84,19 @@ class Settings {
     public static int getDoneIconId() {
         int doneIconId = R.drawable.ic_done_1;
         if (sDoneIconType != null) {
-            if (sDoneIconType.equals("type2")) {
-                doneIconId = R.drawable.ic_done_2;
-            } else if (sDoneIconType.equals("type3")) {
-                doneIconId = R.drawable.ic_done_3;
-            } else if (sDoneIconType.equals("type4")) {
-                doneIconId = R.drawable.ic_done_4;
+            switch (sDoneIconType) {
+                case "type2":
+                    doneIconId = R.drawable.ic_done_2;
+                    break;
+                case "type3":
+                    doneIconId = R.drawable.ic_done_3;
+                    break;
+                case "type4":
+                    doneIconId = R.drawable.ic_done_4;
+                    break;
+                default:
+                    doneIconId = R.drawable.ic_done_1;
+                    break;
             }
         }
         return doneIconId;
@@ -98,12 +105,19 @@ class Settings {
     public static int getNotDoneIconId() {
         int notDoneIconId = R.drawable.ic_not_done_1;
         if (sDoneIconType != null) {
-            if (sDoneIconType.equals("type2")) {
-                notDoneIconId = R.drawable.ic_not_done_2;
-            } else if (sDoneIconType.equals("type3")) {
-                notDoneIconId = R.drawable.ic_not_done_3;
-            } else if (sDoneIconType.equals("type4")) {
-                notDoneIconId = R.drawable.ic_not_done_4;
+            switch (sDoneIconType) {
+                case "type2":
+                    notDoneIconId = R.drawable.ic_not_done_2;
+                    break;
+                case "type3":
+                    notDoneIconId = R.drawable.ic_not_done_3;
+                    break;
+                case "type4":
+                    notDoneIconId = R.drawable.ic_not_done_4;
+                    break;
+                default:
+                    notDoneIconId = R.drawable.ic_not_done_1;
+                    break;
             }
         }
         return notDoneIconId;

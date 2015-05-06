@@ -61,7 +61,7 @@ public class ReminderManager {
 
     public List<Task> getRemainingUndoneTaskList(final Context context) {
         DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(context);
-        List<Task> remainingList = new ArrayList<Task>();
+        List<Task> remainingList = new ArrayList<>();
         Calendar realTime = Calendar.getInstance();
         realTime.setTimeInMillis(System.currentTimeMillis());
         final Date today = DateChangeTimeUtil.getDateTimeCalendar(realTime)

@@ -48,8 +48,6 @@ public class KeepdoProvider extends ContentProvider {
         public static final String REMINDER_ENABLED = "reminder_enabled";
         public static final String REMINDER_TIME = "reminder_time";
         public static final String TASK_LIST_ORDER = "task_list_order";
-
-        public static final String DEFAULT_SORT_ORDER = "_id ASC";
     }
 
     // Task Completion table
@@ -69,8 +67,6 @@ public class KeepdoProvider extends ContentProvider {
 
         public static final String TASK_NAME_ID = "task_id";
         public static final String TASK_COMPLETION_DATE = "completion_date";
-
-        public static final String DEFAULT_SORT_ORDER = "task_id ASC";
     }
 
     public static final class DateChangeTime implements BaseColumns {
@@ -185,7 +181,7 @@ public class KeepdoProvider extends ContentProvider {
                 dateChangeTimeCalendar.set(Calendar.MINUTE, dateChangeTime.minute);
                 dateChangeTimeCalendar.set(Calendar.SECOND, 0);
                 dateChangeTimeCalendar.set(Calendar.MILLISECOND, 0);
-                mc.addRow(new Object[]{dateFormat.format(today), Long.valueOf(dateChangeTimeCalendar.getTimeInMillis())});
+                mc.addRow(new Object[]{dateFormat.format(today), dateChangeTimeCalendar.getTimeInMillis()});
                 return mc;
 
             default:

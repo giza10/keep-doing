@@ -7,7 +7,6 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,26 +23,6 @@ import com.hkb48.keepdo.TasksActivity;
 
 import java.text.MessageFormat;
 import java.util.Calendar;
-
-class TasksDataProviderObserver extends ContentObserver {
-    private final AppWidgetManager mAppWidgetManager;
-    private final ComponentName mComponentName;
-
-    TasksDataProviderObserver(AppWidgetManager mgr, ComponentName cn, Handler h) {
-        super(h);
-        mAppWidgetManager = mgr;
-        mComponentName = cn;
-    }
-
-    @Override
-    public void onChange(boolean selfChange) {
-        // The data has changed, so notify the widget that the collection view needs to be updated.
-        // In response, the factory's onDataSetChanged() will be called which will requery the
-        // cursor for the new data.
-        mAppWidgetManager.notifyAppWidgetViewDataChanged(
-                mAppWidgetManager.getAppWidgetIds(mComponentName), R.id.task_list);
-    }
-}
 
 public class TasksWidgetProvider extends AppWidgetProvider {
     public static final String ACTION_APPWIDGET_UPDATE = "com.hkb48.keepdo.action.APPWIDGET_UPDATE";
@@ -119,9 +98,9 @@ public class TasksWidgetProvider extends AppWidgetProvider {
 	@Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // Update each of the widgets with the remote adapter
-        for (int i = 0; i < appWidgetIds.length; ++i) {
-            RemoteViews layout = buildLayout(context, appWidgetIds[i]);
-            appWidgetManager.updateAppWidget(appWidgetIds[i], layout);
+        for (int appWidgetId : appWidgetIds) {
+            RemoteViews layout = buildLayout(context, appWidgetId);
+            appWidgetManager.updateAppWidget(appWidgetId, layout);
         }
         startAlarm(context);
         super.onUpdate(context, appWidgetManager, appWidgetIds);

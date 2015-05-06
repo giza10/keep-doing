@@ -1,8 +1,9 @@
 package com.hkb48.keepdo;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -10,17 +11,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.hkb48.keepdo.widget.TasksWidgetProvider;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 public class TaskDetailActivity extends ActionBarActivity {
-    // Request code when launching sub-activity
-    private static final int REQUEST_EDIT_TASK = 1;
-
-    private Task mTask = null;
+    private long mTaskId;
+    private boolean mModelUpdated;
 
     public TaskDetailActivity() {
     }
@@ -34,13 +31,27 @@ public class TaskDetailActivity extends ActionBarActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final long taskId = getIntent().getLongExtra("TASK-ID", -1);
-        DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(this);
-        mTask = dbAdapter.getTask(taskId);
-        if (mTask != null) {
-            setTitle(mTask.getName());
+        mTaskId = getIntent().getLongExtra("TASK-ID", -1);
+
+        ContentObserver contentObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean selfChange) {
+                super.onChange(selfChange);
+                mModelUpdated = true;
+            }
+        };
+        getContentResolver().registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, contentObserver);
+        mModelUpdated = true;
+    }
+
+    @Override
+    public void onResume() {
+        if (mModelUpdated) {
+            mModelUpdated = false;
+            updateTitle();
+            updateDetails();
         }
-        updateDetails();
+        super.onResume();
     }
 
     @Override
@@ -58,40 +69,25 @@ public class TaskDetailActivity extends ActionBarActivity {
             case R.id.menu_edit:
                 Intent intent = new Intent(TaskDetailActivity.this,
                         TaskSettingActivity.class);
-                intent.putExtra("TASK-INFO", mTask);
-                startActivityForResult(intent, REQUEST_EDIT_TASK);
+                Task task = DatabaseAdapter.getInstance(this).getTask(mTaskId);
+                intent.putExtra(TaskSettingActivity.EXTRA_TASK_INFO, task);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
-            switch (requestCode) {
-                case REQUEST_EDIT_TASK:
-                    final Task task = (Task) data.getSerializableExtra("TASK-INFO");
-                    DatabaseAdapter.getInstance(this).editTask(task);
-                    updateDetails();
-                    // updateReminder();
-                    ReminderManager.getInstance().setNextAlert(this);
-                    TasksWidgetProvider.notifyDatasetChanged(getApplicationContext());
-                    // Set result of this activity as OK to inform that the done status is
-                    // updated
-                    Intent returnIntent = new Intent();
-                    setResult(TaskActivity.RESULT_OK, returnIntent);
-                    break;
-                default:
-                    break;
-            }
+    private void updateTitle() {
+        Task task = DatabaseAdapter.getInstance(this).getTask(mTaskId);
+        if (task != null) {
+            setTitle(task.getName());
         }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void updateDetails() {
         DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(this);
-        Task task = mTask;
+        Task task = dbAdapter.getTask(mTaskId);
 
         // Recurrence
         RecurrenceView recurrenceView = (RecurrenceView) findViewById(R.id.recurrenceView);
@@ -132,11 +128,7 @@ public class TaskDetailActivity extends ActionBarActivity {
         TextView comboTextView = (TextView) findViewById(R.id.taskDetailComboValue);
         ComboCount combo = dbAdapter.getComboCount(task.getTaskID());
         if (combo != null) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(getString(R.string.number_of_times, combo.currentCount));
-            sb.append(" / ");
-            sb.append(getString(R.string.number_of_times, combo.maxCount));
-            comboTextView.setText(sb.toString());
+            comboTextView.setText(getString(R.string.number_of_times, combo.currentCount) + " / " + getString(R.string.number_of_times, combo.maxCount));
         }
 
         // First date that done is set

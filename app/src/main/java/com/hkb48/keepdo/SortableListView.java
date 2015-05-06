@@ -234,7 +234,7 @@ public class SortableListView extends ListView {
         stopDrag();
 
         mWindowParams = new WindowManager.LayoutParams();
-        mWindowParams.gravity = Gravity.TOP | Gravity.LEFT;
+        mWindowParams.gravity = Gravity.TOP | Gravity.START;
         mWindowParams.x = x;
         mWindowParams.y = y - mDragPoint + mCoordOffset;
 
