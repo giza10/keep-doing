@@ -39,6 +39,10 @@
             android:label="@string/title_activity_task" >
         </activity>
         <activity
+            android:name=".TaskDetailActivity"
+            android:label="@string/title_activity_task" >
+        </activity>
+        <activity
             android:name=".SettingsActivity"
             android:label="@string/settings" >
         </activity>

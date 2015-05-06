@@ -118,6 +118,12 @@ public class CalendarGrid extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.menu_info:
+                final long taskId = getContext().getIntent().getLongExtra("TASK-ID", -1);
+                Intent intent = new Intent(getActivity(), TaskDetailActivity.class);
+                intent.putExtra("TASK-ID", taskId);
+                startActivity(intent);
+                return true;
             case R.id.menu_share:
                 if (!mIsShareOnTop) {
                     shareDisplayedCalendarView();
