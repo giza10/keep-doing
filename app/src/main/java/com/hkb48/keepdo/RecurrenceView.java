@@ -12,7 +12,11 @@ public class RecurrenceView extends TextView {
 
     public RecurrenceView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mWeekName = getResources().getStringArray(R.array.week_names);
+        if (!isInEditMode()) {
+            mWeekName = getResources().getStringArray(R.array.week_names);
+        } else {
+            mWeekName = null;
+        }
     }
 
     public void update(boolean[] recurrenceFlags) {

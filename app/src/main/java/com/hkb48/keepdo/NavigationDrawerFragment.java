@@ -1,6 +1,8 @@
 package com.hkb48.keepdo;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,27 +18,27 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
+
+import java.io.File;
 
 public class NavigationDrawerFragment extends Fragment {
 
     private static final int NAVDRAWER_ITEM_SORT = 1;
-    private static final int NAVDRAWER_ITEM_IMPORT = 2;
-    private static final int NAVDRAWER_ITEM_EXPORT = 3;
-    private static final int NAVDRAWER_ITEM_BACKUP_RESTORE = 4;
-    private static final int NAVDRAWER_ITEM_SETTINGS = 5;
+    private static final int NAVDRAWER_ITEM_BACKUP_RESTORE_DEVICE = 2;
+    private static final int NAVDRAWER_ITEM_BACKUP_RESTORE_DRIVE = 3;
+    private static final int NAVDRAWER_ITEM_SETTINGS = 4;
 
     //Todo: to be declared in strings.xml
     private static final String[] NAVDRAWER_TITLE_RES_ID = {
             "Sort",
-            "Export",
-            "Import",
+            "Backup&Restore(Device storage)",
             "Backup&Restore(GoogleDrive)",
             "Settings"};
 
     private static final int[] NAVDRAWER_ICON_RES_ID = new int[]{
             R.drawable.ic_sort,
-            R.drawable.ic_file_upload,
-            R.drawable.ic_file_download,
+            R.drawable.ic_import_export,
             R.drawable.ic_drive,
             R.drawable.ic_settings
     };
@@ -128,11 +130,13 @@ public class NavigationDrawerFragment extends Fragment {
                 intent = new Intent(getActivity(), TaskSortingActivity.class);
                 startActivity(intent);
                 break;
-            case NAVDRAWER_ITEM_IMPORT:
+            case NAVDRAWER_ITEM_BACKUP_RESTORE_DEVICE:
+                // Todo: Tentative implementation
+                showBackupRestoreDialog();
                 break;
-            case NAVDRAWER_ITEM_EXPORT:
-                break;
-            case NAVDRAWER_ITEM_BACKUP_RESTORE:
+            case NAVDRAWER_ITEM_BACKUP_RESTORE_DRIVE:
+                intent = new Intent(getActivity(), GoogleDriveServicesActivity.class);
+                startActivity(intent);
                 break;
             case NAVDRAWER_ITEM_SETTINGS:
                 intent = new Intent(getActivity(), SettingsActivity.class);
@@ -211,5 +215,84 @@ public class NavigationDrawerFragment extends Fragment {
         private boolean isPositionHeader(int position) {
             return position == 0;
         }
+    }
+
+    /**
+     * Backup & Restore
+     */
+    private void showBackupRestoreDialog() {
+        final DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(getActivity());
+        final String fineName = dbAdapter.backupFileName();
+        final String dirName = dbAdapter.backupDirName();
+        final String dirPath = dbAdapter.backupDirPath();
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(
+                getActivity());
+        String title = getString(R.string.backup_restore) + "\n" + dirName
+                + fineName;
+        dialogBuilder.setTitle(title);
+        dialogBuilder.setSingleChoiceItems(
+                R.array.dialog_choice_backup_restore, -1,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        boolean enabled = true;
+                        if (which == 1) {
+                            // Restore
+                            File backupFile = new File(dirPath + fineName);
+                            if (!backupFile.exists()) {
+                                enabled = false;
+                                Toast.makeText(getActivity(),
+                                        R.string.no_backup_file,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        ((AlertDialog) dialog).getButton(
+                                AlertDialog.BUTTON_POSITIVE)
+                                .setEnabled(enabled);
+                    }
+                });
+        dialogBuilder.setNegativeButton(R.string.dialog_cancel, null);
+        dialogBuilder.setPositiveButton(R.string.dialog_start,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (((AlertDialog) dialog).getListView()
+                                .getCheckedItemPosition()) {
+                            case 0:
+                                // execute backup
+                                backupTaskData();
+                                Toast.makeText(getActivity(),
+                                        R.string.backup_done, Toast.LENGTH_SHORT)
+                                        .show();
+                            case 1:
+                                // execute restore
+                                restoreTaskData();
+                                Toast.makeText(getActivity(),
+                                        R.string.restore_done, Toast.LENGTH_SHORT)
+                                        .show();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+        dialogBuilder.setCancelable(true);
+        final AlertDialog alertDialog = dialogBuilder.show();
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            public void onShow(DialogInterface dialog) {
+                File backupFile = new File(dirPath + fineName);
+                boolean existBackupFile = backupFile.exists();
+                ((AlertDialog) dialog).getListView().getChildAt(1)
+                        .setEnabled(existBackupFile);
+            }
+        });
+    }
+
+    private void backupTaskData() {
+        DatabaseAdapter.getInstance(getActivity()).backupDataBase();
+    }
+
+    private void restoreTaskData() {
+        DatabaseAdapter.getInstance(getActivity()).restoreDatabase();
     }
 }

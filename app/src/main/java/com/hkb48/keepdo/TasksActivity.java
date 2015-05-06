@@ -27,7 +27,6 @@ import android.widget.Toast;
 
 import com.hkb48.keepdo.widget.TasksWidgetProvider;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -74,7 +73,7 @@ public class TasksActivity extends ActionBarActivity implements
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mNavigationDrawerFragment.setup(R.id.navigation_drawer, (DrawerLayout)findViewById(R.id.drawer_layout), toolbar);
+        mNavigationDrawerFragment.setup(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar);
 
         mDBAdapter = DatabaseAdapter.getInstance(this);
 
@@ -168,15 +167,12 @@ public class TasksActivity extends ActionBarActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
         switch (item.getItemId()) {
-        case R.id.menu_add_task:
-            intent = new Intent(TasksActivity.this, TaskSettingActivity.class);
-            startActivity(intent);
-            return true;
-        case R.id.menu_backup_restore:
-            showBackupRestoreDialog();
-            return true;
-        default:
-            return super.onOptionsItemSelected(item);
+            case R.id.menu_add_task:
+                intent = new Intent(TasksActivity.this, TaskSettingActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -191,7 +187,7 @@ public class TasksActivity extends ActionBarActivity implements
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View view,
-            ContextMenuInfo menuInfo) {
+                                    ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, view, menuInfo);
         AdapterContextMenuInfo adapterinfo = (AdapterContextMenuInfo) menuInfo;
         ListView listView = (ListView) view;
@@ -213,35 +209,35 @@ public class TasksActivity extends ActionBarActivity implements
         Task task = (Task) taskListItem.data;
         final long taskId = task.getTaskID();
         switch (item.getItemId()) {
-        case CONTEXT_MENU_EDIT:
-            Intent intent = new Intent(TasksActivity.this,
-                    TaskSettingActivity.class);
-            intent.putExtra(TaskSettingActivity.EXTRA_TASK_INFO, task);
-            startActivity(intent);
-            return true;
-        case CONTEXT_MENU_DELETE:
-            new AlertDialog.Builder(this)
-                    .setMessage(R.string.delete_confirmation)
-                    .setPositiveButton(R.string.dialog_ok,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
-                                    mDBAdapter.deleteTask(taskId);
-                                    updateTaskList();
-                                    updateReminder();
-                                    TasksWidgetProvider.notifyDatasetChanged(getApplicationContext());
-                                }
-                            })
-                    .setNegativeButton(R.string.dialog_cancel,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
-                                }
-                            }).setCancelable(true).create().show();
-            return true;
-        default:
-            Toast.makeText(this, "default", Toast.LENGTH_SHORT).show();
-            return super.onContextItemSelected(item);
+            case CONTEXT_MENU_EDIT:
+                Intent intent = new Intent(TasksActivity.this,
+                        TaskSettingActivity.class);
+                intent.putExtra(TaskSettingActivity.EXTRA_TASK_INFO, task);
+                startActivity(intent);
+                return true;
+            case CONTEXT_MENU_DELETE:
+                new AlertDialog.Builder(this)
+                        .setMessage(R.string.delete_confirmation)
+                        .setPositiveButton(R.string.dialog_ok,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
+                                        mDBAdapter.deleteTask(taskId);
+                                        updateTaskList();
+                                        updateReminder();
+                                        TasksWidgetProvider.notifyDatasetChanged(getApplicationContext());
+                                    }
+                                })
+                        .setNegativeButton(R.string.dialog_cancel,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
+                                    }
+                                }).setCancelable(true).create().show();
+                return true;
+            default:
+                Toast.makeText(this, "default", Toast.LENGTH_SHORT).show();
+                return super.onContextItemSelected(item);
         }
     }
 
@@ -294,89 +290,6 @@ public class TasksActivity extends ActionBarActivity implements
 
     private void updateReminder() {
         ReminderManager.getInstance().setNextAlert(this);
-    }
-
-    /**
-     * Backup & Restore
-     */
-    private void showBackupRestoreDialog() {
-        final String fineName = mDBAdapter.backupFileName();
-        final String dirName = mDBAdapter.backupDirName();
-        final String dirPath = mDBAdapter.backupDirPath();
-
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(
-                TasksActivity.this);
-        String title = getString(R.string.backup_restore) + "\n" + dirName
-                + fineName;
-        dialogBuilder.setTitle(title);
-        dialogBuilder.setSingleChoiceItems(
-                R.array.dialog_choice_backup_restore, -1,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        boolean enabled = true;
-                        if (which == 1) {
-                            // Restore
-                            File backupFile = new File(dirPath + fineName);
-                            if (!backupFile.exists()) {
-                                enabled = false;
-                                Toast.makeText(TasksActivity.this,
-                                        R.string.no_backup_file,
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        ((AlertDialog) dialog).getButton(
-                                AlertDialog.BUTTON_POSITIVE)
-                                .setEnabled(enabled);
-                    }
-                });
-        dialogBuilder.setNegativeButton(R.string.dialog_cancel, null);
-        dialogBuilder.setPositiveButton(R.string.dialog_start,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (((AlertDialog) dialog).getListView()
-                                .getCheckedItemPosition()) {
-                        case 0:
-                            // execute backup
-//                            backupTaskData();
-//                            Toast.makeText(TasksActivity.this,
-//                                    R.string.backup_done, Toast.LENGTH_SHORT)
-//                                    .show();
-                            // backup to Google drive
-                            Intent intent = new Intent(TasksActivity.this, GoogleDriveServicesActivity.class);
-                            startActivity(intent);
-                            break;
-                        case 1:
-                            // execute restore
-                            restoreTaskData();
-                            updateTaskList();
-                            Toast.makeText(TasksActivity.this,
-                                    R.string.restore_done, Toast.LENGTH_SHORT)
-                                    .show();
-                            break;
-                        default:
-                            break;
-                        }
-                    }
-                });
-        dialogBuilder.setCancelable(true);
-        final AlertDialog alertDialog = dialogBuilder.show();
-        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            public void onShow(DialogInterface dialog) {
-                File backupFile = new File(dirPath + fineName);
-                boolean existBackupFile = backupFile.exists();
-                ((AlertDialog) dialog).getListView().getChildAt(1)
-                        .setEnabled(existBackupFile);
-            }
-        });
-    }
-
-    private void backupTaskData() {
-        mDBAdapter.backupDataBase();
-    }
-
-    private void restoreTaskData() {
-        mDBAdapter.restoreDatabase();
     }
 
     private static class TaskListItem {
@@ -527,7 +440,7 @@ public class TasksActivity extends ActionBarActivity implements
         }
 
         private void updateView(long taskId, boolean checked,
-                ItemViewHolder holder) {
+                                ItemViewHolder holder) {
             Date today = DateChangeTimeUtil.getDateTime();
             ImageView imageView = holder.imageView;
             TextView lastDoneDateTextView = holder.lastDoneDateTextView;

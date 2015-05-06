@@ -5,8 +5,4 @@
         android:icon="@drawable/ic_add_task"
         android:orderInCategory="100"
         yourapp:showAsAction="ifRoom" />
-    <item android:id="@+id/menu_backup_restore"
-        android:orderInCategory="400"
-        android:title="@string/backup_restore"
-        yourapp:showAsAction="never" />
 </menu>
