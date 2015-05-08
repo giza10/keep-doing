@@ -5,11 +5,11 @@
     android:background="@android:color/white"
     tools:context="com.hkb48.keepdo.NavigationDrawerFragment">
 
-    <android.support.v7.widget.RecyclerView
+    <ListView
         android:id="@+id/RecyclerView"
         android:layout_width="320dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="#ffffff"
+        android:divider="@null"
         android:scrollbars="vertical" />
 </RelativeLayout>

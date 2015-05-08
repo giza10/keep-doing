@@ -309,27 +309,34 @@ public class TasksActivity extends ActionBarActivity implements
     }
 
     private class TaskAdapter extends BaseAdapter {
+        @Override
         public int getCount() {
             return mDataList.size();
         }
 
+        @Override
         public Object getItem(int position) {
             return mDataList.get(position);
         }
 
+        @Override
         public long getItemId(int position) {
             return position;
         }
 
+
+        @Override
         public int getItemViewType(int position) {
             TaskListItem item = (TaskListItem) getItem(position);
             return item.type;
         }
 
+        @Override
         public boolean isEnabled(int position) {
             return (getItemViewType(position) == TYPE_ITEM);
         }
 
+        @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = convertView;

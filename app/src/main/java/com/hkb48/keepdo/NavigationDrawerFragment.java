@@ -2,7 +2,6 @@ package com.hkb48.keepdo;
 
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,17 +9,16 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
-import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
-import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -32,18 +30,15 @@ public class NavigationDrawerFragment extends Fragment {
     private static final int NAVDRAWER_ITEM_BACKUP_RESTORE_DRIVE = 3;
     private static final int NAVDRAWER_ITEM_SETTINGS = 4;
 
-    //Todo: to be declared in strings.xml
-    private static final String[] NAVDRAWER_TITLE_RES_ID = {
-            "Sort",
-            "Backup&Restore(Device storage)",
-            "Backup&Restore(GoogleDrive)",
-            "Settings"};
-
-    private static final int[] NAVDRAWER_ICON_RES_ID = new int[]{
-            R.drawable.ic_sort,
-            R.drawable.ic_import_export,
-            R.drawable.ic_drive,
-            R.drawable.ic_settings
+    private static final NavDrawerListItem[] NAVDRAWER_LIST_ITEMS = {
+            new NavDrawerListItem(NavDrawerListItem.TYPE_HEADER, R.drawable.ic_header, NavDrawerListItem.INVALID_ID),
+            new NavDrawerListItem(NavDrawerListItem.TYPE_ITEM, NAVDRAWER_ITEM_SORT, R.drawable.ic_sort, R.string.drawer_item_sort),
+            new NavDrawerListItem(NavDrawerListItem.TYPE_SEPARATOR),
+            new NavDrawerListItem(NavDrawerListItem.TYPE_SUBHEADER, NAVDRAWER_ITEM_BACKUP_RESTORE_DEVICE, NavDrawerListItem.INVALID_ID, R.string.drawer_category_backup_restore),
+            new NavDrawerListItem(NavDrawerListItem.TYPE_ITEM, NAVDRAWER_ITEM_BACKUP_RESTORE_DEVICE, R.drawable.ic_phone_android, R.string.drawer_item_backup_restore_device),
+            new NavDrawerListItem(NavDrawerListItem.TYPE_ITEM, NAVDRAWER_ITEM_BACKUP_RESTORE_DRIVE, R.drawable.ic_drive, R.string.drawer_item_backup_restore_drive),
+            new NavDrawerListItem(NavDrawerListItem.TYPE_SEPARATOR),
+            new NavDrawerListItem(NavDrawerListItem.TYPE_ITEM, NAVDRAWER_ITEM_SETTINGS, R.drawable.ic_settings, R.string.drawer_item_settings)
     };
 
     // Delay to launch nav drawer item, to allow close animation to play
@@ -68,19 +63,16 @@ public class NavigationDrawerFragment extends Fragment {
     public void setup(int fragmentId, DrawerLayout drawerLayout, Toolbar toolbar) {
         mContainerView = getActivity().findViewById(fragmentId);
         mDrawerLayout = drawerLayout;
-        RecyclerView recyclerView = (RecyclerView) getActivity().findViewById(R.id.RecyclerView);
-        recyclerView.setHasFixedSize(true);
-        RecyclerView.Adapter adapter = new DrawerAdapter(NAVDRAWER_TITLE_RES_ID, NAVDRAWER_ICON_RES_ID);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(getActivity(), new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        onNavDrawerItemClicked(position);
-                    }
-                })
-        );
+        ListView listView = (ListView) getActivity().findViewById(R.id.RecyclerView);
+        final NavDrawerListAdapter adapter = new NavDrawerListAdapter(NAVDRAWER_LIST_ITEMS);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                onNavDrawerItemClicked((int) adapter.getItemId(position));
+
+            }
+        });
 
         mDrawerToggle = new ActionBarDrawerToggle(getActivity(), drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
             @Override
@@ -149,7 +141,6 @@ public class NavigationDrawerFragment extends Fragment {
                 break;
         }
     }
-
 
 
     /**
@@ -232,106 +223,145 @@ public class NavigationDrawerFragment extends Fragment {
     }
 }
 
-class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.ViewHolder> {
+class NavDrawerListItem {
+    public static final int TYPE_HEADER = 0;
+    public static final int TYPE_ITEM = 1;
+    public static final int TYPE_SUBHEADER = 2;
+    public static final int TYPE_SEPARATOR = 3;
+    public static final int INVALID_ID = -1;
 
-    private static final int TYPE_HEADER = 0;
-    private static final int TYPE_ITEM = 1;
+    final int type;
+    final int itemId;
+    final int iconResId;
+    final int textResId;
 
-    private String mNavTitles[];
-    private int mIcons[];
+    public NavDrawerListItem(int type) {
+        this.type = type;
+        this.itemId = INVALID_ID;
+        this.iconResId = INVALID_ID;
+        this.textResId = INVALID_ID;
+    }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        int holderId;
+    public NavDrawerListItem(int type, int iconResId, int textResId) {
+        this.type = type;
+        this.itemId = INVALID_ID;
+        this.iconResId = iconResId;
+        this.textResId = textResId;
+    }
 
+    public NavDrawerListItem(int type, int itemId, int iconResId, int textResId) {
+        this.type = type;
+        this.itemId = itemId;
+        this.iconResId = iconResId;
+        this.textResId = textResId;
+    }
+}
+
+class NavDrawerListAdapter extends BaseAdapter {
+    private final NavDrawerListItem[] mNavDrawerListItems;
+
+    public static class ViewHolder {
+        int viewType;
         TextView textView;
         ImageView imageView;
 
-        public ViewHolder(View itemView, int ViewType) {
-            super(itemView);
-
-            if (ViewType == TYPE_ITEM) {
-                textView = (TextView) itemView.findViewById(R.id.title);
-                imageView = (ImageView) itemView.findViewById(R.id.icon);
-                holderId = 1;
-            } else {
-                holderId = 0;
+        public ViewHolder(View itemView, int viewType) {
+            switch (viewType) {
+                case NavDrawerListItem.TYPE_ITEM:
+                    textView = (TextView) itemView.findViewById(R.id.title);
+                    imageView = (ImageView) itemView.findViewById(R.id.icon);
+                    break;
+                case NavDrawerListItem.TYPE_HEADER:
+                    imageView = (ImageView) itemView.findViewById(R.id.icon);
+                    break;
+                case NavDrawerListItem.TYPE_SUBHEADER:
+                    textView = (TextView) itemView.findViewById(R.id.title);
+                    break;
+                default:
+                    break;
             }
+            this.viewType = viewType;
         }
     }
 
-    DrawerAdapter(String Titles[], int Icons[]) {
-        mNavTitles = Titles;
-        mIcons = Icons;
+    NavDrawerListAdapter(NavDrawerListItem[] navDrawerListItems) {
+        mNavDrawerListItems = navDrawerListItems;
     }
 
     @Override
-    public DrawerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == TYPE_ITEM) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.drawer_item_row, parent, false);
-            return new ViewHolder(v, viewType);
-        } else if (viewType == TYPE_HEADER) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.drawer_header, parent, false);
-            return new ViewHolder(v, viewType);
-        }
+    public int getCount() {
+        return mNavDrawerListItems.length;
+    }
+
+    @Override
+    public Object getItem(int position) {
         return null;
     }
 
     @Override
-    public void onBindViewHolder(DrawerAdapter.ViewHolder holder, int position) {
-        if (holder.holderId == 1) {
-            holder.textView.setText(mNavTitles[position - 1]);
-            holder.imageView.setImageResource(mIcons[position - 1]);
-        }
+    public long getItemId(int position) {
+        return mNavDrawerListItems[position].itemId;
     }
 
     @Override
-    public int getItemCount() {
-        return mNavTitles.length + 1;
+    public View getView(int position, View convertView, ViewGroup parent) {
+        View view = convertView;
+        ViewHolder viewHolder;
+        final int viewType = getItemViewType(position);
+        boolean reuseView = true;
+
+        if (view == null || ((ViewHolder) view.getTag()).viewType != viewType) {
+            reuseView = false;
+        }
+
+        if (!reuseView) {
+            switch (viewType) {
+                case NavDrawerListItem.TYPE_ITEM:
+                    view = LayoutInflater.from(parent.getContext()).inflate(R.layout.navdrawer_item_row, parent, false);
+                    break;
+                case NavDrawerListItem.TYPE_HEADER:
+                    view = LayoutInflater.from(parent.getContext()).inflate(R.layout.navdrawer_header, parent, false);
+                    break;
+                case NavDrawerListItem.TYPE_SUBHEADER:
+                    view = LayoutInflater.from(parent.getContext()).inflate(R.layout.navdrawer_subheader, parent, false);
+                    break;
+                case NavDrawerListItem.TYPE_SEPARATOR:
+                    view = LayoutInflater.from(parent.getContext()).inflate(R.layout.navdrawer_separator, parent, false);
+                    break;
+                default:
+                    throw new IllegalArgumentException();
+            }
+            viewHolder = new ViewHolder(view, viewType);
+            view.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) view.getTag();
+        }
+
+        switch (viewType) {
+            case NavDrawerListItem.TYPE_ITEM:
+                viewHolder.textView.setText(mNavDrawerListItems[position].textResId);
+                viewHolder.imageView.setImageResource(mNavDrawerListItems[position].iconResId);
+                break;
+            case NavDrawerListItem.TYPE_HEADER:
+                viewHolder.imageView.setImageResource(mNavDrawerListItems[position].iconResId);
+                break;
+            case NavDrawerListItem.TYPE_SUBHEADER:
+                viewHolder.textView.setText(mNavDrawerListItems[position].textResId);
+                break;
+            default:
+                break;
+        }
+
+        return view;
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (isPositionHeader(position))
-            return TYPE_HEADER;
-
-        return TYPE_ITEM;
-    }
-
-    private boolean isPositionHeader(int position) {
-        return position == 0;
-    }
-}
-
-class RecyclerItemClickListener implements RecyclerView.OnItemTouchListener {
-    GestureDetector mGestureDetector;
-    private OnItemClickListener mListener;
-
-    public RecyclerItemClickListener(Context context, OnItemClickListener listener) {
-        mListener = listener;
-        mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                return true;
-            }
-        });
+        return mNavDrawerListItems[position].type;
     }
 
     @Override
-    public boolean onInterceptTouchEvent(RecyclerView view, MotionEvent e) {
-        View childView = view.findChildViewUnder(e.getX(), e.getY());
-        if (childView != null && mListener != null && mGestureDetector.onTouchEvent(e)) {
-            childView.setPressed(true);
-            mListener.onItemClick(childView, view.getChildPosition(childView));
-        }
-        return false;
-    }
-
-    @Override
-    public void onTouchEvent(RecyclerView view, MotionEvent motionEvent) {
-        // Do nothing
-    }
-
-    public interface OnItemClickListener {
-        void onItemClick(View view, int position);
+    public boolean isEnabled(int position) {
+        return (getItemViewType(position) == NavDrawerListItem.TYPE_ITEM);
     }
 }
