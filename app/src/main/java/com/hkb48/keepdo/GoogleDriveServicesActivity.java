@@ -35,6 +35,7 @@ import com.google.android.gms.drive.query.SearchableField;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 public class GoogleDriveServicesActivity extends Activity implements
@@ -42,6 +43,10 @@ public class GoogleDriveServicesActivity extends Activity implements
         GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = "GoogleDriveActivity";
+
+    public static final String EXTRA_LAUNCH_MODE = "mode";
+    public static final int MODE_BACKUP = 0;
+    public static final int MODE_RESTORE = 1;
 
     private static final int REQUEST_CODE_RESOLUTION = 1;
     private static final String KEY_IN_RESOLUTION = "is_in_resolution";
@@ -54,9 +59,9 @@ public class GoogleDriveServicesActivity extends Activity implements
     private boolean mIsInResolution = false;
     private GoogleApiClient mGoogleApiClient;
     private DriveId mClientDataFolderDriveId = null;
-    private DriveFile driveFile = null;
     private ProgressBar mSpinner = null;
     private ProgressDialog mProgressDialog = null;
+    private int mLaunchMode;
 
     /**
      * Called when the activity is starting. Restores the activity state.
@@ -66,6 +71,10 @@ public class GoogleDriveServicesActivity extends Activity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drive);
 
+        mLaunchMode = getIntent().getIntExtra(EXTRA_LAUNCH_MODE, -1);
+        if (mLaunchMode != MODE_BACKUP && mLaunchMode != MODE_RESTORE) {
+            finish();
+        }
         mSpinner = (ProgressBar)findViewById(R.id.progressBarDrive);
         mSpinner.setVisibility(View.VISIBLE);
 
@@ -104,7 +113,7 @@ public class GoogleDriveServicesActivity extends Activity implements
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addApi(Drive.API)
                     .addScope(Drive.SCOPE_FILE)
-                    //.addScope(Drive.SCOPE_APPFOLDER)
+                    .addScope(Drive.SCOPE_APPFOLDER)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .build();
@@ -241,22 +250,78 @@ public class GoogleDriveServicesActivity extends Activity implements
                 }
 
                 int results = metadataBufferResult.getMetadataBuffer().getCount();
-                if (results > 0) {
-                    // If the file exists then use it.
-                    DriveId driveId = metadataBufferResult.getMetadataBuffer().get(0).getDriveId();
-                    driveFile = Drive.DriveApi.getFile(getGoogleApiClient(), driveId);
-                    //driveFile.open(getGoogleApiClient(), DriveFile.MODE_READ_ONLY, null).setResultCallback(driveContentsCallback);
-                    Log.d(TAG, "Found metadata DriveId: " + driveId.toString() + " , to edit");
-                    new UpdateClientDataAsyncTask(GoogleDriveServicesActivity.this).execute(driveFile);
+                if (mLaunchMode == MODE_RESTORE) {
+                    if (results > 0) {
+                        // If the file exists then use it.
+                        DriveId driveId = metadataBufferResult.getMetadataBuffer().get(0).getDriveId();
+                        DriveFile driveFile = Drive.DriveApi.getFile(getGoogleApiClient(), driveId);
+                        Log.d(TAG, "Found metadata DriveId: " + driveId.toString() + " , to edit");
+                        new ReadContentsAsyncTask(GoogleDriveServicesActivity.this).execute(driveFile);
+                    } else {
+                        showMessage("No backup file found on Google drive");
+                        finishActivity();
+                    }
                 } else {
-                    Log.d(TAG, "Create new client drive file");
-                    MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle(DRIVE_FOLDER_NAME).build();
-                    Drive.DriveApi.getRootFolder(getGoogleApiClient()).createFolder(
-                            //Drive.DriveApi.getAppFolder(getGoogleApiClient()).createFolder(
-                            getGoogleApiClient(), changeSet).setResultCallback(folderCreatedCallback);
+                    if (results > 0) {
+                        // If the file exists then use it.
+                        DriveId driveId = metadataBufferResult.getMetadataBuffer().get(0).getDriveId();
+                        DriveFile driveFile = Drive.DriveApi.getFile(getGoogleApiClient(), driveId);
+                        //driveFile.open(getGoogleApiClient(), DriveFile.MODE_READ_ONLY, null).setResultCallback(driveContentsCallback);
+                        Log.d(TAG, "Found metadata DriveId: " + driveId.toString() + " , to edit");
+                        new UpdateClientDataAsyncTask(GoogleDriveServicesActivity.this).execute(driveFile);
+                    } else {
+                        Log.d(TAG, "Create new client drive file");
+                        MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle(DRIVE_FOLDER_NAME).build();
+                        //Drive.DriveApi.getRootFolder(getGoogleApiClient()).createFolder(
+                        Drive.DriveApi.getAppFolder(getGoogleApiClient()).createFolder(
+                                getGoogleApiClient(), changeSet).setResultCallback(folderCreatedCallback);
+                    }
                 }
             }
         };
+
+    public class ReadContentsAsyncTask extends ApiClientAsyncTask<DriveFile, Void, Boolean> {
+        public ReadContentsAsyncTask(Context context) {
+            super(context);
+        }
+
+        @Override
+        protected Boolean doInBackgroundConnected(DriveFile... args) {
+            Log.i(TAG, "doInBackgroundConnected()...");
+
+            DriveFile file = args[0];
+            DriveApi.DriveContentsResult driveContentsResult = file.open(
+                        getGoogleApiClient(), DriveFile.MODE_READ_ONLY, null).await();
+            if (!driveContentsResult.getStatus().isSuccess()) {
+                Log.i(TAG, "doInBackgroundConnected() failed");
+                return false;
+            }
+
+            DriveContents driveContents = driveContentsResult.getDriveContents();
+            InputStream inputStream = driveContents.getInputStream();
+            mDBAdapter.writeDatabaseStream(inputStream);
+
+            driveContents.discard(getGoogleApiClient());
+
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (!result) {
+                showMessage("Error while editing contents");
+                finishActivity();
+                return;
+            }
+
+            mSpinner.setVisibility(View.GONE);
+            if (mProgressDialog != null && mProgressDialog.isShowing()) {
+                mProgressDialog.dismiss();
+            }
+            finishActivity();
+            showMessage(getResources().getString(R.string.restore_done));
+        }
+    }
 
     public class UpdateClientDataAsyncTask extends ApiClientAsyncTask<DriveFile, Void, Boolean> {
         public UpdateClientDataAsyncTask(Context context) {
@@ -315,7 +380,7 @@ public class GoogleDriveServicesActivity extends Activity implements
             if (mProgressDialog != null && mProgressDialog.isShowing()) {
                 mProgressDialog.dismiss();
             }
-            //finishActivity();
+            finishActivity();
             showMessage(getResources().getString(R.string.backup_done));
         }
     }

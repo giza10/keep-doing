@@ -127,11 +127,11 @@ public class NavigationDrawerFragment extends Fragment {
                 break;
             case NAVDRAWER_ITEM_BACKUP_RESTORE_DEVICE:
                 // Todo: Tentative implementation
-                showBackupRestoreDialog();
+                showBackupRestoreDeviceDialog();
                 break;
             case NAVDRAWER_ITEM_BACKUP_RESTORE_DRIVE:
-                intent = new Intent(getActivity(), GoogleDriveServicesActivity.class);
-                startActivity(intent);
+                // Todo: Tentative implementation
+                showBackupRestoreGoogleDriveDialog();
                 break;
             case NAVDRAWER_ITEM_SETTINGS:
                 intent = new Intent(getActivity(), SettingsActivity.class);
@@ -146,7 +146,7 @@ public class NavigationDrawerFragment extends Fragment {
     /**
      * Backup & Restore
      */
-    private void showBackupRestoreDialog() {
+    private void showBackupRestoreDeviceDialog() {
         final DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(getActivity());
         final String fineName = dbAdapter.backupFileName();
         final String dirName = dbAdapter.backupDirName();
@@ -220,6 +220,60 @@ public class NavigationDrawerFragment extends Fragment {
 
     private void restoreTaskData() {
         DatabaseAdapter.getInstance(getActivity()).restoreDatabase();
+    }
+
+    private void showBackupRestoreGoogleDriveDialog() {
+        final DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(getActivity());
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(
+                getActivity());
+        String title = getString(R.string.backup_restore) + "\n" + "Google drive";
+        dialogBuilder.setTitle(title);
+        dialogBuilder.setSingleChoiceItems(
+                R.array.dialog_choice_backup_restore, -1,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        boolean enabled = true;
+                        ((AlertDialog) dialog).getButton(
+                                AlertDialog.BUTTON_POSITIVE)
+                                .setEnabled(enabled);
+                    }
+                });
+        dialogBuilder.setNegativeButton(R.string.dialog_cancel, null);
+        dialogBuilder.setPositiveButton(R.string.dialog_start,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent;
+                        switch (((AlertDialog) dialog).getListView()
+                                .getCheckedItemPosition()) {
+                            case 0:
+                                // execute backup
+                                intent = new Intent(getActivity(), GoogleDriveServicesActivity.class);
+                                intent.putExtra(GoogleDriveServicesActivity.EXTRA_LAUNCH_MODE, GoogleDriveServicesActivity.MODE_BACKUP);
+                                startActivity(intent);
+                                break;
+                            case 1:
+                                // execute restore
+                                intent = new Intent(getActivity(), GoogleDriveServicesActivity.class);
+                                intent.putExtra(GoogleDriveServicesActivity.EXTRA_LAUNCH_MODE, GoogleDriveServicesActivity.MODE_RESTORE);
+                                startActivity(intent);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+        dialogBuilder.setCancelable(true);
+        final AlertDialog alertDialog = dialogBuilder.show();
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            public void onShow(DialogInterface dialog) {
+//                File backupFile = new File(dirPath + fineName);
+//                boolean existBackupFile = backupFile.exists();
+//                ((AlertDialog) dialog).getListView().getChildAt(1)
+//                        .setEnabled(existBackupFile);
+            }
+        });
     }
 }
 

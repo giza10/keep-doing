@@ -469,6 +469,7 @@ class DatabaseAdapter {
             }
 
             bufferOutStream.flush();
+            mContentResolver.notifyChange(KeepdoProvider.BASE_CONTENT_URI, null);
         } catch (IOException e) {
             Log.e(TAG, Arrays.toString(e.getStackTrace()));
         } finally {
