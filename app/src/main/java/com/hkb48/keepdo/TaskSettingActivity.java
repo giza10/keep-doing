@@ -5,7 +5,7 @@ import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -22,7 +22,7 @@ import com.hkb48.keepdo.widget.TasksWidgetProvider;
 
 import java.util.Arrays;
 
-public class TaskSettingActivity extends ActionBarActivity {
+public class TaskSettingActivity extends AppCompatActivity {
     public static final String EXTRA_TASK_INFO = "TASK-INFO";
     private static final int MODE_NEW_TASK = 0;
     private static final int MODE_EDIT_TASK = 1;
@@ -40,6 +40,7 @@ public class TaskSettingActivity extends ActionBarActivity {
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         EditText editTextTaskName = (EditText) findViewById(R.id.editTextTaskName);

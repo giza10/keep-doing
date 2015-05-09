@@ -2,7 +2,7 @@ package com.hkb48.keepdo;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -14,7 +14,7 @@ import android.widget.Button;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TaskSortingActivity extends ActionBarActivity {
+public class TaskSortingActivity extends AppCompatActivity {
     private TaskAdapter mAdapter;
     private DatabaseAdapter mDBAdapter = null;
     private List<Task> mDataList = new ArrayList<>();
@@ -26,6 +26,7 @@ public class TaskSortingActivity extends ActionBarActivity {
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mDBAdapter = DatabaseAdapter.getInstance(this);

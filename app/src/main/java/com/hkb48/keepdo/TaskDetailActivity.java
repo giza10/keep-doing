@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.database.ContentObserver;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class TaskDetailActivity extends ActionBarActivity {
+public class TaskDetailActivity extends AppCompatActivity {
     private long mTaskId;
     private boolean mModelUpdated;
     private ContentObserver mContentObserver;
@@ -30,6 +30,7 @@ public class TaskDetailActivity extends ActionBarActivity {
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mTaskId = getIntent().getLongExtra("TASK-ID", -1);

@@ -8,7 +8,7 @@ import android.database.ContentObserver;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -32,7 +32,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class TasksActivity extends ActionBarActivity implements
+public class TasksActivity extends AppCompatActivity implements
         DateChangeTimeManager.OnDateChangedListener {
 
     // ID of context menu items
@@ -43,7 +43,6 @@ public class TasksActivity extends ActionBarActivity implements
     private static final int TYPE_ITEM = 1;
 
     private TaskAdapter mAdapter;
-    private boolean mModelUpdated;
     private ContentObserver mContentObserver;
     private final List<TaskListItem> mDataList = new ArrayList<>();
     private final CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
@@ -71,6 +70,7 @@ public class TasksActivity extends ActionBarActivity implements
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -115,23 +115,18 @@ public class TasksActivity extends ActionBarActivity implements
             @Override
             public void onChange(boolean selfChange) {
                 super.onChange(selfChange);
-                mModelUpdated = true;
+                updateTaskList();
             }
         };
         getContentResolver().registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, mContentObserver);
-        mModelUpdated = true;
 
         registerForContextMenu(taskListView);
-
+        updateTaskList();
     }
 
     @Override
     public void onResume() {
         mCheckSound.load();
-        if (mModelUpdated) {
-            mModelUpdated = false;
-            updateTaskList();
-        }
         super.onResume();
     }
 

@@ -100,8 +100,6 @@ public class DateChangeTimeManager {
         return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-
-
     private void dumpLog(long timeInMillis) {
         if (BuildConfig.DEBUG) {
             Calendar time = Calendar.getInstance();

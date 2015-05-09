@@ -72,6 +72,8 @@ public class KeepdoProvider extends ContentProvider {
     }
 
     public static final class DateChangeTime implements BaseColumns {
+        private DateChangeTime() {
+        }
         // Incoming URI matches the main table URI pattern
         public static final int TABLE_LIST = 50;
         // Incoming URI matches the main table row ID URI pattern
