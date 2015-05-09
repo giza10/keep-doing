@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -469,7 +470,7 @@ class DatabaseAdapter {
 
             bufferOutStream.flush();
         } catch (IOException e) {
-            Log.e(TAG, e.getStackTrace().toString());
+            Log.e(TAG, Arrays.toString(e.getStackTrace()));
         } finally {
             if (bufferOutStream != null) {
                 try {

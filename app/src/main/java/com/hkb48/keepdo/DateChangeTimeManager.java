@@ -19,7 +19,7 @@ public class DateChangeTimeManager {
 
     private static DateChangeTimeManager sInstance;
     private final Context mContext;
-    private final List<OnDateChangedListener> mChangedListeners = new ArrayList<OnDateChangedListener>();
+    private final List<OnDateChangedListener> mChangedListeners = new ArrayList<>();
 
     private final Settings.OnChangedListener mSettingsChangedListener = new Settings.OnChangedListener() {
         public void onDoneIconSettingChanged() {}
@@ -46,7 +46,7 @@ public class DateChangeTimeManager {
     }
 
     public interface OnDateChangedListener {
-        public void onDateChanged();
+        void onDateChanged();
     }
 
     public void registerOnDateChangedListener(OnDateChangedListener listener) {

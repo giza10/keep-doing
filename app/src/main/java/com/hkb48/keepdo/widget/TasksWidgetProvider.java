@@ -34,7 +34,7 @@ public class TasksWidgetProvider extends AppWidgetProvider {
     public static final int VIEWID_LIST_ITEM = 0;
     public static final int VIEWID_LIST_ITEM_ICON = 1;
 
-    public static final int INVALID_INDEX = -1;
+    private static final int INVALID_INDEX = -1;
 
     private static int sSelectedPosition = INVALID_INDEX;
 

@@ -15,12 +15,6 @@ public class Reminder implements Serializable {
         this.minute = 0;
     }
 
-    public Reminder(boolean enabled, int hourOfDay, int minute) {
-        this.enabled = enabled;
-        this.hourOfDay = hourOfDay;
-        this.minute = minute;
-    }
-
     public Reminder(boolean enabled, long timeInMillis) {
         this.enabled = enabled;
         setTimeInMillis(timeInMillis);

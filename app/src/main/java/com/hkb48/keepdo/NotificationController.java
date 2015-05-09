@@ -30,7 +30,7 @@ public class NotificationController {
         }
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-        builder.setSmallIcon(R.drawable.ic_launcher);
+        builder.setSmallIcon(R.drawable.ic_notification);
         builder.setTicker(taskName);
         builder.setDefaults(Notification.DEFAULT_LIGHTS);
 

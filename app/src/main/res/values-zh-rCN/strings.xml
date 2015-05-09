@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">Keep Do!</string>
 
+    <!-- Navigation drawer -->
+    <string name="drawer_item_sort">排序</string>
+    <string name="drawer_category_backup_restore">备份与恢复</string>
+    <string name="drawer_item_backup_restore_device">Device storage</string>
+    <string name="drawer_item_backup_restore_drive">Google drive</string>
+    <string name="drawer_item_settings">设定</string>
+
     <string name="tasklist_header_today_task">今天的作业</string>
     <string name="tasklist_header_other_task">其他作业</string>
     <string name="tasklist_header_today_remaining_task">今天未完成作业</string>
@@ -49,6 +56,7 @@
     <string name="last_done_date">作业最后完成日</string>
     <string name="number_of_times">%d次</string>
 
+    <string name="menu_details">详细</string>
     <string name="menu_share">共享</string>
     <string name="share_combo">连续完成「%1$s」作业%2$d次！</string>
     <string name="share_non_combo">本月连续完成「%1$s」作业%2$d次。</string>
@@ -64,9 +72,6 @@
         <item>周五</item>
         <item>周六</item>
     </string-array>
-    <string name="title_section2">详细</string>
-    <string name="title_section1">日历</string>
-    <string name="menu_settings">设定</string>
     <string name="backup_restore">备份与恢复</string>
     <string name="title_activity_task">作业项目</string>
     <string name="sort_task">排序</string>

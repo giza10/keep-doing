@@ -18,7 +18,7 @@ import java.util.Locale;
 
 public class KeepdoProvider extends ContentProvider {
     //    private static final String TAG = "#KEEPDO_PROVIDER: ";
-    public static final String AUTHORITY = "com.hkb48.keepdo.keepdoprovider";
+    private static final String AUTHORITY = "com.hkb48.keepdo.keepdoprovider";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
     // Task table

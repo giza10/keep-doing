@@ -2,7 +2,6 @@
 
     <color name="primary">@android:color/holo_blue_dark</color>
     <color name="text_color_primary">@android:color/black</color>
-    <color name="text_color_secondary">@android:color/darker_gray</color>
     <color name="action_bar">#303030</color>
 
     <color name="tasklist_bg_header">#33b5e5</color>
@@ -26,7 +25,6 @@
     <color name="calendar_bg_saturday_color">#0080FF</color>
     <color name="calendar_bg_sunday_color">#FF60C0</color>
     <color name="tasksort_dragdrop_view_bg">#887ECCE8</color>
-    <color name="settings_text">@android:color/black</color>
 
     <color name="widget_tasklist_bg_header">#CC33b5e5</color>
     <color name="widget_tasklist_bg_item">#CCF0F0F0</color>
