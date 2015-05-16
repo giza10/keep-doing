@@ -315,7 +315,7 @@ class NavDrawerListAdapter extends BaseAdapter {
     private final NavDrawerListItem[] mNavDrawerListItems;
 
     public static class ViewHolder {
-        int viewType;
+        final int viewType;
         TextView textView;
         ImageView imageView;
 

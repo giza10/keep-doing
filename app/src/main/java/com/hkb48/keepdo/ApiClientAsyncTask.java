@@ -18,17 +18,17 @@ import java.util.concurrent.CountDownLatch;
 /**
  * An AsyncTask that maintains a connected client.
  */
-public abstract class ApiClientAsyncTask<Params, Progress, Result>
+abstract class ApiClientAsyncTask<Params, Progress, Result>
         extends AsyncTask<Params, Progress, Result> {
 
     private static final String TAG = "ApiClientAsyncTask";
 
-    private GoogleApiClient mClient;
+    private final GoogleApiClient mClient;
 
     public ApiClientAsyncTask(Context context) {
         GoogleApiClient.Builder builder = new GoogleApiClient.Builder(context)
                 .addApi(Drive.API)
-                //.addScope(Drive.SCOPE_APPFOLDER)
+                .addScope(Drive.SCOPE_APPFOLDER)
                 .addScope(Drive.SCOPE_FILE);
         mClient = builder.build();
     }
@@ -83,7 +83,7 @@ public abstract class ApiClientAsyncTask<Params, Progress, Result>
     /**
      * Gets the GoogleApliClient owned by this async task.
      */
-    protected GoogleApiClient getGoogleApiClient() {
+    GoogleApiClient getGoogleApiClient() {
         return mClient;
     }
 }

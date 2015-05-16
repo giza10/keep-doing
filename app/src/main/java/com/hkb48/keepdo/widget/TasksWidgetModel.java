@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class TasksWidgetModel {
+class TasksWidgetModel {
     private static final String TAG = "#TasksWidgetModel: ";
     private static final String SDF_PATTERN_YMD = "yyyy-MM-dd";
 
@@ -85,7 +85,7 @@ public class TasksWidgetModel {
         return isDone;
     }
 
-    public boolean isValidDay(Cursor cursor, String dateString) {
+    private boolean isValidDay(Cursor cursor, String dateString) {
         final SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
         Date date = null;
         if (dateString != null) {
@@ -114,8 +114,8 @@ public class TasksWidgetModel {
     }
 
     static class Task {
-        long id;
-        String name;
+        final long id;
+        final String name;
 
         public Task(long id, String name) {
             this.id = id;

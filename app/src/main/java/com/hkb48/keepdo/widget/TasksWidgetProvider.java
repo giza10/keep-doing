@@ -25,7 +25,7 @@ import java.text.MessageFormat;
 import java.util.Calendar;
 
 public class TasksWidgetProvider extends AppWidgetProvider {
-    public static final String ACTION_APPWIDGET_UPDATE = "com.hkb48.keepdo.action.APPWIDGET_UPDATE";
+    private static final String ACTION_APPWIDGET_UPDATE = "com.hkb48.keepdo.action.APPWIDGET_UPDATE";
     private static final String ACTION_ITEM_CLICKED = "com.hkb48.keepdo.action.ITEM_CLICKED";
 
     public static final String PARAM_POSITION = "position";

@@ -14,7 +14,7 @@ import android.util.Log;
 
 import java.util.List;
 
-public class NotificationController {
+class NotificationController {
     private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";
     private static final String GROUP_KEY_REMINDERS = "group_key_reminders";
     public static final int NOTIFICATION_ID_HANDHELD = -1;

@@ -55,12 +55,12 @@ public class GoogleDriveServicesActivity extends Activity implements
     private static final String DRIVE_FILE_MIME_TYPE = "application/octet-stream";
 
     private DatabaseAdapter mDBAdapter = null;
-    protected BroadcastReceiver mBroadcastReceiver;
+    private BroadcastReceiver mBroadcastReceiver;
     private boolean mIsInResolution = false;
     private GoogleApiClient mGoogleApiClient;
     private DriveId mClientDataFolderDriveId = null;
     private ProgressBar mSpinner = null;
-    private ProgressDialog mProgressDialog = null;
+    private final ProgressDialog mProgressDialog = null;
     private int mLaunchMode;
 
     /**
@@ -75,7 +75,7 @@ public class GoogleDriveServicesActivity extends Activity implements
         if (mLaunchMode != MODE_BACKUP && mLaunchMode != MODE_RESTORE) {
             finish();
         }
-        mSpinner = (ProgressBar)findViewById(R.id.progressBarDrive);
+        mSpinner = (ProgressBar) findViewById(R.id.progressBarDrive);
         mSpinner.setVisibility(View.VISIBLE);
 
         if (savedInstanceState != null) {
@@ -223,7 +223,7 @@ public class GoogleDriveServicesActivity extends Activity implements
     }
 
     // Callback when requested sync returns.
-    private ResultCallback<Status> syncCallback = new ResultCallback<Status>() {
+    private final ResultCallback<Status> syncCallback = new ResultCallback<Status>() {
         @Override
         public void onResult(Status status) {
             if (!status.isSuccess()) {
@@ -240,45 +240,45 @@ public class GoogleDriveServicesActivity extends Activity implements
         }
     };
 
-    private ResultCallback<DriveApi.MetadataBufferResult> metadataCallback =
-        new ResultCallback<DriveApi.MetadataBufferResult>() {
-            @Override
-            public void onResult(DriveApi.MetadataBufferResult metadataBufferResult) {
-                if (!metadataBufferResult.getStatus().isSuccess()) {
-                    showMessage("Problem while retrieving results");
-                    return;
-                }
+    private final ResultCallback<DriveApi.MetadataBufferResult> metadataCallback =
+            new ResultCallback<DriveApi.MetadataBufferResult>() {
+                @Override
+                public void onResult(DriveApi.MetadataBufferResult metadataBufferResult) {
+                    if (!metadataBufferResult.getStatus().isSuccess()) {
+                        showMessage("Problem while retrieving results");
+                        return;
+                    }
 
-                int results = metadataBufferResult.getMetadataBuffer().getCount();
-                if (mLaunchMode == MODE_RESTORE) {
-                    if (results > 0) {
-                        // If the file exists then use it.
-                        DriveId driveId = metadataBufferResult.getMetadataBuffer().get(0).getDriveId();
-                        DriveFile driveFile = Drive.DriveApi.getFile(getGoogleApiClient(), driveId);
-                        Log.d(TAG, "Found metadata DriveId: " + driveId.toString() + " , to edit");
-                        new ReadContentsAsyncTask(GoogleDriveServicesActivity.this).execute(driveFile);
+                    int results = metadataBufferResult.getMetadataBuffer().getCount();
+                    if (mLaunchMode == MODE_RESTORE) {
+                        if (results > 0) {
+                            // If the file exists then use it.
+                            DriveId driveId = metadataBufferResult.getMetadataBuffer().get(0).getDriveId();
+                            DriveFile driveFile = Drive.DriveApi.getFile(getGoogleApiClient(), driveId);
+                            Log.d(TAG, "Found metadata DriveId: " + driveId.toString() + " , to edit");
+                            new ReadContentsAsyncTask(GoogleDriveServicesActivity.this).execute(driveFile);
+                        } else {
+                            showMessage("No backup file found on Google drive");
+                            finishActivity();
+                        }
                     } else {
-                        showMessage("No backup file found on Google drive");
-                        finishActivity();
-                    }
-                } else {
-                    if (results > 0) {
-                        // If the file exists then use it.
-                        DriveId driveId = metadataBufferResult.getMetadataBuffer().get(0).getDriveId();
-                        DriveFile driveFile = Drive.DriveApi.getFile(getGoogleApiClient(), driveId);
-                        //driveFile.open(getGoogleApiClient(), DriveFile.MODE_READ_ONLY, null).setResultCallback(driveContentsCallback);
-                        Log.d(TAG, "Found metadata DriveId: " + driveId.toString() + " , to edit");
-                        new UpdateClientDataAsyncTask(GoogleDriveServicesActivity.this).execute(driveFile);
-                    } else {
-                        Log.d(TAG, "Create new client drive file");
-                        MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle(DRIVE_FOLDER_NAME).build();
-                        //Drive.DriveApi.getRootFolder(getGoogleApiClient()).createFolder(
-                        Drive.DriveApi.getAppFolder(getGoogleApiClient()).createFolder(
-                                getGoogleApiClient(), changeSet).setResultCallback(folderCreatedCallback);
+                        if (results > 0) {
+                            // If the file exists then use it.
+                            DriveId driveId = metadataBufferResult.getMetadataBuffer().get(0).getDriveId();
+                            DriveFile driveFile = Drive.DriveApi.getFile(getGoogleApiClient(), driveId);
+                            //driveFile.open(getGoogleApiClient(), DriveFile.MODE_READ_ONLY, null).setResultCallback(driveContentsCallback);
+                            Log.d(TAG, "Found metadata DriveId: " + driveId.toString() + " , to edit");
+                            new UpdateClientDataAsyncTask(GoogleDriveServicesActivity.this).execute(driveFile);
+                        } else {
+                            Log.d(TAG, "Create new client drive file");
+                            MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle(DRIVE_FOLDER_NAME).build();
+                            //Drive.DriveApi.getRootFolder(getGoogleApiClient()).createFolder(
+                            Drive.DriveApi.getAppFolder(getGoogleApiClient()).createFolder(
+                                    getGoogleApiClient(), changeSet).setResultCallback(folderCreatedCallback);
+                        }
                     }
                 }
-            }
-        };
+            };
 
     public class ReadContentsAsyncTask extends ApiClientAsyncTask<DriveFile, Void, Boolean> {
         public ReadContentsAsyncTask(Context context) {
@@ -291,7 +291,7 @@ public class GoogleDriveServicesActivity extends Activity implements
 
             DriveFile file = args[0];
             DriveApi.DriveContentsResult driveContentsResult = file.open(
-                        getGoogleApiClient(), DriveFile.MODE_READ_ONLY, null).await();
+                    getGoogleApiClient(), DriveFile.MODE_READ_ONLY, null).await();
             if (!driveContentsResult.getStatus().isSuccess()) {
                 Log.i(TAG, "doInBackgroundConnected() failed");
                 return false;
@@ -309,7 +309,7 @@ public class GoogleDriveServicesActivity extends Activity implements
         @Override
         protected void onPostExecute(Boolean result) {
             if (!result) {
-                showMessage("Error while editing contents");
+                showMessage("Error while reading contents");
                 finishActivity();
                 return;
             }
@@ -403,22 +403,22 @@ public class GoogleDriveServicesActivity extends Activity implements
 
     final private ResultCallback<DriveApi.DriveContentsResult> driveContentsCallback =
             new ResultCallback<DriveApi.DriveContentsResult>() {
-        @Override
-        public void onResult(DriveApi.DriveContentsResult result) {
-            if (!result.getStatus().isSuccess()) {
-                showMessage("Error while trying to create new contents");
-                return;
-            }
+                @Override
+                public void onResult(DriveApi.DriveContentsResult result) {
+                    if (!result.getStatus().isSuccess()) {
+                        showMessage("Error while trying to create new contents");
+                        return;
+                    }
 
-            DriveFolder folder = Drive.DriveApi.getFolder(getGoogleApiClient(), mClientDataFolderDriveId);
-            MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                    .setTitle(DRIVE_FILE_NAME)
-                    .setMimeType(DRIVE_FILE_MIME_TYPE)
-                    .setStarred(true).build();
-            folder.createFile(getGoogleApiClient(), changeSet, result.getDriveContents())
-                    .setResultCallback(fileCreatedCallback);
-        }
-    };
+                    DriveFolder folder = Drive.DriveApi.getFolder(getGoogleApiClient(), mClientDataFolderDriveId);
+                    MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+                            .setTitle(DRIVE_FILE_NAME)
+                            .setMimeType(DRIVE_FILE_MIME_TYPE)
+                            .setStarred(true).build();
+                    folder.createFile(getGoogleApiClient(), changeSet, result.getDriveContents())
+                            .setResultCallback(fileCreatedCallback);
+                }
+            };
 
     final private ResultCallback<DriveFolder.DriveFileResult> fileCreatedCallback = new ResultCallback<DriveFolder.DriveFileResult>() {
         @Override

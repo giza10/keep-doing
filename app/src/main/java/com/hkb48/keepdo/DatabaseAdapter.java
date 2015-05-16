@@ -418,7 +418,7 @@ class DatabaseAdapter {
         return maxOrderId;
     }
 
-    String getBackupFilePath() {
+    private String getBackupFilePath() {
         return (BACKUP_DIR_PATH + BACKUP_FILE_NAME);
     }
 
