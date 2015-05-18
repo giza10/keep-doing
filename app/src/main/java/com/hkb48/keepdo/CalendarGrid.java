@@ -200,7 +200,7 @@ public class CalendarGrid extends Fragment {
         return consumed || super.onContextItemSelected(item);
     }
 
-    private final FragmentActivity getContext() {
+    private FragmentActivity getContext() {
         return this.getActivity();
     }
 

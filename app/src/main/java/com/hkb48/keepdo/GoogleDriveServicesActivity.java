@@ -27,6 +27,7 @@ import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
+import com.google.android.gms.drive.DriveStatusCodes;
 import com.google.android.gms.drive.ExecutionOptions;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.query.Filters;
@@ -37,6 +38,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Random;
 
 public class GoogleDriveServicesActivity extends Activity implements
         GoogleApiClient.ConnectionCallbacks,
@@ -62,6 +64,7 @@ public class GoogleDriveServicesActivity extends Activity implements
     private ProgressBar mSpinner = null;
     private final ProgressDialog mProgressDialog = null;
     private int mLaunchMode;
+    private int mRetryCount;
 
     /**
      * Called when the activity is starting. Restores the activity state.
@@ -71,6 +74,7 @@ public class GoogleDriveServicesActivity extends Activity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drive);
 
+        mRetryCount = 0;
         mLaunchMode = getIntent().getIntExtra(EXTRA_LAUNCH_MODE, -1);
         if (mLaunchMode != MODE_BACKUP && mLaunchMode != MODE_RESTORE) {
             finish();
@@ -227,7 +231,17 @@ public class GoogleDriveServicesActivity extends Activity implements
         @Override
         public void onResult(Status status) {
             if (!status.isSuccess()) {
-                Log.e(TAG, "Unable to sync.");
+                Log.e(TAG, "Unable to sync (error code=" + status.getStatusCode() + ")");
+                if (status.getStatusCode() == DriveStatusCodes.DRIVE_RATE_LIMIT_EXCEEDED && mRetryCount < 5) {
+                    try {
+                        Thread.sleep((1 << mRetryCount) * 1000 + new Random().nextInt(1001));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    Drive.DriveApi.requestSync(getGoogleApiClient()).setResultCallback(syncCallback);
+                    mRetryCount++;
+                    return;
+                }
             }
 
             Query query = new Query.Builder()

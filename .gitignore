@@ -10,4 +10,4 @@ local.properties
 **/*.iml
 app/build/
 build/intermediates/
-manifestmerger-release-report.txt
+app/manifest-merger-release-report.txt
