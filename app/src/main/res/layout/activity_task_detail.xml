@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -21,12 +22,12 @@
                 <TextView
                     android:id="@+id/taskDetailRecurrence"
                     style="@style/TaskDetailItemCategory"
-                    android:text="@string/recurrence"></TextView>
+                    android:text="@string/recurrence" />
 
                 <com.hkb48.keepdo.RecurrenceView
                     android:id="@+id/recurrenceView"
                     style="@style/TaskDetailItemContents"
-                    android:orientation="horizontal"></com.hkb48.keepdo.RecurrenceView>
+                    android:orientation="horizontal" />
             </LinearLayout>
 
             <LinearLayout style="@style/TaskDetailItemLayout">
@@ -34,12 +35,12 @@
                 <TextView
                     android:id="@+id/taskDetailReminder"
                     style="@style/TaskDetailItemCategory"
-                    android:text="@string/reminder"></TextView>
+                    android:text="@string/reminder" />
 
                 <TextView
                     android:id="@+id/taskDetailReminderValue"
                     style="@style/TaskDetailItemContents"
-                    android:textIsSelectable="false"></TextView>
+                    android:textIsSelectable="false" />
             </LinearLayout>
 
             <LinearLayout
@@ -49,12 +50,12 @@
                 <TextView
                     android:id="@+id/taskDetailContext"
                     style="@style/TaskDetailItemCategory"
-                    android:text="@string/description"></TextView>
+                    android:text="@string/description" />
 
                 <TextView
                     android:id="@+id/taskDetailContextDescription"
                     style="@style/TaskDetailItemContents"
-                    android:textIsSelectable="false"></TextView>
+                    android:textIsSelectable="false" />
             </LinearLayout>
 
             <LinearLayout style="@style/TaskDetailItemLayout">
@@ -62,12 +63,12 @@
                 <TextView
                     android:id="@+id/taskDetailNumOfDone"
                     style="@style/TaskDetailItemCategory"
-                    android:text="@string/number_of_done"></TextView>
+                    android:text="@string/number_of_done" />
 
                 <TextView
                     android:id="@+id/taskDetailNumOfDoneValue"
                     style="@style/TaskDetailItemContents"
-                    android:textIsSelectable="false"></TextView>
+                    android:textIsSelectable="false" />
             </LinearLayout>
 
             <LinearLayout
@@ -77,12 +78,12 @@
                 <TextView
                     android:id="@+id/taskDetailCombo"
                     style="@style/TaskDetailItemCategory"
-                    android:text="@string/current_and_max_combo"></TextView>
+                    android:text="@string/current_and_max_combo" />
 
                 <TextView
                     android:id="@+id/taskDetailComboValue"
                     style="@style/TaskDetailItemContents"
-                    android:textIsSelectable="false"></TextView>
+                    android:textIsSelectable="false" />
             </LinearLayout>
 
             <LinearLayout
@@ -92,12 +93,12 @@
                 <TextView
                     android:id="@+id/taskDetailFirstDoneDate"
                     style="@style/TaskDetailItemCategory"
-                    android:text="@string/first_done_date"></TextView>
+                    android:text="@string/first_done_date" />
 
                 <TextView
                     android:id="@+id/taskDetailFirstDoneDateValue"
                     style="@style/TaskDetailItemContents"
-                    android:textIsSelectable="false"></TextView>
+                    android:textIsSelectable="false" />
             </LinearLayout>
 
             <LinearLayout
@@ -107,12 +108,12 @@
                 <TextView
                     android:id="@+id/taskDetailLastDoneDate"
                     style="@style/TaskDetailItemCategory"
-                    android:text="@string/last_done_date"></TextView>
+                    android:text="@string/last_done_date" />
 
                 <TextView
                     android:id="@+id/taskDetailLastDoneDateValue"
                     style="@style/TaskDetailItemContents"
-                    android:textIsSelectable="false"></TextView>
+                    android:textIsSelectable="false" />
             </LinearLayout>
         </LinearLayout>
 

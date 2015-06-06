@@ -27,6 +27,7 @@
         android:src="@drawable/ic_grabber"
         android:padding="5dp"
         android:paddingRight="10dp"
+        android:paddingEnd="10dp"
         android:background="?android:attr/selectableItemBackground"
         android:contentDescription="@string/accessibility_arrow"
     />

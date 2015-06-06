@@ -30,7 +30,6 @@
     <string name="preferences_alerts_ringtone_title">通知音</string>
     <string name="preferences_alerts_vibrateWhen_title">振動</string>
     <string name="task_name">標題</string>
-    <string name="hint_task_name">作業標題</string>
     <string name="recurrence">實行頻率</string>
     <string name="recurrence_separator">，</string>
     <string name="dialog_ok">成功</string>
@@ -39,7 +38,6 @@
     <string name="reminder">通知功能</string>
     <string name="no_reminder">不通知</string>
     <string name="description">詳細</string>
-    <string name="hint_task_description">說明</string>
     <string name="task_save">保存</string>
     <string name="task_cancel">取消</string>
     <string name="delete_confirmation">進行作業刪除?</string>

@@ -30,16 +30,14 @@
     <string name="preferences_alerts_ringtone_title">通知音</string>
     <string name="preferences_alerts_vibrateWhen_title">バイブレーション</string>
     <string name="task_name">タイトル</string>
-    <string name="hint_task_name">Doのタイトル</string>
     <string name="recurrence">実行頻度</string>
-    <string name="recurrence_separator"></string>
+    <string name="recurrence_separator" />
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">キャンセル</string>
     <string name="dialog_start">開始</string>
     <string name="reminder">通知機能</string>
     <string name="no_reminder">通知なし</string>
     <string name="description">内容</string>
-    <string name="hint_task_description">説明</string>
     <string name="task_save">保存</string>
     <string name="task_cancel">キャンセル</string>
     <string name="delete_confirmation">このDoを削除してもよろしいですか？</string>

@@ -408,7 +408,9 @@ public class GoogleDriveServicesActivity extends Activity implements
             }
 
             mClientDataFolderDriveId = result.getDriveFolder().getDriveId();
-            showMessage("Created new folder");
+            if (BuildConfig.DEBUG) {
+                showMessage("Created new folder");
+            }
 
             // create new contents resource
             Drive.DriveApi.newDriveContents(getGoogleApiClient()).setResultCallback(driveContentsCallback);
@@ -442,7 +444,9 @@ public class GoogleDriveServicesActivity extends Activity implements
                 return;
             }
 
-            showMessage("Created new file");
+            if (BuildConfig.DEBUG) {
+                showMessage("Created new file");
+            }
 
             // Fed content to the empty file have created
             DriveFile file = Drive.DriveApi.getFile(getGoogleApiClient(), result.getDriveFile().getDriveId());

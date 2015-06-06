@@ -21,7 +21,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:background="@color/tasklist_bg_header"
-        android:gravity="right|bottom"
+        android:gravity="end|bottom"
         android:textSize="14sp"
         android:textIsSelectable="false"
         android:padding="5dp"

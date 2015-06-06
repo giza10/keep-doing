@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:drawable="@color/widget_tasklist_bg_item_pressed" android:state_pressed="true"></item>
-    <item android:drawable="@color/widget_tasklist_bg_item"></item>
+    <item android:drawable="@color/widget_tasklist_bg_item_pressed" android:state_pressed="true" />
+    <item android:drawable="@color/widget_tasklist_bg_item" />
 
 </selector>

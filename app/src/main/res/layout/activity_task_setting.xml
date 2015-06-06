@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,7 +11,6 @@
         android:layout_height="match_parent"
         android:fillViewport="true"
         android:orientation="vertical">
-
 
         <ScrollView
             android:id="@+id/scrollView"
@@ -25,31 +25,20 @@
                 android:orientation="vertical"
                 android:showDividers="middle">
 
-                <LinearLayout
+                <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/textViewTaskName"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="16dp"
-                        android:layout_marginRight="16dp"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/task_name"
-                        android:textSize="18sp"></TextView>
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp">
 
                     <EditText
                         android:id="@+id/editTextTaskName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginLeft="26dp"
-                        android:layout_marginRight="26dp"
-                        android:hint="@string/hint_task_name"
-                        android:inputType="text"></EditText>
-                </LinearLayout>
+                        android:hint="@string/task_name"
+                        android:inputType="text" />
+                </android.support.design.widget.TextInputLayout>
 
                 <LinearLayout
                     android:id="@+id/recurrenceLayout"
@@ -66,7 +55,7 @@
                         android:layout_marginRight="16dp"
                         android:layout_marginTop="10dp"
                         android:text="@string/recurrence"
-                        android:textSize="18sp"></TextView>
+                        android:textSize="18sp" />
 
                     <com.hkb48.keepdo.RecurrenceView
                         android:id="@+id/recurrenceView"
@@ -75,7 +64,7 @@
                         android:layout_marginBottom="10dp"
                         android:layout_marginLeft="26dp"
                         android:layout_marginRight="26dp"
-                        android:orientation="horizontal"></com.hkb48.keepdo.RecurrenceView>
+                        android:orientation="horizontal" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -91,7 +80,7 @@
                         android:layout_marginRight="16dp"
                         android:layout_marginTop="10dp"
                         android:text="@string/reminder"
-                        android:textSize="18sp"></TextView>
+                        android:textSize="18sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -105,9 +94,11 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="10dp"
                             android:layout_marginLeft="26dp"
+                            android:layout_marginStart="26dp"
                             android:layout_marginRight="10dp"
+                            android:layout_marginEnd="10dp"
                             android:layout_weight="1"
-                            android:gravity="center"></Button>
+                            android:gravity="center" />
 
                         <ImageButton
                             android:id="@+id/reminder_remove"
@@ -115,37 +106,28 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="10dp"
                             android:layout_marginLeft="10dp"
+                            android:layout_marginStart="10dp"
                             android:layout_marginRight="26dp"
+                            android:layout_marginEnd="26dp"
                             android:contentDescription="@string/accessibility_remove_reminder"
                             android:gravity="center_vertical"
-                            android:src="@drawable/ic_menu_cancel_holo_light"></ImageButton>
+                            android:src="@drawable/ic_menu_cancel_holo_light" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <LinearLayout
+                <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/textViewContext"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="16dp"
-                        android:layout_marginRight="16dp"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/description"
-                        android:textSize="18sp"></TextView>
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp">
 
                     <EditText
                         android:id="@+id/editTextDescription"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginLeft="26dp"
-                        android:layout_marginRight="26dp"
-                        android:hint="@string/hint_task_description"></EditText>
-                </LinearLayout>
+                        android:hint="@string/description" />
+                </android.support.design.widget.TextInputLayout>
             </LinearLayout>
         </ScrollView>
 

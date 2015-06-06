@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/grp1">
+        <item
+            android:id="@+id/drawer_item_1"
+            android:icon="@drawable/ic_sort"
+            android:title="@string/drawer_item_sort" />
+        <item android:title="@string/drawer_category_backup_restore">
+            <menu>
+                <item
+                    android:id="@+id/drawer_item_2"
+                    android:icon="@drawable/ic_phone_android"
+                    android:title="@string/drawer_item_backup_restore_device" />
+                <item
+                    android:id="@+id/drawer_item_3"
+                    android:icon="@drawable/ic_drive"
+                    android:title="@string/drawer_item_backup_restore_drive" />
+            </menu>
+        </item>
+    </group>
+    <group android:id="@+id/grp2">
+        <item
+            android:id="@+id/drawer_item_4"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/drawer_item_settings" />
+    </group>
+</menu>
