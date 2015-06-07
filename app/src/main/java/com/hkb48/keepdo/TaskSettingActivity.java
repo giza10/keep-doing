@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,10 +28,11 @@ public class TaskSettingActivity extends AppCompatActivity {
     private static final int MODE_NEW_TASK = 0;
     private static final int MODE_EDIT_TASK = 1;
 
-    private boolean[] mRecurrenceFlags = { true, true, true, true, true, true,
-            true };
+    private boolean[] mRecurrenceFlags = {true, true, true, true, true, true,
+            true};
     private Task mTask;
     private int mMode;
+    private MenuItem mMenuSave;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,7 @@ public class TaskSettingActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationIcon(R.drawable.ic_close);
 
         EditText editTextTaskName = (EditText) findViewById(R.id.editTextTaskName);
         enableInputEmoji(editTextTaskName);
@@ -82,8 +85,6 @@ public class TaskSettingActivity extends AppCompatActivity {
                 editTextDescription.setText(description);
                 editTextDescription.setSelection(description.length());
             }
-
-            findViewById(R.id.okButton).setEnabled(true);
         }
 
         addTaskName(editTextTaskName);
@@ -92,24 +93,32 @@ public class TaskSettingActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_task_setting, menu);
+        mMenuSave = menu.getItem(0);
+        mMenuSave.setVisible(canSave());
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case android.R.id.home:
-            finish();
-            return true;
-        default:
-            return super.onOptionsItemSelected(item);
+            case android.R.id.home:
+                finish();
+                return true;
+            case R.id.menu_save:
+                onSaveClicked();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
     private void addTaskName(EditText editText) {
         editText.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
-                Button okButton = (Button) findViewById(R.id.okButton);
-                if (s.length() > 0) {
-                    okButton.setEnabled(true);
-                } else {
-                    okButton.setEnabled(false);
+                if (mMenuSave != null) {
+                    mMenuSave.setVisible(s.length() > 0);
                 }
             }
 
@@ -129,7 +138,7 @@ public class TaskSettingActivity extends AppCompatActivity {
         final RecurrenceView recurrenceView = (RecurrenceView) findViewById(R.id.recurrenceView);
         recurrenceView.update(recurrence);
 
-        findViewById(R.id.recurrenceLayout).setOnClickListener(
+        findViewById(R.id.recurrenceView).setOnClickListener(
                 new OnClickListener() {
                     boolean tmpRecurrenceFlags[];
 
@@ -200,7 +209,7 @@ public class TaskSettingActivity extends AppCompatActivity {
         final TimePickerDialog timePickerDialog = new TimePickerDialog(this,
                 new TimePickerDialog.OnTimeSetListener() {
                     public void onTimeSet(final TimePicker view,
-                            final int hourOfDay, final int minute) {
+                                          final int hourOfDay, final int minute) {
                         reminderTime.setText(String.format("%1$02d", hourOfDay)
                                 + ":" + String.format("%1$02d", minute));
                         cancelButton.setVisibility(View.VISIBLE);
@@ -218,10 +227,7 @@ public class TaskSettingActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Callback method for "Save" button
-     */
-    public void onSaveClicked(View view) {
+    private void onSaveClicked() {
         EditText editTextTaskName = (EditText) findViewById(R.id.editTextTaskName);
         EditText editTextDescription = (EditText) findViewById(R.id.editTextDescription);
         Recurrence recurrence = new Recurrence(mRecurrenceFlags[1],
@@ -232,7 +238,7 @@ public class TaskSettingActivity extends AppCompatActivity {
         mTask.setContext(editTextDescription.getText().toString());
 
         DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(this);
-        if(mMode == MODE_NEW_TASK) {
+        if (mMode == MODE_NEW_TASK) {
             mTask.setOrder(dbAdapter.getMaxSortOrderId() + 1);
             dbAdapter.addTask(mTask);
         } else {
@@ -243,11 +249,9 @@ public class TaskSettingActivity extends AppCompatActivity {
         finish();
     }
 
-    /**
-     * Callback method for "Cancel" button
-     */
-    public void onCancelClicked(View view) {
-        finish();
+    private boolean canSave() {
+        EditText editTextTaskName = (EditText) findViewById(R.id.editTextTaskName);
+        return (editTextTaskName.getText().length() > 0);
     }
 
     private void enableInputEmoji(EditText editText) {
