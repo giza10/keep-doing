@@ -2,14 +2,16 @@ package com.hkb48.keepdo;
 
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.Menu;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,6 +19,7 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.hkb48.keepdo.widget.TasksWidgetProvider;
@@ -32,7 +35,8 @@ public class TaskSettingActivity extends AppCompatActivity {
             true};
     private Task mTask;
     private int mMode;
-    private MenuItem mMenuSave;
+    private TextView mTitleText;
+    private Button mSaveButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -42,9 +46,23 @@ public class TaskSettingActivity extends AppCompatActivity {
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        assert getSupportActionBar() != null;
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationIcon(R.drawable.ic_close);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setDisplayShowCustomEnabled(true);
+            toolbar.setNavigationIcon(R.drawable.ic_close);
+            LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View v = inflater.inflate(R.layout.actionbar_task_setting, null);
+            mTitleText = (TextView) v.findViewById(R.id.title_text);
+            mSaveButton = (Button) v.findViewById(R.id.button_save);
+            mSaveButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onSaveClicked();
+                }
+            });
+            actionBar.setCustomView(v);
+        }
 
         EditText editTextTaskName = (EditText) findViewById(R.id.editTextTaskName);
         enableInputEmoji(editTextTaskName);
@@ -57,14 +75,14 @@ public class TaskSettingActivity extends AppCompatActivity {
         mTask = (Task) intent.getSerializableExtra("TASK-INFO");
         if (mTask == null) {
             mMode = MODE_NEW_TASK;
-            setTitle(R.string.add_task);
+            if (mTitleText != null) mTitleText.setText(R.string.add_task);
             recurrence = new Recurrence(true, true, true, true, true, true,
                     true);
             mTask = new Task(null, null, recurrence);
             mTask.setReminder(new Reminder());
         } else {
             mMode = MODE_EDIT_TASK;
-            setTitle(R.string.edit_task);
+            if (mTitleText != null) mTitleText.setText(R.string.edit_task);
             String taskName = mTask.getName();
             if (taskName != null) {
                 editTextTaskName.setText(taskName);
@@ -90,14 +108,7 @@ public class TaskSettingActivity extends AppCompatActivity {
         addTaskName(editTextTaskName);
         addRecurrence(recurrence);
         addReminder();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_task_setting, menu);
-        mMenuSave = menu.getItem(0);
-        mMenuSave.setVisible(canSave());
-        return super.onCreateOptionsMenu(menu);
+        mSaveButton.setEnabled(canSave());
     }
 
     @Override
@@ -105,9 +116,6 @@ public class TaskSettingActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
-                return true;
-            case R.id.menu_save:
-                onSaveClicked();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -117,8 +125,8 @@ public class TaskSettingActivity extends AppCompatActivity {
     private void addTaskName(EditText editText) {
         editText.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
-                if (mMenuSave != null) {
-                    mMenuSave.setVisible(s.length() > 0);
+                if (mSaveButton != null) {
+                    mSaveButton.setEnabled(s.length() > 0);
                 }
             }
 
