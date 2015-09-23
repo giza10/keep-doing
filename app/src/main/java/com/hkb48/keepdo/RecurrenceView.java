@@ -7,6 +7,8 @@ import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
+import com.hkb48.keepdo.com.hkb48.keepdo.util.CompatUtil;
+
 public class RecurrenceView extends TextView {
     private final String[] mWeekName;
 
@@ -21,7 +23,7 @@ public class RecurrenceView extends TextView {
 
     public void update(boolean[] recurrenceFlags) {
         final String separator = getContext().getString(R.string.recurrence_separator);
-        final int colorOffDay = getResources().getColor(R.color.recurrence_off_day);
+        final int colorOffDay = CompatUtil.getColor(getContext(), R.color.recurrence_off_day);
         final int weekStartDay = Settings.getWeekStartDay() - 1;
         SpannableStringBuilder ssb = new SpannableStringBuilder();
 

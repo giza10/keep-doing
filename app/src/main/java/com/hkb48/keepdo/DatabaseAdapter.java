@@ -66,14 +66,14 @@ class DatabaseAdapter {
         Cursor cursor = mContentResolver.query(Tasks.CONTENT_URI, null, null,
                 null, sortOrder);
 
-        if (cursor.moveToFirst()) {
-            do {
-                tasks.add(getTask(cursor));
-            } while (cursor.moveToNext());
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    tasks.add(getTask(cursor));
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
         }
-
-        cursor.close();
-
         return tasks;
     }
 
@@ -188,11 +188,12 @@ class DatabaseAdapter {
 
         Cursor cursor = mContentResolver.query(TaskCompletion.CONTENT_URI, null, selection,
                 selectionArgs, null);
-        if (cursor.getCount() > 0) {
-            isDone = true;
+        if (cursor != null) {
+            if (cursor.getCount() > 0) {
+                isDone = true;
+            }
+            cursor.close();
         }
-        cursor.close();
-
         return isDone;
     }
 
@@ -280,19 +281,19 @@ class DatabaseAdapter {
                 selectionArgs, null);
         SimpleDateFormat sdf_ym = new SimpleDateFormat(SDF_PATTERN_YM, Locale.JAPAN);
 
-        if (cursor.moveToFirst()) {
-            do {
-                Date date = getDate(cursor);
-                if (date != null) {
-                    if (sdf_ym.format(date).equals(sdf_ym.format(month))) {
-                        dateList.add(date);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    Date date = getDate(cursor);
+                    if (date != null) {
+                        if (sdf_ym.format(date).equals(sdf_ym.format(month))) {
+                            dateList.add(date);
+                        }
                     }
-                }
-            } while (cursor.moveToNext());
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
         }
-
-        cursor.close();
-
         return dateList;
     }
 

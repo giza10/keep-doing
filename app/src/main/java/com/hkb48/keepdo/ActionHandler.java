@@ -40,11 +40,13 @@ public class ActionHandler extends IntentService {
         String date = "";
         Cursor cursor = getContentResolver().query(DateChangeTime.CONTENT_URI, null, null,
                 null, null);
-        if (cursor.moveToFirst()) {
-            final int dateColIndex = cursor.getColumnIndex(DateChangeTime.ADJUSTED_DATE);
-            date = cursor.getString(dateColIndex);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                final int dateColIndex = cursor.getColumnIndex(DateChangeTime.ADJUSTED_DATE);
+                date = cursor.getString(dateColIndex);
+            }
+            cursor.close();
         }
-        cursor.close();
         return date;
     }
     

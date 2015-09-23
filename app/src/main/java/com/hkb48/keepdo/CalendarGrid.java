@@ -1,5 +1,6 @@
 package com.hkb48.keepdo;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -7,7 +8,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.hkb48.keepdo.com.hkb48.keepdo.util.CompatUtil;
 import com.hkb48.keepdo.widget.TasksWidgetProvider;
 
 import java.io.File;
@@ -75,7 +76,7 @@ public class CalendarGrid extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Intent intent = getContext().getIntent();
+        Intent intent = getActivity().getIntent();
         long taskId = intent.getLongExtra("TASK-ID", -1);
         mDatabaseAdapter = DatabaseAdapter.getInstance(getContext());
         mTask = mDatabaseAdapter.getTask(taskId);
@@ -119,7 +120,7 @@ public class CalendarGrid extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_info:
-                final long taskId = getContext().getIntent().getLongExtra("TASK-ID", -1);
+                final long taskId = getActivity().getIntent().getLongExtra("TASK-ID", -1);
                 Intent intent = new Intent(getActivity(), TaskDetailActivity.class);
                 intent.putExtra("TASK-ID", taskId);
                 startActivity(intent);
@@ -200,10 +201,6 @@ public class CalendarGrid extends Fragment {
         return consumed || super.onContextItemSelected(item);
     }
 
-    private FragmentActivity getContext() {
-        return this.getActivity();
-    }
-
     private void addDayOfWeek() {
         String[] weeks = getResources().getStringArray(R.array.week_names);
         LinearLayout row = new LinearLayout(getContext());
@@ -214,7 +211,7 @@ public class CalendarGrid extends Fragment {
 
         for (int i = 0; i < NUM_OF_DAYS_IN_WEEK; i++) {
             int dayOfWeek = getDayOfWeek(i);
-            View child = getContext().getLayoutInflater().inflate(R.layout.calendar_week, null);
+            View child = getActivity().getLayoutInflater().inflate(R.layout.calendar_week, null);
 
             TextView textView1 = (TextView) child.findViewById(R.id.textView1);
             textView1.setText(weeks[dayOfWeek - 1]);
@@ -284,7 +281,7 @@ public class CalendarGrid extends Fragment {
         final int blankDaysInFirstWeek = (week - startDayOfWeek + NUM_OF_DAYS_IN_WEEK)
                 % NUM_OF_DAYS_IN_WEEK;
         for (int i = 0; i < blankDaysInFirstWeek; i++) {
-            View child = getContext().getLayoutInflater().inflate(
+            View child = getActivity().getLayoutInflater().inflate(
                     R.layout.calendar_date, null);
             child.setBackgroundResource(R.drawable.bg_calendar_day_blank);
             row.addView(child, childParams);
@@ -298,7 +295,7 @@ public class CalendarGrid extends Fragment {
 
         int weekIndex = blankDaysInFirstWeek;
         for (int day = 1; day <= maxDate; day++) {
-            View child = getContext().getLayoutInflater().inflate(
+            View child = getActivity().getLayoutInflater().inflate(
                     R.layout.calendar_date, null);
             TextView textView1 = (TextView) child.findViewById(R.id.textView1);
             ImageView imageView1 = (ImageView) child
@@ -353,7 +350,7 @@ public class CalendarGrid extends Fragment {
                 % NUM_OF_DAYS_IN_WEEK;
         if (blankDaysInLastWeek > 0) {
             for (int i = 0; i < blankDaysInLastWeek; i++) {
-                View child = getContext().getLayoutInflater().inflate(
+                View child = getActivity().getLayoutInflater().inflate(
                         R.layout.calendar_date, null);
                 child.setBackgroundResource(R.drawable.bg_calendar_day_blank);
                 row.addView(child, childParams);
@@ -392,7 +389,7 @@ public class CalendarGrid extends Fragment {
         final String BITMAP_PATH = mDatabaseAdapter.backupDirPath()
                 + "/temp_share_image.png";
 
-        View calendarRoot = getContext().findViewById(R.id.calendar_root);
+        View calendarRoot = getActivity().findViewById(R.id.calendar_root);
         calendarRoot.setDrawingCacheEnabled(true);
 
         File bitmapFile = new File(BITMAP_PATH);
@@ -402,7 +399,7 @@ public class CalendarGrid extends Fragment {
         Bitmap baseBitmap = Bitmap.createBitmap(bitmap.getWidth(),
                 bitmap.getHeight(), Bitmap.Config.ARGB_4444);
         Canvas bmpCanvas = new Canvas(baseBitmap);
-        bmpCanvas.drawColor(getResources().getColor(
+        bmpCanvas.drawColor(CompatUtil.getColor(getContext(),
                 R.color.calendar_bg_fargment));
         bmpCanvas.drawBitmap(bitmap, 0, 0, null);
 

@@ -15,6 +15,8 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import com.hkb48.keepdo.com.hkb48.keepdo.util.CompatUtil;
+
 public class SortableListView extends ListView {
     private ImageView mDragView;
     private WindowManager mWindowManager;
@@ -249,7 +251,7 @@ public class SortableListView extends ListView {
 
         final Context context = getContext();
         final ImageView v = new ImageView(context);
-        final int backGroundColor = context.getResources().getColor(
+        final int backGroundColor = CompatUtil.getColor(context,
                 R.color.tasksort_dragdrop_view_bg);
         v.setBackgroundColor(backGroundColor);
         v.setImageBitmap(bm);

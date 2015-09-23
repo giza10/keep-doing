@@ -30,6 +30,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hkb48.keepdo.com.hkb48.keepdo.util.CompatUtil;
 import com.hkb48.keepdo.widget.TasksWidgetProvider;
 
 import java.io.File;
@@ -458,7 +459,7 @@ public class TasksActivity extends AppCompatActivity implements
             Date today = DateChangeTimeUtil.getDateTime();
             ImageView imageView = holder.imageView;
             TextView lastDoneDateTextView = holder.lastDoneDateTextView;
-            final int colorLastDoneDate = getResources().getColor(
+            final int colorLastDoneDate = CompatUtil.getColor(getApplicationContext(),
                     R.color.tasklist_last_donedate);
             lastDoneDateTextView.setTextColor(colorLastDoneDate);
 
@@ -466,7 +467,7 @@ public class TasksActivity extends AppCompatActivity implements
                 imageView.setImageResource(Settings.getDoneIconId());
                 ComboCount comboCount = mDBAdapter.getComboCount(taskId);
                 if (comboCount.currentCount > 1) {
-                    lastDoneDateTextView.setTextColor(getResources().getColor(
+                    lastDoneDateTextView.setTextColor(CompatUtil.getColor(getApplicationContext(),
                             R.color.tasklist_combo));
                     lastDoneDateTextView.setText(getString(
                             R.string.tasklist_combo, comboCount.currentCount));
@@ -480,8 +481,8 @@ public class TasksActivity extends AppCompatActivity implements
                 if (lastDoneDate != null) {
                     ComboCount comboCount = mDBAdapter.getComboCount(taskId);
                     if (comboCount.currentCount > 1) {
-                        lastDoneDateTextView.setTextColor(getResources()
-                                .getColor(R.color.tasklist_combo));
+                        lastDoneDateTextView.setTextColor(CompatUtil
+                                .getColor(getApplicationContext(), R.color.tasklist_combo));
                         lastDoneDateTextView.setText(getString(
                                 R.string.tasklist_combo,
                                 comboCount.currentCount));
