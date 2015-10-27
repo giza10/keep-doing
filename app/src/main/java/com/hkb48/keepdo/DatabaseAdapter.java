@@ -423,23 +423,26 @@ class DatabaseAdapter {
         return (BACKUP_DIR_PATH + BACKUP_FILE_NAME);
     }
 
-    void backupDataBase() {
+    boolean backupDataBase() {
         File dir = new File(BACKUP_DIR_PATH);
         if (!dir.exists()) {
             if (!dir.mkdir()) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "backup Database failed.");
                 }
-                return;
+                return false;
             }
         }
 
-        copyDataBase(mDatabaseHelper.databasePath(), getBackupFilePath());
+        return copyDataBase(mDatabaseHelper.databasePath(), getBackupFilePath());
     }
 
-    void restoreDatabase() {
-        copyDataBase(getBackupFilePath(), mDatabaseHelper.databasePath());
-        mContentResolver.notifyChange(KeepdoProvider.BASE_CONTENT_URI, null);
+    boolean restoreDatabase() {
+        boolean success = copyDataBase(getBackupFilePath(), mDatabaseHelper.databasePath());
+        if (success) {
+            mContentResolver.notifyChange(KeepdoProvider.BASE_CONTENT_URI, null);
+        }
+        return success;
     }
 
     synchronized final FileInputStream readDatabaseStream() {
@@ -492,7 +495,8 @@ class DatabaseAdapter {
         }
     }
 
-    private synchronized void copyDataBase(String fromPath, String toPath) {
+    private synchronized boolean copyDataBase(String fromPath, String toPath) {
+        boolean success = false;
         InputStream inputStream = null;
         OutputStream outputStream = null;
 
@@ -507,6 +511,7 @@ class DatabaseAdapter {
                 outputStream.write(buffer, 0, length);
             }
             outputStream.flush();
+            success = true;
 
         } catch (IOException e) {
             if (BuildConfig.DEBUG) {
@@ -527,6 +532,7 @@ class DatabaseAdapter {
                 }
             }
         }
+        return success;
     }
 
     String backupFileName() {

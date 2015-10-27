@@ -1,15 +1,20 @@
 package com.hkb48.keepdo;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -49,17 +54,16 @@ public class TasksActivity extends AppCompatActivity implements
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ITEM = 1;
 
+    private static final int BACKUP_PERMISSION_REQUEST_CODE = 100;
+    private static final int RESTORE_PERMISSION_REQUEST_CODE = 101;
+
     // Delay to launch nav drawer item, to allow close animation to play
     private static final int NAVDRAWER_LAUNCH_DELAY = 250;
-
-    private TaskAdapter mAdapter;
-    private ContentObserver mContentObserver;
     private final List<TaskListItem> mDataList = new ArrayList<>();
     private final CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
+    private TaskAdapter mAdapter;
+    private ContentObserver mContentObserver;
     private DatabaseAdapter mDBAdapter = null;
-    private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mDrawerToggle;
-
     private final Settings.OnChangedListener mSettingsChangedListener = new Settings.OnChangedListener() {
         public void onDoneIconSettingChanged() {
             updateTaskList();
@@ -73,6 +77,8 @@ public class TasksActivity extends AppCompatActivity implements
             updateTaskList();
         }
     };
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -300,6 +306,209 @@ public class TasksActivity extends AppCompatActivity implements
         ReminderManager.getInstance().setNextAlert(this);
     }
 
+    public void onDateChanged() {
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.date_changed)
+                .setPositiveButton(R.string.dialog_ok,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                updateTaskList();
+                            }
+                        }).setCancelable(false).create().show();
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        final int itemId = item.getItemId();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                goToNavDrawerItem(itemId);
+            }
+        }, NAVDRAWER_LAUNCH_DELAY);
+        if (mDrawerLayout != null) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        }
+        return false;
+    }
+
+    private void goToNavDrawerItem(final int itemId) {
+        Intent intent;
+
+        switch (itemId) {
+            case R.id.drawer_item_1:
+                intent = new Intent(this, TaskSortingActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.drawer_item_2:
+                // Todo: Tentative implementation
+                showBackupRestoreDeviceDialog();
+                break;
+            case R.id.drawer_item_3:
+                // Todo: Tentative implementation
+                showBackupRestoreGoogleDriveDialog();
+                break;
+            case R.id.drawer_item_4:
+                intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Backup & Restore
+     */
+    private void showBackupRestoreDeviceDialog() {
+        final Context context = this;
+        final DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(context);
+        final String fineName = dbAdapter.backupFileName();
+        final String dirName = dbAdapter.backupDirName();
+        final String dirPath = dbAdapter.backupDirPath();
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(
+                context);
+        String title = getString(R.string.backup_restore) + "\n" + dirName
+                + fineName;
+        dialogBuilder.setTitle(title);
+        dialogBuilder.setSingleChoiceItems(
+                R.array.dialog_choice_backup_restore, -1,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        boolean enabled = true;
+                        if (which == 1) {
+                            // Restore
+                            File backupFile = new File(dirPath + fineName);
+                            if (!backupFile.exists()) {
+                                enabled = false;
+                                Toast.makeText(context,
+                                        R.string.no_backup_file,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        ((AlertDialog) dialog).getButton(
+                                AlertDialog.BUTTON_POSITIVE)
+                                .setEnabled(enabled);
+                    }
+                });
+        dialogBuilder.setNegativeButton(R.string.dialog_cancel, null);
+        dialogBuilder.setPositiveButton(R.string.dialog_start,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (((AlertDialog) dialog).getListView()
+                                .getCheckedItemPosition()) {
+                            case 0:
+                                // execute backup
+                                if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                                    backupTaskData(context);
+                                } else {
+                                    ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, BACKUP_PERMISSION_REQUEST_CODE);
+                                }
+
+                                break;
+                            case 1:
+                                // execute restore
+                                if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                                    restoreTaskData(context);
+                                } else {
+                                    ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, RESTORE_PERMISSION_REQUEST_CODE);
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+        dialogBuilder.setCancelable(true);
+        final AlertDialog alertDialog = dialogBuilder.show();
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            public void onShow(DialogInterface dialog) {
+                File backupFile = new File(dirPath + fineName);
+                boolean existBackupFile = backupFile.exists();
+                ((AlertDialog) dialog).getListView().getChildAt(1)
+                        .setEnabled(existBackupFile);
+            }
+        });
+    }
+
+    private void backupTaskData(final Context context) {
+        DatabaseAdapter.getInstance(this).backupDataBase();
+        Toast.makeText(context,
+                R.string.backup_done, Toast.LENGTH_SHORT)
+                .show();
+    }
+
+    private void restoreTaskData(final Context context) {
+        DatabaseAdapter.getInstance(this).restoreDatabase();
+        Toast.makeText(context,
+                R.string.restore_done, Toast.LENGTH_SHORT)
+                .show();
+    }
+
+    private void showBackupRestoreGoogleDriveDialog() {
+        final Context context = this;
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(
+                context);
+        String title = getString(R.string.backup_restore) + "\n" + "Google drive";
+        dialogBuilder.setTitle(title);
+        dialogBuilder.setSingleChoiceItems(
+                R.array.dialog_choice_backup_restore, -1,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        ((AlertDialog) dialog).getButton(
+                                AlertDialog.BUTTON_POSITIVE)
+                                .setEnabled(true);
+                    }
+                });
+        dialogBuilder.setNegativeButton(R.string.dialog_cancel, null);
+        dialogBuilder.setPositiveButton(R.string.dialog_start,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent;
+                        switch (((AlertDialog) dialog).getListView()
+                                .getCheckedItemPosition()) {
+                            case 0:
+                                // execute backup
+                                intent = new Intent(context, GoogleDriveServicesActivity.class);
+                                intent.putExtra(GoogleDriveServicesActivity.EXTRA_LAUNCH_MODE, GoogleDriveServicesActivity.MODE_BACKUP);
+                                startActivity(intent);
+                                break;
+                            case 1:
+                                // execute restore
+                                intent = new Intent(context, GoogleDriveServicesActivity.class);
+                                intent.putExtra(GoogleDriveServicesActivity.EXTRA_LAUNCH_MODE, GoogleDriveServicesActivity.MODE_RESTORE);
+                                startActivity(intent);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+        dialogBuilder.setCancelable(true);
+        final AlertDialog alertDialog = dialogBuilder.show();
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (requestCode == BACKUP_PERMISSION_REQUEST_CODE) {
+                backupTaskData(getApplicationContext());
+            } else if (requestCode == RESTORE_PERMISSION_REQUEST_CODE) {
+                restoreTaskData(getApplicationContext());
+            }
+        } else {
+            // Permission request was denied.
+            Toast.makeText(this, "Permission request was denied.", Toast.LENGTH_SHORT)
+                    .show();
+        }
+    }
+
     private static class TaskListItem {
         final int type;
         final Object data;
@@ -520,182 +729,5 @@ public class TasksActivity extends AppCompatActivity implements
             RecurrenceView recurrenceView;
             TextView lastDoneDateTextView;
         }
-    }
-
-    public void onDateChanged() {
-        new AlertDialog.Builder(this)
-                .setMessage(R.string.date_changed)
-                .setPositiveButton(R.string.dialog_ok,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int which) {
-                                updateTaskList();
-                            }
-                        }).setCancelable(false).create().show();
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        final int itemId = item.getItemId();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                goToNavDrawerItem(itemId);
-            }
-        }, NAVDRAWER_LAUNCH_DELAY);
-        if (mDrawerLayout != null) {
-            mDrawerLayout.closeDrawer(GravityCompat.START);
-        }
-        return false;
-    }
-
-    private void goToNavDrawerItem(final int itemId) {
-        Intent intent;
-
-        switch (itemId) {
-            case R.id.drawer_item_1:
-                intent = new Intent(this, TaskSortingActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.drawer_item_2:
-                // Todo: Tentative implementation
-                showBackupRestoreDeviceDialog();
-                break;
-            case R.id.drawer_item_3:
-                // Todo: Tentative implementation
-                showBackupRestoreGoogleDriveDialog();
-                break;
-            case R.id.drawer_item_4:
-                intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                break;
-            default:
-                break;
-        }
-    }
-
-    /**
-     * Backup & Restore
-     */
-    private void showBackupRestoreDeviceDialog() {
-        final Context context = this;
-        final DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(context);
-        final String fineName = dbAdapter.backupFileName();
-        final String dirName = dbAdapter.backupDirName();
-        final String dirPath = dbAdapter.backupDirPath();
-
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(
-                context);
-        String title = getString(R.string.backup_restore) + "\n" + dirName
-                + fineName;
-        dialogBuilder.setTitle(title);
-        dialogBuilder.setSingleChoiceItems(
-                R.array.dialog_choice_backup_restore, -1,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        boolean enabled = true;
-                        if (which == 1) {
-                            // Restore
-                            File backupFile = new File(dirPath + fineName);
-                            if (!backupFile.exists()) {
-                                enabled = false;
-                                Toast.makeText(context,
-                                        R.string.no_backup_file,
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        ((AlertDialog) dialog).getButton(
-                                AlertDialog.BUTTON_POSITIVE)
-                                .setEnabled(enabled);
-                    }
-                });
-        dialogBuilder.setNegativeButton(R.string.dialog_cancel, null);
-        dialogBuilder.setPositiveButton(R.string.dialog_start,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (((AlertDialog) dialog).getListView()
-                                .getCheckedItemPosition()) {
-                            case 0:
-                                // execute backup
-                                backupTaskData();
-                                Toast.makeText(context,
-                                        R.string.backup_done, Toast.LENGTH_SHORT)
-                                        .show();
-                            case 1:
-                                // execute restore
-                                restoreTaskData();
-                                Toast.makeText(context,
-                                        R.string.restore_done, Toast.LENGTH_SHORT)
-                                        .show();
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
-        dialogBuilder.setCancelable(true);
-        final AlertDialog alertDialog = dialogBuilder.show();
-        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            public void onShow(DialogInterface dialog) {
-                File backupFile = new File(dirPath + fineName);
-                boolean existBackupFile = backupFile.exists();
-                ((AlertDialog) dialog).getListView().getChildAt(1)
-                        .setEnabled(existBackupFile);
-            }
-        });
-    }
-
-    private void backupTaskData() {
-        DatabaseAdapter.getInstance(this).backupDataBase();
-    }
-
-    private void restoreTaskData() {
-        DatabaseAdapter.getInstance(this).restoreDatabase();
-    }
-
-    private void showBackupRestoreGoogleDriveDialog() {
-        final Context context = this;
-
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(
-                context);
-        String title = getString(R.string.backup_restore) + "\n" + "Google drive";
-        dialogBuilder.setTitle(title);
-        dialogBuilder.setSingleChoiceItems(
-                R.array.dialog_choice_backup_restore, -1,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        ((AlertDialog) dialog).getButton(
-                                AlertDialog.BUTTON_POSITIVE)
-                                .setEnabled(true);
-                    }
-                });
-        dialogBuilder.setNegativeButton(R.string.dialog_cancel, null);
-        dialogBuilder.setPositiveButton(R.string.dialog_start,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent;
-                        switch (((AlertDialog) dialog).getListView()
-                                .getCheckedItemPosition()) {
-                            case 0:
-                                // execute backup
-                                intent = new Intent(context, GoogleDriveServicesActivity.class);
-                                intent.putExtra(GoogleDriveServicesActivity.EXTRA_LAUNCH_MODE, GoogleDriveServicesActivity.MODE_BACKUP);
-                                startActivity(intent);
-                                break;
-                            case 1:
-                                // execute restore
-                                intent = new Intent(context, GoogleDriveServicesActivity.class);
-                                intent.putExtra(GoogleDriveServicesActivity.EXTRA_LAUNCH_MODE, GoogleDriveServicesActivity.MODE_RESTORE);
-                                startActivity(intent);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
-        dialogBuilder.setCancelable(true);
-        final AlertDialog alertDialog = dialogBuilder.show();
-        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
     }
 }

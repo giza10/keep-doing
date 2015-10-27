@@ -1,4 +1,5 @@
 bin/
+captures/
 gen/
 local.properties
 .idea/
