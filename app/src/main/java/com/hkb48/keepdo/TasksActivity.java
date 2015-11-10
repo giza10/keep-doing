@@ -346,10 +346,6 @@ public class TasksActivity extends AppCompatActivity implements
                 showBackupRestoreDeviceDialog();
                 break;
             case R.id.drawer_item_3:
-                // Todo: Tentative implementation
-                showBackupRestoreGoogleDriveDialog();
-                break;
-            case R.id.drawer_item_4:
                 intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
                 break;
@@ -446,51 +442,6 @@ public class TasksActivity extends AppCompatActivity implements
         Toast.makeText(context,
                 R.string.restore_done, Toast.LENGTH_SHORT)
                 .show();
-    }
-
-    private void showBackupRestoreGoogleDriveDialog() {
-        final Context context = this;
-
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(
-                context);
-        String title = getString(R.string.backup_restore) + "\n" + "Google drive";
-        dialogBuilder.setTitle(title);
-        dialogBuilder.setSingleChoiceItems(
-                R.array.dialog_choice_backup_restore, -1,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        ((AlertDialog) dialog).getButton(
-                                AlertDialog.BUTTON_POSITIVE)
-                                .setEnabled(true);
-                    }
-                });
-        dialogBuilder.setNegativeButton(R.string.dialog_cancel, null);
-        dialogBuilder.setPositiveButton(R.string.dialog_start,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent;
-                        switch (((AlertDialog) dialog).getListView()
-                                .getCheckedItemPosition()) {
-                            case 0:
-                                // execute backup
-                                intent = new Intent(context, GoogleDriveServicesActivity.class);
-                                intent.putExtra(GoogleDriveServicesActivity.EXTRA_LAUNCH_MODE, GoogleDriveServicesActivity.MODE_BACKUP);
-                                startActivity(intent);
-                                break;
-                            case 1:
-                                // execute restore
-                                intent = new Intent(context, GoogleDriveServicesActivity.class);
-                                intent.putExtra(GoogleDriveServicesActivity.EXTRA_LAUNCH_MODE, GoogleDriveServicesActivity.MODE_RESTORE);
-                                startActivity(intent);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
-        dialogBuilder.setCancelable(true);
-        final AlertDialog alertDialog = dialogBuilder.show();
-        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
     }
 
     @Override

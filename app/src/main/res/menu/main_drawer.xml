@@ -5,22 +5,12 @@
             android:id="@+id/drawer_item_1"
             android:icon="@drawable/ic_sort"
             android:title="@string/drawer_item_sort" />
-        <item android:title="@string/drawer_category_backup_restore">
-            <menu>
-                <item
-                    android:id="@+id/drawer_item_2"
-                    android:icon="@drawable/ic_phone_android"
-                    android:title="@string/drawer_item_backup_restore_device" />
-                <item
-                    android:id="@+id/drawer_item_3"
-                    android:icon="@drawable/ic_drive"
-                    android:title="@string/drawer_item_backup_restore_drive" />
-            </menu>
-        </item>
-    </group>
-    <group android:id="@+id/grp2">
         <item
-            android:id="@+id/drawer_item_4"
+            android:id="@+id/drawer_item_2"
+            android:icon="@drawable/ic_backup_restore"
+            android:title="@string/drawer_item_backup_restore" />
+        <item
+            android:id="@+id/drawer_item_3"
             android:icon="@drawable/ic_settings"
             android:title="@string/drawer_item_settings" />
     </group>

@@ -3,9 +3,7 @@
 
     <!-- Navigation drawer -->
     <string name="drawer_item_sort">排序</string>
-    <string name="drawer_category_backup_restore">备份与恢复</string>
-    <string name="drawer_item_backup_restore_device">Device storage</string>
-    <string name="drawer_item_backup_restore_drive">Google drive</string>
+    <string name="drawer_item_backup_restore">备份与恢复</string>
     <string name="drawer_item_settings">设定</string>
 
     <string name="tasklist_header_today_task">今天的作业</string>
