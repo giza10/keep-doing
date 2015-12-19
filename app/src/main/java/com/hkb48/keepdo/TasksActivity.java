@@ -543,6 +543,10 @@ public class TasksActivity extends AppCompatActivity implements
                             .findViewById(R.id.recurrenceView);
                     itemViewHolder.lastDoneDateTextView = (TextView) view
                             .findViewById(R.id.taskLastDoneDate);
+                    itemViewHolder.imageAlarm = (ImageView) view
+                            .findViewById(R.id.AlarmIcon);
+                    itemViewHolder.textAlarm = (TextView) view
+                            .findViewById(R.id.AlarmText);
                     view.setTag(itemViewHolder);
                 } else {
                     headerViewHolder = new HeaderViewHolder();
@@ -573,6 +577,19 @@ public class TasksActivity extends AppCompatActivity implements
 
                 RecurrenceView recurrenceView = itemViewHolder.recurrenceView;
                 recurrenceView.update(task.getRecurrence());
+
+                ImageView imageAlarm = itemViewHolder.imageAlarm;
+                TextView textAlarm = itemViewHolder.textAlarm;
+                Reminder reminder = task.getReminder();
+                if (reminder.getEnabled()) {
+                    String alarmStr = String.format("%1$02d", reminder.getHourOfDay()) + ":" + String.format("%1$02d", reminder.getMinute());
+                    textAlarm.setText(alarmStr);
+                    imageAlarm.setVisibility(View.VISIBLE);
+                    textAlarm.setVisibility(View.VISIBLE);
+                } else {
+                    imageAlarm.setVisibility(View.GONE);
+                    textAlarm.setVisibility(View.GONE);
+                }
 
                 ImageView imageView = itemViewHolder.imageView;
                 Date today = DateChangeTimeUtil.getDateTime();
@@ -679,6 +696,8 @@ public class TasksActivity extends AppCompatActivity implements
             ImageView imageView;
             RecurrenceView recurrenceView;
             TextView lastDoneDateTextView;
+            ImageView imageAlarm;
+            TextView textAlarm;
         }
     }
 }

@@ -70,7 +70,7 @@
                     android:layout_height="24dp"
                     android:layout_marginEnd="32dp"
                     android:layout_marginRight="32dp"
-                    android:src="@drawable/ic_task_notification" />
+                    android:src="@drawable/ic_task_alarm" />
 
                 <Button
                     android:id="@+id/buttonReminderTime"
