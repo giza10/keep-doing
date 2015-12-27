@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="primary">@android:color/holo_blue_dark</color>
-    <color name="text_color_primary">@android:color/black</color>
+    <color name="text_color_primary">@android:color/primary_text_light</color>
+    <color name="text_color_secondary">#606060</color>
     <color name="action_bar">#303030</color>
     <color name="fab">#33b5e5</color>
 

@@ -1,12 +1,12 @@
 <resources>
 
-    <style name="TaskDetailItemLayout">
+    <style name="TaskDetailItemStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
     </style>
 
-    <style name="TaskDetailItemCategory">
+    <style name="TaskDetailItemCategoryStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">@dimen/task_detailed_category_font_size</item>
@@ -15,7 +15,7 @@
         <item name="android:layout_marginRight">16dp</item>
     </style>
 
-    <style name="TaskDetailItemContents">
+    <style name="TaskDetailItemContentsStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">@dimen/task_detailed_contents_font_size</item>

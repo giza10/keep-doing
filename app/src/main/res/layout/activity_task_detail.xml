@@ -17,102 +17,102 @@
             android:orientation="vertical"
             android:showDividers="middle">
 
-            <LinearLayout style="@style/TaskDetailItemLayout">
+            <LinearLayout style="@style/TaskDetailItemStyle">
 
                 <TextView
                     android:id="@+id/taskDetailRecurrence"
-                    style="@style/TaskDetailItemCategory"
+                    style="@style/TaskDetailItemCategoryStyle"
                     android:text="@string/recurrence" />
 
                 <com.hkb48.keepdo.RecurrenceView
                     android:id="@+id/recurrenceView"
-                    style="@style/TaskDetailItemContents"
+                    style="@style/TaskDetailItemContentsStyle"
                     android:orientation="horizontal" />
             </LinearLayout>
 
-            <LinearLayout style="@style/TaskDetailItemLayout">
+            <LinearLayout style="@style/TaskDetailItemStyle">
 
                 <TextView
                     android:id="@+id/taskDetailReminder"
-                    style="@style/TaskDetailItemCategory"
+                    style="@style/TaskDetailItemCategoryStyle"
                     android:text="@string/reminder" />
 
                 <TextView
                     android:id="@+id/taskDetailReminderValue"
-                    style="@style/TaskDetailItemContents"
+                    style="@style/TaskDetailItemContentsStyle"
                     android:textIsSelectable="false" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/taskDetailContextContainer"
-                style="@style/TaskDetailItemLayout">
+                style="@style/TaskDetailItemStyle">
 
                 <TextView
                     android:id="@+id/taskDetailContext"
-                    style="@style/TaskDetailItemCategory"
+                    style="@style/TaskDetailItemCategoryStyle"
                     android:text="@string/description" />
 
                 <TextView
                     android:id="@+id/taskDetailContextDescription"
-                    style="@style/TaskDetailItemContents"
+                    style="@style/TaskDetailItemContentsStyle"
                     android:textIsSelectable="false" />
             </LinearLayout>
 
-            <LinearLayout style="@style/TaskDetailItemLayout">
+            <LinearLayout style="@style/TaskDetailItemStyle">
 
                 <TextView
                     android:id="@+id/taskDetailNumOfDone"
-                    style="@style/TaskDetailItemCategory"
+                    style="@style/TaskDetailItemCategoryStyle"
                     android:text="@string/number_of_done" />
 
                 <TextView
                     android:id="@+id/taskDetailNumOfDoneValue"
-                    style="@style/TaskDetailItemContents"
+                    style="@style/TaskDetailItemContentsStyle"
                     android:textIsSelectable="false" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/taskDetailComboContainer"
-                style="@style/TaskDetailItemLayout">
+                style="@style/TaskDetailItemStyle">
 
                 <TextView
                     android:id="@+id/taskDetailCombo"
-                    style="@style/TaskDetailItemCategory"
+                    style="@style/TaskDetailItemCategoryStyle"
                     android:text="@string/current_and_max_combo" />
 
                 <TextView
                     android:id="@+id/taskDetailComboValue"
-                    style="@style/TaskDetailItemContents"
+                    style="@style/TaskDetailItemContentsStyle"
                     android:textIsSelectable="false" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/taskDetailFirstDoneDateContainer"
-                style="@style/TaskDetailItemLayout">
+                style="@style/TaskDetailItemStyle">
 
                 <TextView
                     android:id="@+id/taskDetailFirstDoneDate"
-                    style="@style/TaskDetailItemCategory"
+                    style="@style/TaskDetailItemCategoryStyle"
                     android:text="@string/first_done_date" />
 
                 <TextView
                     android:id="@+id/taskDetailFirstDoneDateValue"
-                    style="@style/TaskDetailItemContents"
+                    style="@style/TaskDetailItemContentsStyle"
                     android:textIsSelectable="false" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/taskDetailLastDoneDateContainer"
-                style="@style/TaskDetailItemLayout">
+                style="@style/TaskDetailItemStyle">
 
                 <TextView
                     android:id="@+id/taskDetailLastDoneDate"
-                    style="@style/TaskDetailItemCategory"
+                    style="@style/TaskDetailItemCategoryStyle"
                     android:text="@string/last_done_date" />
 
                 <TextView
                     android:id="@+id/taskDetailLastDoneDateValue"
-                    style="@style/TaskDetailItemContents"
+                    style="@style/TaskDetailItemContentsStyle"
                     android:textIsSelectable="false" />
             </LinearLayout>
         </LinearLayout>
