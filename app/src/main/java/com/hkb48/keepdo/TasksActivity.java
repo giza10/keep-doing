@@ -153,6 +153,8 @@ public class TasksActivity extends AppCompatActivity implements
         };
         getContentResolver().registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, mContentObserver);
 
+        NotificationController.initNotificationChannel(getApplicationContext());
+
         registerForContextMenu(taskListView);
         updateTaskList();
     }

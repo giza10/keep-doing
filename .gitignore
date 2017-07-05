@@ -1,7 +1,9 @@
 bin/
+build/
 captures/
 gen/
 local.properties
+gradle.properties
 .idea/
 .settings/
 .gradle/
@@ -10,5 +12,5 @@ local.properties
 *.apk
 **/*.iml
 app/build/
-build/intermediates/
+app/release
 app/manifest-merger-release-report.txt

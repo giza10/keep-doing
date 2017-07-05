@@ -23,13 +23,13 @@ class Settings {
         void onWeekStartDaySettingChanged();
     }
 
-    public static void registerOnChangedListener(OnChangedListener listener) {
+    static void registerOnChangedListener(OnChangedListener listener) {
         if (listener != null && !sChangedListeners.contains(listener)) {
             sChangedListeners.add(listener);
         }
     }
 
-    public static void unregisterOnChangedListener(OnChangedListener listener) {
+    static void unregisterOnChangedListener(OnChangedListener listener) {
         if (listener != null) {
             sChangedListeners.remove(listener);
         }
@@ -39,7 +39,7 @@ class Settings {
         sSharedPref = pref;
     }
 
-    public static void initialize(Context context) {
+    static void initialize(Context context) {
         if (sInstance == null) {
             GeneralSettingsFragment.setDefaultValues(context);
             SharedPreferences pref = GeneralSettingsFragment.getSharedPreferences(context);
@@ -52,36 +52,36 @@ class Settings {
         }
     }
 
-    public static void setDoneIcon(String v) {
+    static void setDoneIcon(String v) {
         sDoneIconType = v;
         for (OnChangedListener listener : sChangedListeners) {
             listener.onDoneIconSettingChanged();
         }
     }
 
-    public static void setDateChangeTime(String v) {
+    static void setDateChangeTime(String v) {
         sDateChangeTime = v;
         for (OnChangedListener listener : sChangedListeners) {
             listener.onDateChangeTimeSettingChanged();
         }
     }
 
-    public static void setWeekStartDay(String v) {
+    static void setWeekStartDay(String v) {
         sWeekStartDay = v;
         for (OnChangedListener listener : sChangedListeners) {
             listener.onWeekStartDaySettingChanged();
         }
     }
 
-    public static void setAlertsRingTone(String v) {
+    static void setAlertsRingTone(String v) {
         sAlertsRingTone = v;
     }
 
-    public static void setAlertsVibrateWhen(String v) {
+    static void setAlertsVibrateWhen(String v) {
         sAlertsVibrateWhen = v;
     }
 
-    public static int getDoneIconId() {
+    static int getDoneIconId() {
         int doneIconId = R.drawable.ic_done_1;
         if (sDoneIconType != null) {
             switch (sDoneIconType) {
@@ -102,7 +102,7 @@ class Settings {
         return doneIconId;
     }
 
-    public static int getNotDoneIconId() {
+    static int getNotDoneIconId() {
         int notDoneIconId = R.drawable.ic_not_done_1;
         if (sDoneIconType != null) {
             switch (sDoneIconType) {
@@ -123,14 +123,14 @@ class Settings {
         return notDoneIconId;
     }
 
-    public static String getDateChangeTime() {
+    static String getDateChangeTime() {
         if (sDateChangeTime == null) {
             sDateChangeTime = "24:00";
         }
         return sDateChangeTime;
     }
 
-    public static int getWeekStartDay() {
+    static int getWeekStartDay() {
         if (sWeekStartDay == null) {
             sWeekStartDay = "1";
         }
@@ -142,7 +142,7 @@ class Settings {
         }
     }
 
-    public static String getAlertsRingTone() {
+    static String getAlertsRingTone() {
         // TODO Get the value from shared-preference directly because
         // GeneralSettingsFragment#onPreferenceChange isn't called when ringtone setting is updated.
         sAlertsRingTone = sSharedPref.getString(GeneralSettingsFragment.KEY_ALERTS_RINGTONE, null);
@@ -150,7 +150,7 @@ class Settings {
         return sAlertsRingTone;
     }
 
-    public static String getAlertsVibrateWhen() {
+    static String getAlertsVibrateWhen() {
         return sAlertsVibrateWhen;
     }
 }

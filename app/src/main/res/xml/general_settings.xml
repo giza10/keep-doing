@@ -56,5 +56,9 @@
             android:entryValues="@array/prefValues_alerts_vibrateWhen"
             android:defaultValue="@string/prefDefault_alerts_vibrateWhen"
             android:dialogTitle="@string/prefDialogTitle_vibrateWhen" />
+
+        <Preference
+            android:key="preferences_notification"
+            android:title="@string/preferences_notification_title" />
     </PreferenceCategory>
 </PreferenceScreen>

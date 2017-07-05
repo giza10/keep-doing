@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "367033737918",
+    "firebase_url": "https://hkb-project-c2a3e.firebaseio.com",
+    "project_id": "hkb-project-c2a3e",
+    "storage_bucket": "hkb-project-c2a3e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:367033737918:android:6515933cb8f3be1f",
+        "android_client_info": {
+          "package_name": "com.hkb48.keepdo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "367033737918-jipjd6gdul63920pdrsm07kju42kt23p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcLYsp3EHDEWh2sqL52p8oaTv7eKoqCZw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

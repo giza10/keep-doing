@@ -2,7 +2,9 @@ package com.hkb48.keepdo;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.ListPreference;
@@ -24,12 +26,14 @@ public class GeneralSettingsFragment extends PreferenceFragment implements OnPre
     private static final String KEY_ALERTS_CATEGORY = "preferences_alerts_category";
     public static final String KEY_ALERTS_RINGTONE = "preferences_alerts_ringtone";
     public static final String KEY_ALERTS_VIBRATE_WHEN = "preferences_alerts_vibrateWhen";
+    private static final String KEY_ALERTS_NOTIFICATION = "preferences_notification";
 
     private DoneIconPreference mDoneIconPref;
     private ListPreference mDateChangeTimePref;
     private ListPreference mWeekStartDayPref;
     private RingtonePreference mRingtonePref;
     private ListPreference mVibrateWhenPref;
+    private Preference mNotificationPref;
 
     public static SharedPreferences getSharedPreferences(final Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
@@ -58,15 +62,34 @@ public class GeneralSettingsFragment extends PreferenceFragment implements OnPre
         mWeekStartDayPref = (ListPreference) preferenceScreen.findPreference(KEY_CALENDAR_WEEK_START_DAY);
         mWeekStartDayPref.setSummary(mWeekStartDayPref.getEntry());
 
-        mRingtonePref = (RingtonePreference) preferenceScreen.findPreference(KEY_ALERTS_RINGTONE);
+        final PreferenceCategory alertGroup = (PreferenceCategory) preferenceScreen.findPreference(KEY_ALERTS_CATEGORY);
 
+        mRingtonePref = (RingtonePreference) preferenceScreen.findPreference(KEY_ALERTS_RINGTONE);
         mVibrateWhenPref = (ListPreference) preferenceScreen.findPreference(KEY_ALERTS_VIBRATE_WHEN);
-        Vibrator vibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
-        if (vibrator == null || !vibrator.hasVibrator()) {
-            PreferenceCategory alertGroup = (PreferenceCategory) preferenceScreen.findPreference(KEY_ALERTS_CATEGORY);
-            alertGroup.removePreference(mVibrateWhenPref);
+        mNotificationPref = (Preference) preferenceScreen.findPreference(KEY_ALERTS_NOTIFICATION);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            alertGroup.removePreference(mNotificationPref);
+
+            Vibrator vibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
+            if (vibrator == null || !vibrator.hasVibrator()) {
+                alertGroup.removePreference(mVibrateWhenPref);
+            } else {
+                mVibrateWhenPref.setSummary(mVibrateWhenPref.getEntry());
+            }
         } else {
-            mVibrateWhenPref.setSummary(mVibrateWhenPref.getEntry());
+            mNotificationPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                public boolean onPreferenceClick(Preference preference) {
+                    Intent intent = new Intent(android.provider.Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
+                    intent.putExtra(android.provider.Settings.EXTRA_CHANNEL_ID, NotificationController.getNotificationChannelId());
+                    intent.putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, getContext().getPackageName());
+                    startActivity(intent);
+                    return true;
+                }
+            });
+
+            alertGroup.removePreference(mRingtonePref);
+            alertGroup.removePreference(mVibrateWhenPref);
         }
     }
 

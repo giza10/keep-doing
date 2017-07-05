@@ -27,6 +27,7 @@
     <string name="preferences_calendar_week_start_day_title">週の開始日</string>
     <string name="preferences_alerts_ringtone_title">通知音</string>
     <string name="preferences_alerts_vibrateWhen_title">バイブレーション</string>
+    <string name="preferences_notification_title">通知詳細設定</string>
     <string name="task_name">タイトル</string>
     <string name="recurrence">実行頻度</string>
     <string name="recurrence_separator" />
@@ -45,6 +46,8 @@
     <string name="uncheck_done">完了マークをはずす</string>
     <string name="notification_title_one_task">今日の未実施のDoがあります！</string>
     <string name="notification_title_multi_tasks">今日の未実施のDoが%d件あります！</string>
+    <string name="channel_name">リマインダー</string>
+    <string name="channel_description">今日の未実施のDoを通知します</string>
     <string name="remind_at">通知あり</string>
     <string name="number_of_done">Do実施回数</string>
     <string name="current_and_max_combo">現在のコンボ数 / 最大コンボ数</string>

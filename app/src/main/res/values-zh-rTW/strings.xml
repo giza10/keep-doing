@@ -27,6 +27,7 @@
     <string name="preferences_calendar_week_start_day_title">週開始日</string>
     <string name="preferences_alerts_ringtone_title">通知音</string>
     <string name="preferences_alerts_vibrateWhen_title">振動</string>
+    <string name="preferences_notification_title">通知設定</string>
     <string name="task_name">標題</string>
     <string name="recurrence">實行頻率</string>
     <string name="recurrence_separator">，</string>
@@ -45,6 +46,8 @@
     <string name="uncheck_done">消除作業完成</string>
     <string name="notification_title_one_task">擁有未完成作業！</string>
     <string name="notification_title_multi_tasks">擁有%d件未完成作業！</string>
+    <string name="channel_name">通知功能</string>
+    <string name="channel_description">通知功能</string>
     <string name="remind_at">有通知</string>
     <string name="number_of_done">完成作業次數</string>
     <string name="current_and_max_combo">當前連續完成數 / 最多连续完成数</string>
