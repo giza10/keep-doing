@@ -48,7 +48,7 @@
     <string name="notification_title_one_task">There\'s a Do to be done today!</string>
     <string name="notification_title_multi_tasks">There\'re %d Do to be done today!</string>
     <string name="channel_name">Reminder</string>
-    <string name="channel_description">Remind the Today's remaining Do.</string>
+    <string name="channel_description">Remind the Today\'s remaining Do.</string>
     <string name="remind_at">Remind at</string>
     <string name="number_of_done">Total number of Done</string>
     <string name="current_and_max_combo">Current combo / Max combo</string>
