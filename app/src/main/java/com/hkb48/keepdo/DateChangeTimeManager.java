@@ -73,6 +73,8 @@ public class DateChangeTimeManager {
         for (OnDateChangedListener listener : mChangedListeners) {
             listener.onDateChanged();
         }
+
+        TasksWidgetProvider.notifyDatasetChanged(mContext);
     }
 
     private void startAlarm() {
