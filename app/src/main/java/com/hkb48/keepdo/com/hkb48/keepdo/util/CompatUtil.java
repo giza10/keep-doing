@@ -2,7 +2,7 @@ package com.hkb48.keepdo.com.hkb48.keepdo.util;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.v4.content.ContextCompat;
+import androidx.core.content.ContextCompat;
 
 public class CompatUtil {
     public static int getColor(Context context, int id) {
