@@ -34,7 +34,7 @@ import java.util.Locale;
 public class CalendarGrid extends Fragment {
     private static final String TAG = "#KEEPDO_CALENDARGRID: ";
 
-    public static final String POSITION_KEY = "com.hkb48.keepdo.calendargrid.POSITION";
+    static final String POSITION_KEY = "com.hkb48.keepdo.calendargrid.POSITION";
 
     private static final int CONTEXT_MENU_CHECK_DONE = 0;
     private static final int CONTEXT_MENU_UNCHECK_DONE = 1;
@@ -53,7 +53,7 @@ public class CalendarGrid extends Fragment {
     public CalendarGrid() {
     }
 
-    public static CalendarGrid newInstance(Bundle args) {
+    static CalendarGrid newInstance(Bundle args) {
         CalendarGrid fragment = new CalendarGrid();
         fragment.setArguments(args);
         return fragment;

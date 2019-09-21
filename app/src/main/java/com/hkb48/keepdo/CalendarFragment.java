@@ -1,6 +1,8 @@
 package com.hkb48.keepdo;
 
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -14,7 +16,7 @@ public class CalendarFragment extends Fragment {
     /**
      * The maximum number of months to be paging up (10 years)
      */
-    public static final int NUM_MAXIMUM_MONTHS = 10 * 12;
+    static final int NUM_MAXIMUM_MONTHS = 10 * 12;
 
     public CalendarFragment() {
     }
@@ -40,7 +42,7 @@ public class CalendarFragment extends Fragment {
     }
 
     public class CalendarPageAdapter extends FragmentPagerAdapter {
-        public CalendarPageAdapter(FragmentManager fm) {
+        CalendarPageAdapter(FragmentManager fm) {
             super(fm);
         }
 
@@ -50,6 +52,7 @@ public class CalendarFragment extends Fragment {
         }
 
         @Override
+        @NonNull
         public Fragment getItem(int position) {
             Bundle args = new Bundle();
             args.putInt(CalendarGrid.POSITION_KEY, position);

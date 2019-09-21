@@ -14,7 +14,7 @@ public class Recurrence implements Serializable {
 	private boolean saturday;
 	private boolean sunday;
 
-    public Recurrence (boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday) {
+    Recurrence (boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday) {
         this.monday = monday;
         this.tuesday = tuesday;
         this.wednesday = wednesday;
@@ -24,35 +24,35 @@ public class Recurrence implements Serializable {
         this.sunday = sunday;
     }
 	
-	public boolean getMonday(){
+	boolean getMonday(){
 		return this.monday;
 	}
 	
-	public boolean getTuesday(){
+	boolean getTuesday(){
 		return this.tuesday;
 	}
 
-	public boolean getWednesday(){
+	boolean getWednesday(){
 		return this.wednesday;
 	}
-	
-	public boolean getThurday() {
+
+	boolean getThurday() {
 		return this.thursday;
 	}
 	
-	public boolean getFriday() {
+	boolean getFriday() {
 		return this.friday;
 	}
 	
-	public boolean getSaturday() {
+	boolean getSaturday() {
 		return this.saturday;
 	}
 	
-	public boolean getSunday() {
+	boolean getSunday() {
 		return this.sunday;
 	}
 
-    public boolean isValidDay(int week) {
+    boolean isValidDay(int week) {
         switch(week) {
         case Calendar.SUNDAY: return sunday;
         case Calendar.MONDAY: return monday;

@@ -19,7 +19,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     private final Context mContext;
     private TasksWidgetModel mModel;
 
-    public StackRemoteViewsFactory(Context context, Intent intent) {
+    StackRemoteViewsFactory(Context context, Intent intent) {
         mContext = context;
     }
 

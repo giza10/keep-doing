@@ -5,11 +5,12 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
-import android.widget.TextView;
+
+import androidx.appcompat.widget.AppCompatTextView;
 
 import com.hkb48.keepdo.com.hkb48.keepdo.util.CompatUtil;
 
-public class RecurrenceView extends TextView {
+public class RecurrenceView extends AppCompatTextView {
     private final String[] mWeekName;
 
     public RecurrenceView(Context context, AttributeSet attrs) {
@@ -21,7 +22,7 @@ public class RecurrenceView extends TextView {
         }
     }
 
-    public void update(boolean[] recurrenceFlags) {
+    void update(boolean[] recurrenceFlags) {
         final String separator = getContext().getString(R.string.recurrence_separator);
         final int colorOffDay = CompatUtil.getColor(getContext(), R.color.recurrence_off_day);
         final int weekStartDay = Settings.getWeekStartDay() - 1;
@@ -32,7 +33,7 @@ public class RecurrenceView extends TextView {
             int start = ssb.length();
             ssb.append(mWeekName[index]);
             if (!recurrenceFlags[index]) {
-                ssb.setSpan(new ForegroundColorSpan(colorOffDay), start, ssb.length(),  
+                ssb.setSpan(new ForegroundColorSpan(colorOffDay), start, ssb.length(),
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
             if (i != (mWeekName.length - 1)) {
@@ -42,7 +43,7 @@ public class RecurrenceView extends TextView {
         setText(ssb);
     }
 
-    public void update(Recurrence recurrence) {
+    void update(Recurrence recurrence) {
         boolean[] recurrenceFlags = new boolean[7];
         recurrenceFlags[0] = recurrence.getSunday();
         recurrenceFlags[1] = recurrence.getMonday();
