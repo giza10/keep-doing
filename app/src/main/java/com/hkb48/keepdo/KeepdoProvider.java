@@ -14,10 +14,10 @@ import android.provider.BaseColumns;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 public class KeepdoProvider extends ContentProvider {
-    //    private static final String TAG = "#KEEPDO_PROVIDER: ";
     private static final String AUTHORITY = "com.hkb48.keepdo.keepdoprovider";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
@@ -28,12 +28,12 @@ public class KeepdoProvider extends ContentProvider {
         }
 
         // Incoming URI matches the main table URI pattern
-        public static final int TABLE_LIST = 10;
+        static final int TABLE_LIST = 10;
         // Incoming URI matches the main table row ID URI pattern
-        public static final int TABLE_ID = 20;
+        static final int TABLE_ID = 20;
 
-        public static final String TABLE_NAME = "table_tasks";
-        public static final String TABLE_URI = "table_task_uri";
+        static final String TABLE_NAME = "table_tasks";
+        static final String TABLE_URI = "table_task_uri";
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
 
         public static final String TASK_NAME = "task_name";
@@ -44,10 +44,10 @@ public class KeepdoProvider extends ContentProvider {
         public static final String FREQUENCY_FRI = "fri_frequency";
         public static final String FREQUENCY_SAT = "sat_frequency";
         public static final String FREQUENCY_SUN = "sun_frequency";
-        public static final String TASK_CONTEXT = "task_context";
+        static final String TASK_CONTEXT = "task_context";
 
-        public static final String REMINDER_ENABLED = "reminder_enabled";
-        public static final String REMINDER_TIME = "reminder_time";
+        static final String REMINDER_ENABLED = "reminder_enabled";
+        static final String REMINDER_TIME = "reminder_time";
         public static final String TASK_LIST_ORDER = "task_list_order";
     }
 
@@ -58,12 +58,12 @@ public class KeepdoProvider extends ContentProvider {
         }
 
         // Incoming URI matches the main table URI pattern
-        public static final int TABLE_LIST = 30;
+        static final int TABLE_LIST = 30;
         // Incoming URI matches the main table row ID URI pattern
-        public static final int TABLE_ID = 40;
+        static final int TABLE_ID = 40;
 
-        public static final String TABLE_NAME = "table_completions";
-        public static final String TABLE_URI = "table_completion_uri";
+        static final String TABLE_NAME = "table_completions";
+        static final String TABLE_URI = "table_completion_uri";
 
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
 
@@ -75,11 +75,11 @@ public class KeepdoProvider extends ContentProvider {
         private DateChangeTime() {
         }
         // Incoming URI matches the main table URI pattern
-        public static final int TABLE_LIST = 50;
+        static final int TABLE_LIST = 50;
         // Incoming URI matches the main table row ID URI pattern
-        public static final int TABLE_ID = 60;
+        static final int TABLE_ID = 60;
 
-        public static final String TABLE_URI = "table_datechangetime_uri";
+        static final String TABLE_URI = "table_datechangetime_uri";
 
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
         public static final String ADJUSTED_DATE = "date";
@@ -97,6 +97,30 @@ public class KeepdoProvider extends ContentProvider {
         sURIMatcher.addURI(AUTHORITY, TaskCompletion.TABLE_URI + "/#", TaskCompletion.TABLE_ID);
         sURIMatcher.addURI(AUTHORITY, DateChangeTime.TABLE_URI, DateChangeTime.TABLE_LIST);
         sURIMatcher.addURI(AUTHORITY, DateChangeTime.TABLE_URI + "/#", DateChangeTime.TABLE_ID);
+    }
+
+    private static HashMap<String, String> sTasksProjectionMap = new HashMap<>();
+    static {
+        sTasksProjectionMap.put(Tasks._ID, Tasks._ID);
+        sTasksProjectionMap.put(Tasks.TASK_NAME, Tasks.TASK_NAME);
+        sTasksProjectionMap.put(Tasks.FREQUENCY_MON, Tasks.FREQUENCY_MON);
+        sTasksProjectionMap.put(Tasks.FREQUENCY_TUE, Tasks.FREQUENCY_TUE);
+        sTasksProjectionMap.put(Tasks.FREQUENCY_WEN, Tasks.FREQUENCY_WEN);
+        sTasksProjectionMap.put(Tasks.FREQUENCY_THR, Tasks.FREQUENCY_THR);
+        sTasksProjectionMap.put(Tasks.FREQUENCY_FRI, Tasks.FREQUENCY_FRI);
+        sTasksProjectionMap.put(Tasks.FREQUENCY_SAT, Tasks.FREQUENCY_SAT);
+        sTasksProjectionMap.put(Tasks.FREQUENCY_SUN, Tasks.FREQUENCY_SUN);
+        sTasksProjectionMap.put(Tasks.TASK_CONTEXT, Tasks.TASK_CONTEXT);
+        sTasksProjectionMap.put(Tasks.REMINDER_ENABLED, Tasks.REMINDER_ENABLED);
+        sTasksProjectionMap.put(Tasks.REMINDER_TIME, Tasks.REMINDER_TIME);
+        sTasksProjectionMap.put(Tasks.TASK_LIST_ORDER, Tasks.TASK_LIST_ORDER);
+    }
+
+    private static HashMap<String, String> sTaskCompletionProjectionMap = new HashMap<>();
+    static {
+        sTaskCompletionProjectionMap.put(TaskCompletion._ID, TaskCompletion._ID);
+        sTaskCompletionProjectionMap.put(TaskCompletion.TASK_NAME_ID, TaskCompletion.TASK_NAME_ID);
+        sTaskCompletionProjectionMap.put(TaskCompletion.TASK_COMPLETION_DATE, TaskCompletion.TASK_COMPLETION_DATE);
     }
 
     @Override
@@ -162,11 +186,15 @@ public class KeepdoProvider extends ContentProvider {
             case Tasks.TABLE_LIST:
             case Tasks.TABLE_ID:
                 qb.setTables(Tasks.TABLE_NAME);
+                qb.setProjectionMap(sTasksProjectionMap);
+                qb.setStrict(true);
                 break;
 
             case TaskCompletion.TABLE_LIST:
             case TaskCompletion.TABLE_ID:
                 qb.setTables(TaskCompletion.TABLE_NAME);
+                qb.setProjectionMap(sTaskCompletionProjectionMap);
+                qb.setStrict(true);
                 break;
 
             case DateChangeTime.TABLE_LIST:

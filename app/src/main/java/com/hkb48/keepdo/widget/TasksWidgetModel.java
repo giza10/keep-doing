@@ -23,11 +23,11 @@ class TasksWidgetModel {
     private final Context mContext;
     private final List<Task> mTaskList = new ArrayList<>();
 
-    public TasksWidgetModel (Context context) {
+    TasksWidgetModel (Context context) {
         mContext = context;
     }
 
-    public void reload() {
+    void reload() {
         mTaskList.clear();
         String sortOrder = Tasks.TASK_LIST_ORDER + " asc";
         Cursor cursor = mContext.getContentResolver().query(Tasks.CONTENT_URI, null, null,
@@ -47,19 +47,19 @@ class TasksWidgetModel {
         cursor.close();
     }
 
-    public int getItemCount() {
+    int getItemCount() {
         return mTaskList.size();
     }
 
-    public long getTaskId(int position) {
+    long getTaskId(int position) {
         return mTaskList.get(position).id;
     }
 
-    public String getTaskName(int position) {
+    String getTaskName(int position) {
         return mTaskList.get(position).name;
     }
 
-    public String getTodayDate() {
+    String getTodayDate() {
         String date = "";
         Cursor cursor = mContext.getContentResolver().query(DateChangeTime.CONTENT_URI, null, null,
                 null, null);
@@ -71,7 +71,7 @@ class TasksWidgetModel {
         return date;
     }
 
-    public boolean getDoneStatus(long taskId, String date) {
+    boolean getDoneStatus(long taskId, String date) {
         boolean isDone = false;
 
         String selection = TaskCompletion.TASK_NAME_ID + "=? and " + TaskCompletion.TASK_COMPLETION_DATE + "=?";
@@ -117,7 +117,7 @@ class TasksWidgetModel {
         final long id;
         final String name;
 
-        public Task(long id, String name) {
+        Task(long id, String name) {
             this.id = id;
             this.name = name;
         }
