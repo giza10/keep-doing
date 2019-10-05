@@ -12,7 +12,7 @@ public class SortableListItem extends LinearLayout {
     }
 
     public void setText(String string) {
-        TextView textView = (TextView) findViewById(R.id.textView1);
+        TextView textView = findViewById(R.id.textView1);
         textView.setText(string);
     }
 

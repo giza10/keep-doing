@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -21,6 +23,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -36,6 +39,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hkb48.keepdo.com.hkb48.keepdo.util.CompatUtil;
+import com.hkb48.keepdo.com.hkb48.keepdo.util.DateComparator;
 import com.hkb48.keepdo.widget.TasksWidgetProvider;
 
 import java.io.File;
@@ -63,6 +67,7 @@ public class TasksActivity extends AppCompatActivity implements
     private final CheckSoundPlayer mCheckSound = new CheckSoundPlayer(this);
     private TaskAdapter mAdapter;
     private ContentObserver mContentObserver;
+    private boolean mContentsUpdated;
     private DatabaseAdapter mDBAdapter = null;
     private final Settings.OnChangedListener mSettingsChangedListener = new Settings.OnChangedListener() {
         public void onDoneIconSettingChanged() {
@@ -85,7 +90,7 @@ public class TasksActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -93,15 +98,15 @@ public class TasksActivity extends AppCompatActivity implements
             actionBar.setDisplayShowHomeEnabled(true);
         }
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.main_drawer_layout);
+        mDrawerLayout = findViewById(R.id.main_drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.app_name, R.string.app_name);
         mDrawerToggle.setDrawerIndicatorEnabled(true);
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.main_drawer_view);
+        NavigationView navigationView = findViewById(R.id.main_drawer_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -120,7 +125,7 @@ public class TasksActivity extends AppCompatActivity implements
         // Cancel notification (if displayed)
         NotificationController.cancelReminder(this);
 
-        ListView taskListView = (ListView) findViewById(R.id.mainListView);
+        ListView taskListView = findViewById(R.id.mainListView);
         mAdapter = new TaskAdapter();
         taskListView.setAdapter(mAdapter);
 
@@ -131,8 +136,7 @@ public class TasksActivity extends AppCompatActivity implements
                     public void onItemClick(AdapterView<?> parent, View view,
                                             int position, long id) {
                         // Show calendar view
-                        TaskListItem item = mDataList
-                                .get(position);
+                        TaskListItem item = mDataList.get(position);
                         if (item.type == TYPE_ITEM) {
                             Task task = (Task) item.data;
                             Long taskId = task.getTaskID();
@@ -148,7 +152,7 @@ public class TasksActivity extends AppCompatActivity implements
             @Override
             public void onChange(boolean selfChange) {
                 super.onChange(selfChange);
-                updateTaskList();
+                mContentsUpdated = true;
             }
         };
         getContentResolver().registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, mContentObserver);
@@ -161,6 +165,9 @@ public class TasksActivity extends AppCompatActivity implements
 
     @Override
     public void onResume() {
+        if (mContentsUpdated) {
+            updateTaskList();
+        }
         mCheckSound.load();
         super.onResume();
     }
@@ -187,7 +194,7 @@ public class TasksActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
@@ -281,11 +288,13 @@ public class TasksActivity extends AppCompatActivity implements
             // Dummy Task for header on the ListView
             TaskListHeader header = new TaskListHeader();
             header.title = getString(R.string.tasklist_header_today_task);
-            TaskListItem taskListItem = new TaskListItem(TYPE_HEADER, header);
+            TaskListItem taskListItem = new TaskListItem(TYPE_HEADER, header, null, null);
             mDataList.add(taskListItem);
 
             for (Task task : taskListToday) {
-                taskListItem = new TaskListItem(TYPE_ITEM, task);
+                Date lastDoneDate = mDBAdapter.getLastDoneDate(task.getTaskID());
+                ComboCount comboCount = mDBAdapter.getComboCount(task.getTaskID());
+                taskListItem = new TaskListItem(TYPE_ITEM, task, lastDoneDate, comboCount);
                 mDataList.add(taskListItem);
             }
         }
@@ -293,15 +302,18 @@ public class TasksActivity extends AppCompatActivity implements
             // Dummy Task for header on the ListView
             TaskListHeader header = new TaskListHeader();
             header.title = getString(R.string.tasklist_header_other_task);
-            TaskListItem taskListItem = new TaskListItem(TYPE_HEADER, header);
+            TaskListItem taskListItem = new TaskListItem(TYPE_HEADER, header, null, null);
             mDataList.add(taskListItem);
 
             for (Task task : taskListNotToday) {
-                taskListItem = new TaskListItem(TYPE_ITEM, task);
+                Date lastDoneDate = mDBAdapter.getLastDoneDate(task.getTaskID());
+                ComboCount comboCount = mDBAdapter.getComboCount(task.getTaskID());
+                taskListItem = new TaskListItem(TYPE_ITEM, task, lastDoneDate, comboCount);
                 mDataList.add(taskListItem);
             }
         }
         mAdapter.notifyDataSetChanged();
+        mContentsUpdated = false;
     }
 
     private void updateReminder() {
@@ -444,6 +456,7 @@ public class TasksActivity extends AppCompatActivity implements
         Toast.makeText(context,
                 R.string.restore_done, Toast.LENGTH_SHORT)
                 .show();
+        updateTaskList();
     }
 
     @Override
@@ -465,10 +478,14 @@ public class TasksActivity extends AppCompatActivity implements
     private static class TaskListItem {
         final int type;
         final Object data;
+        final Date lastDoneDate;
+        final ComboCount comboCount;
 
-        public TaskListItem(int type, Object data) {
+        TaskListItem(int type, Object data, Date lastDoneDate, ComboCount comboCount) {
             this.type = type;
             this.data = data;
+            this.lastDoneDate = lastDoneDate;
+            this.comboCount = comboCount;
         }
     }
 
@@ -491,7 +508,6 @@ public class TasksActivity extends AppCompatActivity implements
         public long getItemId(int position) {
             return position;
         }
-
 
         @Override
         public int getItemViewType(int position) {
@@ -535,26 +551,26 @@ public class TasksActivity extends AppCompatActivity implements
                     itemViewHolder = new ItemViewHolder();
                     view = inflater.inflate(R.layout.task_list_row, parent, false);
                     itemViewHolder.viewType = TYPE_ITEM;
-                    itemViewHolder.imageView = (ImageView) view
+                    itemViewHolder.imageView = view
                             .findViewById(R.id.taskListItemCheck);
-                    itemViewHolder.textView1 = (TextView) view
+                    itemViewHolder.textView1 = view
                             .findViewById(R.id.taskName);
-                    itemViewHolder.textView2 = (TextView) view
+                    itemViewHolder.textView2 = view
                             .findViewById(R.id.taskContext);
-                    itemViewHolder.recurrenceView = (RecurrenceView) view
+                    itemViewHolder.recurrenceView = view
                             .findViewById(R.id.recurrenceView);
-                    itemViewHolder.lastDoneDateTextView = (TextView) view
+                    itemViewHolder.lastDoneDateTextView = view
                             .findViewById(R.id.taskLastDoneDate);
-                    itemViewHolder.imageAlarm = (ImageView) view
+                    itemViewHolder.imageAlarm = view
                             .findViewById(R.id.AlarmIcon);
-                    itemViewHolder.textAlarm = (TextView) view
+                    itemViewHolder.textAlarm = view
                             .findViewById(R.id.AlarmText);
                     view.setTag(itemViewHolder);
                 } else {
                     headerViewHolder = new HeaderViewHolder();
                     view = inflater.inflate(R.layout.task_list_header, parent, false);
                     headerViewHolder.viewType = TYPE_HEADER;
-                    headerViewHolder.textView1 = (TextView) view
+                    headerViewHolder.textView1 = view
                             .findViewById(R.id.textView1);
                     view.setTag(headerViewHolder);
                 }
@@ -562,7 +578,6 @@ public class TasksActivity extends AppCompatActivity implements
 
             if (isTask) {
                 Task task = (Task) taskListItem.data;
-                long taskId = task.getTaskID();
 
                 TextView textView1 = itemViewHolder.textView1;
                 String taskName = task.getName();
@@ -594,10 +609,10 @@ public class TasksActivity extends AppCompatActivity implements
                 }
 
                 ImageView imageView = itemViewHolder.imageView;
-                Date today = DateChangeTimeUtil.getDateTime();
-                boolean checked = mDBAdapter.getDoneStatus(taskId, today);
+                final Date today = DateChangeTimeUtil.getDateTime();
+                boolean checked = DateComparator.equals(taskListItem.lastDoneDate, today);
 
-                updateView(taskId, checked, itemViewHolder);
+                updateView(taskListItem, checked, itemViewHolder);
 
                 imageView.setTag(position);
                 imageView.setOnClickListener(new View.OnClickListener() {
@@ -605,18 +620,18 @@ public class TasksActivity extends AppCompatActivity implements
                         View parent = (View) v.getParent();
                         ItemViewHolder itemViewHolder = new ItemViewHolder();
                         itemViewHolder.imageView = (ImageView) v;
-                        itemViewHolder.lastDoneDateTextView = (TextView) parent
-                                .findViewById(R.id.taskLastDoneDate);
+                        itemViewHolder.lastDoneDateTextView =
+                                parent.findViewById(R.id.taskLastDoneDate);
                         int position = (Integer) v.getTag();
                         TaskListItem taskListItem = (TaskListItem) getItem(position);
                         Task task = (Task) taskListItem.data;
                         long taskId = task.getTaskID();
-                        Date today = DateChangeTimeUtil.getDateTime();
-                        boolean checked = mDBAdapter.getDoneStatus(taskId,
-                                today);
+                        boolean checked = DateComparator.equals(taskListItem.lastDoneDate, today);
                         checked = !checked;
                         mDBAdapter.setDoneStatus(taskId, today, checked);
-                        updateView(taskId, checked, itemViewHolder);
+                        updateModel(task, position);
+                        taskListItem = (TaskListItem) getItem(position);
+                        updateView(taskListItem, checked, itemViewHolder);
                         updateReminder();
                         TasksWidgetProvider.notifyDatasetChanged(getApplicationContext());
 
@@ -633,7 +648,15 @@ public class TasksActivity extends AppCompatActivity implements
             return view;
         }
 
-        private void updateView(long taskId, boolean checked,
+        private void updateModel(Task task, int position){
+            Date lastDoneDate = mDBAdapter.getLastDoneDate(task.getTaskID());
+            ComboCount comboCount = mDBAdapter.getComboCount(task.getTaskID());
+            TaskListItem newTaskListItem =
+                    new TaskListItem(TYPE_ITEM, task, lastDoneDate, comboCount);
+            mDataList.set(position, newTaskListItem);
+
+        }
+        private void updateView(TaskListItem taskListItem, boolean checked,
                                 ItemViewHolder holder) {
             Date today = DateChangeTimeUtil.getDateTime();
             ImageView imageView = holder.imageView;
@@ -644,7 +667,7 @@ public class TasksActivity extends AppCompatActivity implements
 
             if (checked) {
                 imageView.setImageResource(Settings.getDoneIconId());
-                ComboCount comboCount = mDBAdapter.getComboCount(taskId);
+                ComboCount comboCount = taskListItem.comboCount;
                 if (comboCount.currentCount > 1) {
                     lastDoneDateTextView.setTextColor(CompatUtil.getColor(getApplicationContext(),
                             R.color.tasklist_combo));
@@ -656,9 +679,9 @@ public class TasksActivity extends AppCompatActivity implements
                 }
             } else {
                 imageView.setImageResource(Settings.getNotDoneIconId());
-                Date lastDoneDate = mDBAdapter.getLastDoneDate(taskId);
+                Date lastDoneDate = taskListItem.lastDoneDate;
                 if (lastDoneDate != null) {
-                    ComboCount comboCount = mDBAdapter.getComboCount(taskId);
+                    ComboCount comboCount = taskListItem.comboCount;
                     if (comboCount.currentCount > 1) {
                         lastDoneDateTextView.setTextColor(CompatUtil
                                 .getColor(getApplicationContext(), R.color.tasklist_combo));
@@ -666,8 +689,8 @@ public class TasksActivity extends AppCompatActivity implements
                                 R.string.tasklist_combo,
                                 comboCount.currentCount));
                     } else {
-                        int diffDays = (int) ((today.getTime() - lastDoneDate
-                                .getTime()) / (long) (1000 * 60 * 60 * 24));
+                        int diffDays = (int) ((today.getTime() - lastDoneDate.getTime())
+                                / (long) (1000 * 60 * 60 * 24));
                         if (diffDays == 1) {
                             lastDoneDateTextView
                                     .setText(getString(R.string.tasklist_lastdonedate_yesterday));

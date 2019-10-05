@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'com.google.android.material:material:1.1.0-alpha10'
+    implementation 'com.google.android.material:material:1.2.0-alpha01'
 }
 
 android {
@@ -14,7 +14,7 @@ android {
         applicationId "com.hkb48.keepdo"
         minSdkVersion 14
         targetSdkVersion 29
-        versionCode 58
+        versionCode 60
         versionName "1.20"
     }
 

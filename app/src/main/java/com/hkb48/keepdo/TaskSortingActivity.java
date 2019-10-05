@@ -24,7 +24,7 @@ public class TaskSortingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_sorting);
 
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -33,7 +33,7 @@ public class TaskSortingActivity extends AppCompatActivity {
         mDataList = mDBAdapter.getTaskList();
 
         mAdapter = new TaskAdapter();
-        SortableListView taskListView = (SortableListView) findViewById(R.id.mainListView);
+        SortableListView taskListView = findViewById(R.id.mainListView);
         taskListView.setAdapter(mAdapter);
         taskListView.setDragAndDropListener(onDrop);
         mAdapter.notifyDataSetChanged();
@@ -121,7 +121,7 @@ public class TaskSortingActivity extends AppCompatActivity {
     };
 
     private void enableSaveButton() {
-        Button okButton = (Button) findViewById(R.id.okButton);
+        Button okButton = findViewById(R.id.okButton);
         okButton.setEnabled(true);
     }
 }

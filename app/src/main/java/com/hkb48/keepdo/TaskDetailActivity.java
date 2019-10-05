@@ -28,7 +28,7 @@ public class TaskDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_detail);
 
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -98,11 +98,11 @@ public class TaskDetailActivity extends AppCompatActivity {
         Task task = dbAdapter.getTask(mTaskId);
 
         // Recurrence
-        RecurrenceView recurrenceView = (RecurrenceView) findViewById(R.id.recurrenceView);
+        RecurrenceView recurrenceView = findViewById(R.id.recurrenceView);
         recurrenceView.update(task.getRecurrence());
 
         // Reminder
-        TextView reminderTextView = (TextView) findViewById(R.id.taskDetailReminderValue);
+        TextView reminderTextView = findViewById(R.id.taskDetailReminderValue);
         Reminder reminder = task.getReminder();
         if (reminder.getEnabled()) {
             String hourOfDayStr = String.format(Locale.getDefault(), "%1$02d", reminder.getHourOfDay());
@@ -114,8 +114,8 @@ public class TaskDetailActivity extends AppCompatActivity {
         }
 
         // Context
-        TextView contextTitleTextView = (TextView) findViewById(R.id.taskDetailContext);
-        TextView contextTextView = (TextView) findViewById(R.id.taskDetailContextDescription);
+        TextView contextTitleTextView = findViewById(R.id.taskDetailContext);
+        TextView contextTextView = findViewById(R.id.taskDetailContextDescription);
         String contextStr = task.getContext();
         if (contextStr == null || contextStr.isEmpty()) {
             View contextLayout = findViewById(R.id.taskDetailContextContainer);
@@ -129,11 +129,11 @@ public class TaskDetailActivity extends AppCompatActivity {
         }
 
         // Total number of done
-        TextView numOfDoneTextView = (TextView) findViewById(R.id.taskDetailNumOfDoneValue);
+        TextView numOfDoneTextView = findViewById(R.id.taskDetailNumOfDoneValue);
         numOfDoneTextView.setText(getString(R.string.number_of_times, dbAdapter.getNumberOfDone(task.getTaskID())));
 
         // Current combo / Max combo
-        TextView comboTextView = (TextView) findViewById(R.id.taskDetailComboValue);
+        TextView comboTextView = findViewById(R.id.taskDetailComboValue);
         ComboCount combo = dbAdapter.getComboCount(task.getTaskID());
         if (combo != null) {
             comboTextView.setText(getString(R.string.number_of_times, combo.currentCount) + " / " + getString(R.string.number_of_times, combo.maxCount));
@@ -141,7 +141,7 @@ public class TaskDetailActivity extends AppCompatActivity {
 
         // First date that done is set
         final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN);
-        TextView firstDoneDateTextView = (TextView) findViewById(R.id.taskDetailFirstDoneDateValue);
+        TextView firstDoneDateTextView = findViewById(R.id.taskDetailFirstDoneDateValue);
         Date firstDoneDate = dbAdapter.getFirstDoneDate(task.getTaskID());
         if (firstDoneDate != null) {
             firstDoneDateTextView.setText(dateFormat.format(firstDoneDate));
@@ -151,7 +151,7 @@ public class TaskDetailActivity extends AppCompatActivity {
         }
 
         // Last date that done is set
-        TextView lastDoneDateTextView = (TextView) findViewById(R.id.taskDetailLastDoneDateValue);
+        TextView lastDoneDateTextView = findViewById(R.id.taskDetailLastDoneDateValue);
         Date lastDoneDate = dbAdapter.getLastDoneDate(task.getTaskID());
         if (lastDoneDate != null) {
             lastDoneDateTextView.setText(dateFormat.format(lastDoneDate));

@@ -66,7 +66,7 @@ public class GeneralSettingsFragment extends PreferenceFragment implements OnPre
 
         mRingtonePref = (RingtonePreference) preferenceScreen.findPreference(KEY_ALERTS_RINGTONE);
         mVibrateWhenPref = (ListPreference) preferenceScreen.findPreference(KEY_ALERTS_VIBRATE_WHEN);
-        mNotificationPref = (Preference) preferenceScreen.findPreference(KEY_ALERTS_NOTIFICATION);
+        mNotificationPref = preferenceScreen.findPreference(KEY_ALERTS_NOTIFICATION);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             alertGroup.removePreference(mNotificationPref);

@@ -36,7 +36,7 @@ public class CalendarFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ViewPager mViewPager = (ViewPager)view.findViewById(R.id.viewPager);
+        ViewPager mViewPager = view.findViewById(R.id.viewPager);
         mViewPager.setAdapter(new CalendarPageAdapter(getChildFragmentManager()));
         mViewPager.setCurrentItem(CalendarFragment.NUM_MAXIMUM_MONTHS);
     }

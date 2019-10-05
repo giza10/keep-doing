@@ -3,8 +3,8 @@ package com.hkb48.keepdo;
 import java.io.Serializable;
 
 @SuppressWarnings("serial")
-class Task implements Serializable {
-    public static final long INVALID_TASKID = Long.MIN_VALUE;
+public class Task implements Serializable {
+    static final long INVALID_TASKID = Long.MIN_VALUE;
 
     private long identifier;
     private String name;
@@ -42,7 +42,7 @@ class Task implements Serializable {
         return reminder;
     }
 
-    public long getOrder() {
+    long getOrder() {
         return order;
     }
 
@@ -66,7 +66,7 @@ class Task implements Serializable {
         this.context = context;
     }
 
-    public void setOrder(long order) {
+    void setOrder(long order) {
         this.order = order;
     }
 }

@@ -5,9 +5,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
+import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
 import com.hkb48.keepdo.KeepdoProvider.TaskCompletion;
 import com.hkb48.keepdo.KeepdoProvider.Tasks;
 
@@ -28,7 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-class DatabaseAdapter {
+public class DatabaseAdapter {
     private static final String TAG = "#KEEPDO_DB_ADAPTER: ";
 
     // Backup & Restore
@@ -48,7 +50,7 @@ class DatabaseAdapter {
         mContentResolver = context.getContentResolver();
     }
 
-    static synchronized DatabaseAdapter getInstance(Context context) {
+    public static synchronized DatabaseAdapter getInstance(Context context) {
         if (INSTANCE == null) {
             INSTANCE = new DatabaseAdapter(context);
         }
@@ -56,7 +58,7 @@ class DatabaseAdapter {
         return INSTANCE;
     }
 
-    public synchronized void close() {
+    synchronized void close() {
         mDatabaseHelper.close();
     }
 
@@ -77,7 +79,7 @@ class DatabaseAdapter {
         return tasks;
     }
 
-    public void addTask(Task task) {
+    void addTask(Task task) {
         String taskName = task.getName();
         String taskContext = task.getContext();
         Recurrence recurrence = task.getRecurrence();
@@ -110,7 +112,7 @@ class DatabaseAdapter {
     }
 
     void editTask(Task task) {
-        Long taskID = task.getTaskID();
+        long taskID = task.getTaskID();
         String taskName = task.getName();
         String taskContext = task.getContext();
         Recurrence recurrence = task.getRecurrence();
@@ -135,7 +137,7 @@ class DatabaseAdapter {
         contentValues.put(Tasks.TASK_LIST_ORDER, task.getOrder());
 
         String whereClause = Tasks._ID + "=?";
-        String whereArgs[] = {taskID.toString()};
+        String[] whereArgs = {String.valueOf(taskID)};
 
         try {
             mContentResolver.update(Tasks.CONTENT_URI, contentValues, whereClause, whereArgs);
@@ -147,7 +149,7 @@ class DatabaseAdapter {
     void deleteTask(Long taskID) {
         // Delete task from TASKS_TABLE_NAME
         String whereClause = Tasks._ID + "=?";
-        String whereArgs[] = {taskID.toString()};
+        String[] whereArgs = {taskID.toString()};
         mContentResolver.delete(Tasks.CONTENT_URI, whereClause, whereArgs);
 
         // Delete records of deleted task from TASK_COMPLETION_TABLE_NAME
@@ -175,18 +177,23 @@ class DatabaseAdapter {
             }
         } else {
             String whereClause = TaskCompletion.TASK_NAME_ID + "=? and " + TaskCompletion.TASK_COMPLETION_DATE + "=?";
-            String whereArgs[] = {taskID.toString(), dateFormat.format(date)};
+            String[] whereArgs = {taskID.toString(), dateFormat.format(date)};
             mContentResolver.delete(TaskCompletion.CONTENT_URI, whereClause, whereArgs);
         }
     }
 
-    boolean getDoneStatus(Long taskID, Date day) {
-        boolean isDone = false;
+    boolean getDoneStatus(Long taskID, Date date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
-        String selection = TaskCompletion.TASK_NAME_ID + "=? and " + TaskCompletion.TASK_COMPLETION_DATE + "=?";
-        String selectionArgs[] = {String.valueOf(taskID), dateFormat.format(day)};
+        return getDoneStatus(taskID, dateFormat.format(date));
+    }
 
-        Cursor cursor = mContentResolver.query(TaskCompletion.CONTENT_URI, null, selection,
+    public boolean getDoneStatus(Long taskID, String date) {
+        boolean isDone = false;
+        Uri uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, String.valueOf(taskID));
+        String selection = TaskCompletion.TASK_COMPLETION_DATE + "=?";
+        String[] selectionArgs = {date};
+
+        Cursor cursor = mContentResolver.query(uri, null, selection,
                 selectionArgs, null);
         if (cursor != null) {
             if (cursor.getCount() > 0) {
@@ -197,12 +204,10 @@ class DatabaseAdapter {
         return isDone;
     }
 
-    public int getNumberOfDone(Long taskID) {
+    int getNumberOfDone(Long taskID) {
         int numberOfDone = 0;
-        String selection = TaskCompletion.TASK_NAME_ID + "=?";
-        String selectionArgs[] = {String.valueOf(taskID)};
-        Cursor cursor = mContentResolver.query(TaskCompletion.CONTENT_URI, null, selection,
-                selectionArgs, null);
+        Uri uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, String.valueOf(taskID));
+        Cursor cursor = mContentResolver.query(uri, null, null, null, null);
         if (cursor != null) {
             numberOfDone = cursor.getCount();
             cursor.close();
@@ -210,14 +215,11 @@ class DatabaseAdapter {
         return numberOfDone;
     }
 
-    public Date getFirstDoneDate(Long taskID) {
+    Date getFirstDoneDate(Long taskID) {
         final SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
         Date date = null;
-        String[] projection = {"min(" + TaskCompletion.TASK_COMPLETION_DATE + ")"};
-        String selection = TaskCompletion.TASK_NAME_ID + "=?";
-        String selectionArgs[] = {String.valueOf(taskID)};
-        Cursor cursor = mContentResolver.query(TaskCompletion.CONTENT_URI, projection, selection,
-                selectionArgs, null);
+        Uri uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, String.valueOf(taskID));
+        Cursor cursor = mContentResolver.query(Uri.withAppendedPath(uri, "min"), null, null, null, null);
 
         if (cursor != null) {
             cursor.moveToFirst();
@@ -226,7 +228,7 @@ class DatabaseAdapter {
                 try {
                     date = sdf_ymd.parse(dateString);
                 } catch (ParseException e) {
-                    Log.e(TAG, e.getMessage());
+                    Log.e(TAG, e.getMessage() + " in getFirstDoneDate() :" + dateString);
                 }
             }
             cursor.close();
@@ -234,14 +236,11 @@ class DatabaseAdapter {
         return date;
     }
 
-    public Date getLastDoneDate(Long taskID) {
+    Date getLastDoneDate(Long taskID) {
         final SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
         Date date = null;
-        String[] projection = {"max(" + TaskCompletion.TASK_COMPLETION_DATE + ")"};
-        String selection = TaskCompletion.TASK_NAME_ID + "=?";
-        String selectionArgs[] = {String.valueOf(taskID)};
-        Cursor cursor = mContentResolver.query(TaskCompletion.CONTENT_URI, projection, selection,
-                selectionArgs, null);
+        Uri uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, String.valueOf(taskID));
+        Cursor cursor = mContentResolver.query(Uri.withAppendedPath(uri, "max"), null, null, null, null);
 
         if (cursor != null) {
             cursor.moveToFirst();
@@ -250,7 +249,7 @@ class DatabaseAdapter {
                 try {
                     date = sdf_ymd.parse(dateString);
                 } catch (ParseException e) {
-                    Log.e(TAG, e.getMessage());
+                    Log.e(TAG, e.getMessage() + " in getLastDoneDate() :" + dateString);
                 }
             }
             cursor.close();
@@ -260,10 +259,8 @@ class DatabaseAdapter {
 
     Task getTask(Long taskID) {
         Task task = null;
-        String selection = Tasks._ID + "=?";
-        String selectionArgs[] = {String.valueOf(taskID)};
-        Cursor cursor = mContentResolver.query(Tasks.CONTENT_URI, null, selection,
-                selectionArgs, null);
+        Uri uri = Uri.withAppendedPath(Tasks.CONTENT_URI, String.valueOf(taskID));
+        Cursor cursor = mContentResolver.query(uri, null, null, null, null);
         if (cursor != null) {
             cursor.moveToFirst();
             task = getTask(cursor);
@@ -275,10 +272,8 @@ class DatabaseAdapter {
 
     ArrayList<Date> getHistory(Long taskID, Date month) {
         ArrayList<Date> dateList = new ArrayList<>();
-        String selection = TaskCompletion.TASK_NAME_ID + "=?";
-        String selectionArgs[] = {String.valueOf(taskID)};
-        Cursor cursor = mContentResolver.query(TaskCompletion.CONTENT_URI, null, selection,
-                selectionArgs, null);
+        Uri uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, String.valueOf(taskID));
+        Cursor cursor = mContentResolver.query(uri, null, null, null, null);
         SimpleDateFormat sdf_ym = new SimpleDateFormat(SDF_PATTERN_YM, Locale.JAPAN);
 
         if (cursor != null) {
@@ -301,13 +296,10 @@ class DatabaseAdapter {
         int currentCount = 0;
         int maxCount = 0;
 
-        Recurrence recurrence = getTask(taskID).getRecurrence();
-        String[] projection = {"distinct " + TaskCompletion.TASK_COMPLETION_DATE};
-        String selection = TaskCompletion.TASK_NAME_ID + "=?";
-        String selectionArgs[] = {String.valueOf(taskID)};
+        Uri uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, String.valueOf(taskID));
         String sortOrder = TaskCompletion.TASK_COMPLETION_DATE + " asc";
-        Cursor cursor = mContentResolver.query(TaskCompletion.CONTENT_URI, projection, selection,
-                selectionArgs, sortOrder);
+        Cursor cursor = mContentResolver.query(
+                uri.buildUpon().appendQueryParameter("distinct", "true").build(), null, null,null, sortOrder);
 
         if (cursor != null) {
             if (cursor.moveToFirst()) {
@@ -329,6 +321,7 @@ class DatabaseAdapter {
                         }
                         calIndex.add(Calendar.DAY_OF_MONTH, 1);
                     } else {
+                        Recurrence recurrence = getTask(taskID).getRecurrence();
                         if (recurrence.isValidDay(calIndex.get(Calendar.DAY_OF_WEEK))) {
                             // stop combo
                             if (!calIndex.equals(calToday)) {
@@ -351,6 +344,18 @@ class DatabaseAdapter {
         return new ComboCount(currentCount, maxCount);
     }
 
+    public String getTodayDate() {
+        String date = "";
+        Cursor cursor = mContentResolver.query(DateChangeTime.CONTENT_URI, null, null,
+                null, null);
+        if (cursor.moveToFirst()) {
+            final int dateColIndex = cursor.getColumnIndex(DateChangeTime.ADJUSTED_DATE);
+            date = cursor.getString(dateColIndex);
+        }
+        cursor.close();
+        return date;
+    }
+
     private Date getDate(Cursor cursor) {
         String dateString = cursor.getString(cursor.getColumnIndex(TaskCompletion.TASK_COMPLETION_DATE));
         SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
@@ -360,7 +365,7 @@ class DatabaseAdapter {
             try {
                 date = sdf_ymd.parse(dateString);
             } catch (ParseException e) {
-                Log.e(TAG, e.getMessage());
+                Log.e(TAG, e.getMessage() + " in getDate() :" + dateString);
             }
         }
         return date;
@@ -373,7 +378,7 @@ class DatabaseAdapter {
     }
 
     private Task getTask(Cursor cursor) {
-        Long taskID = Long.parseLong(cursor.getString(cursor.getColumnIndex(Tasks._ID)));
+        long taskID = Long.parseLong(cursor.getString(cursor.getColumnIndex(Tasks._ID)));
         String taskName = cursor.getString(cursor.getColumnIndex(Tasks.TASK_NAME));
         String taskContext = cursor.getString(cursor.getColumnIndex(Tasks.TASK_CONTEXT));
 
@@ -402,10 +407,10 @@ class DatabaseAdapter {
         return task;
     }
 
-    public int getMaxSortOrderId() {
+    int getMaxSortOrderId() {
         int maxOrderId = 0;
-        String[] projection = {"max(" + Tasks.TASK_LIST_ORDER + ")"};
-        Cursor cursor = mContentResolver.query(Tasks.CONTENT_URI, projection, null,
+        Uri uri = Uri.withAppendedPath(Tasks.CONTENT_URI, "max_order");
+        Cursor cursor = mContentResolver.query(uri, null, null,
                 null, null);
         if (cursor != null) {
             cursor.moveToFirst();

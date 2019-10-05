@@ -52,7 +52,7 @@ public class Recurrence implements Serializable {
 		return this.sunday;
 	}
 
-    boolean isValidDay(int week) {
+    public boolean isValidDay(int week) {
         switch(week) {
         case Calendar.SUNDAY: return sunday;
         case Calendar.MONDAY: return monday;

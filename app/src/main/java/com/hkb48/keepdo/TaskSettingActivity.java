@@ -44,7 +44,7 @@ public class TaskSettingActivity extends AppCompatActivity {
         getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         setContentView(R.layout.activity_task_setting);
 
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -53,8 +53,8 @@ public class TaskSettingActivity extends AppCompatActivity {
             toolbar.setNavigationIcon(R.drawable.ic_close);
             LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View v = inflater.inflate(R.layout.actionbar_task_setting, null);
-            mTitleText = (TextView) v.findViewById(R.id.title_text);
-            mSaveButton = (Button) v.findViewById(R.id.button_save);
+            mTitleText = v.findViewById(R.id.title_text);
+            mSaveButton = v.findViewById(R.id.button_save);
             mSaveButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -64,10 +64,10 @@ public class TaskSettingActivity extends AppCompatActivity {
             actionBar.setCustomView(v);
         }
 
-        EditText editTextTaskName = (EditText) findViewById(R.id.editTextTaskName);
+        EditText editTextTaskName = findViewById(R.id.editTextTaskName);
         enableInputEmoji(editTextTaskName);
 
-        EditText editTextDescription = (EditText) findViewById(R.id.editTextDescription);
+        EditText editTextDescription = findViewById(R.id.editTextDescription);
         enableInputEmoji(editTextDescription);
 
         Recurrence recurrence;
@@ -143,12 +143,12 @@ public class TaskSettingActivity extends AppCompatActivity {
     private void addRecurrence(Recurrence recurrence) {
         final String[] weekNames = getResources().getStringArray(
                 R.array.week_names);
-        final RecurrenceView recurrenceView = (RecurrenceView) findViewById(R.id.recurrenceView);
+        final RecurrenceView recurrenceView = findViewById(R.id.recurrenceView);
         recurrenceView.update(recurrence);
 
         findViewById(R.id.recurrenceView).setOnClickListener(
                 new OnClickListener() {
-                    boolean tmpRecurrenceFlags[];
+                    boolean[] tmpRecurrenceFlags;
 
                     public void onClick(final View v) {
                         tmpRecurrenceFlags = Arrays.copyOf(mRecurrenceFlags,
@@ -190,8 +190,8 @@ public class TaskSettingActivity extends AppCompatActivity {
 
     private void addReminder() {
         final Reminder reminder = mTask.getReminder();
-        final Button reminderTime = (Button) findViewById(R.id.buttonReminderTime);
-        final ImageButton cancelButton = (ImageButton) findViewById(R.id.reminder_remove);
+        final Button reminderTime = findViewById(R.id.buttonReminderTime);
+        final ImageButton cancelButton = findViewById(R.id.reminder_remove);
 
         final int hourOfDay = reminder.getHourOfDay();
         final int minute = reminder.getMinute();
@@ -236,8 +236,8 @@ public class TaskSettingActivity extends AppCompatActivity {
     }
 
     private void onSaveClicked() {
-        EditText editTextTaskName = (EditText) findViewById(R.id.editTextTaskName);
-        EditText editTextDescription = (EditText) findViewById(R.id.editTextDescription);
+        EditText editTextTaskName = findViewById(R.id.editTextTaskName);
+        EditText editTextDescription = findViewById(R.id.editTextDescription);
         Recurrence recurrence = new Recurrence(mRecurrenceFlags[1],
                 mRecurrenceFlags[2], mRecurrenceFlags[3], mRecurrenceFlags[4],
                 mRecurrenceFlags[5], mRecurrenceFlags[6], mRecurrenceFlags[0]);
@@ -258,7 +258,7 @@ public class TaskSettingActivity extends AppCompatActivity {
     }
 
     private boolean canSave() {
-        EditText editTextTaskName = (EditText) findViewById(R.id.editTextTaskName);
+        EditText editTextTaskName = findViewById(R.id.editTextTaskName);
         return (editTextTaskName.getText().length() > 0);
     }
 

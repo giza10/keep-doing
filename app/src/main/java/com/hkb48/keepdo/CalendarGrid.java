@@ -84,7 +84,7 @@ public class CalendarGrid extends Fragment {
         mCheckSound = new CheckSoundPlayer(getContext());
         mMonthOffset = (getArguments() != null) ? (getArguments().getInt(POSITION_KEY) - CalendarFragment.NUM_MAXIMUM_MONTHS  + 1) : (0);
 
-        mCalendarGrid = (LinearLayout) view.findViewById(R.id.calendar_grid);
+        mCalendarGrid = view.findViewById(R.id.calendar_grid);
 
         buildCalendar();
     }
@@ -151,7 +151,7 @@ public class CalendarGrid extends Fragment {
                 getString(R.string.date_format), Locale.getDefault());
         menu.setHeaderTitle(sdf.format(date));
 
-        ImageView imageView = (ImageView) mPressedView
+        ImageView imageView = mPressedView
                 .findViewById(R.id.imageViewDone);
         int visibility = imageView.getVisibility();
         if (visibility == View.VISIBLE) {
@@ -169,7 +169,7 @@ public class CalendarGrid extends Fragment {
             return false;
         }
 
-        ImageView imageView = (ImageView) mPressedView
+        ImageView imageView = mPressedView
                 .findViewById(R.id.imageViewDone);
         Date selectedDate = (Date) mPressedView.getTag();
 
@@ -212,7 +212,7 @@ public class CalendarGrid extends Fragment {
             int dayOfWeek = getDayOfWeek(i);
             View child = getActivity().getLayoutInflater().inflate(R.layout.calendar_week, null);
 
-            TextView textView1 = (TextView) child.findViewById(R.id.textView1);
+            TextView textView1 = child.findViewById(R.id.textView1);
             textView1.setText(weeks[dayOfWeek - 1]);
             switch (dayOfWeek) {
             case Calendar.SUNDAY:
@@ -296,8 +296,8 @@ public class CalendarGrid extends Fragment {
         for (int day = 1; day <= maxDate; day++) {
             View child = getActivity().getLayoutInflater().inflate(
                     R.layout.calendar_date, null);
-            TextView textView1 = (TextView) child.findViewById(R.id.textView1);
-            ImageView imageView1 = (ImageView) child
+            TextView textView1 = child.findViewById(R.id.textView1);
+            ImageView imageView1 = child
                     .findViewById(R.id.imageViewDone);
 
             // Register context menu to change done status of past days.
