@@ -53,7 +53,7 @@
             android:layout_height="60dp"
             android:gravity="center"
             android:text="@string/task_empty"
-            android:textColor="@android:color/black"
+            android:textColor="@color/widget_tasklist_text"
             android:textSize="@dimen/widget_list_item_font_size"
             android:background="@color/widget_tasklist_bg_item"
             android:visibility="gone" />
