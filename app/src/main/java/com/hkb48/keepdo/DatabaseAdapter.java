@@ -136,11 +136,9 @@ public class DatabaseAdapter {
         contentValues.put(Tasks.REMINDER_TIME, String.valueOf(reminder.getTimeInMillis()));
         contentValues.put(Tasks.TASK_LIST_ORDER, task.getOrder());
 
-        String whereClause = Tasks._ID + "=?";
-        String[] whereArgs = {String.valueOf(taskID)};
-
+        Uri uri = Uri.withAppendedPath(Tasks.CONTENT_URI, String.valueOf(taskID));
         try {
-            mContentResolver.update(Tasks.CONTENT_URI, contentValues, whereClause, whereArgs);
+            mContentResolver.update(uri, contentValues, null, null);
         } catch (SQLiteException e) {
             Log.e(TAG, e.getMessage());
         }
@@ -148,13 +146,12 @@ public class DatabaseAdapter {
 
     void deleteTask(Long taskID) {
         // Delete task from TASKS_TABLE_NAME
-        String whereClause = Tasks._ID + "=?";
-        String[] whereArgs = {taskID.toString()};
-        mContentResolver.delete(Tasks.CONTENT_URI, whereClause, whereArgs);
+        Uri uri = Uri.withAppendedPath(Tasks.CONTENT_URI, String.valueOf(taskID));
+        mContentResolver.delete(uri, null, null);
 
         // Delete records of deleted task from TASK_COMPLETION_TABLE_NAME
-        whereClause = TaskCompletion.TASK_NAME_ID + "=?";
-        mContentResolver.delete(TaskCompletion.CONTENT_URI, whereClause, whereArgs);
+        uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, String.valueOf(taskID));
+        mContentResolver.delete(uri, null, null);
     }
 
     void setDoneStatus(Long taskID, Date date, Boolean doneSwitch) {
@@ -176,9 +173,10 @@ public class DatabaseAdapter {
                 Log.e(TAG, e.getMessage());
             }
         } else {
-            String whereClause = TaskCompletion.TASK_NAME_ID + "=? and " + TaskCompletion.TASK_COMPLETION_DATE + "=?";
-            String[] whereArgs = {taskID.toString(), dateFormat.format(date)};
-            mContentResolver.delete(TaskCompletion.CONTENT_URI, whereClause, whereArgs);
+            String whereClause = TaskCompletion.TASK_COMPLETION_DATE + "=?";
+            String[] whereArgs = {dateFormat.format(date)};
+            Uri uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, String.valueOf(taskID));
+            mContentResolver.delete(uri, whereClause, whereArgs);
         }
     }
 

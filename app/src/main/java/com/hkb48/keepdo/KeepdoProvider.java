@@ -27,7 +27,7 @@ public class KeepdoProvider extends ContentProvider {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
     // Task table
-    public static final class Tasks implements BaseColumns {
+    static final class Tasks implements BaseColumns {
 
         private Tasks() {
         }
@@ -41,25 +41,25 @@ public class KeepdoProvider extends ContentProvider {
 
         static final String TABLE_NAME = "table_tasks";
         static final String TABLE_URI = "table_task_uri";
-        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
+        static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
 
-        public static final String TASK_NAME = "task_name";
-        public static final String FREQUENCY_MON = "mon_frequency";
-        public static final String FREQUENCY_TUE = "tue_frequency";
-        public static final String FREQUENCY_WEN = "wen_frequency";
-        public static final String FREQUENCY_THR = "thr_frequency";
-        public static final String FREQUENCY_FRI = "fri_frequency";
-        public static final String FREQUENCY_SAT = "sat_frequency";
-        public static final String FREQUENCY_SUN = "sun_frequency";
+        static final String TASK_NAME = "task_name";
+        static final String FREQUENCY_MON = "mon_frequency";
+        static final String FREQUENCY_TUE = "tue_frequency";
+        static final String FREQUENCY_WEN = "wen_frequency";
+        static final String FREQUENCY_THR = "thr_frequency";
+        static final String FREQUENCY_FRI = "fri_frequency";
+        static final String FREQUENCY_SAT = "sat_frequency";
+        static final String FREQUENCY_SUN = "sun_frequency";
         static final String TASK_CONTEXT = "task_context";
 
         static final String REMINDER_ENABLED = "reminder_enabled";
         static final String REMINDER_TIME = "reminder_time";
-        public static final String TASK_LIST_ORDER = "task_list_order";
+        static final String TASK_LIST_ORDER = "task_list_order";
     }
 
     // Task Completion table
-    public static final class TaskCompletion implements BaseColumns {
+    static final class TaskCompletion implements BaseColumns {
 
         private TaskCompletion() {
         }
@@ -75,10 +75,10 @@ public class KeepdoProvider extends ContentProvider {
         static final String TABLE_NAME = "table_completions";
         static final String TABLE_URI = "table_completion_uri";
 
-        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
+        static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
 
-        public static final String TASK_NAME_ID = "task_id";
-        public static final String TASK_COMPLETION_DATE = "completion_date";
+        static final String TASK_NAME_ID = "task_id";
+        static final String TASK_COMPLETION_DATE = "completion_date";
     }
 
     public static final class DateChangeTime implements BaseColumns {
@@ -92,7 +92,7 @@ public class KeepdoProvider extends ContentProvider {
         static final String TABLE_URI = "table_datechangetime_uri";
 
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
-        public static final String ADJUSTED_DATE = "date";
+        static final String ADJUSTED_DATE = "date";
         public static final String NEXT_DATE_CHANGE_TIME = "next_date_change_time";
     }
 
@@ -234,7 +234,7 @@ public class KeepdoProvider extends ContentProvider {
                 qb.setStrict(true);
                 break;
             case Tasks.MAX_ORDER_ID:
-                qb.setTables(TaskCompletion.TABLE_NAME);
+                qb.setTables(Tasks.TABLE_NAME);
                 qb.setProjectionMap(sMaxTaskProjectionMap);
                 qb.setStrict(true);
                 break;
@@ -300,29 +300,17 @@ public class KeepdoProvider extends ContentProvider {
                     + Arrays.toString(selectionArgs) + "  values=[" + values + "]");
         }
 
-        String tableName;
         switch (sURIMatcher.match(uri)) {
-
-            case Tasks.TABLE_LIST:
             case Tasks.TABLE_ID:
-                tableName = Tasks.TABLE_NAME;
-                break;
-
-            case TaskCompletion.TABLE_LIST:
-            case TaskCompletion.TABLE_ID:
-                tableName = TaskCompletion.TABLE_NAME;
-                break;
-
+                SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+                assert db != null;
+                final int id = db.update(Tasks.TABLE_NAME, values, Tasks._ID + "=?",
+                        new String[]{String.valueOf(parseTaskIdFromUri(uri))});
+                getContext().getContentResolver().notifyChange(uri, null);
+                return id;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
-
-        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        assert db != null;
-        final int id = db.update(tableName, values, selection, selectionArgs);
-        getContext().getContentResolver().notifyChange(uri, null);
-
-        return id;
     }
 
     @Override
@@ -332,29 +320,30 @@ public class KeepdoProvider extends ContentProvider {
                     + Arrays.toString(selectionArgs));
         }
 
-        String tableName;
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        assert db != null;
         switch (sURIMatcher.match(uri)) {
 
-            case Tasks.TABLE_LIST:
             case Tasks.TABLE_ID:
-                tableName = Tasks.TABLE_NAME;
-                break;
-
-            case TaskCompletion.TABLE_LIST:
+                int id = db.delete(Tasks.TABLE_NAME, Tasks._ID + "=?",
+                        new String[]{String.valueOf(parseTaskIdFromUri(uri))});
+                getContext().getContentResolver().notifyChange(uri, null);
+                return id;
             case TaskCompletion.TABLE_ID:
-                tableName = TaskCompletion.TABLE_NAME;
-                break;
-
+                if (selection != null) {
+                    id = db.delete(TaskCompletion.TABLE_NAME,
+                            "(" + selection + ") AND (" + TaskCompletion.TASK_NAME_ID + "=?)",
+                            new String[]{selectionArgs[0], String.valueOf(parseTaskIdFromUri(uri))});
+                } else {
+                    id = db.delete(TaskCompletion.TABLE_NAME, TaskCompletion.TASK_NAME_ID + "=?",
+                            new String[]{String.valueOf(parseTaskIdFromUri(uri))});
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return id;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
-        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        assert db != null;
-        final int id = db.delete(tableName, selection, selectionArgs);
-        getContext().getContentResolver().notifyChange(uri, null);
-
-        return id;
     }
 
     /**

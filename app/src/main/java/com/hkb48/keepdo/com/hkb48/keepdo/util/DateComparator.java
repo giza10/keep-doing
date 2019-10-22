@@ -6,6 +6,9 @@ import java.util.GregorianCalendar;
 
 public class DateComparator {
     public static boolean equals(Date a, Date b) {
+        if ((a == null) || (b == null)) {
+            return false;
+        }
         Date compA = truncate(a);
         Date compB = truncate(b);
 
