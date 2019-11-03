@@ -6,6 +6,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -34,6 +37,7 @@ import java.util.Locale;
 public class CalendarGrid extends Fragment {
     private static final String TAG = "#KEEPDO_CALENDARGRID: ";
 
+    private static final String FILE_PROVIDER = "com.hkb48.keepdo.fileprovider";
     static final String POSITION_KEY = "com.hkb48.keepdo.calendargrid.POSITION";
 
     private static final int CONTEXT_MENU_CHECK_DONE = 0;
@@ -72,7 +76,7 @@ public class CalendarGrid extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         Intent intent = getActivity().getIntent();
@@ -110,7 +114,7 @@ public class CalendarGrid extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.activity_task, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -136,14 +140,9 @@ public class CalendarGrid extends Fragment {
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View view,
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View view,
             ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, view, menuInfo);
-
-        if (view == null) {
-            Log.e(TAG, "view in onCreateContextMenu() was null!!");
-            return;
-        }
 
         mPressedView = view;
         Date date = (Date) mPressedView.getTag();
@@ -162,7 +161,7 @@ public class CalendarGrid extends Fragment {
     }
 
     @Override
-    public boolean onContextItemSelected(android.view.MenuItem item) {
+    public boolean onContextItemSelected(@NonNull android.view.MenuItem item) {
         boolean consumed = false;
         if (mPressedView == null) {
             Log.e(TAG, "mPressedView is null!");
@@ -426,7 +425,8 @@ public class CalendarGrid extends Fragment {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setType("image/png");
-        intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(bitmapFile));
+        Uri contentUri = FileProvider.getUriForFile(getContext(), FILE_PROVIDER, bitmapFile);
+        intent.putExtra(Intent.EXTRA_STREAM, contentUri);
         ComboCount comboCount = mDatabaseAdapter.getComboCount(mTask
                 .getTaskID());
         String extraText = "";
@@ -444,7 +444,7 @@ public class CalendarGrid extends Fragment {
         startActivity(intent);
     }
 
-    public static CharSequence getPageTitle(int position) {
+    static CharSequence getPageTitle(int position) {
         final int pageNumber = position - CalendarFragment.NUM_MAXIMUM_MONTHS
                 + 1;
 

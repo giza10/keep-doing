@@ -71,15 +71,15 @@ public class TasksActivity extends AppCompatActivity implements
     private DatabaseAdapter mDBAdapter = null;
     private final Settings.OnChangedListener mSettingsChangedListener = new Settings.OnChangedListener() {
         public void onDoneIconSettingChanged() {
-            updateTaskList();
+            mContentsUpdated = true;
         }
 
         public void onDateChangeTimeSettingChanged() {
-            updateTaskList();
+            mContentsUpdated = true;
         }
 
         public void onWeekStartDaySettingChanged() {
-            updateTaskList();
+            mContentsUpdated = true;
         }
     };
     private DrawerLayout mDrawerLayout;
@@ -457,10 +457,12 @@ public class TasksActivity extends AppCompatActivity implements
                 R.string.restore_done, Toast.LENGTH_SHORT)
                 .show();
         updateTaskList();
+        updateReminder();
+        TasksWidgetProvider.notifyDatasetChanged(getApplicationContext());
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            int[] grantResults) {
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             if (requestCode == BACKUP_PERMISSION_REQUEST_CODE) {

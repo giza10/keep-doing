@@ -7,7 +7,6 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,7 +15,7 @@ import android.widget.RemoteViews;
 
 import com.hkb48.keepdo.ActionHandler;
 import com.hkb48.keepdo.BuildConfig;
-import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
+import com.hkb48.keepdo.DatabaseAdapter;
 import com.hkb48.keepdo.R;
 import com.hkb48.keepdo.RemindAlarmInitReceiver;
 import com.hkb48.keepdo.TasksActivity;
@@ -163,16 +162,12 @@ public class TasksWidgetProvider extends AppWidgetProvider {
     }
 
     private void startAlarm(final Context context) {
-        Cursor cursor = context.getContentResolver().query(DateChangeTime.CONTENT_URI, null, null,
-                null, null);
-        if (cursor.moveToFirst()) {
-            final int colIndex = cursor.getColumnIndex(DateChangeTime.NEXT_DATE_CHANGE_TIME);
-            long nextAlarmTime = cursor.getLong(colIndex);
+        long nextAlarmTime = DatabaseAdapter.getInstance(context).getNextDateChangeTime();
+        if (nextAlarmTime > 0) {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             alarmManager.setRepeating(AlarmManager.RTC, nextAlarmTime, AlarmManager.INTERVAL_DAY, getPendingIntent(context));
             dumpLog(nextAlarmTime);
         }
-        cursor.close();
     }
 
     private void stopAlarm(final Context context) {

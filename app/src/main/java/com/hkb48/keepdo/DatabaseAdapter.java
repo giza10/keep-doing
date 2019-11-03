@@ -354,6 +354,18 @@ public class DatabaseAdapter {
         return date;
     }
 
+    public long getNextDateChangeTime() {
+        long nextAlarmTime = -1;
+        Cursor cursor = mContentResolver.query(DateChangeTime.CONTENT_URI, null, null,
+                null, null);
+        if (cursor.moveToFirst()) {
+            final int colIndex = cursor.getColumnIndex(DateChangeTime.NEXT_DATE_CHANGE_TIME);
+            nextAlarmTime = cursor.getLong(colIndex);
+        }
+        return nextAlarmTime;
+    }
+
+
     private Date getDate(Cursor cursor) {
         String dateString = cursor.getString(cursor.getColumnIndex(TaskCompletion.TASK_COMPLETION_DATE));
         SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
