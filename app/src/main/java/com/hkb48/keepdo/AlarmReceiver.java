@@ -18,7 +18,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         } else if (intent.getType().equals(ACTION_DATE_CHANGED)) {
             dispatchDateChangedEvent(context);
         } else {
-            Log.e(TAG_KEEPDO + "RemindAlarmReceiver#onReceive()", "Unknown intent type");
+            Log.e(TAG_KEEPDO, "RemindAlarmReceiver#onReceive(): Unknown intent type");
         }
     }
 

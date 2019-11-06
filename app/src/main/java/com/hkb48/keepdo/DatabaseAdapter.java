@@ -42,7 +42,7 @@ public class DatabaseAdapter {
     private static final String SDF_PATTERN_YM = "yyyy-MM";
 
     private static DatabaseAdapter INSTANCE = null;
-    private DatabaseHelper mDatabaseHelper = null;
+    private DatabaseHelper mDatabaseHelper;
     private final ContentResolver mContentResolver;
 
     private DatabaseAdapter(Context context) {
@@ -362,6 +362,7 @@ public class DatabaseAdapter {
             final int colIndex = cursor.getColumnIndex(DateChangeTime.NEXT_DATE_CHANGE_TIME);
             nextAlarmTime = cursor.getLong(colIndex);
         }
+        cursor.close();
         return nextAlarmTime;
     }
 

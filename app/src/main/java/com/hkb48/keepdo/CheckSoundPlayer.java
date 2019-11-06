@@ -17,7 +17,6 @@ class CheckSoundPlayer {
 
     void load() {
         if(Build.VERSION.SDK_INT < 21) {
-            //noinspection deprecation
             mSoundPool = new SoundPool(1, AudioManager.STREAM_SYSTEM, 0);
         } else {
             AudioAttributes attr = new AudioAttributes.Builder()

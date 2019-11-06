@@ -187,7 +187,7 @@ public class TasksWidgetProvider extends AppWidgetProvider {
             MessageFormat mf = new MessageFormat("{0,date,yyyy/MM/dd HH:mm:ss}");
             Object[] objs = {time.getTime()};
             String result = mf.format(objs);
-            Log.v("LOG_KEEPDO:" + "TasksWidgetProvider", "time:" + result);
+            Log.v("LOG_KEEPDO", "TasksWidgetProvider: time=" + result);
         }
     }
 }

@@ -14,8 +14,8 @@ android {
         applicationId "com.hkb48.keepdo"
         minSdkVersion 14
         targetSdkVersion 29
-        versionCode 61
-        versionName "1.20"
+        versionCode 62
+        versionName "1.21"
     }
 
     buildTypes {

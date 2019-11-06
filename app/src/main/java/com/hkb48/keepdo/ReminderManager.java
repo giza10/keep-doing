@@ -215,8 +215,7 @@ public class ReminderManager {
             MessageFormat mf = new MessageFormat("{0,date,yyyy/MM/dd HH:mm:ss}");
             Object[] objs = { time.getTime() };
             String result = mf.format(objs);
-            Log.v(TAG_KEEPDO + "ReminderManager", "taskId:" + taskId
-                    + ", time:" + result);
+            Log.v(TAG_KEEPDO, "ReminderManager: taskId=" + taskId + ", time=" + result);
         }
     }
 }
