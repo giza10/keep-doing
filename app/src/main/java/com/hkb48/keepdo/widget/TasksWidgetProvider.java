@@ -56,12 +56,12 @@ public class TasksWidgetProvider extends AppWidgetProvider {
         final String action = intent.getAction();
         final Context context = ctx;
 
-        if (action.equals(ACTION_APPWIDGET_UPDATE) ||
-                action.equalsIgnoreCase("android.intent.action.TIME_SET") ||
-                action.equalsIgnoreCase("android.intent.action.TIMEZONE_CHANGED") ||
-                action.equalsIgnoreCase("android.intent.action.LOCALE_CHANGED")) {
+        if (ACTION_APPWIDGET_UPDATE.equals(action) ||
+                Intent.ACTION_TIME_CHANGED.equals(action) ||
+                Intent.ACTION_TIMEZONE_CHANGED.equals(action) ||
+                Intent.ACTION_LOCALE_CHANGED.equals(action)) {
             updateAllWidgetsList(context);
-        } else if (action.equals(ACTION_ITEM_CLICKED)) {
+        } else if (ACTION_ITEM_CLICKED.equals(action)) {
             final int viewId = intent.getIntExtra(PARAM_VIEWID, -1);
             if (viewId == VIEWID_LIST_ITEM_ICON) {
                 sSelectedPosition = intent.getIntExtra(PARAM_POSITION, INVALID_INDEX);
@@ -70,19 +70,17 @@ public class TasksWidgetProvider extends AppWidgetProvider {
                 updateWidgetList(context, appWidgetId);
 
                 final long taskId = intent.getLongExtra(PARAM_TASK_ID, -1);
-                new Handler().postDelayed(new Runnable() {
-                    public void run() {
-                        TasksWidgetModel model = new TasksWidgetModel(context);
-                        String date = model.getTodayDate();
-                        boolean doneToday = model.getDoneStatus(taskId, date);
-                        if (! doneToday) {
-                            Intent intent = new Intent(context, ActionHandler.class);
-                            intent.putExtra(ActionHandler.INTENT_EXTRA_TASK_ID, taskId);
-                            context.startService(intent);
-                        }
-                        sSelectedPosition = INVALID_INDEX;
-                        RemindAlarmInitReceiver.updateReminder(context);
+                new Handler().postDelayed(() -> {
+                    TasksWidgetModel model = new TasksWidgetModel(context);
+                    String date = model.getTodayDate();
+                    boolean doneToday = model.getDoneStatus(taskId, date);
+                    if (! doneToday) {
+                        Intent intent1 = new Intent(context, ActionHandler.class);
+                        intent1.putExtra(ActionHandler.INTENT_EXTRA_TASK_ID, taskId);
+                        context.startService(intent1);
                     }
+                    sSelectedPosition = INVALID_INDEX;
+                    RemindAlarmInitReceiver.updateReminder(context);
                 }, 500);
             } else {
                 Intent activityLaunchIntent = new Intent(context, TasksActivity.class);
@@ -165,6 +163,7 @@ public class TasksWidgetProvider extends AppWidgetProvider {
         long nextAlarmTime = DatabaseAdapter.getInstance(context).getNextDateChangeTime();
         if (nextAlarmTime > 0) {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            assert alarmManager != null;
             alarmManager.setRepeating(AlarmManager.RTC, nextAlarmTime, AlarmManager.INTERVAL_DAY, getPendingIntent(context));
             dumpLog(nextAlarmTime);
         }
@@ -172,11 +171,14 @@ public class TasksWidgetProvider extends AppWidgetProvider {
 
     private void stopAlarm(final Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        assert alarmManager != null;
         alarmManager.cancel(getPendingIntent(context));
     }
 
+
     private PendingIntent getPendingIntent(Context context) {
-        Intent intent = new Intent(ACTION_APPWIDGET_UPDATE);
+        final Intent intent = new Intent(context, TasksWidgetProvider.class);
+        intent.setAction(ACTION_APPWIDGET_UPDATE);
         return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 

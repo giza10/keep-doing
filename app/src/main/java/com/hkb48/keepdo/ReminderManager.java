@@ -189,6 +189,7 @@ public class ReminderManager {
     private void startAlarm(Context context, long taskId, long timeInMillis) {
         AlarmManager alarmManager = (AlarmManager) context
                 .getSystemService(Context.ALARM_SERVICE);
+        assert alarmManager != null;
         alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis,
                 getPendingIntent(context, taskId));
         dumpLog(taskId, timeInMillis);
@@ -197,13 +198,14 @@ public class ReminderManager {
     private void stopAlarm(Context context, long taskId) {
         AlarmManager alarmManager = (AlarmManager) context
                 .getSystemService(Context.ALARM_SERVICE);
+        assert alarmManager != null;
         alarmManager.cancel(getPendingIntent(context, taskId));
     }
 
     private PendingIntent getPendingIntent(Context context, long taskId) {
         Intent intent = new Intent(context, AlarmReceiver.class);
+        intent.setAction(AlarmReceiver.ACTION_REMINDER);
         intent.putExtra(AlarmReceiver.PARAM_TASK_ID, taskId);
-        intent.setType(AlarmReceiver.ACTION_REMINDER);
         return PendingIntent.getBroadcast(context, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
     }

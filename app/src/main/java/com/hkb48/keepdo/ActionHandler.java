@@ -3,9 +3,7 @@ package com.hkb48.keepdo;
 import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 
-import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
 import com.hkb48.keepdo.KeepdoProvider.TaskCompletion;
 import com.hkb48.keepdo.widget.TasksWidgetProvider;
 
@@ -20,6 +18,7 @@ public class ActionHandler extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        assert intent != null;
         long taskId = intent.getLongExtra(INTENT_EXTRA_TASK_ID, 0);
         ContentValues contentValues = new ContentValues();
         contentValues.put(TaskCompletion.TASK_NAME_ID, taskId);
@@ -37,17 +36,7 @@ public class ActionHandler extends IntentService {
     }
 
     private String getTodayDate() {
-        String date = "";
-        Cursor cursor = getContentResolver().query(DateChangeTime.CONTENT_URI, null, null,
-                null, null);
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                final int dateColIndex = cursor.getColumnIndex(DateChangeTime.ADJUSTED_DATE);
-                date = cursor.getString(dateColIndex);
-            }
-            cursor.close();
-        }
-        return date;
+        DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(getApplicationContext());
+        return dbAdapter.getTodayDate();
     }
-    
 }

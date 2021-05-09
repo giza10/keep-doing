@@ -9,7 +9,12 @@ public class RemindAlarmInitReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (ACTION_UPDATE_REMINDER.equals(intent.getAction())) {
+        final String action = intent.getAction();
+        if (ACTION_UPDATE_REMINDER.equals(action) ||
+                Intent.ACTION_BOOT_COMPLETED.equalsIgnoreCase(action) ||
+                Intent.ACTION_TIME_CHANGED.equals(action) ||
+                Intent.ACTION_TIMEZONE_CHANGED.equals(action) ||
+                Intent.ACTION_LOCALE_CHANGED.equals(action)) {
             Settings.initialize(context.getApplicationContext());
             ReminderManager.getInstance().setNextAlert(context);
         }

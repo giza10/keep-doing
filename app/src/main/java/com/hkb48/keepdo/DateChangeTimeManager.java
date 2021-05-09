@@ -73,8 +73,6 @@ public class DateChangeTimeManager {
         for (OnDateChangedListener listener : mChangedListeners) {
             listener.onDateChanged();
         }
-
-        TasksWidgetProvider.notifyDatasetChanged(mContext);
     }
 
     private void startAlarm() {
@@ -87,18 +85,20 @@ public class DateChangeTimeManager {
         nextAlarmTime.set(Calendar.MILLISECOND, 0);
 
         AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+        assert alarmManager != null;
         alarmManager.setRepeating(AlarmManager.RTC, nextAlarmTime.getTimeInMillis(), AlarmManager.INTERVAL_DAY, getPendingIntent(mContext));
         dumpLog(nextAlarmTime.getTimeInMillis());
     }
 
     private void stopAlarm() {
         AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+        assert alarmManager != null;
         alarmManager.cancel(getPendingIntent(mContext));
     }
 
     private PendingIntent getPendingIntent(Context context) {
         Intent intent = new Intent(context, AlarmReceiver.class);
-        intent.setType(AlarmReceiver.ACTION_DATE_CHANGED);
+        intent.setAction(AlarmReceiver.ACTION_DATE_CHANGED);
         return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 

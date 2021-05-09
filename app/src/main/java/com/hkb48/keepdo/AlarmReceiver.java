@@ -13,12 +13,13 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getType().equals(ACTION_REMINDER)) {
+        final String action = intent.getAction();
+        if (ACTION_REMINDER.equals(action)) {
             dispatchReminderEvent(context, intent);
-        } else if (intent.getType().equals(ACTION_DATE_CHANGED)) {
+        } else if (ACTION_DATE_CHANGED.equals(action)) {
             dispatchDateChangedEvent(context);
         } else {
-            Log.e(TAG_KEEPDO, "RemindAlarmReceiver#onReceive(): Unknown intent type");
+            Log.e(TAG_KEEPDO, "AlarmReceiver#onReceive(): Unknown intent type");
         }
     }
 
