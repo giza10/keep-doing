@@ -42,7 +42,7 @@ public class DatabaseAdapter {
     private static final String SDF_PATTERN_YM = "yyyy-MM";
 
     private static DatabaseAdapter INSTANCE = null;
-    private DatabaseHelper mDatabaseHelper;
+    private final DatabaseHelper mDatabaseHelper;
     private final ContentResolver mContentResolver;
 
     private DatabaseAdapter(Context context) {
@@ -79,14 +79,14 @@ public class DatabaseAdapter {
         return tasks;
     }
 
-    void addTask(Task task) {
+    long addTask(Task task) {
         String taskName = task.getName();
         String taskContext = task.getContext();
         Recurrence recurrence = task.getRecurrence();
         Reminder reminder = task.getReminder();
 
         if ((taskName == null) || (taskName.isEmpty()) || (recurrence == null) || (reminder == null)) {
-            return;
+            return Task.INVALID_TASKID;
         }
 
         try {
@@ -104,10 +104,13 @@ public class DatabaseAdapter {
             contentValues.put(Tasks.REMINDER_TIME, String.valueOf(reminder.getTimeInMillis()));
             contentValues.put(Tasks.TASK_LIST_ORDER, task.getOrder());
 
-            mContentResolver.insert(Tasks.CONTENT_URI, contentValues);
+            Uri uri = mContentResolver.insert(Tasks.CONTENT_URI, contentValues);
+            assert uri != null;
+            return Long.parseLong(uri.getLastPathSegment());
 
         } catch (SQLiteException e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, "Exception: insert, e = " + e);
+            return Task.INVALID_TASKID;
         }
     }
 
@@ -140,7 +143,7 @@ public class DatabaseAdapter {
         try {
             mContentResolver.update(uri, contentValues, null, null);
         } catch (SQLiteException e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, "Exception: update, e = " + e);
         }
     }
 
@@ -170,7 +173,7 @@ public class DatabaseAdapter {
             try {
                 mContentResolver.insert(TaskCompletion.CONTENT_URI, contentValues);
             } catch (SQLiteException e) {
-                Log.e(TAG, e.getMessage());
+                Log.e(TAG, "Exception: insert, e = " + e);
             }
         } else {
             String whereClause = TaskCompletion.TASK_COMPLETION_DATE + "=?";
@@ -393,13 +396,14 @@ public class DatabaseAdapter {
         String taskName = cursor.getString(cursor.getColumnIndex(Tasks.TASK_NAME));
         String taskContext = cursor.getString(cursor.getColumnIndex(Tasks.TASK_CONTEXT));
 
-        Recurrence recurrence = new Recurrence(Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_MON))),
-                Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_TUE))),
-                Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_WEN))),
-                Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_THR))),
-                Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_FRI))),
-                Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_SAT))),
-                Boolean.valueOf(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_SUN))));
+        Recurrence recurrence = new Recurrence(
+                Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_MON))),
+                Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_TUE))),
+                Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_WEN))),
+                Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_THR))),
+                Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_FRI))),
+                Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_SAT))),
+                Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_SUN))));
 
         Reminder reminder;
         String reminderEnabled = cursor.getString(cursor.getColumnIndex(Tasks.REMINDER_ENABLED));
@@ -408,7 +412,7 @@ public class DatabaseAdapter {
         if ((reminderEnabled == null) || (reminderTime == null)) {
             reminder = new Reminder();
         } else {
-            reminder = new Reminder(Boolean.valueOf(reminderEnabled), Long.valueOf(reminderTime));
+            reminder = new Reminder(Boolean.parseBoolean(reminderEnabled), Long.parseLong(reminderTime));
         }
 
         Task task = new Task(taskName, taskContext, recurrence);
@@ -467,7 +471,7 @@ public class DatabaseAdapter {
         try {
             inputStream = new FileInputStream(mDatabaseHelper.databasePath());
         } catch (IOException e) {
-            Log.e(TAG, e.getLocalizedMessage());
+            Log.e(TAG, "Exception: FileInputStream, e = " + e);
         }
 
         return inputStream;
@@ -497,7 +501,7 @@ public class DatabaseAdapter {
                 try {
                     bufferOutStream.close();
                 } catch (IOException e) {
-                    Log.e(TAG, e.getMessage());
+                    Log.e(TAG, "Exception: close, e = " + e);
                 }
             }
 
@@ -505,7 +509,7 @@ public class DatabaseAdapter {
                 try {
                     bufferInputStream.close();
                 } catch (IOException e) {
-                    Log.e(TAG, e.getMessage());
+                    Log.e(TAG, "Exception: close, e = " + e);
                 }
             }
         }
@@ -531,7 +535,7 @@ public class DatabaseAdapter {
 
         } catch (IOException e) {
             if (BuildConfig.DEBUG) {
-                Log.e(TAG, e.getMessage());
+                Log.e(TAG, "Exception: OutputStream, e = " + e);
             }
         } finally {
             try {
@@ -544,7 +548,7 @@ public class DatabaseAdapter {
                 }
             } catch (IOException e) {
                 if (BuildConfig.DEBUG) {
-                    Log.e(TAG, e.getMessage());
+                    Log.e(TAG, "Exception: InputStream/OutputStream, e = " + e);
                 }
             }
         }

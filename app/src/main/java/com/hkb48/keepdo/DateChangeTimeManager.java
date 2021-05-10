@@ -26,7 +26,7 @@ public class DateChangeTimeManager {
 
         public void onDateChangeTimeSettingChanged() {
             startAlarm();
-            ReminderManager.getInstance().setNextAlert(mContext);
+            ReminderManager.getInstance().setAlarmForAll(mContext);
             mContext.getContentResolver().notifyChange(DateChangeTime.CONTENT_URI, null);
             TasksWidgetProvider.notifyDatasetChanged(mContext);
         }

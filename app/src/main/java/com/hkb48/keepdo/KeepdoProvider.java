@@ -1,6 +1,7 @@
 package com.hkb48.keepdo;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
@@ -112,7 +113,7 @@ public class KeepdoProvider extends ContentProvider {
         sURIMatcher.addURI(AUTHORITY, DateChangeTime.TABLE_URI + "/#", DateChangeTime.TABLE_ID);
     }
 
-    private static HashMap<String, String> sTasksProjectionMap = new HashMap<>();
+    private static final HashMap<String, String> sTasksProjectionMap = new HashMap<>();
     static {
         sTasksProjectionMap.put(Tasks._ID, Tasks._ID);
         sTasksProjectionMap.put(Tasks.TASK_NAME, Tasks.TASK_NAME);
@@ -129,24 +130,24 @@ public class KeepdoProvider extends ContentProvider {
         sTasksProjectionMap.put(Tasks.TASK_LIST_ORDER, Tasks.TASK_LIST_ORDER);
     }
 
-    private static HashMap<String, String> sMaxTaskProjectionMap = new HashMap<>();
+    private static final HashMap<String, String> sMaxTaskProjectionMap = new HashMap<>();
     static {
         sMaxTaskProjectionMap.put("MAX(" + Tasks.TASK_LIST_ORDER + ")", "MAX(" + Tasks.TASK_LIST_ORDER + ")");
     }
 
-    private static HashMap<String, String> sTaskCompletionProjectionMap = new HashMap<>();
+    private static final HashMap<String, String> sTaskCompletionProjectionMap = new HashMap<>();
     static {
         sTaskCompletionProjectionMap.put(TaskCompletion._ID, TaskCompletion._ID);
         sTaskCompletionProjectionMap.put(TaskCompletion.TASK_NAME_ID, TaskCompletion.TASK_NAME_ID);
         sTaskCompletionProjectionMap.put(TaskCompletion.TASK_COMPLETION_DATE, TaskCompletion.TASK_COMPLETION_DATE);
     }
 
-    private static HashMap<String, String> sMaxTaskCompletionProjectionMap = new HashMap<>();
+    private static final HashMap<String, String> sMaxTaskCompletionProjectionMap = new HashMap<>();
     static {
         sMaxTaskCompletionProjectionMap.put("MAX(" + TaskCompletion.TASK_COMPLETION_DATE + ")", "MAX(" + TaskCompletion.TASK_COMPLETION_DATE + ")");
     }
 
-    private static HashMap<String, String> sMinTaskCompletionProjectionMap = new HashMap<>();
+    private static final HashMap<String, String> sMinTaskCompletionProjectionMap = new HashMap<>();
     static {
         sMinTaskCompletionProjectionMap.put("MIN(" + TaskCompletion.TASK_COMPLETION_DATE + ")", "MIN(" + TaskCompletion.TASK_COMPLETION_DATE + ")");
     }
@@ -199,10 +200,11 @@ public class KeepdoProvider extends ContentProvider {
 
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         assert db != null;
-        db.insertOrThrow(tableName, null, values);
-        getContext().getContentResolver().notifyChange(uri, null);
+        long newRowId = db.insertOrThrow(tableName, null, values);
+        Uri newUri = ContentUris.withAppendedId(uri, newRowId);
+        getContext().getContentResolver().notifyChange(newUri, null);
 
-        return null;
+        return newUri;
     }
 
     @Override
@@ -300,17 +302,15 @@ public class KeepdoProvider extends ContentProvider {
                     + Arrays.toString(selectionArgs) + "  values=[" + values + "]");
         }
 
-        switch (sURIMatcher.match(uri)) {
-            case Tasks.TABLE_ID:
-                SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-                assert db != null;
-                final int id = db.update(Tasks.TABLE_NAME, values, Tasks._ID + "=?",
-                        new String[]{String.valueOf(parseTaskIdFromUri(uri))});
-                getContext().getContentResolver().notifyChange(uri, null);
-                return id;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
+        if (sURIMatcher.match(uri) == Tasks.TABLE_ID) {
+            SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+            assert db != null;
+            final int id = db.update(Tasks.TABLE_NAME, values, Tasks._ID + "=?",
+                    new String[]{String.valueOf(parseTaskIdFromUri(uri))});
+            getContext().getContentResolver().notifyChange(uri, null);
+            return id;
         }
+        throw new IllegalArgumentException("Unknown URI " + uri);
     }
 
     @Override

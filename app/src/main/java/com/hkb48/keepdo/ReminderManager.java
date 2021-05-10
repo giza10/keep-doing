@@ -26,35 +26,41 @@ public class ReminderManager {
         return sInstance;
     }
 
-    public void setNextAlert(final Context context) {
+    public void setAlarmForAll(final Context context) {
         DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(context);
         List<Task> taskList = dbAdapter.getTaskList();
-        long minTime = Long.MAX_VALUE;
-        long taskId = Task.INVALID_TASKID;
-        Date today = DateChangeTimeUtil.getDateTime();
 
         for (Task task : taskList) {
-            Reminder reminder = task.getReminder();
-            if (reminder.getEnabled()) {
-                boolean isDoneToday = dbAdapter.getDoneStatus(task.getTaskID(),
-                        today);
-                int hourOfDay = reminder.getHourOfDay();
-                int minute = reminder.getMinute();
-                Calendar nextSchedule = getNextSchedule(task.getRecurrence(),
-                        isDoneToday, hourOfDay, minute);
-                if (nextSchedule != null) {
-                    long nextTime = nextSchedule.getTimeInMillis();
-                    if (minTime > nextTime) {
-                        minTime = nextTime;
-                        taskId = task.getTaskID();
-                    }
-                }
-            }
+            setAlarm(context, task.getTaskID());
         }
+    }
 
-        if (taskId != Task.INVALID_TASKID) {
-            startAlarm(context, taskId, minTime);
+    public void setAlarm(final Context context, long taskId) {
+        DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(context);
+        Task task = dbAdapter.getTask(taskId);
+        Reminder reminder = task.getReminder();
+        if (reminder.getEnabled()) {
+            Date today = DateChangeTimeUtil.getDateTime();
+            boolean isDoneToday = dbAdapter.getDoneStatus(taskId, today);
+            int hourOfDay = reminder.getHourOfDay();
+            int minute = reminder.getMinute();
+            Calendar nextSchedule = getNextSchedule(task.getRecurrence(),
+                    isDoneToday, hourOfDay, minute);
+            if (nextSchedule != null) {
+                startAlarm(context, taskId, nextSchedule.getTimeInMillis());
+            } else {
+                stopAlarm(context, taskId);
+            }
         } else {
+            stopAlarm(context, taskId);
+        }
+    }
+
+    public void cancelAlarm(final Context context, long taskId) {
+        DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(context);
+        Task task = dbAdapter.getTask(taskId);
+        Reminder reminder = task.getReminder();
+        if (reminder.getEnabled()) {
             stopAlarm(context, taskId);
         }
     }
@@ -206,7 +212,7 @@ public class ReminderManager {
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.setAction(AlarmReceiver.ACTION_REMINDER);
         intent.putExtra(AlarmReceiver.PARAM_TASK_ID, taskId);
-        return PendingIntent.getBroadcast(context, 0, intent,
+        return PendingIntent.getBroadcast(context, (int) taskId, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
     }
 

@@ -16,7 +16,7 @@ public class RemindAlarmInitReceiver extends BroadcastReceiver {
                 Intent.ACTION_TIMEZONE_CHANGED.equals(action) ||
                 Intent.ACTION_LOCALE_CHANGED.equals(action)) {
             Settings.initialize(context.getApplicationContext());
-            ReminderManager.getInstance().setNextAlert(context);
+            ReminderManager.getInstance().setAlarmForAll(context);
         }
     }
 

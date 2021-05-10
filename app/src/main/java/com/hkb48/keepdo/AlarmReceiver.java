@@ -28,7 +28,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         NotificationController.showReminder(context, taskId);
 
-        ReminderManager.getInstance().setNextAlert(context);
+        ReminderManager.getInstance().setAlarm(context, taskId);
     }
 
     private void dispatchDateChangedEvent(Context context) {

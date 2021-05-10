@@ -1,10 +1,8 @@
 package com.hkb48.keepdo;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -30,7 +28,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -47,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class TasksActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener, DateChangeTimeManager.OnDateChangedListener {
@@ -101,18 +99,13 @@ public class TasksActivity extends AppCompatActivity implements
         mDrawerLayout = findViewById(R.id.main_drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.app_name, R.string.app_name);
         mDrawerToggle.setDrawerIndicatorEnabled(true);
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
 
         NavigationView navigationView = findViewById(R.id.main_drawer_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(TasksActivity.this, TaskSettingActivity.class));
-            }
-        });
+        fab.setOnClickListener(view -> startActivity(new Intent(TasksActivity.this, TaskSettingActivity.class)));
 
         mDBAdapter = DatabaseAdapter.getInstance(this);
 
@@ -132,19 +125,16 @@ public class TasksActivity extends AppCompatActivity implements
         taskListView.setEmptyView(findViewById(R.id.empty));
 
         taskListView
-                .setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    public void onItemClick(AdapterView<?> parent, View view,
-                                            int position, long id) {
-                        // Show calendar view
-                        TaskListItem item = mDataList.get(position);
-                        if (item.type == TYPE_ITEM) {
-                            Task task = (Task) item.data;
-                            Long taskId = task.getTaskID();
-                            Intent intent = new Intent(TasksActivity.this,
-                                    TaskActivity.class);
-                            intent.putExtra("TASK-ID", taskId);
-                            startActivity(intent);
-                        }
+                .setOnItemClickListener((parent, view, position, id) -> {
+                    // Show calendar view
+                    TaskListItem item = mDataList.get(position);
+                    if (item.type == TYPE_ITEM) {
+                        Task task = (Task) item.data;
+                        Long taskId = task.getTaskID();
+                        Intent intent = new Intent(TasksActivity.this,
+                                TaskActivity.class);
+                        intent.putExtra("TASK-ID", taskId);
+                        startActivity(intent);
                     }
                 });
 
@@ -242,20 +232,15 @@ public class TasksActivity extends AppCompatActivity implements
                 new AlertDialog.Builder(this)
                         .setMessage(R.string.delete_confirmation)
                         .setPositiveButton(R.string.dialog_ok,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
-                                        mDBAdapter.deleteTask(taskId);
-                                        updateTaskList();
-                                        updateReminder();
-                                        TasksWidgetProvider.notifyDatasetChanged(getApplicationContext());
-                                    }
+                                (dialog, which) -> {
+                                    // Cancel the alarm for Reminder before deleting the task.
+                                    ReminderManager.getInstance().cancelAlarm(getApplicationContext(), taskId);
+                                    mDBAdapter.deleteTask(taskId);
+                                    updateTaskList();
+                                    TasksWidgetProvider.notifyDatasetChanged(getApplicationContext());
                                 })
                         .setNegativeButton(R.string.dialog_cancel,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
-                                    }
+                                (dialog, which) -> {
                                 }).setCancelable(true).create().show();
                 return true;
             default:
@@ -316,31 +301,17 @@ public class TasksActivity extends AppCompatActivity implements
         mContentsUpdated = false;
     }
 
-    private void updateReminder() {
-        ReminderManager.getInstance().setNextAlert(this);
-    }
-
     public void onDateChanged() {
         new AlertDialog.Builder(this)
                 .setMessage(R.string.date_changed)
                 .setPositiveButton(R.string.dialog_ok,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int which) {
-                                updateTaskList();
-                            }
-                        }).setCancelable(false).create().show();
+                        (dialog, which) -> updateTaskList()).setCancelable(false).create().show();
     }
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         final int itemId = item.getItemId();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                goToNavDrawerItem(itemId);
-            }
-        }, NAVDRAWER_LAUNCH_DELAY);
+        new Handler().postDelayed(() -> goToNavDrawerItem(itemId), NAVDRAWER_LAUNCH_DELAY);
         if (mDrawerLayout != null) {
             mDrawerLayout.closeDrawer(GravityCompat.START);
         }
@@ -350,21 +321,15 @@ public class TasksActivity extends AppCompatActivity implements
     private void goToNavDrawerItem(final int itemId) {
         Intent intent;
 
-        switch (itemId) {
-            case R.id.drawer_item_1:
-                intent = new Intent(this, TaskSortingActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.drawer_item_2:
-                // Todo: Tentative implementation
-                showBackupRestoreDeviceDialog();
-                break;
-            case R.id.drawer_item_3:
-                intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                break;
-            default:
-                break;
+        if (itemId == R.id.drawer_item_1) {
+            intent = new Intent(this, TaskSortingActivity.class);
+            startActivity(intent);
+        } else if (itemId == R.id.drawer_item_2) {
+            // Todo: Tentative implementation
+            showBackupRestoreDeviceDialog();
+        } else if (itemId == R.id.drawer_item_3) {
+            intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
         }
     }
 
@@ -385,62 +350,56 @@ public class TasksActivity extends AppCompatActivity implements
         dialogBuilder.setTitle(title);
         dialogBuilder.setSingleChoiceItems(
                 R.array.dialog_choice_backup_restore, -1,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        boolean enabled = true;
-                        if (which == 1) {
-                            // Restore
-                            File backupFile = new File(dirPath + fineName);
-                            if (!backupFile.exists()) {
-                                enabled = false;
-                                Toast.makeText(context,
-                                        R.string.no_backup_file,
-                                        Toast.LENGTH_SHORT).show();
-                            }
+                (dialog, which) -> {
+                    boolean enabled = true;
+                    if (which == 1) {
+                        // Restore
+                        File backupFile = new File(dirPath + fineName);
+                        if (!backupFile.exists()) {
+                            enabled = false;
+                            Toast.makeText(context,
+                                    R.string.no_backup_file,
+                                    Toast.LENGTH_SHORT).show();
                         }
-                        ((AlertDialog) dialog).getButton(
-                                AlertDialog.BUTTON_POSITIVE)
-                                .setEnabled(enabled);
                     }
+                    ((AlertDialog) dialog).getButton(
+                            AlertDialog.BUTTON_POSITIVE)
+                            .setEnabled(enabled);
                 });
         dialogBuilder.setNegativeButton(R.string.dialog_cancel, null);
         dialogBuilder.setPositiveButton(R.string.dialog_start,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (((AlertDialog) dialog).getListView()
-                                .getCheckedItemPosition()) {
-                            case 0:
-                                // execute backup
-                                if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                                    backupTaskData(context);
-                                } else {
-                                    ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, BACKUP_PERMISSION_REQUEST_CODE);
-                                }
+                (dialog, which) -> {
+                    switch (((AlertDialog) dialog).getListView()
+                            .getCheckedItemPosition()) {
+                        case 0:
+                            // execute backup
+                            if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                                backupTaskData(context);
+                            } else {
+                                ActivityCompat.requestPermissions(TasksActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, BACKUP_PERMISSION_REQUEST_CODE);
+                            }
 
-                                break;
-                            case 1:
-                                // execute restore
-                                if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                                    restoreTaskData(context);
-                                } else {
-                                    ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, RESTORE_PERMISSION_REQUEST_CODE);
-                                }
-                                break;
-                            default:
-                                break;
-                        }
+                            break;
+                        case 1:
+                            // execute restore
+                            if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                                restoreTaskData(context);
+                            } else {
+                                ActivityCompat.requestPermissions(TasksActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, RESTORE_PERMISSION_REQUEST_CODE);
+                            }
+                            break;
+                        default:
+                            break;
                     }
                 });
         dialogBuilder.setCancelable(true);
         final AlertDialog alertDialog = dialogBuilder.show();
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            public void onShow(DialogInterface dialog) {
-                File backupFile = new File(dirPath + fineName);
-                boolean existBackupFile = backupFile.exists();
-                ((AlertDialog) dialog).getListView().getChildAt(1)
-                        .setEnabled(existBackupFile);
-            }
+        alertDialog.setOnShowListener(dialog -> {
+            File backupFile = new File(dirPath + fineName);
+            boolean existBackupFile = backupFile.exists();
+            ((AlertDialog) dialog).getListView().getChildAt(1)
+                    .setEnabled(existBackupFile);
         });
     }
 
@@ -457,7 +416,7 @@ public class TasksActivity extends AppCompatActivity implements
                 R.string.restore_done, Toast.LENGTH_SHORT)
                 .show();
         updateTaskList();
-        updateReminder();
+        ReminderManager.getInstance().setAlarmForAll(context);
         TasksWidgetProvider.notifyDatasetChanged(getApplicationContext());
     }
 
@@ -524,7 +483,7 @@ public class TasksActivity extends AppCompatActivity implements
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
             View view = convertView;
             TaskListItem taskListItem = (TaskListItem) getItem(position);
             boolean isTask = isEnabled(position);
@@ -601,7 +560,7 @@ public class TasksActivity extends AppCompatActivity implements
                 TextView textAlarm = itemViewHolder.textAlarm;
                 Reminder reminder = task.getReminder();
                 if (reminder.getEnabled()) {
-                    String alarmStr = String.format("%1$02d", reminder.getHourOfDay()) + ":" + String.format("%1$02d", reminder.getMinute());
+                    String alarmStr = String.format(Locale.getDefault(), "%1$02d", reminder.getHourOfDay()) + ":" + String.format(Locale.getDefault(), "%1$02d", reminder.getMinute());
                     textAlarm.setText(alarmStr);
                     imageAlarm.setVisibility(View.VISIBLE);
                     textAlarm.setVisibility(View.VISIBLE);
@@ -617,29 +576,27 @@ public class TasksActivity extends AppCompatActivity implements
                 updateView(taskListItem, checked, itemViewHolder);
 
                 imageView.setTag(position);
-                imageView.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        View parent = (View) v.getParent();
-                        ItemViewHolder itemViewHolder = new ItemViewHolder();
-                        itemViewHolder.imageView = (ImageView) v;
-                        itemViewHolder.lastDoneDateTextView =
-                                parent.findViewById(R.id.taskLastDoneDate);
-                        int position = (Integer) v.getTag();
-                        TaskListItem taskListItem = (TaskListItem) getItem(position);
-                        Task task = (Task) taskListItem.data;
-                        long taskId = task.getTaskID();
-                        boolean checked = DateComparator.equals(taskListItem.lastDoneDate, today);
-                        checked = !checked;
-                        mDBAdapter.setDoneStatus(taskId, today, checked);
-                        updateModel(task, position);
-                        taskListItem = (TaskListItem) getItem(position);
-                        updateView(taskListItem, checked, itemViewHolder);
-                        updateReminder();
-                        TasksWidgetProvider.notifyDatasetChanged(getApplicationContext());
+                imageView.setOnClickListener(v -> {
+                    View parent1 = (View) v.getParent();
+                    ItemViewHolder itemViewHolder1 = new ItemViewHolder();
+                    itemViewHolder1.imageView = (ImageView) v;
+                    itemViewHolder1.lastDoneDateTextView =
+                            parent1.findViewById(R.id.taskLastDoneDate);
+                    int position1 = (Integer) v.getTag();
+                    TaskListItem taskListItem1 = (TaskListItem) getItem(position1);
+                    Task task1 = (Task) taskListItem1.data;
+                    long taskId = task1.getTaskID();
+                    boolean checked1 = DateComparator.equals(taskListItem1.lastDoneDate, today);
+                    checked1 = !checked1;
+                    mDBAdapter.setDoneStatus(taskId, today, checked1);
+                    updateModel(task1, position1);
+                    taskListItem1 = (TaskListItem) getItem(position1);
+                    updateView(taskListItem1, checked1, itemViewHolder1);
+                    ReminderManager.getInstance().setAlarm(getApplicationContext(), taskId);
+                    TasksWidgetProvider.notifyDatasetChanged(getApplicationContext());
 
-                        if (checked) {
-                            mCheckSound.play();
-                        }
+                    if (checked1) {
+                        mCheckSound.play();
                     }
                 });
             } else {

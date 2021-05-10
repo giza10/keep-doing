@@ -2,8 +2,6 @@ package com.hkb48.keepdo;
 
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.ActionBar;
@@ -20,11 +18,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.TimePicker;
 
 import com.hkb48.keepdo.widget.TasksWidgetProvider;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 public class TaskSettingActivity extends AppCompatActivity {
     public static final String EXTRA_TASK_INFO = "TASK-INFO";
@@ -51,16 +49,11 @@ public class TaskSettingActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowCustomEnabled(true);
             toolbar.setNavigationIcon(R.drawable.ic_close);
-            LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater inflater = LayoutInflater.from(this);
             View v = inflater.inflate(R.layout.actionbar_task_setting, null);
             mTitleText = v.findViewById(R.id.title_text);
             mSaveButton = v.findViewById(R.id.button_save);
-            mSaveButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onSaveClicked();
-                }
-            });
+            mSaveButton.setOnClickListener(view -> onSaveClicked());
             actionBar.setCustomView(v);
         }
 
@@ -113,13 +106,13 @@ public class TaskSettingActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        boolean ret = true;
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        } else {
+            ret = super.onOptionsItemSelected(item);
         }
+        return ret;
     }
 
     private void addTaskName(EditText editText) {
@@ -158,32 +151,14 @@ public class TaskSettingActivity extends AppCompatActivity {
                                 .setMultiChoiceItems(
                                         weekNames,
                                         mRecurrenceFlags,
-                                        new DialogInterface.OnMultiChoiceClickListener() {
-                                            public void onClick(
-                                                    DialogInterface dialog,
-                                                    int which, boolean isChecked) {
-                                                mRecurrenceFlags[which] = isChecked;
-                                            }
-                                        })
+                                        (dialog, which, isChecked) -> mRecurrenceFlags[which] = isChecked)
                                 .setPositiveButton(
                                         getString(R.string.dialog_ok),
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(
-                                                    DialogInterface dialog,
-                                                    int whichButton) {
-                                                recurrenceView
-                                                        .update(mRecurrenceFlags);
-                                            }
-                                        })
+                                        (dialog, whichButton) -> recurrenceView
+                                                .update(mRecurrenceFlags))
                                 .setNegativeButton(
                                         getString(R.string.dialog_cancel),
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(
-                                                    DialogInterface dialog,
-                                                    int whichButton) {
-                                                mRecurrenceFlags = tmpRecurrenceFlags;
-                                            }
-                                        }).show();
+                                        (dialog, whichButton) -> mRecurrenceFlags = tmpRecurrenceFlags).show();
                     }
                 });
     }
@@ -197,42 +172,33 @@ public class TaskSettingActivity extends AppCompatActivity {
         final int minute = reminder.getMinute();
         boolean isChecked = reminder.getEnabled();
         if (isChecked) {
-            reminderTime.setText(String.format("%1$02d", hourOfDay) + ":"
-                    + String.format("%1$02d", minute));
+            reminderTime.setText(String.format(Locale.getDefault(), "%1$02d", hourOfDay) + ":"
+                    + String.format(Locale.getDefault(), "%1$02d", minute));
             cancelButton.setVisibility(View.VISIBLE);
         } else {
             reminderTime.setText(R.string.no_reminder);
             cancelButton.setVisibility(View.INVISIBLE);
         }
 
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(final View v) {
-                cancelButton.setVisibility(View.INVISIBLE);
-                reminderTime.setText(R.string.no_reminder);
-                reminder.setEnabled(false);
-                mTask.setReminder(reminder);
-            }
+        cancelButton.setOnClickListener(v -> {
+            cancelButton.setVisibility(View.INVISIBLE);
+            reminderTime.setText(R.string.no_reminder);
+            reminder.setEnabled(false);
+            mTask.setReminder(reminder);
         });
 
         final TimePickerDialog timePickerDialog = new TimePickerDialog(this,
-                new TimePickerDialog.OnTimeSetListener() {
-                    public void onTimeSet(final TimePicker view,
-                                          final int hourOfDay, final int minute) {
-                        reminderTime.setText(String.format("%1$02d", hourOfDay)
-                                + ":" + String.format("%1$02d", minute));
-                        cancelButton.setVisibility(View.VISIBLE);
-                        reminder.setEnabled(true);
-                        reminder.setHourOfDay(hourOfDay);
-                        reminder.setMinute(minute);
-                        mTask.setReminder(reminder);
-                    }
+                (view, hourOfDay1, minute1) -> {
+                    reminderTime.setText(String.format(Locale.getDefault(), "%1$02d", hourOfDay1)
+                            + ":" + String.format(Locale.getDefault(), "%1$02d", minute1));
+                    cancelButton.setVisibility(View.VISIBLE);
+                    reminder.setEnabled(true);
+                    reminder.setHourOfDay(hourOfDay1);
+                    reminder.setMinute(minute1);
+                    mTask.setReminder(reminder);
                 }, hourOfDay, minute, true);
 
-        reminderTime.setOnClickListener(new OnClickListener() {
-            public void onClick(final View v) {
-                timePickerDialog.show();
-            }
-        });
+        reminderTime.setOnClickListener(v -> timePickerDialog.show());
     }
 
     private void onSaveClicked() {
@@ -246,13 +212,15 @@ public class TaskSettingActivity extends AppCompatActivity {
         mTask.setContext(editTextDescription.getText().toString());
 
         DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(this);
+        long taskId;
         if (mMode == MODE_NEW_TASK) {
             mTask.setOrder(dbAdapter.getMaxSortOrderId() + 1);
-            dbAdapter.addTask(mTask);
+            taskId = dbAdapter.addTask(mTask);
         } else {
             dbAdapter.editTask(mTask);
+            taskId = mTask.getTaskID();
         }
-        ReminderManager.getInstance().setNextAlert(this);
+        ReminderManager.getInstance().setAlarm(this, taskId);
         TasksWidgetProvider.notifyDatasetChanged(this);
         finish();
     }

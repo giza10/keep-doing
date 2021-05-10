@@ -79,7 +79,7 @@ public class CalendarGrid extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Intent intent = getActivity().getIntent();
+        Intent intent = requireActivity().getIntent();
         long taskId = intent.getLongExtra("TASK-ID", -1);
         mDatabaseAdapter = DatabaseAdapter.getInstance(getContext());
         mTask = mDatabaseAdapter.getTask(taskId);
@@ -121,21 +121,20 @@ public class CalendarGrid extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_info:
-                final long taskId = getActivity().getIntent().getLongExtra("TASK-ID", -1);
-                Intent intent = new Intent(getActivity(), TaskDetailActivity.class);
-                intent.putExtra("TASK-ID", taskId);
-                startActivity(intent);
-                return true;
-            case R.id.menu_share:
-                if (!mIsShareOnTop) {
-                    shareDisplayedCalendarView();
-                    mIsShareOnTop = true;
-                }
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.menu_info) {
+            final long taskId = requireActivity().getIntent().getLongExtra("TASK-ID", -1);
+            Intent intent = new Intent(getActivity(), TaskDetailActivity.class);
+            intent.putExtra("TASK-ID", taskId);
+            startActivity(intent);
+            return true;
+        } else if (item.getItemId() == R.id.menu_share){
+            if(!mIsShareOnTop){
+                shareDisplayedCalendarView();
+                mIsShareOnTop=true;
+            }
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
     }
 
@@ -192,7 +191,7 @@ public class CalendarGrid extends Fragment {
 
         Date today = DateChangeTimeUtil.getDate();
         if (consumed && (selectedDate.compareTo(today) == 0)) {
-            ReminderManager.getInstance().setNextAlert(getContext());
+            ReminderManager.getInstance().setAlarm(getContext(), mTask.getTaskID());
             TasksWidgetProvider.notifyDatasetChanged(getContext());
         }
 
@@ -209,7 +208,7 @@ public class CalendarGrid extends Fragment {
 
         for (int i = 0; i < NUM_OF_DAYS_IN_WEEK; i++) {
             int dayOfWeek = getDayOfWeek(i);
-            View child = getActivity().getLayoutInflater().inflate(R.layout.calendar_week, null);
+            View child = requireActivity().getLayoutInflater().inflate(R.layout.calendar_week, null);
 
             TextView textView1 = child.findViewById(R.id.textView1);
             textView1.setText(weeks[dayOfWeek - 1]);
@@ -279,7 +278,7 @@ public class CalendarGrid extends Fragment {
         final int blankDaysInFirstWeek = (week - startDayOfWeek + NUM_OF_DAYS_IN_WEEK)
                 % NUM_OF_DAYS_IN_WEEK;
         for (int i = 0; i < blankDaysInFirstWeek; i++) {
-            View child = getActivity().getLayoutInflater().inflate(
+            View child = requireActivity().getLayoutInflater().inflate(
                     R.layout.calendar_date, null);
             child.setBackgroundResource(R.drawable.bg_calendar_day_blank);
             row.addView(child, childParams);
@@ -293,7 +292,7 @@ public class CalendarGrid extends Fragment {
 
         int weekIndex = blankDaysInFirstWeek;
         for (int day = 1; day <= maxDate; day++) {
-            View child = getActivity().getLayoutInflater().inflate(
+            View child = requireActivity().getLayoutInflater().inflate(
                     R.layout.calendar_date, null);
             TextView textView1 = child.findViewById(R.id.textView1);
             ImageView imageView1 = child
@@ -348,7 +347,7 @@ public class CalendarGrid extends Fragment {
                 % NUM_OF_DAYS_IN_WEEK;
         if (blankDaysInLastWeek > 0) {
             for (int i = 0; i < blankDaysInLastWeek; i++) {
-                View child = getActivity().getLayoutInflater().inflate(
+                View child = requireActivity().getLayoutInflater().inflate(
                         R.layout.calendar_date, null);
                 child.setBackgroundResource(R.drawable.bg_calendar_day_blank);
                 row.addView(child, childParams);
@@ -387,7 +386,7 @@ public class CalendarGrid extends Fragment {
         final String BITMAP_PATH = mDatabaseAdapter.backupDirPath()
                 + "/temp_share_image.png";
 
-        View calendarRoot = getActivity().findViewById(R.id.calendar_root);
+        View calendarRoot = requireActivity().findViewById(R.id.calendar_root);
         calendarRoot.setDrawingCacheEnabled(true);
 
         File bitmapFile = new File(BITMAP_PATH);
@@ -425,21 +424,21 @@ public class CalendarGrid extends Fragment {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setType("image/png");
-        Uri contentUri = FileProvider.getUriForFile(getContext(), FILE_PROVIDER, bitmapFile);
+        Uri contentUri = FileProvider.getUriForFile(requireContext(), FILE_PROVIDER, bitmapFile);
         intent.putExtra(Intent.EXTRA_STREAM, contentUri);
         ComboCount comboCount = mDatabaseAdapter.getComboCount(mTask
                 .getTaskID());
         String extraText = "";
         if (mMonthOffset == 0 && comboCount.currentCount > 1) {
-            extraText += getContext().getString(R.string.share_combo, mTask.getName(), comboCount.currentCount);
+            extraText += requireContext().getString(R.string.share_combo, mTask.getName(), comboCount.currentCount);
         } else {
             Calendar current = DateChangeTimeUtil.getDateTimeCalendar();
             current.add(Calendar.MONTH, mMonthOffset);
             current.set(Calendar.DAY_OF_MONTH, 1);
             ArrayList<Date> doneDateList = mDatabaseAdapter.getHistory(mTask.getTaskID(), current.getTime());
-            extraText += getContext().getString(R.string.share_non_combo, mTask.getName(), doneDateList.size());
+            extraText += requireContext().getString(R.string.share_non_combo, mTask.getName(), doneDateList.size());
         }
-        extraText += " " + getContext().getString(R.string.share_app_url);
+        extraText += " " + requireContext().getString(R.string.share_app_url);
         intent.putExtra(Intent.EXTRA_TEXT, extraText);
         startActivity(intent);
     }
