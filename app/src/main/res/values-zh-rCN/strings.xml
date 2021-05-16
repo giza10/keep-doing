@@ -48,9 +48,10 @@
     <string name="notification_title_multi_tasks">拥有%d件未完成作业！</string>
     <string name="channel_name">通知功能</string>
     <string name="channel_description">通知功能</string>
-    <string name="remind_at">有通知</string>
+    <string name="remind_at">有通知 %1$02d:%2$02d</string>
     <string name="number_of_done">完成作业次数</string>
     <string name="current_and_max_combo">当前连续完成数 / 最多连续完成数</string>
+    <string name="current_and_max_combo_num">%1d次 / %2d次</string>
     <string name="first_done_date">作业最早完成日</string>
     <string name="last_done_date">作业最后完成日</string>
     <string name="number_of_times">%d次</string>

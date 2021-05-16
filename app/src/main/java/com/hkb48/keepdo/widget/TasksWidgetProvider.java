@@ -163,16 +163,18 @@ public class TasksWidgetProvider extends AppWidgetProvider {
         long nextAlarmTime = DatabaseAdapter.getInstance(context).getNextDateChangeTime();
         if (nextAlarmTime > 0) {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            assert alarmManager != null;
-            alarmManager.setRepeating(AlarmManager.RTC, nextAlarmTime, AlarmManager.INTERVAL_DAY, getPendingIntent(context));
-            dumpLog(nextAlarmTime);
+            if (alarmManager != null) {
+                alarmManager.setRepeating(AlarmManager.RTC, nextAlarmTime, AlarmManager.INTERVAL_DAY, getPendingIntent(context));
+                dumpLog(nextAlarmTime);
+            }
         }
     }
 
     private void stopAlarm(final Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        assert alarmManager != null;
-        alarmManager.cancel(getPendingIntent(context));
+        if (alarmManager != null) {
+            alarmManager.cancel(getPendingIntent(context));
+        }
     }
 
 

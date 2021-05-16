@@ -28,8 +28,7 @@ public class DoneIconPreference extends DialogPreference {
 
     @Override
     protected View onCreateDialogView() {
-        LayoutInflater inflater = (LayoutInflater) getContext()
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = LayoutInflater.from(getContext());
         View view = inflater.inflate(R.layout.done_icon_selector, null);
 
         view.findViewById(R.id.done_icon_1).setOnClickListener(new OnClickListener());

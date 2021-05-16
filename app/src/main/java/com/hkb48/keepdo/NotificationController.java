@@ -50,8 +50,11 @@ class NotificationController {
         String vibrateWhen = Settings.getAlertsVibrateWhen();
         boolean vibrateAlways = vibrateWhen.equals("always");
         boolean vibrateSilent = vibrateWhen.equals("silent");
+        boolean nowSilent = false;
         AudioManager audioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
-        boolean nowSilent = audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE;
+        if (audioManager != null) {
+            nowSilent = audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE;
+        }
 
         // Possibly generate a vibration
         if (vibrateAlways || (vibrateSilent && nowSilent)) {
@@ -96,13 +99,10 @@ class NotificationController {
     }
 
     @TargetApi(26)
-    static void initNotificationChannel(final Context context) {
+    static void createNotificationChannel(final Context context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return;
         }
-
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         // The user-visible name of the channel.
         CharSequence name = context.getString(R.string.channel_name);
@@ -122,8 +122,11 @@ class NotificationController {
         String vibrateWhen = Settings.getAlertsVibrateWhen();
         boolean vibrateAlways = vibrateWhen.equals("always");
         boolean vibrateSilent = vibrateWhen.equals("silent");
+        boolean nowSilent = false;
         AudioManager audioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
-        boolean nowSilent = audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE;
+        if (audioManager != null) {
+            nowSilent = audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE;
+        }
 
         // Possibly generate a vibration
         if (vibrateAlways || (vibrateSilent && nowSilent)) {
@@ -137,7 +140,11 @@ class NotificationController {
                     .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                     .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
         }
-        notificationManager.createNotificationChannel(mChannel);
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            notificationManager.createNotificationChannel(mChannel);
+        }
     }
 
     static void cancelReminder(final Context context) {

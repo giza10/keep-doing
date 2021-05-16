@@ -70,7 +70,7 @@ final class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL(STRING_CREATE_COMPLETION);
         } catch (SQLiteException e) {
             if (BuildConfig.DEBUG) {
-                Log.e(TAG, e.getMessage());
+                Log.e(TAG, "Exception: execSQL() : e = " + e);
             }
         }
     }
@@ -127,9 +127,9 @@ final class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + Tasks.TABLE_NAME + " ADD COLUMN " + Tasks.TASK_CONTEXT + " TEXT");
             db.execSQL("ALTER TABLE " + Tasks.TABLE_NAME + " ADD COLUMN " + Tasks.REMINDER_ENABLED + " TEXT");
             db.execSQL("ALTER TABLE " + Tasks.TABLE_NAME + " ADD COLUMN " + Tasks.REMINDER_TIME + " TEXT");
-        } catch (SQLException eSQL) {
+        } catch (SQLException e) {
             if (BuildConfig.DEBUG) {
-                Log.e(TAG, eSQL.getMessage());
+                Log.e(TAG, "Exception: execSQL() : e = " + e);
             }
             return false;
         }
@@ -143,9 +143,9 @@ final class DatabaseHelper extends SQLiteOpenHelper {
     private boolean upgradeDatabase3(SQLiteDatabase db) {
         try {
             db.execSQL("ALTER TABLE " + Tasks.TABLE_NAME + " ADD COLUMN " + Tasks.TASK_LIST_ORDER + " INTEGER DEFAULT 0");
-        } catch (SQLException eSQL) {
+        } catch (SQLException e) {
             if (BuildConfig.DEBUG) {
-                Log.e(TAG, eSQL.getMessage());
+                Log.e(TAG, "Exception: execSQL() : e = " + e);
             }
             return false;
         }

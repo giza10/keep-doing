@@ -48,9 +48,10 @@
     <string name="notification_title_multi_tasks">今日の未実施のDoが%d件あります！</string>
     <string name="channel_name">リマインダー</string>
     <string name="channel_description">今日の未実施のDoを通知します</string>
-    <string name="remind_at">通知あり</string>
+    <string name="remind_at">通知あり %1$02d:%2$02d</string>
     <string name="number_of_done">Do実施回数</string>
     <string name="current_and_max_combo">現在のコンボ数 / 最大コンボ数</string>
+    <string name="current_and_max_combo_num">%1d 回 / %2d 回</string>
     <string name="first_done_date">最初にDoを実施した日</string>
     <string name="last_done_date">最後にDoを実施した日</string>
     <string name="number_of_times">%d 回</string>

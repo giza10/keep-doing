@@ -47,13 +47,12 @@ public class SortableListView extends ListView {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        switch (ev.getAction()) {
-        case MotionEvent.ACTION_DOWN:
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             int x = (int) ev.getX();
             int y = (int) ev.getY();
             int position = pointToPosition(x, y);
             if (position == AdapterView.INVALID_POSITION) {
-                break;
+                return super.onInterceptTouchEvent(ev);
             }
 
             SortableListItem listItemView = (SortableListItem) getChildAt(position
@@ -98,8 +97,6 @@ public class SortableListView extends ListView {
 
                 mDragView = null;
             }
-
-            break;
         }
         return super.onInterceptTouchEvent(ev);
     }
@@ -144,7 +141,6 @@ public class SortableListView extends ListView {
             if (itemView == null) {
                 break;
             }
-            int height = mItemHeight;
             int visibility = View.VISIBLE;
             if (itemView.equals(first)) {
                 // processing the item that is being dragged
@@ -159,7 +155,7 @@ public class SortableListView extends ListView {
 
             if (itemView.getGrabberView() != null) {
                 ViewGroup.LayoutParams params = itemView.getLayoutParams();
-                params.height = height;
+                params.height = mItemHeight;
                 itemView.setLayoutParams(params);
                 itemView.setVisibility(visibility);
             }
@@ -188,9 +184,8 @@ public class SortableListView extends ListView {
 
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_MOVE:
-                final int x = (int) ev.getX();
                 final int y = (int) ev.getY();
-                dragView(x, y);
+                dragView(y);
                 final int position = pointToPosition(0, y);
                 if (position >= 0) {
                     if (action == MotionEvent.ACTION_DOWN
@@ -232,6 +227,11 @@ public class SortableListView extends ListView {
         return super.onTouchEvent(ev);
     }
 
+    @Override
+    public boolean performClick() {
+        return super.performClick();
+    }
+
     private void startDrag(Bitmap bm, int x, int y) {
         stopDrag();
 
@@ -258,11 +258,13 @@ public class SortableListView extends ListView {
         mDragBitmap = bm;
 
         mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        mWindowManager.addView(v, mWindowParams);
+        if (mWindowManager != null) {
+            mWindowManager.addView(v, mWindowParams);
+        }
         mDragView = v;
     }
 
-    private void dragView(int x, int y) {
+    private void dragView(int y) {
         mWindowParams.y = y - mDragPoint + mCoordOffset;
         mWindowManager.updateViewLayout(mDragView, mWindowParams);
     }

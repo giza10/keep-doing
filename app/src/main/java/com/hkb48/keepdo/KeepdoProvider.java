@@ -1,6 +1,7 @@
 package com.hkb48.keepdo;
 
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -97,6 +98,7 @@ public class KeepdoProvider extends ContentProvider {
         public static final String NEXT_DATE_CHANGE_TIME = "next_date_change_time";
     }
 
+    private ContentResolver mContentResolver;
     private DatabaseHelper mOpenHelper;
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -202,7 +204,7 @@ public class KeepdoProvider extends ContentProvider {
         assert db != null;
         long newRowId = db.insertOrThrow(tableName, null, values);
         Uri newUri = ContentUris.withAppendedId(uri, newRowId);
-        getContext().getContentResolver().notifyChange(newUri, null);
+        getContentResolver().notifyChange(newUri, null);
 
         return newUri;
     }
@@ -290,7 +292,7 @@ public class KeepdoProvider extends ContentProvider {
                 null /* no group */, null /* no filter */, sortOrder);
 
         assert c != null;
-        c.setNotificationUri(getContext().getContentResolver(), uri);
+        c.setNotificationUri(getContentResolver(), uri);
         return c;
     }
 
@@ -307,7 +309,7 @@ public class KeepdoProvider extends ContentProvider {
             assert db != null;
             final int id = db.update(Tasks.TABLE_NAME, values, Tasks._ID + "=?",
                     new String[]{String.valueOf(parseTaskIdFromUri(uri))});
-            getContext().getContentResolver().notifyChange(uri, null);
+            getContentResolver().notifyChange(uri, null);
             return id;
         }
         throw new IllegalArgumentException("Unknown URI " + uri);
@@ -327,7 +329,7 @@ public class KeepdoProvider extends ContentProvider {
             case Tasks.TABLE_ID:
                 int id = db.delete(Tasks.TABLE_NAME, Tasks._ID + "=?",
                         new String[]{String.valueOf(parseTaskIdFromUri(uri))});
-                getContext().getContentResolver().notifyChange(uri, null);
+                getContentResolver().notifyChange(uri, null);
                 return id;
             case TaskCompletion.TABLE_ID:
                 if (selection != null) {
@@ -338,12 +340,22 @@ public class KeepdoProvider extends ContentProvider {
                     id = db.delete(TaskCompletion.TABLE_NAME, TaskCompletion.TASK_NAME_ID + "=?",
                             new String[]{String.valueOf(parseTaskIdFromUri(uri))});
                 }
-                getContext().getContentResolver().notifyChange(uri, null);
+                getContentResolver().notifyChange(uri, null);
                 return id;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
+    }
+
+    @NonNull
+    private ContentResolver getContentResolver() {
+        if (mContentResolver == null) {
+            Context context = getContext();
+            assert context != null;
+            mContentResolver = context.getContentResolver();
+        }
+        return mContentResolver;
     }
 
     /**

@@ -70,19 +70,19 @@ public class TaskDetailActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-            case R.id.menu_edit:
-                Intent intent = new Intent(TaskDetailActivity.this,
-                        TaskSettingActivity.class);
-                Task task = DatabaseAdapter.getInstance(this).getTask(mTaskId);
-                intent.putExtra(TaskSettingActivity.EXTRA_TASK_INFO, task);
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        int itemId = item.getItemId();
+        if (itemId == android.R.id.home) {
+            finish();
+            return true;
+        } else if (itemId == R.id.menu_edit) {
+            Intent intent = new Intent(TaskDetailActivity.this,
+                    TaskSettingActivity.class);
+            Task task = DatabaseAdapter.getInstance(this).getTask(mTaskId);
+            intent.putExtra(TaskSettingActivity.EXTRA_TASK_INFO, task);
+            startActivity(intent);
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
     }
 
@@ -105,10 +105,8 @@ public class TaskDetailActivity extends AppCompatActivity {
         TextView reminderTextView = findViewById(R.id.taskDetailReminderValue);
         Reminder reminder = task.getReminder();
         if (reminder.getEnabled()) {
-            String hourOfDayStr = String.format(Locale.getDefault(), "%1$02d", reminder.getHourOfDay());
-            String minuteStr = String.format(Locale.getDefault(), "%1$02d", reminder.getMinute());
-            String remindAtStr = getString(R.string.remind_at);
-            reminderTextView.setText(remindAtStr + " " + hourOfDayStr + ":" + minuteStr);
+            reminderTextView.setText(
+                    getString(R.string.remind_at, reminder.getHourOfDay(), reminder.getMinute()));
         } else {
             reminderTextView.setText(R.string.no_reminder);
         }
@@ -136,7 +134,7 @@ public class TaskDetailActivity extends AppCompatActivity {
         TextView comboTextView = findViewById(R.id.taskDetailComboValue);
         ComboCount combo = dbAdapter.getComboCount(task.getTaskID());
         if (combo != null) {
-            comboTextView.setText(getString(R.string.number_of_times, combo.currentCount) + " / " + getString(R.string.number_of_times, combo.maxCount));
+            comboTextView.setText(getString(R.string.current_and_max_combo_num, combo.currentCount, combo.maxCount));
         }
 
         // First date that done is set

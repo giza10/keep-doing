@@ -1,6 +1,5 @@
 package com.hkb48.keepdo;
 
-import android.content.Context;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -41,11 +40,10 @@ public class TaskSortingActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        case android.R.id.home:
+        if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
-        default:
+        } else {
             return super.onOptionsItemSelected(item);
         }
     }
@@ -89,7 +87,7 @@ public class TaskSortingActivity extends AppCompatActivity {
         }
 
         public View getView(int position, View convertView, ViewGroup parent) {
-            final LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
             View view = convertView;
             if (view == null) {
                 view = inflater.inflate(R.layout.task_sorting_list_item, parent, false);

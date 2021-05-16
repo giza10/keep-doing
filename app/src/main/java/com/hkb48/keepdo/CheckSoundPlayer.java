@@ -1,10 +1,9 @@
 package com.hkb48.keepdo;
 
 import android.content.Context;
-import android.media.AudioAttributes;
-import android.media.AudioManager;
 import android.media.SoundPool;
-import android.os.Build;
+
+import com.hkb48.keepdo.com.hkb48.keepdo.util.CompatUtil;
 
 class CheckSoundPlayer {
     private final Context mContext;
@@ -16,15 +15,7 @@ class CheckSoundPlayer {
     }
 
     void load() {
-        if(Build.VERSION.SDK_INT < 21) {
-            mSoundPool = new SoundPool(1, AudioManager.STREAM_SYSTEM, 0);
-        } else {
-            AudioAttributes attr = new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build();
-            mSoundPool = new SoundPool.Builder().setAudioAttributes(attr).setMaxStreams(1).build();
-        }
+        mSoundPool = CompatUtil.getSoundPool();
         mSoundId = mSoundPool.load(mContext, R.raw.done_pressed, 1);
     }
 

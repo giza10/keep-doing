@@ -33,7 +33,6 @@ public class GeneralSettingsFragment extends PreferenceFragment implements OnPre
     private ListPreference mWeekStartDayPref;
     private RingtonePreference mRingtonePref;
     private ListPreference mVibrateWhenPref;
-    private Preference mNotificationPref;
 
     public static SharedPreferences getSharedPreferences(final Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
@@ -66,10 +65,10 @@ public class GeneralSettingsFragment extends PreferenceFragment implements OnPre
 
         mRingtonePref = (RingtonePreference) preferenceScreen.findPreference(KEY_ALERTS_RINGTONE);
         mVibrateWhenPref = (ListPreference) preferenceScreen.findPreference(KEY_ALERTS_VIBRATE_WHEN);
-        mNotificationPref = preferenceScreen.findPreference(KEY_ALERTS_NOTIFICATION);
+        Preference notificationPref = preferenceScreen.findPreference(KEY_ALERTS_NOTIFICATION);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            alertGroup.removePreference(mNotificationPref);
+            alertGroup.removePreference(notificationPref);
 
             Vibrator vibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
             if (vibrator == null || !vibrator.hasVibrator()) {
@@ -78,14 +77,12 @@ public class GeneralSettingsFragment extends PreferenceFragment implements OnPre
                 mVibrateWhenPref.setSummary(mVibrateWhenPref.getEntry());
             }
         } else {
-            mNotificationPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                public boolean onPreferenceClick(Preference preference) {
-                    Intent intent = new Intent(android.provider.Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
-                    intent.putExtra(android.provider.Settings.EXTRA_CHANNEL_ID, NotificationController.getNotificationChannelId());
-                    intent.putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, getContext().getPackageName());
-                    startActivity(intent);
-                    return true;
-                }
+            notificationPref.setOnPreferenceClickListener(preference -> {
+                Intent intent = new Intent(android.provider.Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
+                intent.putExtra(android.provider.Settings.EXTRA_CHANNEL_ID, NotificationController.getNotificationChannelId());
+                intent.putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, getContext().getPackageName());
+                startActivity(intent);
+                return true;
             });
 
             alertGroup.removePreference(mRingtonePref);

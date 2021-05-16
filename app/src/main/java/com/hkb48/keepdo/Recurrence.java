@@ -6,13 +6,13 @@ import java.util.Calendar;
 
 @SuppressWarnings("serial")
 public class Recurrence implements Serializable {
-	private boolean monday;
-	private boolean tuesday;
-	private boolean wednesday;
-	private boolean thursday;
-	private boolean friday;
-	private boolean saturday;
-	private boolean sunday;
+	private final boolean monday;
+	private final boolean tuesday;
+	private final boolean wednesday;
+	private final boolean thursday;
+	private final boolean friday;
+	private final boolean saturday;
+	private final boolean sunday;
 
     Recurrence (boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday) {
         this.monday = monday;
@@ -63,33 +63,5 @@ public class Recurrence implements Serializable {
         case Calendar.SATURDAY: return saturday;
         default: return false;
         }
-    }
-
-    public void setMonday(boolean setValue){
-        this.monday = setValue;
-    }
-
-    public void setTuesday(boolean setValue){
-        this.tuesday = setValue;
-    }
-
-    public void setWednesday(boolean setValue){
-        this.wednesday = setValue;
-    }
-
-    public void setThurday(boolean setValue){
-        this.thursday = setValue;
-    }
-
-    public void setFriday(boolean setValue){
-        this.friday = setValue;
-    }
-
-    public void setSaturday(boolean setValue){
-        this.saturday = setValue;
-    }
-
-    public void setSunday(boolean setValue){
-        this.sunday = setValue;
     }
 }

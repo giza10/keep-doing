@@ -19,7 +19,7 @@ class TasksWidgetModel {
     private static final String SDF_PATTERN_YMD = "yyyy-MM-dd";
 
     private final Context mContext;
-    private List<Task> mTaskList = new ArrayList<>();
+    private final List<Task> mTaskList = new ArrayList<>();
 
     TasksWidgetModel (Context context) {
         mContext = context;
@@ -65,7 +65,7 @@ class TasksWidgetModel {
             try {
                 date = sdf_ymd.parse(dateString);
             } catch (ParseException e) {
-                Log.e(TAG, e.getMessage());
+                Log.e(TAG, "Exception: isValidDay. e = " + e);
                 return false;
             }
         }

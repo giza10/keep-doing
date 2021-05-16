@@ -36,6 +36,7 @@
     <string name="dialog_cancel">Cancel</string>
     <string name="dialog_start">Start</string>
     <string name="reminder">Reminder</string>
+    <string name="reminder_time" translatable="false">%1$02d:%2$02d</string>
     <string name="no_reminder">No reminder</string>
     <string name="description">Description</string>
     <string name="task_save">Save</string>
@@ -49,9 +50,10 @@
     <string name="notification_title_multi_tasks">There\'re %d Do to be done today!</string>
     <string name="channel_name">Reminder</string>
     <string name="channel_description">Remind the Today\'s remaining Do.</string>
-    <string name="remind_at">Remind at</string>
+    <string name="remind_at">Remind at %1$02d:%2$02d</string>
     <string name="number_of_done">Total number of Done</string>
     <string name="current_and_max_combo">Current combo / Max combo</string>
+    <string name="current_and_max_combo_num">%1d times / %2d times</string>
     <string name="first_done_date">First day of Done</string>
     <string name="last_done_date">Last day of Done</string>
     <string name="number_of_times">%d times</string>

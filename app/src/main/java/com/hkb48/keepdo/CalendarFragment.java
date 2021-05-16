@@ -41,9 +41,9 @@ public class CalendarFragment extends Fragment {
         mViewPager.setCurrentItem(CalendarFragment.NUM_MAXIMUM_MONTHS);
     }
 
-    public class CalendarPageAdapter extends FragmentPagerAdapter {
+    public static class CalendarPageAdapter extends FragmentPagerAdapter {
         CalendarPageAdapter(FragmentManager fm) {
-            super(fm);
+            super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         }
 
         @Override

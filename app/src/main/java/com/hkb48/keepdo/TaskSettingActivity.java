@@ -22,7 +22,6 @@ import android.widget.TextView;
 import com.hkb48.keepdo.widget.TasksWidgetProvider;
 
 import java.util.Arrays;
-import java.util.Locale;
 
 public class TaskSettingActivity extends AppCompatActivity {
     public static final String EXTRA_TASK_INFO = "TASK-INFO";
@@ -172,8 +171,7 @@ public class TaskSettingActivity extends AppCompatActivity {
         final int minute = reminder.getMinute();
         boolean isChecked = reminder.getEnabled();
         if (isChecked) {
-            reminderTime.setText(String.format(Locale.getDefault(), "%1$02d", hourOfDay) + ":"
-                    + String.format(Locale.getDefault(), "%1$02d", minute));
+            reminderTime.setText(getString(R.string.reminder_time, hourOfDay, minute));
             cancelButton.setVisibility(View.VISIBLE);
         } else {
             reminderTime.setText(R.string.no_reminder);
@@ -189,8 +187,7 @@ public class TaskSettingActivity extends AppCompatActivity {
 
         final TimePickerDialog timePickerDialog = new TimePickerDialog(this,
                 (view, hourOfDay1, minute1) -> {
-                    reminderTime.setText(String.format(Locale.getDefault(), "%1$02d", hourOfDay1)
-                            + ":" + String.format(Locale.getDefault(), "%1$02d", minute1));
+                    reminderTime.setText(getString(R.string.reminder_time, hourOfDay1, minute1));
                     cancelButton.setVisibility(View.VISIBLE);
                     reminder.setEnabled(true);
                     reminder.setHourOfDay(hourOfDay1);

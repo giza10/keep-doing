@@ -85,15 +85,17 @@ public class DateChangeTimeManager {
         nextAlarmTime.set(Calendar.MILLISECOND, 0);
 
         AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-        assert alarmManager != null;
-        alarmManager.setRepeating(AlarmManager.RTC, nextAlarmTime.getTimeInMillis(), AlarmManager.INTERVAL_DAY, getPendingIntent(mContext));
-        dumpLog(nextAlarmTime.getTimeInMillis());
+        if (alarmManager != null) {
+            alarmManager.setRepeating(AlarmManager.RTC, nextAlarmTime.getTimeInMillis(), AlarmManager.INTERVAL_DAY, getPendingIntent(mContext));
+            dumpLog(nextAlarmTime.getTimeInMillis());
+        }
     }
 
     private void stopAlarm() {
         AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-        assert alarmManager != null;
-        alarmManager.cancel(getPendingIntent(mContext));
+        if (alarmManager != null) {
+            alarmManager.cancel(getPendingIntent(mContext));
+        }
     }
 
     private PendingIntent getPendingIntent(Context context) {
