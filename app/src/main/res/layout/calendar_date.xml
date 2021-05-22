@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_calendar_day_normal"
     android:gravity="center_horizontal"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/textView1"
@@ -23,7 +23,7 @@
         android:layout_marginLeft="@dimen/calendar_date_margin_left"
         android:layout_marginStart="@dimen/calendar_date_margin_left"
         android:layout_marginTop="@dimen/calendar_date_margin_top"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
         <ImageView
             android:id="@+id/imageViewDone"

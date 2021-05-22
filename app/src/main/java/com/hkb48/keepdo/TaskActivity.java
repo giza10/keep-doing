@@ -3,9 +3,10 @@ package com.hkb48.keepdo;
 import android.database.ContentObserver;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.MenuItem;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import android.view.MenuItem;
 
 public class TaskActivity extends AppCompatActivity {
     private long mTaskId;

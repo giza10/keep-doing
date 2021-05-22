@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.hkb48.keepdo.settings.Settings;
+
 public class RemindAlarmInitReceiver extends BroadcastReceiver {
     private static final String ACTION_UPDATE_REMINDER = "com.hkb48.keepdo.action.UPDATE_REMINDER";
 

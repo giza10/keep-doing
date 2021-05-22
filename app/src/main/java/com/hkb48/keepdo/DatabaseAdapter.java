@@ -300,7 +300,7 @@ public class DatabaseAdapter {
         Uri uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, String.valueOf(taskID));
         String sortOrder = TaskCompletion.TASK_COMPLETION_DATE + " asc";
         Cursor cursor = mContentResolver.query(
-                uri.buildUpon().appendQueryParameter("distinct", "true").build(), null, null,null, sortOrder);
+                uri.buildUpon().appendQueryParameter("distinct", "true").build(), null, null, null, sortOrder);
 
         if (cursor != null) {
             if (cursor.moveToFirst()) {

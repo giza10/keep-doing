@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.hkb48.keepdo.SortableListItem xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:layout_width="match_parent"
     android:layout_height="@dimen/tasksort_item_height"
-    android:minHeight="@dimen/tasksort_item_height" >
-    
+    android:minHeight="@dimen/tasksort_item_height">
+
     <TextView
         android:id="@+id/textView1"
         android:layout_width="0dp"
@@ -16,19 +17,18 @@
         android:gravity="center_vertical"
         android:paddingLeft="10dp"
         android:ellipsize="end"
-        android:maxLines="2"
-    />
+        android:maxLines="2" />
+
     <ImageView
         android:id="@+id/imageViewSort"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:gravity="right"
         android:scaleType="fitXY"
-        android:src="@drawable/ic_grabber"
+        app:srcCompat="@drawable/ic_grabber"
         android:padding="5dp"
         android:paddingRight="10dp"
         android:paddingEnd="10dp"
-        android:background="?android:attr/selectableItemBackground"
-        android:contentDescription="@string/accessibility_arrow"
-    />
+        android:background="?attr/selectableItemBackground"
+        android:contentDescription="@string/accessibility_arrow" />
 </com.hkb48.keepdo.SortableListItem>

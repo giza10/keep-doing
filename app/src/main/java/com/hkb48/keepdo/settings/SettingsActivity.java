@@ -1,11 +1,14 @@
-package com.hkb48.keepdo;
+package com.hkb48.keepdo.settings;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.view.MenuItem;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import android.view.MenuItem;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.hkb48.keepdo.R;
 
 public class SettingsActivity extends AppCompatActivity {
     @Override
@@ -18,8 +21,7 @@ public class SettingsActivity extends AppCompatActivity {
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.root_container, new GeneralSettingsFragment());
         fragmentTransaction.commit();

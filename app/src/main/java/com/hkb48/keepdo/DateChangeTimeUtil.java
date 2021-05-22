@@ -1,5 +1,7 @@
 package com.hkb48.keepdo;
 
+import com.hkb48.keepdo.settings.Settings;
+
 import java.util.Calendar;
 import java.util.Date;
 

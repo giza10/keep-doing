@@ -1,4 +1,4 @@
-package com.hkb48.keepdo.com.hkb48.keepdo.util;
+package com.hkb48.keepdo.util;
 
 import java.util.Calendar;
 import java.util.Date;

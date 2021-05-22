@@ -1,7 +1,6 @@
 package com.hkb48.keepdo;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,19 +8,6 @@ import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.os.Bundle;
 import android.os.Handler;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -35,8 +21,23 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.hkb48.keepdo.com.hkb48.keepdo.util.CompatUtil;
-import com.hkb48.keepdo.com.hkb48.keepdo.util.DateComparator;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
+import com.hkb48.keepdo.settings.Settings;
+import com.hkb48.keepdo.settings.SettingsActivity;
+import com.hkb48.keepdo.util.CompatUtil;
+import com.hkb48.keepdo.util.DateComparator;
 import com.hkb48.keepdo.widget.TasksWidgetProvider;
 
 import java.io.File;
@@ -607,7 +608,7 @@ public class TasksActivity extends AppCompatActivity implements
             return view;
         }
 
-        private void updateModel(Task task, int position){
+        private void updateModel(Task task, int position) {
             Date lastDoneDate = mDBAdapter.getLastDoneDate(task.getTaskID());
             ComboCount comboCount = mDBAdapter.getComboCount(task.getTaskID());
             TaskListItem newTaskListItem =
@@ -615,6 +616,7 @@ public class TasksActivity extends AppCompatActivity implements
             mDataList.set(position, newTaskListItem);
 
         }
+
         private void updateView(TaskListItem taskListItem, boolean checked,
                                 ItemViewHolder holder) {
             Date today = DateChangeTimeUtil.getDateTime();

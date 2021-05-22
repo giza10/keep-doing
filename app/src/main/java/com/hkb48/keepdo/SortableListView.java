@@ -15,7 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import com.hkb48.keepdo.com.hkb48.keepdo.util.CompatUtil;
+import com.hkb48.keepdo.util.CompatUtil;
 
 public class SortableListView extends ListView {
     private ImageView mDragView;
@@ -24,9 +24,9 @@ public class SortableListView extends ListView {
     private int mDragPos; // which item is being dragged
     private int mFirstDragPos; // where was the dragged item originally
     private int mDragPoint; // at what offset inside the item did the user grab
-                            // it
+    // it
     private int mCoordOffset; // the difference between screen coordinates and
-                              // coordinates in this view
+    // coordinates in this view
     private DragAndDropListener mDragAndDropListener;
     private int mUpperBound;
     private int mLowerBound;
@@ -114,7 +114,7 @@ public class SortableListView extends ListView {
      * Restore visibility for all items in list
      */
     private void unExpandViews() {
-        for (int visibleItemIndex = 0;; visibleItemIndex++) {
+        for (int visibleItemIndex = 0; ; visibleItemIndex++) {
             SortableListItem itemView = (SortableListItem) getChildAt(visibleItemIndex);
             if (itemView == null) {
                 break;
@@ -136,7 +136,7 @@ public class SortableListView extends ListView {
     private void doExpansion() {
         final View first = getChildAt(mFirstDragPos - getFirstVisiblePosition());
 
-        for (int visibleItemIndex = 0;; visibleItemIndex++) {
+        for (int visibleItemIndex = 0; ; visibleItemIndex++) {
             SortableListItem itemView = (SortableListItem) getChildAt(visibleItemIndex);
             if (itemView == null) {
                 break;
@@ -169,58 +169,58 @@ public class SortableListView extends ListView {
         if (mDragView != null) {
             int action = ev.getAction();
             switch (action) {
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                Rect rect = new Rect();
-                mDragView.getDrawingRect(rect);
-                stopDrag();
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    Rect rect = new Rect();
+                    mDragView.getDrawingRect(rect);
+                    stopDrag();
 
-                if (mDragAndDropListener != null && mDragPos >= 0
-                        && mDragPos < getCount()) {
-                    mDragAndDropListener.onDrop(mFirstDragPos, mDragPos);
-                }
-                unExpandViews();
-                break;
+                    if (mDragAndDropListener != null && mDragPos >= 0
+                            && mDragPos < getCount()) {
+                        mDragAndDropListener.onDrop(mFirstDragPos, mDragPos);
+                    }
+                    unExpandViews();
+                    break;
 
-            case MotionEvent.ACTION_DOWN:
-            case MotionEvent.ACTION_MOVE:
-                final int y = (int) ev.getY();
-                dragView(y);
-                final int position = pointToPosition(0, y);
-                if (position >= 0) {
-                    if (action == MotionEvent.ACTION_DOWN
-                            || position != mDragPos) {
-                        if (mDragAndDropListener != null) {
-                            mDragAndDropListener.onDrag(mDragPos, position);
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_MOVE:
+                    final int y = (int) ev.getY();
+                    dragView(y);
+                    final int position = pointToPosition(0, y);
+                    if (position >= 0) {
+                        if (action == MotionEvent.ACTION_DOWN
+                                || position != mDragPos) {
+                            if (mDragAndDropListener != null) {
+                                mDragAndDropListener.onDrag(mDragPos, position);
+                            }
+                            mDragPos = position;
+                            doExpansion();
                         }
-                        mDragPos = position;
-                        doExpansion();
-                    }
-                    int speed = 0;
-                    adjustScrollBounds(y);
-                    if (y > mLowerBound) {
-                        // scroll the list up a bit
-                        speed = y > (mHeight + mLowerBound) / 2 ? 16 : 4;
-                    } else if (y < mUpperBound) {
-                        // scroll the list down a bit
-                        speed = y < mUpperBound / 2 ? -16 : -4;
-                    }
-                    if (speed != 0) {
-                        int ref = pointToPosition(0, mHeight / 2);
-                        if (ref == AdapterView.INVALID_POSITION) {
-                            // we hit a divider or an invisible view, check
-                            // somewhere else
-                            ref = pointToPosition(0, mHeight / 2
-                                    + getDividerHeight() + mItemHeight);
+                        int speed = 0;
+                        adjustScrollBounds(y);
+                        if (y > mLowerBound) {
+                            // scroll the list up a bit
+                            speed = y > (mHeight + mLowerBound) / 2 ? 16 : 4;
+                        } else if (y < mUpperBound) {
+                            // scroll the list down a bit
+                            speed = y < mUpperBound / 2 ? -16 : -4;
                         }
-                        View v = getChildAt(ref - getFirstVisiblePosition());
-                        if (v != null) {
-                            int pos = v.getTop();
-                            setSelectionFromTop(ref, pos - speed);
+                        if (speed != 0) {
+                            int ref = pointToPosition(0, mHeight / 2);
+                            if (ref == AdapterView.INVALID_POSITION) {
+                                // we hit a divider or an invisible view, check
+                                // somewhere else
+                                ref = pointToPosition(0, mHeight / 2
+                                        + getDividerHeight() + mItemHeight);
+                            }
+                            View v = getChildAt(ref - getFirstVisiblePosition());
+                            if (v != null) {
+                                int pos = v.getTop();
+                                setSelectionFromTop(ref, pos - speed);
+                            }
                         }
                     }
-                }
-                break;
+                    break;
             }
             return true;
         }

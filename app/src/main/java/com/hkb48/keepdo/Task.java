@@ -20,7 +20,7 @@ public class Task implements Serializable {
         this.recurrence = recurrence;
         this.reminder = new Reminder();
         this.order = INVALID_TASKID;
-	}
+    }
 
     public long getTaskID() {
         return identifier;

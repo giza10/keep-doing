@@ -21,7 +21,7 @@ class TasksWidgetModel {
     private final Context mContext;
     private final List<Task> mTaskList = new ArrayList<>();
 
-    TasksWidgetModel (Context context) {
+    TasksWidgetModel(Context context) {
         mContext = context;
     }
 
@@ -30,7 +30,7 @@ class TasksWidgetModel {
         List<Task> fullTaskList = DatabaseAdapter.getInstance(mContext).getTaskList();
         String today = getTodayDate();
         for (Task task : fullTaskList) {
-            if (! getDoneStatus(task.getTaskID(), today) && isValidDay(task, today)) {
+            if (!getDoneStatus(task.getTaskID(), today) && isValidDay(task, today)) {
                 mTaskList.add(task);
             }
         }

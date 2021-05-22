@@ -45,7 +45,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         extras.putInt(TasksWidgetProvider.PARAM_VIEWID, TasksWidgetProvider.VIEWID_LIST_ITEM);
         intentForListItem.putExtras(extras);
         rv.setOnClickFillInIntent(R.id.widget_item_background, intentForListItem);
-        
+
         final Intent intentForDoneIcon = new Intent();
         final Bundle extras2 = new Bundle();
         extras2.putInt(TasksWidgetProvider.PARAM_VIEWID, TasksWidgetProvider.VIEWID_LIST_ITEM_ICON);

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:yourapp="http://schemas.android.com/apk/res-auto" >
+    xmlns:yourapp="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/menu_edit"
         android:icon="@android:drawable/ic_menu_edit"
         android:orderInCategory="100"
         android:title="@string/menu_edit"
-        yourapp:showAsAction="ifRoom"/>
+        yourapp:showAsAction="ifRoom" />
 
 </menu>

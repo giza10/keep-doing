@@ -16,6 +16,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.hkb48.keepdo.settings.Settings;
+
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -86,6 +88,7 @@ public class KeepdoProvider extends ContentProvider {
     public static final class DateChangeTime implements BaseColumns {
         private DateChangeTime() {
         }
+
         // Incoming URI matches the main table URI pattern
         static final int TABLE_LIST = 30;
         // Incoming URI matches the main table row ID URI pattern
@@ -116,6 +119,7 @@ public class KeepdoProvider extends ContentProvider {
     }
 
     private static final HashMap<String, String> sTasksProjectionMap = new HashMap<>();
+
     static {
         sTasksProjectionMap.put(Tasks._ID, Tasks._ID);
         sTasksProjectionMap.put(Tasks.TASK_NAME, Tasks.TASK_NAME);
@@ -133,11 +137,13 @@ public class KeepdoProvider extends ContentProvider {
     }
 
     private static final HashMap<String, String> sMaxTaskProjectionMap = new HashMap<>();
+
     static {
         sMaxTaskProjectionMap.put("MAX(" + Tasks.TASK_LIST_ORDER + ")", "MAX(" + Tasks.TASK_LIST_ORDER + ")");
     }
 
     private static final HashMap<String, String> sTaskCompletionProjectionMap = new HashMap<>();
+
     static {
         sTaskCompletionProjectionMap.put(TaskCompletion._ID, TaskCompletion._ID);
         sTaskCompletionProjectionMap.put(TaskCompletion.TASK_NAME_ID, TaskCompletion.TASK_NAME_ID);
@@ -145,11 +151,13 @@ public class KeepdoProvider extends ContentProvider {
     }
 
     private static final HashMap<String, String> sMaxTaskCompletionProjectionMap = new HashMap<>();
+
     static {
         sMaxTaskCompletionProjectionMap.put("MAX(" + TaskCompletion.TASK_COMPLETION_DATE + ")", "MAX(" + TaskCompletion.TASK_COMPLETION_DATE + ")");
     }
 
     private static final HashMap<String, String> sMinTaskCompletionProjectionMap = new HashMap<>();
+
     static {
         sMinTaskCompletionProjectionMap.put("MIN(" + TaskCompletion.TASK_COMPLETION_DATE + ")", "MIN(" + TaskCompletion.TASK_COMPLETION_DATE + ")");
     }
@@ -361,6 +369,7 @@ public class KeepdoProvider extends ContentProvider {
     /**
      * Parses the call Id from the given uri, assuming that this is a uri that
      * matches TABLE_ID. For other uri types the behaviour is undefined.
+     *
      * @throws IllegalArgumentException if the id included in the Uri is not a valid long value.
      */
     private long parseTaskIdFromUri(Uri uri) {

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.hkb48.keepdo.KeepdoProvider.DateChangeTime;
+import com.hkb48.keepdo.settings.Settings;
 import com.hkb48.keepdo.widget.TasksWidgetProvider;
 
 import java.text.MessageFormat;
@@ -22,7 +23,8 @@ public class DateChangeTimeManager {
     private final List<OnDateChangedListener> mChangedListeners = new ArrayList<>();
 
     private final Settings.OnChangedListener mSettingsChangedListener = new Settings.OnChangedListener() {
-        public void onDoneIconSettingChanged() {}
+        public void onDoneIconSettingChanged() {
+        }
 
         public void onDateChangeTimeSettingChanged() {
             startAlarm();
@@ -31,7 +33,8 @@ public class DateChangeTimeManager {
             TasksWidgetProvider.notifyDatasetChanged(mContext);
         }
 
-        public void onWeekStartDaySettingChanged() {}
+        public void onWeekStartDaySettingChanged() {
+        }
     };
 
     private DateChangeTimeManager(Context context) {
@@ -76,7 +79,7 @@ public class DateChangeTimeManager {
     }
 
     private void startAlarm() {
-    	DateChangeTimeUtil.DateChangeTime dateChangeTime = DateChangeTimeUtil.getDateChangeTime();
+        DateChangeTimeUtil.DateChangeTime dateChangeTime = DateChangeTimeUtil.getDateChangeTime();
         Calendar nextAlarmTime = DateChangeTimeUtil.getDateTimeCalendar();
         nextAlarmTime.add(Calendar.DATE, 1);
         nextAlarmTime.set(Calendar.HOUR_OF_DAY, dateChangeTime.hourOfDay);

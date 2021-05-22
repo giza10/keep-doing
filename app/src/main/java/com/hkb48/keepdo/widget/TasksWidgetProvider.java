@@ -51,7 +51,7 @@ public class TasksWidgetProvider extends AppWidgetProvider {
         super.onDisabled(context);
     }
 
-	@Override
+    @Override
     public void onReceive(Context ctx, Intent intent) {
         final String action = intent.getAction();
         final Context context = ctx;
@@ -74,7 +74,7 @@ public class TasksWidgetProvider extends AppWidgetProvider {
                     TasksWidgetModel model = new TasksWidgetModel(context);
                     String date = model.getTodayDate();
                     boolean doneToday = model.getDoneStatus(taskId, date);
-                    if (! doneToday) {
+                    if (!doneToday) {
                         Intent intent1 = new Intent(context, ActionHandler.class);
                         intent1.putExtra(ActionHandler.INTENT_EXTRA_TASK_ID, taskId);
                         context.startService(intent1);
@@ -92,7 +92,7 @@ public class TasksWidgetProvider extends AppWidgetProvider {
         super.onReceive(context, intent);
     }
 
-	@Override
+    @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // Update each of the widgets with the remote adapter
         for (int appWidgetId : appWidgetIds) {
@@ -105,7 +105,7 @@ public class TasksWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager,
-            int appWidgetId, Bundle newOptions) {
+                                          int appWidgetId, Bundle newOptions) {
         RemoteViews layout = buildLayout(context, appWidgetId);
         appWidgetManager.updateAppWidget(appWidgetId, layout);
     }

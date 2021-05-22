@@ -6,10 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.core.content.FileProvider;
-import androidx.fragment.app.Fragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -22,7 +18,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.hkb48.keepdo.com.hkb48.keepdo.util.CompatUtil;
+import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
+
+import com.hkb48.keepdo.settings.Settings;
+import com.hkb48.keepdo.util.CompatUtil;
 import com.hkb48.keepdo.widget.TasksWidgetProvider;
 
 import java.io.File;
@@ -71,7 +72,7 @@ public class CalendarGrid extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.calendar_sub_page, container, false);
     }
 
@@ -86,7 +87,7 @@ public class CalendarGrid extends Fragment {
 
         mDoneIconId = Settings.getDoneIconId();
         mCheckSound = new CheckSoundPlayer(getContext());
-        mMonthOffset = (getArguments() != null) ? (getArguments().getInt(POSITION_KEY) - CalendarFragment.NUM_MAXIMUM_MONTHS  + 1) : (0);
+        mMonthOffset = (getArguments() != null) ? (getArguments().getInt(POSITION_KEY) - CalendarFragment.NUM_MAXIMUM_MONTHS + 1) : (0);
 
         mCalendarGrid = view.findViewById(R.id.calendar_grid);
 
@@ -127,10 +128,10 @@ public class CalendarGrid extends Fragment {
             intent.putExtra("TASK-ID", taskId);
             startActivity(intent);
             return true;
-        } else if (item.getItemId() == R.id.menu_share){
-            if(!mIsShareOnTop){
+        } else if (item.getItemId() == R.id.menu_share) {
+            if (!mIsShareOnTop) {
                 shareDisplayedCalendarView();
-                mIsShareOnTop=true;
+                mIsShareOnTop = true;
             }
             return true;
         } else {
@@ -140,7 +141,7 @@ public class CalendarGrid extends Fragment {
 
     @Override
     public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View view,
-            ContextMenu.ContextMenuInfo menuInfo) {
+                                    ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, view, menuInfo);
 
         mPressedView = view;
@@ -213,16 +214,16 @@ public class CalendarGrid extends Fragment {
             TextView textView1 = child.findViewById(R.id.textView1);
             textView1.setText(weeks[dayOfWeek - 1]);
             switch (dayOfWeek) {
-            case Calendar.SUNDAY:
-                textView1.setBackgroundResource(R.drawable.bg_calendar_sunday);
-                break;
-            case Calendar.SATURDAY:
-                textView1
-                        .setBackgroundResource(R.drawable.bg_calendar_saturday);
-                break;
-            default:
-                textView1.setBackgroundResource(R.drawable.bg_calendar_weekday);
-                break;
+                case Calendar.SUNDAY:
+                    textView1.setBackgroundResource(R.drawable.bg_calendar_sunday);
+                    break;
+                case Calendar.SATURDAY:
+                    textView1
+                            .setBackgroundResource(R.drawable.bg_calendar_saturday);
+                    break;
+                default:
+                    textView1.setBackgroundResource(R.drawable.bg_calendar_weekday);
+                    break;
             }
 
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0,
@@ -358,12 +359,12 @@ public class CalendarGrid extends Fragment {
 
     private int getFontColorOfWeek(int dayOfWeek) {
         switch (dayOfWeek) {
-        case Calendar.SUNDAY:
-            return Color.RED;
-        case Calendar.SATURDAY:
-            return Color.BLUE;
-        default:
-            return Color.BLACK;
+            case Calendar.SUNDAY:
+                return Color.RED;
+            case Calendar.SATURDAY:
+                return Color.BLUE;
+            default:
+                return Color.BLACK;
         }
     }
 

@@ -102,17 +102,17 @@ public class ReminderManager {
     }
 
     private Calendar getNextSchedule(Recurrence recurrence,
-            boolean isDoneToday, int hourOfDay, int minute) {
+                                     boolean isDoneToday, int hourOfDay, int minute) {
         Calendar realTime = Calendar.getInstance();
         realTime.setTimeInMillis(System.currentTimeMillis());
 
         int dayOffset = 0;
         boolean isSuccess = false;
 
-        boolean[] recurrenceFlags = { recurrence.getSunday(),
+        boolean[] recurrenceFlags = {recurrence.getSunday(),
                 recurrence.getMonday(), recurrence.getTuesday(),
                 recurrence.getWednesday(), recurrence.getThurday(),
-                recurrence.getFriday(), recurrence.getSaturday() };
+                recurrence.getFriday(), recurrence.getSaturday()};
         int dayOfWeek = DateChangeTimeUtil.getDateTimeCalendar(realTime).get(
                 Calendar.DAY_OF_WEEK) - 1;
 
@@ -177,7 +177,7 @@ public class ReminderManager {
     }
 
     private boolean hasReminderAlreadyExceeded(Calendar realTime,
-            Calendar reminderTime) {
+                                               Calendar reminderTime) {
         final boolean isRealTimeDateAdjusted = DateChangeTimeUtil
                 .isDateAdjusted(realTime);
         final boolean isReminderTimeDateAdjusted = DateChangeTimeUtil
@@ -223,7 +223,7 @@ public class ReminderManager {
             Calendar time = Calendar.getInstance();
             time.setTimeInMillis(timeInMillis);
             MessageFormat mf = new MessageFormat("{0,date,yyyy/MM/dd HH:mm:ss}");
-            Object[] objs = { time.getTime() };
+            Object[] objs = {time.getTime()};
             String result = mf.format(objs);
             Log.v(TAG_KEEPDO, "ReminderManager: taskId=" + taskId + ", time=" + result);
         }

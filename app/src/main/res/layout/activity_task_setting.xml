@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -14,7 +15,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:divider="?android:attr/dividerHorizontal"
+            android:divider="?attr/dividerHorizontal"
             android:orientation="vertical"
             android:showDividers="middle">
 
@@ -47,7 +48,7 @@
                     android:layout_height="24dp"
                     android:layout_marginEnd="32dp"
                     android:layout_marginRight="32dp"
-                    android:src="@drawable/ic_task_recurrence" />
+                    app:srcCompat="@drawable/ic_task_recurrence" />
 
                 <com.hkb48.keepdo.RecurrenceView
                     android:id="@+id/recurrenceView"
@@ -70,7 +71,7 @@
                     android:layout_height="24dp"
                     android:layout_marginEnd="32dp"
                     android:layout_marginRight="32dp"
-                    android:src="@drawable/ic_task_alarm" />
+                    app:srcCompat="@drawable/ic_task_alarm" />
 
                 <Button
                     android:id="@+id/buttonReminderTime"
@@ -92,7 +93,7 @@
                     android:layout_marginStart="10dp"
                     android:contentDescription="@string/accessibility_remove_reminder"
                     android:gravity="center"
-                    android:src="@drawable/ic_menu_cancel_holo_light" />
+                    app:srcCompat="@drawable/ic_menu_cancel_holo_light" />
             </LinearLayout>
 
             <LinearLayout
@@ -108,7 +109,7 @@
                     android:layout_height="24dp"
                     android:layout_marginEnd="32dp"
                     android:layout_marginRight="32dp"
-                    android:src="@drawable/ic_task_comment" />
+                    app:srcCompat="@drawable/ic_task_comment" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"

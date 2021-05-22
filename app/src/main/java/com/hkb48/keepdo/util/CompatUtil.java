@@ -1,10 +1,11 @@
-package com.hkb48.keepdo.com.hkb48.keepdo.util;
+package com.hkb48.keepdo.util;
 
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
+
 import androidx.core.content.ContextCompat;
 
 public class CompatUtil {
@@ -19,7 +20,7 @@ public class CompatUtil {
     }
 
     public static SoundPool getSoundPool() {
-        if(Build.VERSION.SDK_INT < 21) {
+        if (Build.VERSION.SDK_INT < 21) {
             //noinspection deprecation
             return new SoundPool(1, AudioManager.STREAM_SYSTEM, 0);
         } else {
@@ -29,5 +30,9 @@ public class CompatUtil {
                     .build();
             return new SoundPool.Builder().setAudioAttributes(attr).setMaxStreams(1).build();
         }
+    }
+
+    public static boolean isNotificationChannelSupported() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
     }
 }

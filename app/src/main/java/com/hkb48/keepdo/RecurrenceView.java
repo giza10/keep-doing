@@ -8,7 +8,8 @@ import android.util.AttributeSet;
 
 import androidx.appcompat.widget.AppCompatTextView;
 
-import com.hkb48.keepdo.com.hkb48.keepdo.util.CompatUtil;
+import com.hkb48.keepdo.settings.Settings;
+import com.hkb48.keepdo.util.CompatUtil;
 
 public class RecurrenceView extends AppCompatTextView {
     private final String[] mWeekName;

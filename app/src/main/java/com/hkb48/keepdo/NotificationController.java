@@ -1,6 +1,5 @@
 package com.hkb48.keepdo;
 
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -14,19 +13,23 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import android.util.Log;
+
+import com.hkb48.keepdo.settings.Settings;
+import com.hkb48.keepdo.util.CompatUtil;
 
 import java.util.List;
 
-class NotificationController {
+public class NotificationController {
     private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";
     private static final String GROUP_KEY_REMINDERS = "group_key_reminders";
     static final int NOTIFICATION_ID_HANDHELD = -1;
     private static final String CHANNEL_ID = "Channel_ID";
 
-    @TargetApi(26)
     static void showReminder(final Context context, long taskId) {
         Task task = DatabaseAdapter.getInstance(context).getTask(taskId);
         String taskName = null;
@@ -51,7 +54,7 @@ class NotificationController {
         boolean vibrateAlways = vibrateWhen.equals("always");
         boolean vibrateSilent = vibrateWhen.equals("silent");
         boolean nowSilent = false;
-        AudioManager audioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         if (audioManager != null) {
             nowSilent = audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE;
         }
@@ -67,7 +70,7 @@ class NotificationController {
 
         Intent actionIntent = new Intent(context, ActionHandler.class);
         actionIntent.putExtra(ActionHandler.INTENT_EXTRA_TASK_ID, taskId);
-        PendingIntent actionPendingIntent = PendingIntent.getService(context, (int)taskId, actionIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent actionPendingIntent = PendingIntent.getService(context, (int) taskId, actionIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         // Notification for hand-held device
         Bitmap largeIcon = BitmapFactory.decodeResource(context.getResources(),
@@ -98,9 +101,9 @@ class NotificationController {
         NotificationManagerCompat.from(context).notify(NOTIFICATION_ID_HANDHELD, builder.build());
     }
 
-    @TargetApi(26)
+    @RequiresApi(Build.VERSION_CODES.O)
     static void createNotificationChannel(final Context context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+        if (!CompatUtil.isNotificationChannelSupported()) {
             return;
         }
 
@@ -123,7 +126,7 @@ class NotificationController {
         boolean vibrateAlways = vibrateWhen.equals("always");
         boolean vibrateSilent = vibrateWhen.equals("silent");
         boolean nowSilent = false;
-        AudioManager audioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         if (audioManager != null) {
             nowSilent = audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE;
         }
@@ -156,7 +159,8 @@ class NotificationController {
         NotificationManagerCompat.from(context).cancel(notificationId);
     }
 
-    static String getNotificationChannelId() {
+    @RequiresApi(Build.VERSION_CODES.O)
+    public static String getNotificationChannelId() {
         return CHANNEL_ID;
     }
 }

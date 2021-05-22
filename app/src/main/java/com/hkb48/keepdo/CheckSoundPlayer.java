@@ -3,7 +3,7 @@ package com.hkb48.keepdo;
 import android.content.Context;
 import android.media.SoundPool;
 
-import com.hkb48.keepdo.com.hkb48.keepdo.util.CompatUtil;
+import com.hkb48.keepdo.util.CompatUtil;
 
 class CheckSoundPlayer {
     private final Context mContext;
