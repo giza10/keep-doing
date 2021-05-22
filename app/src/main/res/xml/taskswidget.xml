@@ -5,4 +5,4 @@
     android:minHeight="72dp"
     android:minResizeHeight="36dp"
     android:resizeMode="horizontal|vertical"
-    android:updatePeriodMillis="0"></appwidget-provider>
+    android:updatePeriodMillis="0" />

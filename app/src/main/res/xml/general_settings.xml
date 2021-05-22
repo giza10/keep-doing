@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<androix.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
         android:key="preferences_general_category"
         android:title="@string/general_setting">
@@ -62,4 +62,4 @@
             android:key="preferences_notification"
             android:title="@string/preferences_notification_title" />
     </PreferenceCategory>
-</PreferenceScreen>
+</androix.preference.PreferenceScreen>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -22,9 +23,9 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
                 android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp">
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp">
 
                 <EditText
                     android:id="@+id/editTextTaskName"
@@ -32,7 +33,8 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/task_name"
                     android:imeOptions="actionDone"
-                    android:inputType="text" />
+                    android:inputType="text"
+                    tools:ignore="Autofill" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
@@ -87,10 +89,10 @@
                     android:id="@+id/reminder_remove"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
-                    android:layout_marginEnd="10dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
                     android:layout_marginStart="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginRight="10dp"
                     android:contentDescription="@string/accessibility_remove_reminder"
                     android:gravity="center"
                     app:srcCompat="@drawable/ic_menu_cancel_holo_light" />
@@ -120,7 +122,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/description"
-                        android:imeOptions="actionDone" />
+                        android:imeOptions="actionDone"
+                        android:inputType="textMultiLine"
+                        tools:ignore="Autofill" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </LinearLayout>

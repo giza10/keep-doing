@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <string name="app_name">KeepDo!</string>
 
@@ -132,7 +132,7 @@
         <item>Never</item>
     </string-array>
 
-    <string translatable="false" name="prefDefault_done_icon">type1</string>
+    <string translatable="false" name="prefDefault_done_icon" tools:ignore="Typos">type1</string>
 
     <!-- The default vibrateWhen value, when none is set -->
     <string translatable="false" name="prefDefault_alerts_vibrateWhen">never</string>
