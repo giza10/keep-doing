@@ -25,6 +25,7 @@
     <string name="preferences_date_change_time_title">日期更改时刻</string>
     <string name="preferences_date_change_time_summary">作业更改为%s</string>
     <string name="preferences_calendar_week_start_day_title">周开始日</string>
+    <string name="preferences_calendar_enable_future_date">启用将来的日期</string>
     <string name="preferences_alerts_ringtone_title">通知音</string>
     <string name="preferences_alerts_vibrateWhen_title">震动</string>
     <string name="preferences_notification_title">通知设定</string>

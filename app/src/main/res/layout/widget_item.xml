@@ -21,8 +21,8 @@
             android:layout_height="30dp"
             android:layout_gravity="center"
             android:contentDescription="@string/accessibility_done_mark"
-            app:srcCompat="@drawable/ic_not_done_3"
-            android:visibility="visible" />
+            android:visibility="visible"
+            app:srcCompat="@drawable/ic_not_done_3" />
 
         <TextView
             android:id="@+id/widget_item_text"

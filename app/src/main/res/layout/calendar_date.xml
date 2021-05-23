@@ -11,8 +11,8 @@
         android:id="@+id/textView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="2dip"
         android:layout_marginStart="2dip"
+        android:layout_marginLeft="2dip"
         android:gravity="start"
         android:textIsSelectable="false"
         android:textSize="14sp" />
@@ -20,8 +20,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/calendar_date_margin_left"
         android:layout_marginStart="@dimen/calendar_date_margin_left"
+        android:layout_marginLeft="@dimen/calendar_date_margin_left"
         android:layout_marginTop="@dimen/calendar_date_margin_top"
         android:orientation="vertical">
 

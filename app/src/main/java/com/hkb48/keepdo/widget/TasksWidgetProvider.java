@@ -24,20 +24,28 @@ import java.text.MessageFormat;
 import java.util.Calendar;
 
 public class TasksWidgetProvider extends AppWidgetProvider {
-    private static final String ACTION_APPWIDGET_UPDATE = "com.hkb48.keepdo.action.APPWIDGET_UPDATE";
-    private static final String ACTION_ITEM_CLICKED = "com.hkb48.keepdo.action.ITEM_CLICKED";
-
     public static final String PARAM_POSITION = "position";
     public static final String PARAM_TASK_ID = "task-id";
     public static final String PARAM_VIEWID = "view-id";
     public static final int VIEWID_LIST_ITEM = 0;
     public static final int VIEWID_LIST_ITEM_ICON = 1;
-
+    private static final String ACTION_APPWIDGET_UPDATE = "com.hkb48.keepdo.action.APPWIDGET_UPDATE";
+    private static final String ACTION_ITEM_CLICKED = "com.hkb48.keepdo.action.ITEM_CLICKED";
     private static final int INVALID_INDEX = -1;
 
     private static int sSelectedPosition = INVALID_INDEX;
 
     public TasksWidgetProvider() {
+    }
+
+    public static int getSelectedItemIndex() {
+        return sSelectedPosition;
+    }
+
+    public static void notifyDatasetChanged(final Context context) {
+        final Intent intent = new Intent(context, TasksWidgetProvider.class);
+        intent.setAction(ACTION_APPWIDGET_UPDATE);
+        context.sendBroadcast(intent);
     }
 
     @Override
@@ -108,16 +116,6 @@ public class TasksWidgetProvider extends AppWidgetProvider {
                                           int appWidgetId, Bundle newOptions) {
         RemoteViews layout = buildLayout(context, appWidgetId);
         appWidgetManager.updateAppWidget(appWidgetId, layout);
-    }
-
-    public static int getSelectedItemIndex() {
-        return sSelectedPosition;
-    }
-
-    public static void notifyDatasetChanged(final Context context) {
-        final Intent intent = new Intent(context, TasksWidgetProvider.class);
-        intent.setAction(ACTION_APPWIDGET_UPDATE);
-        context.sendBroadcast(intent);
     }
 
     private RemoteViews buildLayout(Context context, int appWidgetId) {

@@ -24,12 +24,24 @@ public class Reminder implements Serializable {
         return enabled;
     }
 
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     public int getHourOfDay() {
         return hourOfDay;
     }
 
+    public void setHourOfDay(int hourOfDay) {
+        this.hourOfDay = hourOfDay;
+    }
+
     public int getMinute() {
         return minute;
+    }
+
+    public void setMinute(int minute) {
+        this.minute = minute;
     }
 
     public long getTimeInMillis() {
@@ -37,18 +49,6 @@ public class Reminder implements Serializable {
         time.set(Calendar.HOUR_OF_DAY, hourOfDay);
         time.set(Calendar.MINUTE, minute);
         return time.getTimeInMillis();
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public void setHourOfDay(int hourOfDay) {
-        this.hourOfDay = hourOfDay;
-    }
-
-    public void setMinute(int minute) {
-        this.minute = minute;
     }
 
     private void setTimeInMillis(long milliseconds) {

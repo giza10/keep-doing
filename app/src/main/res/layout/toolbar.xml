@@ -2,9 +2,9 @@
 <androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/toolbar"
-    android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    android:minHeight="50dp"
+    android:layout_height="wrap_content"
     android:background="@color/action_bar"
-    app:theme="@style/ActionBarThemeOverlay"
-    app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+    android:minHeight="50dp"
+    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+    app:theme="@style/ActionBarThemeOverlay" />

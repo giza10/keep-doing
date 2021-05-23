@@ -27,6 +27,7 @@
     <string name="preferences_date_change_time_title">Date change time</string>
     <string name="preferences_calendar_week_start_day_title">Start week on</string>
     <string name="preferences_date_change_time_summary">Date of Do list is updated at %s.</string>
+    <string name="preferences_calendar_enable_future_date">Allow marking future date</string>
     <string name="preferences_alerts_ringtone_title">Notification sound</string>
     <string name="preferences_alerts_vibrateWhen_title">Vibration</string>
     <string name="preferences_notification_title">Notification setting</string>
@@ -65,9 +66,9 @@
     <string name="share_app_url">from KeepDo! https://play.google.com/store/apps/details?id=com.hkb48.keepdo</string>
     <string name="menu_edit">Edit</string>
 
-    <string translatable="false" name="accessibility_done_mark">Done mark</string>
-    <string translatable="false" name="accessibility_remove_reminder">Remove reminder</string>
-    <string translatable="false" name="accessibility_arrow">Arrow</string>
+    <string name="accessibility_done_mark" translatable="false">Done mark</string>
+    <string name="accessibility_remove_reminder" translatable="false">Remove reminder</string>
+    <string name="accessibility_arrow" translatable="false">Arrow</string>
 
     <string-array name="week_names">
         <item>SUN</item>
@@ -83,7 +84,7 @@
     <string name="sort_task">Sort</string>
 
     <!-- Time when date changes -->
-    <string-array translatable="false" name="prefEntries_date_change_time">
+    <string-array name="prefEntries_date_change_time" translatable="false">
         <item>24:00 (AM 0:00)</item>
         <item>25:00 (AM 1:00)</item>
         <item>26:00 (AM 2:00)</item>
@@ -94,10 +95,10 @@
     </string-array>
 
     <!-- The default time when date changes, when none is set -->
-    <string translatable="false" name="prefDefault_date_change_time">24:00</string>
+    <string name="prefDefault_date_change_time" translatable="false">24:00</string>
 
     <!-- The date change time values -->
-    <string-array translatable="false" name="prefValues_date_change_time">
+    <string-array name="prefValues_date_change_time" translatable="false">
         <item>24:00</item>
         <item>25:00</item>
         <item>26:00</item>
@@ -114,10 +115,10 @@
     </string-array>
 
     <!-- The default week start day value, when none is set -->
-    <string translatable="false" name="prefDefault_calendar_week_start_day">"1"</string>
+    <string name="prefDefault_calendar_week_start_day" translatable="false">"1"</string>
 
     <!-- The week start day values -->
-    <string-array translatable="false" name="prefValues_calendar_week_start_day">
+    <string-array name="prefValues_calendar_week_start_day" translatable="false">
         <item>"1"</item>
         <item>"2"</item>
     </string-array>
@@ -132,13 +133,13 @@
         <item>Never</item>
     </string-array>
 
-    <string translatable="false" name="prefDefault_done_icon" tools:ignore="Typos">type1</string>
+    <string name="prefDefault_done_icon" translatable="false" tools:ignore="Typos">type1</string>
 
     <!-- The default vibrateWhen value, when none is set -->
-    <string translatable="false" name="prefDefault_alerts_vibrateWhen">never</string>
+    <string name="prefDefault_alerts_vibrateWhen" translatable="false">never</string>
 
     <!-- The vibrateWhen values -->
-    <string-array translatable="false" name="prefValues_alerts_vibrateWhen">
+    <string-array name="prefValues_alerts_vibrateWhen" translatable="false">
         <item>always</item>
         <item>silent</item>
         <item>never</item>

@@ -29,82 +29,12 @@ public class KeepdoProvider extends ContentProvider {
     private static final String TAG = "KeepdoProvider";
     private static final String AUTHORITY = "com.hkb48.keepdo.keepdoprovider";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
-
-    // Task table
-    static final class Tasks implements BaseColumns {
-
-        private Tasks() {
-        }
-
-        // Incoming URI matches the main table URI pattern
-        static final int TABLE_LIST = 10;
-        // Incoming URI matches the main table row ID URI pattern
-        static final int TABLE_ID = 11;
-
-        static final int MAX_ORDER_ID = 12;
-
-        static final String TABLE_NAME = "table_tasks";
-        static final String TABLE_URI = "table_task_uri";
-        static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
-
-        static final String TASK_NAME = "task_name";
-        static final String FREQUENCY_MON = "mon_frequency";
-        static final String FREQUENCY_TUE = "tue_frequency";
-        static final String FREQUENCY_WEN = "wen_frequency";
-        static final String FREQUENCY_THR = "thr_frequency";
-        static final String FREQUENCY_FRI = "fri_frequency";
-        static final String FREQUENCY_SAT = "sat_frequency";
-        static final String FREQUENCY_SUN = "sun_frequency";
-        static final String TASK_CONTEXT = "task_context";
-
-        static final String REMINDER_ENABLED = "reminder_enabled";
-        static final String REMINDER_TIME = "reminder_time";
-        static final String TASK_LIST_ORDER = "task_list_order";
-    }
-
-    // Task Completion table
-    static final class TaskCompletion implements BaseColumns {
-
-        private TaskCompletion() {
-        }
-
-        // Incoming URI matches the main table URI pattern
-        static final int TABLE_LIST = 20;
-        // Incoming URI matches the main table row ID URI pattern
-        static final int TABLE_ID = 21;
-
-        static final int MAX_COMPLETION_DATE_ID = 23;
-        static final int MIN_COMPLETION_DATE_ID = 24;
-
-        static final String TABLE_NAME = "table_completions";
-        static final String TABLE_URI = "table_completion_uri";
-
-        static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
-
-        static final String TASK_NAME_ID = "task_id";
-        static final String TASK_COMPLETION_DATE = "completion_date";
-    }
-
-    public static final class DateChangeTime implements BaseColumns {
-        private DateChangeTime() {
-        }
-
-        // Incoming URI matches the main table URI pattern
-        static final int TABLE_LIST = 30;
-        // Incoming URI matches the main table row ID URI pattern
-        static final int TABLE_ID = 31;
-
-        static final String TABLE_URI = "table_datechangetime_uri";
-
-        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
-        static final String ADJUSTED_DATE = "date";
-        public static final String NEXT_DATE_CHANGE_TIME = "next_date_change_time";
-    }
-
-    private ContentResolver mContentResolver;
-    private DatabaseHelper mOpenHelper;
-
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+    private static final HashMap<String, String> sTasksProjectionMap = new HashMap<>();
+    private static final HashMap<String, String> sMaxTaskProjectionMap = new HashMap<>();
+    private static final HashMap<String, String> sTaskCompletionProjectionMap = new HashMap<>();
+    private static final HashMap<String, String> sMaxTaskCompletionProjectionMap = new HashMap<>();
+    private static final HashMap<String, String> sMinTaskCompletionProjectionMap = new HashMap<>();
 
     static {
         sURIMatcher.addURI(AUTHORITY, Tasks.TABLE_URI, Tasks.TABLE_LIST);
@@ -117,8 +47,6 @@ public class KeepdoProvider extends ContentProvider {
         sURIMatcher.addURI(AUTHORITY, DateChangeTime.TABLE_URI, DateChangeTime.TABLE_LIST);
         sURIMatcher.addURI(AUTHORITY, DateChangeTime.TABLE_URI + "/#", DateChangeTime.TABLE_ID);
     }
-
-    private static final HashMap<String, String> sTasksProjectionMap = new HashMap<>();
 
     static {
         sTasksProjectionMap.put(Tasks._ID, Tasks._ID);
@@ -136,13 +64,9 @@ public class KeepdoProvider extends ContentProvider {
         sTasksProjectionMap.put(Tasks.TASK_LIST_ORDER, Tasks.TASK_LIST_ORDER);
     }
 
-    private static final HashMap<String, String> sMaxTaskProjectionMap = new HashMap<>();
-
     static {
         sMaxTaskProjectionMap.put("MAX(" + Tasks.TASK_LIST_ORDER + ")", "MAX(" + Tasks.TASK_LIST_ORDER + ")");
     }
-
-    private static final HashMap<String, String> sTaskCompletionProjectionMap = new HashMap<>();
 
     static {
         sTaskCompletionProjectionMap.put(TaskCompletion._ID, TaskCompletion._ID);
@@ -150,17 +74,16 @@ public class KeepdoProvider extends ContentProvider {
         sTaskCompletionProjectionMap.put(TaskCompletion.TASK_COMPLETION_DATE, TaskCompletion.TASK_COMPLETION_DATE);
     }
 
-    private static final HashMap<String, String> sMaxTaskCompletionProjectionMap = new HashMap<>();
-
     static {
         sMaxTaskCompletionProjectionMap.put("MAX(" + TaskCompletion.TASK_COMPLETION_DATE + ")", "MAX(" + TaskCompletion.TASK_COMPLETION_DATE + ")");
     }
 
-    private static final HashMap<String, String> sMinTaskCompletionProjectionMap = new HashMap<>();
-
     static {
         sMinTaskCompletionProjectionMap.put("MIN(" + TaskCompletion.TASK_COMPLETION_DATE + ")", "MIN(" + TaskCompletion.TASK_COMPLETION_DATE + ")");
     }
+
+    private ContentResolver mContentResolver;
+    private DatabaseHelper mOpenHelper;
 
     @Override
     public boolean onCreate() {
@@ -377,6 +300,66 @@ public class KeepdoProvider extends ContentProvider {
             return Long.parseLong(uri.getPathSegments().get(1));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid call id in uri: " + uri, e);
+        }
+    }
+
+    // Task table
+    static final class Tasks implements BaseColumns {
+
+        // Incoming URI matches the main table URI pattern
+        static final int TABLE_LIST = 10;
+        // Incoming URI matches the main table row ID URI pattern
+        static final int TABLE_ID = 11;
+        static final int MAX_ORDER_ID = 12;
+        static final String TABLE_NAME = "table_tasks";
+        static final String TABLE_URI = "table_task_uri";
+        static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
+        static final String TASK_NAME = "task_name";
+        static final String FREQUENCY_MON = "mon_frequency";
+        static final String FREQUENCY_TUE = "tue_frequency";
+        static final String FREQUENCY_WEN = "wen_frequency";
+        static final String FREQUENCY_THR = "thr_frequency";
+        static final String FREQUENCY_FRI = "fri_frequency";
+        static final String FREQUENCY_SAT = "sat_frequency";
+        static final String FREQUENCY_SUN = "sun_frequency";
+        static final String TASK_CONTEXT = "task_context";
+        static final String REMINDER_ENABLED = "reminder_enabled";
+        static final String REMINDER_TIME = "reminder_time";
+        static final String TASK_LIST_ORDER = "task_list_order";
+        private Tasks() {
+        }
+    }
+
+    // Task Completion table
+    static final class TaskCompletion implements BaseColumns {
+
+        // Incoming URI matches the main table URI pattern
+        static final int TABLE_LIST = 20;
+        // Incoming URI matches the main table row ID URI pattern
+        static final int TABLE_ID = 21;
+        static final int MAX_COMPLETION_DATE_ID = 23;
+        static final int MIN_COMPLETION_DATE_ID = 24;
+        static final String TABLE_NAME = "table_completions";
+        static final String TABLE_URI = "table_completion_uri";
+        static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
+        static final String TASK_NAME_ID = "task_id";
+        static final String TASK_COMPLETION_DATE = "completion_date";
+        private TaskCompletion() {
+        }
+    }
+
+    public static final class DateChangeTime implements BaseColumns {
+        public static final String NEXT_DATE_CHANGE_TIME = "next_date_change_time";
+        // Incoming URI matches the main table URI pattern
+        static final int TABLE_LIST = 30;
+        // Incoming URI matches the main table row ID URI pattern
+        static final int TABLE_ID = 31;
+
+        static final String TABLE_URI = "table_datechangetime_uri";
+
+        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
+        static final String ADJUSTED_DATE = "date";
+        private DateChangeTime() {
         }
     }
 }

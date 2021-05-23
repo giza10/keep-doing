@@ -25,9 +25,9 @@ import com.hkb48.keepdo.util.CompatUtil;
 import java.util.List;
 
 public class NotificationController {
+    static final int NOTIFICATION_ID_HANDHELD = -1;
     private static final String TAG_KEEPDO = "#LOG_KEEPDO: ";
     private static final String GROUP_KEY_REMINDERS = "group_key_reminders";
-    static final int NOTIFICATION_ID_HANDHELD = -1;
     private static final String CHANNEL_ID = "Channel_ID";
 
     static void showReminder(final Context context, long taskId) {

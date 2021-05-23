@@ -17,6 +17,7 @@ import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.hkb48.keepdo.NotificationController;
 import com.hkb48.keepdo.R;
@@ -29,16 +30,17 @@ public class GeneralSettingsFragment extends PreferenceFragmentCompat
     public static final String KEY_GENERAL_DATE_CHANGE_TIME = "preferences_date_change_time";
 
     public static final String KEY_CALENDAR_WEEK_START_DAY = "preferences_calendar_week_start_day";
-
-    private static final String KEY_ALERTS_CATEGORY = "preferences_alerts_category";
+    public static final String KEY_CALENDAR_ENABLE_FUTURE_DATE = "preferences_calendar_enable_future_date";
     public static final String KEY_ALERTS_RINGTONE = "preferences_alerts_ringtone";
     public static final String KEY_ALERTS_VIBRATE_WHEN = "preferences_alerts_vibrateWhen";
+    private static final String KEY_ALERTS_CATEGORY = "preferences_alerts_category";
     private static final String KEY_ALERTS_NOTIFICATION = "preferences_notification";
     private static final int RINGTONE_REQUEST_CODE = 1;
 
     private DoneIconPreference mDoneIconPref;
     private ListPreference mDateChangeTimePref;
     private ListPreference mWeekStartDayPref;
+    private SwitchPreferenceCompat mEnableFutureDatePref;
     private RingtonePreference mRingtonePref;
     private ListPreference mVibrateWhenPref;
 
@@ -70,6 +72,9 @@ public class GeneralSettingsFragment extends PreferenceFragmentCompat
         mWeekStartDayPref = preferenceScreen.findPreference(KEY_CALENDAR_WEEK_START_DAY);
         assert mWeekStartDayPref != null;
         mWeekStartDayPref.setSummary(mWeekStartDayPref.getEntry());
+
+        mEnableFutureDatePref = preferenceScreen.findPreference(KEY_CALENDAR_ENABLE_FUTURE_DATE);
+        assert mEnableFutureDatePref != null;
 
         final PreferenceCategory alertGroup = preferenceScreen.findPreference(KEY_ALERTS_CATEGORY);
         mRingtonePref = preferenceScreen.findPreference(KEY_ALERTS_RINGTONE);
@@ -142,6 +147,7 @@ public class GeneralSettingsFragment extends PreferenceFragmentCompat
         mDoneIconPref.setOnPreferenceChangeListener(listener);
         mDateChangeTimePref.setOnPreferenceChangeListener(listener);
         mWeekStartDayPref.setOnPreferenceChangeListener(listener);
+        mEnableFutureDatePref.setOnPreferenceChangeListener(listener);
         mVibrateWhenPref.setOnPreferenceChangeListener(listener);
         mRingtonePref.setOnPreferenceChangeListener(listener);
         android.util.Log.e("test", "setListeners" + mRingtonePref.getOnPreferenceChangeListener());
@@ -163,6 +169,9 @@ public class GeneralSettingsFragment extends PreferenceFragmentCompat
             Settings.setWeekStartDay((String) newValue);
             mWeekStartDayPref.setValue((String) newValue);
             mWeekStartDayPref.setSummary(mWeekStartDayPref.getEntry());
+        } else if (preference == mEnableFutureDatePref) {
+            Settings.setEnableFutureDate((boolean) newValue);
+            ret = true;
         } else if (preference == mVibrateWhenPref) {
             Settings.setAlertsVibrateWhen((String) newValue);
             mVibrateWhenPref.setValue((String) newValue);

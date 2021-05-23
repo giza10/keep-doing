@@ -9,11 +9,11 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:background="@color/tasklist_bg_header"
+        android:padding="5dp"
         android:textColor="@color/tasklist_fg_header"
-        android:textSize="16sp"
         android:textIsSelectable="false"
-        android:textStyle="bold"
-        android:padding="5dp" />
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/textView2"
@@ -22,7 +22,7 @@
         android:layout_weight="1"
         android:background="@color/tasklist_bg_header"
         android:gravity="end|bottom"
-        android:textSize="14sp"
+        android:padding="5dp"
         android:textIsSelectable="false"
-        android:padding="5dp" />
+        android:textSize="14sp" />
 </LinearLayout>

@@ -1,4 +1,4 @@
-package com.hkb48.keepdo;
+package com.hkb48.keepdo.calendar;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,12 +11,18 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.hkb48.keepdo.R;
+import com.hkb48.keepdo.settings.Settings;
+
 public class CalendarFragment extends Fragment {
 
     /**
-     * The maximum number of months to be paging up (10 years)
+     * The maximum number of months to be paging up (Past: 10 years, Future: 1 year)
      */
-    static final int NUM_MAXIMUM_MONTHS = 10 * 12;
+    private static final int NUM_MAXIMUM_MONTHS_PAST = 10 * 12;  // 10 years
+    static final int INDEX_OF_THIS_MONTH = NUM_MAXIMUM_MONTHS_PAST - 1;
+    private static final int NUM_MAXIMUM_MONTHS_FUTURE = 12;  // 12 months
+    private static final int NUM_MAXIMUM_MONTHS = NUM_MAXIMUM_MONTHS_PAST + NUM_MAXIMUM_MONTHS_FUTURE;
 
     public CalendarFragment() {
     }
@@ -38,7 +44,7 @@ public class CalendarFragment extends Fragment {
 
         ViewPager mViewPager = view.findViewById(R.id.viewPager);
         mViewPager.setAdapter(new CalendarPageAdapter(getChildFragmentManager()));
-        mViewPager.setCurrentItem(CalendarFragment.NUM_MAXIMUM_MONTHS);
+        mViewPager.setCurrentItem(CalendarFragment.INDEX_OF_THIS_MONTH);
     }
 
     public static class CalendarPageAdapter extends FragmentPagerAdapter {
@@ -48,7 +54,7 @@ public class CalendarFragment extends Fragment {
 
         @Override
         public int getCount() {
-            return CalendarFragment.NUM_MAXIMUM_MONTHS;
+            return Settings.getEnableFutureDate() ? CalendarFragment.NUM_MAXIMUM_MONTHS : CalendarFragment.NUM_MAXIMUM_MONTHS_PAST;
         }
 
         @Override

@@ -26,44 +26,44 @@ public class Task implements Serializable {
         return identifier;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getContext() {
-        return context;
-    }
-
-    public Recurrence getRecurrence() {
-        return recurrence;
-    }
-
-    public Reminder getReminder() {
-        return reminder;
-    }
-
-    long getOrder() {
-        return order;
-    }
-
     void setTaskID(long id) {
         this.identifier = id;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
+    public String getContext() {
+        return context;
+    }
+
+    public void setContext(String context) {
+        this.context = context;
+    }
+
+    public Recurrence getRecurrence() {
+        return recurrence;
+    }
+
     public void setRecurrence(Recurrence recurrence) {
         this.recurrence = recurrence;
+    }
+
+    public Reminder getReminder() {
+        return reminder;
     }
 
     public void setReminder(Reminder reminder) {
         this.reminder = reminder;
     }
 
-    public void setContext(String context) {
-        this.context = context;
+    long getOrder() {
+        return order;
     }
 
     void setOrder(long order) {

@@ -23,11 +23,11 @@
             android:id="@+id/tasksWidgetTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
             android:padding="5dp"
+            android:singleLine="true"
             android:text="@string/tasklist_header_today_remaining_task"
             android:textColor="@color/tasklist_fg_header"
-            android:ellipsize="end"
-            android:singleLine="true"
             android:textSize="@dimen/widget_header_font_size" />
     </LinearLayout>
 
@@ -52,11 +52,11 @@
             android:id="@+id/empty_view"
             android:layout_width="match_parent"
             android:layout_height="60dp"
+            android:background="@color/widget_tasklist_bg_item"
             android:gravity="center"
             android:text="@string/task_empty"
             android:textColor="@color/widget_tasklist_text"
             android:textSize="@dimen/widget_list_item_font_size"
-            android:background="@color/widget_tasklist_bg_item"
             android:visibility="gone" />
     </FrameLayout>
 

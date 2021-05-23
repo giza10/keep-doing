@@ -25,6 +25,7 @@
     <string name="preferences_date_change_time_title">日付変更時刻</string>
     <string name="preferences_date_change_time_summary">Doリストの日付は %sに更新されます</string>
     <string name="preferences_calendar_week_start_day_title">週の開始日</string>
+    <string name="preferences_calendar_enable_future_date">将来の日付を有効にする</string>
     <string name="preferences_alerts_ringtone_title">通知音</string>
     <string name="preferences_alerts_vibrateWhen_title">バイブレーション</string>
     <string name="preferences_notification_title">通知詳細設定</string>

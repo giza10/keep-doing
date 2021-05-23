@@ -7,8 +7,8 @@
         android:id="@+id/title_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:textAllCaps="true"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -23,8 +23,8 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:clickable="true"
+        android:focusable="true"
         android:text="@string/task_save"
         android:textColor="@android:color/white"
-        android:textSize="16sp"
-        android:focusable="true" />
+        android:textSize="16sp" />
 </RelativeLayout>

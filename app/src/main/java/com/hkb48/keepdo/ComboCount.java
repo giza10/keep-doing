@@ -1,8 +1,8 @@
 package com.hkb48.keepdo;
 
-final class ComboCount {
-    final int currentCount;
-    final int maxCount;
+public final class ComboCount {
+    public final int currentCount;
+    public final int maxCount;
 
     ComboCount(int currentCount, int maxCount) {
         this.currentCount = currentCount;

@@ -18,6 +18,7 @@ import android.widget.ListView;
 import com.hkb48.keepdo.util.CompatUtil;
 
 public class SortableListView extends ListView {
+    private final int mItemHeight;
     private ImageView mDragView;
     private WindowManager mWindowManager;
     private WindowManager.LayoutParams mWindowParams;
@@ -32,7 +33,6 @@ public class SortableListView extends ListView {
     private int mLowerBound;
     private int mHeight;
     private Bitmap mDragBitmap;
-    private final int mItemHeight;
 
     public SortableListView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);

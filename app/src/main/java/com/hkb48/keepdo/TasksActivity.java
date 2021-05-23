@@ -67,7 +67,6 @@ public class TasksActivity extends AppCompatActivity implements
     private TaskAdapter mAdapter;
     private ContentObserver mContentObserver;
     private boolean mContentsUpdated;
-    private DatabaseAdapter mDBAdapter = null;
     private final Settings.OnChangedListener mSettingsChangedListener = new Settings.OnChangedListener() {
         public void onDoneIconSettingChanged() {
             mContentsUpdated = true;
@@ -81,6 +80,7 @@ public class TasksActivity extends AppCompatActivity implements
             mContentsUpdated = true;
         }
     };
+    private DatabaseAdapter mDBAdapter = null;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
 

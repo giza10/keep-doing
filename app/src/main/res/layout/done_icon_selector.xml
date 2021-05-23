@@ -3,107 +3,107 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:divider="?attr/dividerHorizontal"
+    android:orientation="vertical"
     android:showDividers="middle">
 
     <LinearLayout
         android:id="@+id/done_icon_1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="?attr/selectableItemBackground"
         android:gravity="center"
-        android:orientation="horizontal"
-        android:background="?attr/selectableItemBackground">
+        android:orientation="horizontal">
 
         <ImageView
             android:layout_width="60dip"
             android:layout_height="60dip"
-            android:scaleType="fitXY"
+            android:contentDescription="@string/accessibility_done_mark"
             android:padding="10dip"
-            app:srcCompat="@drawable/ic_done_1"
-            android:contentDescription="@string/accessibility_done_mark" />
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/ic_done_1" />
 
         <ImageView
             android:layout_width="60dip"
             android:layout_height="60dip"
-            android:scaleType="fitXY"
+            android:contentDescription="@string/accessibility_done_mark"
             android:padding="10dip"
-            app:srcCompat="@drawable/ic_not_done_1"
-            android:contentDescription="@string/accessibility_done_mark" />
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/ic_not_done_1" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/done_icon_2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="?attr/selectableItemBackground"
         android:gravity="center"
-        android:orientation="horizontal"
-        android:background="?attr/selectableItemBackground">
+        android:orientation="horizontal">
 
         <ImageView
             android:layout_width="60dip"
             android:layout_height="60dip"
-            android:scaleType="fitXY"
+            android:contentDescription="@string/accessibility_done_mark"
             android:padding="10dip"
-            app:srcCompat="@drawable/ic_done_2"
-            android:contentDescription="@string/accessibility_done_mark" />
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/ic_done_2" />
 
         <ImageView
             android:layout_width="60dip"
             android:layout_height="60dip"
-            android:scaleType="fitXY"
+            android:contentDescription="@string/accessibility_done_mark"
             android:padding="10dip"
-            app:srcCompat="@drawable/ic_not_done_2"
-            android:contentDescription="@string/accessibility_done_mark" />
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/ic_not_done_2" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/done_icon_3"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="?attr/selectableItemBackground"
         android:gravity="center"
-        android:orientation="horizontal"
-        android:background="?attr/selectableItemBackground">
+        android:orientation="horizontal">
 
         <ImageView
             android:layout_width="60dip"
             android:layout_height="60dip"
-            android:scaleType="fitXY"
+            android:contentDescription="@string/accessibility_done_mark"
             android:padding="10dip"
-            app:srcCompat="@drawable/ic_done_3"
-            android:contentDescription="@string/accessibility_done_mark" />
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/ic_done_3" />
 
         <ImageView
             android:layout_width="60dip"
             android:layout_height="60dip"
-            android:scaleType="fitXY"
+            android:contentDescription="@string/accessibility_done_mark"
             android:padding="10dip"
-            app:srcCompat="@drawable/ic_not_done_3"
-            android:contentDescription="@string/accessibility_done_mark" />
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/ic_not_done_3" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/done_icon_4"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="?attr/selectableItemBackground"
         android:gravity="center"
-        android:orientation="horizontal"
-        android:background="?attr/selectableItemBackground">
+        android:orientation="horizontal">
 
         <ImageView
             android:layout_width="60dip"
             android:layout_height="60dip"
-            android:scaleType="fitXY"
+            android:contentDescription="@string/accessibility_done_mark"
             android:padding="10dip"
-            app:srcCompat="@drawable/ic_done_4"
-            android:contentDescription="@string/accessibility_done_mark" />
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/ic_done_4" />
 
         <ImageView
             android:layout_width="60dip"
             android:layout_height="60dip"
-            android:scaleType="fitXY"
+            android:contentDescription="@string/accessibility_done_mark"
             android:padding="10dip"
-            app:srcCompat="@drawable/ic_not_done_4"
-            android:contentDescription="@string/accessibility_done_mark" />
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/ic_not_done_4" />
     </LinearLayout>
 </LinearLayout>

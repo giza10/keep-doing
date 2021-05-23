@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androix.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
         android:key="preferences_general_category"
         android:title="@string/general_setting">
 
         <com.hkb48.keepdo.settings.DoneIconPreference
-            android:layout="?android:attr/preferenceLayoutChild"
-            android:key="preferences_done_icon"
-            android:title="@string/preferences_done_icon_title"
-            android:positiveButtonText=""
-            android:negativeButtonText=""
             android:defaultValue="@string/prefDefault_done_icon"
-            android:dialogTitle="@string/prefDialogTitle_selectDoneIcon" />
-        <ListPreference
+            android:dialogTitle="@string/prefDialogTitle_selectDoneIcon"
+            android:key="preferences_done_icon"
             android:layout="?android:attr/preferenceLayoutChild"
-            android:key="preferences_date_change_time"
-            android:title="@string/preferences_date_change_time_title"
+            android:negativeButtonText=""
+            android:positiveButtonText=""
+            android:title="@string/preferences_done_icon_title" />
+        <ListPreference
+            android:defaultValue="@string/prefDefault_date_change_time"
+            android:dialogTitle="@string/prefDialogTitle_date_change_time"
             android:entries="@array/prefEntries_date_change_time"
             android:entryValues="@array/prefValues_date_change_time"
-            android:defaultValue="@string/prefDefault_date_change_time"
-            android:dialogTitle="@string/prefDialogTitle_date_change_time" />
+            android:key="preferences_date_change_time"
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:title="@string/preferences_date_change_time_title" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -28,13 +28,19 @@
         android:title="@string/history_calendar_setting">
 
         <ListPreference
-            android:layout="?android:attr/preferenceLayoutChild"
-            android:key="preferences_calendar_week_start_day"
-            android:title="@string/preferences_calendar_week_start_day_title"
+            android:defaultValue="@string/prefDefault_calendar_week_start_day"
+            android:dialogTitle="@string/prefDialogTitle_calendar_week_start_day"
             android:entries="@array/prefEntries_calendar_week_start_day"
             android:entryValues="@array/prefValues_calendar_week_start_day"
-            android:defaultValue="@string/prefDefault_calendar_week_start_day"
-            android:dialogTitle="@string/prefDialogTitle_calendar_week_start_day" />
+            android:key="preferences_calendar_week_start_day"
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:title="@string/preferences_calendar_week_start_day_title" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="preferences_calendar_enable_future_date"
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:title="@string/preferences_calendar_enable_future_date" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -42,24 +48,24 @@
         android:title="@string/reminder_setting">
 
         <com.hkb48.keepdo.settings.RingtonePreference
-            android:layout="?android:attr/preferenceLayoutChild"
+            android:defaultValue="content://settings/system/notification_sound"
             android:key="preferences_alerts_ringtone"
-            android:title="@string/preferences_alerts_ringtone_title"
+            android:layout="?android:attr/preferenceLayoutChild"
             android:ringtoneType="notification"
-            android:defaultValue="content://settings/system/notification_sound" />
+            android:title="@string/preferences_alerts_ringtone_title" />
 
         <ListPreference
-            android:layout="?android:attr/preferenceLayoutChild"
-            android:key="preferences_alerts_vibrateWhen"
-            android:title="@string/preferences_alerts_vibrateWhen_title"
+            android:defaultValue="@string/prefDefault_alerts_vibrateWhen"
+            android:dialogTitle="@string/prefDialogTitle_vibrateWhen"
             android:entries="@array/prefEntries_alerts_vibrateWhen"
             android:entryValues="@array/prefValues_alerts_vibrateWhen"
-            android:defaultValue="@string/prefDefault_alerts_vibrateWhen"
-            android:dialogTitle="@string/prefDialogTitle_vibrateWhen" />
+            android:key="preferences_alerts_vibrateWhen"
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:title="@string/preferences_alerts_vibrateWhen_title" />
 
         <Preference
-            android:layout="?android:attr/preferenceLayoutChild"
             android:key="preferences_notification"
+            android:layout="?android:attr/preferenceLayoutChild"
             android:title="@string/preferences_notification_title" />
     </PreferenceCategory>
-</androix.preference.PreferenceScreen>
+</androidx.preference.PreferenceScreen>

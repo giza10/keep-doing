@@ -9,6 +9,12 @@ import com.hkb48.keepdo.settings.Settings;
 public class RemindAlarmInitReceiver extends BroadcastReceiver {
     private static final String ACTION_UPDATE_REMINDER = "com.hkb48.keepdo.action.UPDATE_REMINDER";
 
+    public static void updateReminder(final Context context) {
+        final Intent intent = new Intent(context, RemindAlarmInitReceiver.class);
+        intent.setAction(ACTION_UPDATE_REMINDER);
+        context.sendBroadcast(intent);
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         final String action = intent.getAction();
@@ -20,11 +26,5 @@ public class RemindAlarmInitReceiver extends BroadcastReceiver {
             Settings.initialize(context.getApplicationContext());
             ReminderManager.getInstance().setAlarmForAll(context);
         }
-    }
-
-    public static void updateReminder(final Context context) {
-        final Intent intent = new Intent(context, RemindAlarmInitReceiver.class);
-        intent.setAction(ACTION_UPDATE_REMINDER);
-        context.sendBroadcast(intent);
     }
 }

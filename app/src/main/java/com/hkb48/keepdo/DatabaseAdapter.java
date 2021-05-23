@@ -157,7 +157,7 @@ public class DatabaseAdapter {
         mContentResolver.delete(uri, null, null);
     }
 
-    void setDoneStatus(Long taskID, Date date, Boolean doneSwitch) {
+    public void setDoneStatus(Long taskID, Date date, Boolean doneSwitch) {
         if (taskID == null) {
             return;
         }
@@ -220,7 +220,9 @@ public class DatabaseAdapter {
         final SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
         Date date = null;
         Uri uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, String.valueOf(taskID));
-        Cursor cursor = mContentResolver.query(Uri.withAppendedPath(uri, "min"), null, null, null, null);
+        String selection = TaskCompletion.TASK_COMPLETION_DATE + "<=?";
+        String[] selectionArgs = {getTodayDate()};
+        Cursor cursor = mContentResolver.query(Uri.withAppendedPath(uri, "min"), null, selection, selectionArgs, null);
 
         if (cursor != null) {
             cursor.moveToFirst();
@@ -241,7 +243,9 @@ public class DatabaseAdapter {
         final SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
         Date date = null;
         Uri uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, String.valueOf(taskID));
-        Cursor cursor = mContentResolver.query(Uri.withAppendedPath(uri, "max"), null, null, null, null);
+        String selection = TaskCompletion.TASK_COMPLETION_DATE + "<=?";
+        String[] selectionArgs = {getTodayDate()};
+        Cursor cursor = mContentResolver.query(Uri.withAppendedPath(uri, "max"), null, selection, selectionArgs, null);
 
         if (cursor != null) {
             cursor.moveToFirst();
@@ -258,7 +262,7 @@ public class DatabaseAdapter {
         return date;
     }
 
-    Task getTask(Long taskID) {
+    public Task getTask(Long taskID) {
         Task task = null;
         Uri uri = Uri.withAppendedPath(Tasks.CONTENT_URI, String.valueOf(taskID));
         Cursor cursor = mContentResolver.query(uri, null, null, null, null);
@@ -271,7 +275,7 @@ public class DatabaseAdapter {
         return task;
     }
 
-    ArrayList<Date> getHistory(Long taskID, Date month) {
+    public ArrayList<Date> getHistory(Long taskID, Date month) {
         ArrayList<Date> dateList = new ArrayList<>();
         Uri uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, String.valueOf(taskID));
         Cursor cursor = mContentResolver.query(uri, null, null, null, null);
@@ -293,7 +297,7 @@ public class DatabaseAdapter {
         return dateList;
     }
 
-    ComboCount getComboCount(Long taskID) {
+    public ComboCount getComboCount(Long taskID) {
         int currentCount = 0;
         int maxCount = 0;
 
@@ -563,7 +567,7 @@ public class DatabaseAdapter {
         return BACKUP_DIR_NAME;
     }
 
-    String backupDirPath() {
+    public String backupDirPath() {
         return BACKUP_DIR_PATH;
     }
 }

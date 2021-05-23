@@ -1,4 +1,4 @@
-package com.hkb48.keepdo;
+package com.hkb48.keepdo.calendar;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -22,6 +22,14 @@ import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
+import com.hkb48.keepdo.CheckSoundPlayer;
+import com.hkb48.keepdo.ComboCount;
+import com.hkb48.keepdo.DatabaseAdapter;
+import com.hkb48.keepdo.DateChangeTimeUtil;
+import com.hkb48.keepdo.R;
+import com.hkb48.keepdo.ReminderManager;
+import com.hkb48.keepdo.Task;
+import com.hkb48.keepdo.TaskDetailActivity;
 import com.hkb48.keepdo.settings.Settings;
 import com.hkb48.keepdo.util.CompatUtil;
 import com.hkb48.keepdo.widget.TasksWidgetProvider;
@@ -36,11 +44,9 @@ import java.util.Date;
 import java.util.Locale;
 
 public class CalendarGrid extends Fragment {
-    private static final String TAG = "#KEEPDO_CALENDARGRID: ";
-
-    private static final String FILE_PROVIDER = "com.hkb48.keepdo.fileprovider";
     static final String POSITION_KEY = "com.hkb48.keepdo.calendargrid.POSITION";
-
+    private static final String TAG = "#KEEPDO_CALENDARGRID: ";
+    private static final String FILE_PROVIDER = "com.hkb48.keepdo.fileprovider";
     private static final int CONTEXT_MENU_CHECK_DONE = 0;
     private static final int CONTEXT_MENU_UNCHECK_DONE = 1;
     private static final int NUM_OF_DAYS_IN_WEEK = 7;
@@ -62,6 +68,17 @@ public class CalendarGrid extends Fragment {
         CalendarGrid fragment = new CalendarGrid();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    static CharSequence getPageTitle(int position) {
+        final int pageNumber = position - CalendarFragment.INDEX_OF_THIS_MONTH;
+
+        Calendar current = DateChangeTimeUtil.getDateTimeCalendar();
+        current.add(Calendar.MONTH, pageNumber);
+        current.set(Calendar.DAY_OF_MONTH, 1);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM", Locale.JAPAN);
+
+        return sdf.format(current.getTime());
     }
 
     @Override
@@ -87,7 +104,7 @@ public class CalendarGrid extends Fragment {
 
         mDoneIconId = Settings.getDoneIconId();
         mCheckSound = new CheckSoundPlayer(getContext());
-        mMonthOffset = (getArguments() != null) ? (getArguments().getInt(POSITION_KEY) - CalendarFragment.NUM_MAXIMUM_MONTHS + 1) : (0);
+        mMonthOffset = (getArguments() != null) ? (getArguments().getInt(POSITION_KEY) - CalendarFragment.INDEX_OF_THIS_MONTH) : (0);
 
         mCalendarGrid = view.findViewById(R.id.calendar_grid);
 
@@ -299,8 +316,14 @@ public class CalendarGrid extends Fragment {
             ImageView imageView1 = child
                     .findViewById(R.id.imageViewDone);
 
-            // Register context menu to change done status of past days.
-            if ((mMonthOffset < 0) || ((mMonthOffset == 0) && (day <= today))) {
+            boolean enableContextMenu = false;
+            if (Settings.getEnableFutureDate()) {
+                enableContextMenu = true;
+            } else if ((mMonthOffset < 0) || ((mMonthOffset == 0) && (day <= today))) {
+                // Enable context menu to change done status of past days.
+                enableContextMenu = true;
+            }
+            if (enableContextMenu) {
                 date.set(year, month, day);
                 child.setTag(date.getTime());
                 registerForContextMenu(child);
@@ -384,75 +407,64 @@ public class CalendarGrid extends Fragment {
     }
 
     private void shareDisplayedCalendarView() {
-        final String BITMAP_PATH = mDatabaseAdapter.backupDirPath()
-                + "/temp_share_image.png";
+        final String BITMAP_DIR_PATH = mDatabaseAdapter.backupDirPath();
+        final String BITMAP_FILE_PATH = BITMAP_DIR_PATH  + "/temp_share_image.png";
 
         View calendarRoot = requireActivity().findViewById(R.id.calendar_root);
         calendarRoot.setDrawingCacheEnabled(true);
 
-        File bitmapFile = new File(BITMAP_PATH);
-        bitmapFile.getParentFile().mkdir();
-        Bitmap bitmap = Bitmap.createBitmap(calendarRoot.getDrawingCache());
+        File bitmapFile = new File(BITMAP_FILE_PATH);
+        if(! new File(BITMAP_DIR_PATH).mkdir()) {
+            Bitmap bitmap = Bitmap.createBitmap(calendarRoot.getDrawingCache());
 
-        Bitmap baseBitmap = Bitmap.createBitmap(bitmap.getWidth(),
-                bitmap.getHeight(), Bitmap.Config.ARGB_4444);
-        Canvas bmpCanvas = new Canvas(baseBitmap);
-        bmpCanvas.drawColor(CompatUtil.getColor(getContext(),
-                R.color.calendar_bg_fargment));
-        bmpCanvas.drawBitmap(bitmap, 0, 0, null);
+            Bitmap baseBitmap = Bitmap.createBitmap(bitmap.getWidth(),
+                    bitmap.getHeight(), Bitmap.Config.ARGB_4444);
+            Canvas bmpCanvas = new Canvas(baseBitmap);
+            bmpCanvas.drawColor(CompatUtil.getColor(getContext(),
+                    R.color.calendar_bg_fargment));
+            bmpCanvas.drawBitmap(bitmap, 0, 0, null);
 
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(bitmapFile, false);
-            baseBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.flush();
-            fos.close();
-            calendarRoot.setDrawingCacheEnabled(false);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
+            FileOutputStream fos = null;
             try {
-                if (fos != null) {
-                    fos.close();
-                }
-            } catch (IOException e) {
+                fos = new FileOutputStream(bitmapFile, false);
+                baseBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                fos.flush();
+                fos.close();
+                calendarRoot.setDrawingCacheEnabled(false);
+            } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                try {
+                    if (fos != null) {
+                        fos.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+
+            bitmap.recycle();
+            baseBitmap.recycle();
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.setType("image/png");
+            Uri contentUri = FileProvider.getUriForFile(requireContext(), FILE_PROVIDER, bitmapFile);
+            intent.putExtra(Intent.EXTRA_STREAM, contentUri);
+            ComboCount comboCount = mDatabaseAdapter.getComboCount(mTask
+                    .getTaskID());
+            String extraText = "";
+            if (mMonthOffset == 0 && comboCount.currentCount > 1) {
+                extraText += requireContext().getString(R.string.share_combo, mTask.getName(), comboCount.currentCount);
+            } else {
+                Calendar current = DateChangeTimeUtil.getDateTimeCalendar();
+                current.add(Calendar.MONTH, mMonthOffset);
+                current.set(Calendar.DAY_OF_MONTH, 1);
+                ArrayList<Date> doneDateList = mDatabaseAdapter.getHistory(mTask.getTaskID(), current.getTime());
+                extraText += requireContext().getString(R.string.share_non_combo, mTask.getName(), doneDateList.size());
+            }
+            extraText += " " + requireContext().getString(R.string.share_app_url);
+            intent.putExtra(Intent.EXTRA_TEXT, extraText);
+            startActivity(intent);
         }
-
-        bitmap.recycle();
-        baseBitmap.recycle();
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.setType("image/png");
-        Uri contentUri = FileProvider.getUriForFile(requireContext(), FILE_PROVIDER, bitmapFile);
-        intent.putExtra(Intent.EXTRA_STREAM, contentUri);
-        ComboCount comboCount = mDatabaseAdapter.getComboCount(mTask
-                .getTaskID());
-        String extraText = "";
-        if (mMonthOffset == 0 && comboCount.currentCount > 1) {
-            extraText += requireContext().getString(R.string.share_combo, mTask.getName(), comboCount.currentCount);
-        } else {
-            Calendar current = DateChangeTimeUtil.getDateTimeCalendar();
-            current.add(Calendar.MONTH, mMonthOffset);
-            current.set(Calendar.DAY_OF_MONTH, 1);
-            ArrayList<Date> doneDateList = mDatabaseAdapter.getHistory(mTask.getTaskID(), current.getTime());
-            extraText += requireContext().getString(R.string.share_non_combo, mTask.getName(), doneDateList.size());
-        }
-        extraText += " " + requireContext().getString(R.string.share_app_url);
-        intent.putExtra(Intent.EXTRA_TEXT, extraText);
-        startActivity(intent);
-    }
-
-    static CharSequence getPageTitle(int position) {
-        final int pageNumber = position - CalendarFragment.NUM_MAXIMUM_MONTHS
-                + 1;
-
-        Calendar current = DateChangeTimeUtil.getDateTimeCalendar();
-        current.add(Calendar.MONTH, pageNumber);
-        current.set(Calendar.DAY_OF_MONTH, 1);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM", Locale.JAPAN);
-
-        return sdf.format(current.getTime());
     }
 }

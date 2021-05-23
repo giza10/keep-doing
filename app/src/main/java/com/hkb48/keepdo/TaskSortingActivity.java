@@ -18,6 +18,22 @@ public class TaskSortingActivity extends AppCompatActivity {
     private TaskAdapter mAdapter;
     private DatabaseAdapter mDBAdapter = null;
     private List<Task> mDataList = new ArrayList<>();
+    private final SortableListView.DragAndDropListener onDrop = new SortableListView.DragAndDropListener() {
+        public void onDrag(int from, int to) {
+            if (from != to) {
+                Task item = (Task) mAdapter.getItem(from);
+                mDataList.remove(from);
+                mDataList.add(to, item);
+                mAdapter.notifyDataSetChanged();
+            }
+        }
+
+        public void onDrop(int from, int to) {
+            if (from != to) {
+                enableSaveButton();
+            }
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,6 +84,11 @@ public class TaskSortingActivity extends AppCompatActivity {
         finish();
     }
 
+    private void enableSaveButton() {
+        Button okButton = findViewById(R.id.okButton);
+        okButton.setEnabled(true);
+    }
+
     private class TaskAdapter extends BaseAdapter {
 
         public int getCount() {
@@ -100,27 +121,5 @@ public class TaskSortingActivity extends AppCompatActivity {
 
             return view;
         }
-    }
-
-    private final SortableListView.DragAndDropListener onDrop = new SortableListView.DragAndDropListener() {
-        public void onDrag(int from, int to) {
-            if (from != to) {
-                Task item = (Task) mAdapter.getItem(from);
-                mDataList.remove(from);
-                mDataList.add(to, item);
-                mAdapter.notifyDataSetChanged();
-            }
-        }
-
-        public void onDrop(int from, int to) {
-            if (from != to) {
-                enableSaveButton();
-            }
-        }
-    };
-
-    private void enableSaveButton() {
-        Button okButton = findViewById(R.id.okButton);
-        okButton.setEnabled(true);
     }
 }

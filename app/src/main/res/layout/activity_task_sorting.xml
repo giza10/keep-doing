@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
 
     <include layout="@layout/toolbar" />
 
     <com.hkb48.keepdo.SortableListView
         android:id="@+id/mainListView"
-        android:layout_height="0dp"
         android:layout_width="match_parent"
-        android:divider="?attr/dividerHorizontal"
-        android:layout_weight="1" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="?attr/dividerHorizontal" />
 
     <LinearLayout
         android:id="@+id/footer"
@@ -21,21 +21,21 @@
 
         <Button
             android:id="@+id/cancelButton"
-            android:onClick="onCancelClicked"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dip"
-            android:layout_weight="1.0"
             android:layout_height="wrap_content"
-            android:text="@string/task_cancel"
-            style="?android:attr/buttonBarButtonStyle" />
+            android:layout_weight="1.0"
+            android:onClick="onCancelClicked"
+            android:text="@string/task_cancel" />
 
         <Button
             android:id="@+id/okButton"
-            android:onClick="onSaveClicked"
-            android:enabled="false"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dip"
-            android:layout_weight="1.0"
             android:layout_height="wrap_content"
-            android:text="@string/task_save"
-            style="?android:attr/buttonBarButtonStyle" />
+            android:layout_weight="1.0"
+            android:enabled="false"
+            android:onClick="onSaveClicked"
+            android:text="@string/task_save" />
     </LinearLayout>
 </LinearLayout>

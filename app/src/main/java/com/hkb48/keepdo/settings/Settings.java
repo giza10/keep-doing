@@ -16,15 +16,12 @@ public final class Settings {
     private String doneIconType;
     private String dateChangeTime;
     private String weekStartDay;
+    private boolean enableFutureDate;
     private String alertsRingTone;
     private String alertsVibrateWhen;
 
-    public interface OnChangedListener {
-        void onDoneIconSettingChanged();
-
-        void onDateChangeTimeSettingChanged();
-
-        void onWeekStartDaySettingChanged();
+    private Settings(SharedPreferences pref) {
+        sharedPref = pref;
     }
 
     public static void registerOnChangedListener(OnChangedListener listener) {
@@ -39,10 +36,6 @@ public final class Settings {
         }
     }
 
-    private Settings(SharedPreferences pref) {
-        sharedPref = pref;
-    }
-
     public static void initialize(Context context) {
         if (sInstance == null) {
             GeneralSettingsFragment.setDefaultValues(context);
@@ -51,6 +44,7 @@ public final class Settings {
             sInstance.doneIconType = sInstance.sharedPref.getString(GeneralSettingsFragment.KEY_GENERAL_DONE_ICON, null);
             sInstance.dateChangeTime = sInstance.sharedPref.getString(GeneralSettingsFragment.KEY_GENERAL_DATE_CHANGE_TIME, null);
             sInstance.weekStartDay = sInstance.sharedPref.getString(GeneralSettingsFragment.KEY_CALENDAR_WEEK_START_DAY, null);
+            sInstance.enableFutureDate = sInstance.sharedPref.getBoolean(GeneralSettingsFragment.KEY_CALENDAR_ENABLE_FUTURE_DATE, false);
             sInstance.alertsRingTone = sInstance.sharedPref.getString(GeneralSettingsFragment.KEY_ALERTS_RINGTONE, null);
             sInstance.alertsVibrateWhen = sInstance.sharedPref.getString(GeneralSettingsFragment.KEY_ALERTS_VIBRATE_WHEN, null);
         }
@@ -61,28 +55,6 @@ public final class Settings {
         for (OnChangedListener listener : sInstance.changedListeners) {
             listener.onDoneIconSettingChanged();
         }
-    }
-
-    static void setDateChangeTime(String v) {
-        sInstance.dateChangeTime = v;
-        for (OnChangedListener listener : sInstance.changedListeners) {
-            listener.onDateChangeTimeSettingChanged();
-        }
-    }
-
-    static void setWeekStartDay(String v) {
-        sInstance.weekStartDay = v;
-        for (OnChangedListener listener : sInstance.changedListeners) {
-            listener.onWeekStartDaySettingChanged();
-        }
-    }
-
-    static void setAlertsRingTone(String v) {
-        sInstance.alertsRingTone = v;
-    }
-
-    static void setAlertsVibrateWhen(String v) {
-        sInstance.alertsVibrateWhen = v;
     }
 
     public static int getDoneIconId() {
@@ -134,6 +106,13 @@ public final class Settings {
         return sInstance.dateChangeTime;
     }
 
+    static void setDateChangeTime(String v) {
+        sInstance.dateChangeTime = v;
+        for (OnChangedListener listener : sInstance.changedListeners) {
+            listener.onDateChangeTimeSettingChanged();
+        }
+    }
+
     public static int getWeekStartDay() {
         if (sInstance.weekStartDay == null) {
             sInstance.weekStartDay = "1";
@@ -146,11 +125,42 @@ public final class Settings {
         }
     }
 
+    static void setWeekStartDay(String v) {
+        sInstance.weekStartDay = v;
+        for (OnChangedListener listener : sInstance.changedListeners) {
+            listener.onWeekStartDaySettingChanged();
+        }
+    }
+
+    public static boolean getEnableFutureDate() {
+        return sInstance.enableFutureDate;
+    }
+
+    static void setEnableFutureDate(boolean v) {
+        sInstance.enableFutureDate = v;
+    }
+
     public static String getAlertsRingTone() {
         return sInstance.alertsRingTone;
     }
 
+    static void setAlertsRingTone(String v) {
+        sInstance.alertsRingTone = v;
+    }
+
     public static String getAlertsVibrateWhen() {
         return sInstance.alertsVibrateWhen;
+    }
+
+    static void setAlertsVibrateWhen(String v) {
+        sInstance.alertsVibrateWhen = v;
+    }
+
+    public interface OnChangedListener {
+        void onDoneIconSettingChanged();
+
+        void onDateChangeTimeSettingChanged();
+
+        void onWeekStartDaySettingChanged();
     }
 }

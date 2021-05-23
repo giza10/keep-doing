@@ -16,9 +16,6 @@ final class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = "#KEEPDO_DB_HELPER: ";
 
     private static final String DB_NAME = "keepdo_tracker.db";
-    private static DatabaseHelper INSTANCE = null;
-    private final Context mContext;
-
     /*
      * The first version is 1, the latest version is 3
      * Version [1] initial columns
@@ -26,7 +23,6 @@ final class DatabaseHelper extends SQLiteOpenHelper {
      * Version [3] adding task order column
      */
     private static final int DB_VERSION = 3;
-
     private static final String STRING_CREATE_TASK = "CREATE TABLE " + Tasks.TABLE_NAME + " ("
             + Tasks._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + Tasks.TASK_NAME + " TEXT NOT NULL, "
@@ -41,14 +37,14 @@ final class DatabaseHelper extends SQLiteOpenHelper {
             + Tasks.REMINDER_ENABLED + " TEXT,"
             + Tasks.REMINDER_TIME + " TEXT,"
             + Tasks.TASK_LIST_ORDER + " INTEGER" + ");";
-
-
     private static final String STRING_CREATE_COMPLETION = "CREATE TABLE " + TaskCompletion.TABLE_NAME + " ("
             + TaskCompletion._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + TaskCompletion.TASK_NAME_ID + " INTEGER NOT NULL CONSTRAINT "
             + TaskCompletion.TASK_NAME_ID + " REFERENCES "
             + Tasks.TABLE_NAME + "(" + Tasks._ID + ")" + " ON DELETE CASCADE, "
             + TaskCompletion.TASK_COMPLETION_DATE + " DATE" + ");";
+    private static DatabaseHelper INSTANCE = null;
+    private final Context mContext;
 
     private DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);

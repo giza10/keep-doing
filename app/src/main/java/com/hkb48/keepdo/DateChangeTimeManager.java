@@ -48,10 +48,6 @@ public class DateChangeTimeManager {
         return sInstance;
     }
 
-    public interface OnDateChangedListener {
-        void onDateChanged();
-    }
-
     public void registerOnDateChangedListener(OnDateChangedListener listener) {
         if (listener != null && !mChangedListeners.contains(listener)) {
             mChangedListeners.add(listener);
@@ -116,5 +112,9 @@ public class DateChangeTimeManager {
             String result = mf.format(objs);
             Log.v(TAG_KEEPDO, "DateChangeTimeManager: time=" + result);
         }
+    }
+
+    public interface OnDateChangedListener {
+        void onDateChanged();
     }
 }

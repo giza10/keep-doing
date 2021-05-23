@@ -5,25 +5,25 @@ import android.media.SoundPool;
 
 import com.hkb48.keepdo.util.CompatUtil;
 
-class CheckSoundPlayer {
+public class CheckSoundPlayer {
     private final Context mContext;
     private SoundPool mSoundPool;
     private int mSoundId;
 
-    CheckSoundPlayer(Context context) {
+    public CheckSoundPlayer(Context context) {
         mContext = context;
     }
 
-    void load() {
+    public void load() {
         mSoundPool = CompatUtil.getSoundPool();
         mSoundId = mSoundPool.load(mContext, R.raw.done_pressed, 1);
     }
 
-    void unload() {
+    public void unload() {
         mSoundPool.release();
     }
 
-    void play() {
+    public void play() {
         mSoundPool.play(mSoundId, 1.0f, 1.0f, 0, 0, 1.0f);
     }
 }
