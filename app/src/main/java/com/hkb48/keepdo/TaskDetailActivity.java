@@ -133,10 +133,9 @@ public class TaskDetailActivity extends AppCompatActivity {
 
         // Current combo / Max combo
         TextView comboTextView = findViewById(R.id.taskDetailComboValue);
-        ComboCount combo = dbAdapter.getComboCount(task.getTaskID());
-        if (combo != null) {
-            comboTextView.setText(getString(R.string.current_and_max_combo_num, combo.currentCount, combo.maxCount));
-        }
+        int combo = dbAdapter.getComboCount(task.getTaskID());
+        int maxCombo = dbAdapter.getMaxComboCount(task.getTaskID());
+        comboTextView.setText(getString(R.string.current_and_max_combo_num, combo, maxCombo));
 
         // First date that done is set
         final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN);

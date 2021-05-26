@@ -148,7 +148,9 @@ public class TasksActivity extends AppCompatActivity implements
         };
         getContentResolver().registerContentObserver(KeepdoProvider.BASE_CONTENT_URI, true, mContentObserver);
 
-        NotificationController.createNotificationChannel(getApplicationContext());
+        if (CompatUtil.isNotificationChannelSupported()) {
+            NotificationController.createNotificationChannel(getApplicationContext());
+        }
 
         registerForContextMenu(taskListView);
         updateTaskList();
@@ -274,12 +276,12 @@ public class TasksActivity extends AppCompatActivity implements
             // Dummy Task for header on the ListView
             TaskListHeader header = new TaskListHeader();
             header.title = getString(R.string.tasklist_header_today_task);
-            TaskListItem taskListItem = new TaskListItem(TYPE_HEADER, header, null, null);
+            TaskListItem taskListItem = new TaskListItem(TYPE_HEADER, header, null, 0);
             mDataList.add(taskListItem);
 
             for (Task task : taskListToday) {
                 Date lastDoneDate = mDBAdapter.getLastDoneDate(task.getTaskID());
-                ComboCount comboCount = mDBAdapter.getComboCount(task.getTaskID());
+                int comboCount = mDBAdapter.getComboCount(task.getTaskID());
                 taskListItem = new TaskListItem(TYPE_ITEM, task, lastDoneDate, comboCount);
                 mDataList.add(taskListItem);
             }
@@ -288,12 +290,12 @@ public class TasksActivity extends AppCompatActivity implements
             // Dummy Task for header on the ListView
             TaskListHeader header = new TaskListHeader();
             header.title = getString(R.string.tasklist_header_other_task);
-            TaskListItem taskListItem = new TaskListItem(TYPE_HEADER, header, null, null);
+            TaskListItem taskListItem = new TaskListItem(TYPE_HEADER, header, null, 0);
             mDataList.add(taskListItem);
 
             for (Task task : taskListNotToday) {
                 Date lastDoneDate = mDBAdapter.getLastDoneDate(task.getTaskID());
-                ComboCount comboCount = mDBAdapter.getComboCount(task.getTaskID());
+                int comboCount = mDBAdapter.getComboCount(task.getTaskID());
                 taskListItem = new TaskListItem(TYPE_ITEM, task, lastDoneDate, comboCount);
                 mDataList.add(taskListItem);
             }
@@ -441,9 +443,9 @@ public class TasksActivity extends AppCompatActivity implements
         final int type;
         final Object data;
         final Date lastDoneDate;
-        final ComboCount comboCount;
+        final int comboCount;
 
-        TaskListItem(int type, Object data, Date lastDoneDate, ComboCount comboCount) {
+        TaskListItem(int type, Object data, Date lastDoneDate, int comboCount) {
             this.type = type;
             this.data = data;
             this.lastDoneDate = lastDoneDate;
@@ -610,11 +612,10 @@ public class TasksActivity extends AppCompatActivity implements
 
         private void updateModel(Task task, int position) {
             Date lastDoneDate = mDBAdapter.getLastDoneDate(task.getTaskID());
-            ComboCount comboCount = mDBAdapter.getComboCount(task.getTaskID());
+            int comboCount = mDBAdapter.getComboCount(task.getTaskID());
             TaskListItem newTaskListItem =
                     new TaskListItem(TYPE_ITEM, task, lastDoneDate, comboCount);
             mDataList.set(position, newTaskListItem);
-
         }
 
         private void updateView(TaskListItem taskListItem, boolean checked,
@@ -628,12 +629,12 @@ public class TasksActivity extends AppCompatActivity implements
 
             if (checked) {
                 imageView.setImageResource(Settings.getDoneIconId());
-                ComboCount comboCount = taskListItem.comboCount;
-                if (comboCount.currentCount > 1) {
+                int comboCount = taskListItem.comboCount;
+                if (comboCount > 1) {
                     lastDoneDateTextView.setTextColor(CompatUtil.getColor(getApplicationContext(),
                             R.color.tasklist_combo));
                     lastDoneDateTextView.setText(getString(
-                            R.string.tasklist_combo, comboCount.currentCount));
+                            R.string.tasklist_combo, comboCount));
                 } else {
                     lastDoneDateTextView
                             .setText(R.string.tasklist_lastdonedate_today);
@@ -642,13 +643,13 @@ public class TasksActivity extends AppCompatActivity implements
                 imageView.setImageResource(Settings.getNotDoneIconId());
                 Date lastDoneDate = taskListItem.lastDoneDate;
                 if (lastDoneDate != null) {
-                    ComboCount comboCount = taskListItem.comboCount;
-                    if (comboCount.currentCount > 1) {
+                    int comboCount = taskListItem.comboCount;
+                    if (comboCount > 1) {
                         lastDoneDateTextView.setTextColor(CompatUtil
                                 .getColor(getApplicationContext(), R.color.tasklist_combo));
                         lastDoneDateTextView.setText(getString(
                                 R.string.tasklist_combo,
-                                comboCount.currentCount));
+                                comboCount));
                     } else {
                         int diffDays = (int) ((today.getTime() - lastDoneDate.getTime())
                                 / (long) (1000 * 60 * 60 * 24));

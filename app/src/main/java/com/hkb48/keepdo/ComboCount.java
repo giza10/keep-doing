@@ -1,5 +1,6 @@
 package com.hkb48.keepdo;
 
+@Deprecated
 public final class ComboCount {
     public final int currentCount;
     public final int maxCount;

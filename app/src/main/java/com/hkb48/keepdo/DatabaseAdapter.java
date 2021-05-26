@@ -297,14 +297,111 @@ public class DatabaseAdapter {
         return dateList;
     }
 
-    public ComboCount getComboCount(Long taskID) {
+    public int getComboCount(Long taskID) {
+        int count = 0;
+
+        Uri uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, String.valueOf(taskID));
+        String[] projection = {TaskCompletion.TASK_COMPLETION_DATE};
+        String sortOrder = TaskCompletion.TASK_COMPLETION_DATE + " desc";
+        String selection = TaskCompletion.TASK_COMPLETION_DATE + "<=?";
+        String[] selectionArgs = {getTodayDate()};
+        Cursor cursor = mContentResolver.query(
+                uri.buildUpon().appendQueryParameter("distinct", "true").build(), projection, selection, selectionArgs, sortOrder);
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                Calendar calToday = getCalendar(DateChangeTimeUtil.getDate());
+                Calendar calDone = getCalendar(getDate(cursor));
+                Calendar calIndex = (Calendar) calToday.clone();
+                while (true) {
+                    if (calIndex.equals(calDone)) {
+                        // count up combo
+                        count++;
+                        if (cursor.moveToNext()) {
+                            calDone = getCalendar(getDate(cursor));
+                        } else {
+                            break;
+                        }
+                    } else {
+                        Recurrence recurrence = getTask(taskID).getRecurrence();
+                        if (recurrence.isValidDay(calIndex.get(Calendar.DAY_OF_WEEK))) {
+                            if (!calIndex.equals(calToday)) {
+                                break;
+                            }
+                        }
+                    }
+                    calIndex.add(Calendar.DAY_OF_MONTH, -1);
+                }
+            }
+            cursor.close();
+        }
+
+        return count;
+    }
+
+    public int getMaxComboCount(Long taskID) {
         int currentCount = 0;
         int maxCount = 0;
 
         Uri uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, String.valueOf(taskID));
+        String[] projection = {TaskCompletion.TASK_COMPLETION_DATE};
         String sortOrder = TaskCompletion.TASK_COMPLETION_DATE + " asc";
         Cursor cursor = mContentResolver.query(
-                uri.buildUpon().appendQueryParameter("distinct", "true").build(), null, null, null, sortOrder);
+                uri.buildUpon().appendQueryParameter("distinct", "true").build(), projection, null, null, sortOrder);
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                Calendar calToday = getCalendar(DateChangeTimeUtil.getDate());
+                Calendar calDone = getCalendar(getDate(cursor));
+                Calendar calIndex = (Calendar) calDone.clone();
+                boolean isCompleted = false;
+                do {
+                    if (calIndex.equals(calDone)) {
+                        // count up combo
+                        currentCount++;
+                        if (currentCount > maxCount) {
+                            maxCount = currentCount;
+                        }
+                        if (cursor.moveToNext()) {
+                            calDone = getCalendar(getDate(cursor));
+                        } else {
+                            isCompleted = true;
+                        }
+                        calIndex.add(Calendar.DAY_OF_MONTH, 1);
+                    } else {
+                        Recurrence recurrence = getTask(taskID).getRecurrence();
+                        if (recurrence.isValidDay(calIndex.get(Calendar.DAY_OF_WEEK))) {
+                            // stop combo
+                            if (!calIndex.equals(calToday)) {
+                                currentCount = 0;
+                            }
+                            if (!isCompleted) {
+                                calIndex = (Calendar) calDone.clone();
+                            } else {
+                                calIndex.add(Calendar.DAY_OF_MONTH, 1);
+                            }
+                        } else {
+                            calIndex.add(Calendar.DAY_OF_MONTH, 1);
+                        }
+                    }
+                } while (!calIndex.after(calToday));
+            }
+            cursor.close();
+        }
+
+        return maxCount;
+    }
+
+    @Deprecated
+    public ComboCount getComboCountLegacy(Long taskID) {
+        int currentCount = 0;
+        int maxCount = 0;
+
+        Uri uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, String.valueOf(taskID));
+        String[] projection = {TaskCompletion.TASK_COMPLETION_DATE};
+        String sortOrder = TaskCompletion.TASK_COMPLETION_DATE + " asc";
+        Cursor cursor = mContentResolver.query(
+                uri.buildUpon().appendQueryParameter("distinct", "true").build(), projection, null, null, sortOrder);
 
         if (cursor != null) {
             if (cursor.moveToFirst()) {
@@ -353,11 +450,13 @@ public class DatabaseAdapter {
         String date = "";
         Cursor cursor = mContentResolver.query(DateChangeTime.CONTENT_URI, null, null,
                 null, null);
-        if (cursor.moveToFirst()) {
-            final int dateColIndex = cursor.getColumnIndex(DateChangeTime.ADJUSTED_DATE);
-            date = cursor.getString(dateColIndex);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                final int dateColIndex = cursor.getColumnIndex(DateChangeTime.ADJUSTED_DATE);
+                date = cursor.getString(dateColIndex);
+            }
+            cursor.close();
         }
-        cursor.close();
         return date;
     }
 
@@ -365,11 +464,13 @@ public class DatabaseAdapter {
         long nextAlarmTime = -1;
         Cursor cursor = mContentResolver.query(DateChangeTime.CONTENT_URI, null, null,
                 null, null);
-        if (cursor.moveToFirst()) {
-            final int colIndex = cursor.getColumnIndex(DateChangeTime.NEXT_DATE_CHANGE_TIME);
-            nextAlarmTime = cursor.getLong(colIndex);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                final int colIndex = cursor.getColumnIndex(DateChangeTime.NEXT_DATE_CHANGE_TIME);
+                nextAlarmTime = cursor.getLong(colIndex);
+            }
+            cursor.close();
         }
-        cursor.close();
         return nextAlarmTime;
     }
 

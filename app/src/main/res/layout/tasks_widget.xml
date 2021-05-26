@@ -17,7 +17,7 @@
             android:layout_height="30dp"
             android:layout_gravity="center"
             android:padding="2dp"
-            app:srcCompat="@drawable/ic_launcher" />
+            android:src="@drawable/ic_launcher" />
 
         <TextView
             android:id="@+id/tasksWidgetTitle"

@@ -23,7 +23,6 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 import com.hkb48.keepdo.CheckSoundPlayer;
-import com.hkb48.keepdo.ComboCount;
 import com.hkb48.keepdo.DatabaseAdapter;
 import com.hkb48.keepdo.DateChangeTimeUtil;
 import com.hkb48.keepdo.R;
@@ -450,11 +449,10 @@ public class CalendarGrid extends Fragment {
             intent.setType("image/png");
             Uri contentUri = FileProvider.getUriForFile(requireContext(), FILE_PROVIDER, bitmapFile);
             intent.putExtra(Intent.EXTRA_STREAM, contentUri);
-            ComboCount comboCount = mDatabaseAdapter.getComboCount(mTask
-                    .getTaskID());
+            int comboCount = mDatabaseAdapter.getComboCount(mTask.getTaskID());
             String extraText = "";
-            if (mMonthOffset == 0 && comboCount.currentCount > 1) {
-                extraText += requireContext().getString(R.string.share_combo, mTask.getName(), comboCount.currentCount);
+            if (mMonthOffset == 0 && comboCount > 1) {
+                extraText += requireContext().getString(R.string.share_combo, mTask.getName(), comboCount);
             } else {
                 Calendar current = DateChangeTimeUtil.getDateTimeCalendar();
                 current.add(Calendar.MONTH, mMonthOffset);
