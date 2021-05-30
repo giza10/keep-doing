@@ -9,7 +9,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 
-import androidx.annotation.Nullable;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.Preference.OnPreferenceChangeListener;
@@ -35,7 +36,6 @@ public class GeneralSettingsFragment extends PreferenceFragmentCompat
     public static final String KEY_ALERTS_VIBRATE_WHEN = "preferences_alerts_vibrateWhen";
     private static final String KEY_ALERTS_CATEGORY = "preferences_alerts_category";
     private static final String KEY_ALERTS_NOTIFICATION = "preferences_notification";
-    private static final int RINGTONE_REQUEST_CODE = 1;
 
     private DoneIconPreference mDoneIconPref;
     private ListPreference mDateChangeTimePref;
@@ -43,6 +43,7 @@ public class GeneralSettingsFragment extends PreferenceFragmentCompat
     private SwitchPreferenceCompat mEnableFutureDatePref;
     private RingtonePreference mRingtonePref;
     private ListPreference mVibrateWhenPref;
+    private ActivityResultLauncher<Intent> mRingtonePickerLauncher;
 
     public static SharedPreferences getSharedPreferences(final Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
@@ -53,6 +54,22 @@ public class GeneralSettingsFragment extends PreferenceFragmentCompat
      */
     public static void setDefaultValues(Context context) {
         PreferenceManager.setDefaultValues(context, R.xml.general_settings, false);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mRingtonePickerLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    Intent data = result.getData();
+                    if (result.getResultCode() == Activity.RESULT_OK && data != null) {
+                        Uri toneUri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+                        if (toneUri != null) {
+                            mRingtonePref.updatePreference(toneUri.toString());
+                        }
+                    }
+                });
     }
 
     @Override
@@ -115,7 +132,7 @@ public class GeneralSettingsFragment extends PreferenceFragmentCompat
                 }
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
-                startActivityForResult(intent, RINGTONE_REQUEST_CODE);
+                mRingtonePickerLauncher.launch(intent);
                 return true;
             });
         }
@@ -181,18 +198,5 @@ public class GeneralSettingsFragment extends PreferenceFragmentCompat
             ret = true;
         }
         return ret;
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RINGTONE_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK && data != null) {
-                Uri toneUri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-                if (toneUri != null) {
-                    mRingtonePref.updatePreference(toneUri.toString());
-                }
-            }
-        }
     }
 }

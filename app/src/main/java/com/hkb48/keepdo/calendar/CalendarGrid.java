@@ -1,17 +1,11 @@
 package com.hkb48.keepdo.calendar;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -19,7 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 import com.hkb48.keepdo.CheckSoundPlayer;
@@ -28,14 +21,9 @@ import com.hkb48.keepdo.DateChangeTimeUtil;
 import com.hkb48.keepdo.R;
 import com.hkb48.keepdo.ReminderManager;
 import com.hkb48.keepdo.Task;
-import com.hkb48.keepdo.TaskDetailActivity;
 import com.hkb48.keepdo.settings.Settings;
-import com.hkb48.keepdo.util.CompatUtil;
 import com.hkb48.keepdo.widget.TasksWidgetProvider;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -45,45 +33,33 @@ import java.util.Locale;
 public class CalendarGrid extends Fragment {
     static final String POSITION_KEY = "com.hkb48.keepdo.calendargrid.POSITION";
     private static final String TAG = "#KEEPDO_CALENDARGRID: ";
-    private static final String FILE_PROVIDER = "com.hkb48.keepdo.fileprovider";
     private static final int CONTEXT_MENU_CHECK_DONE = 0;
     private static final int CONTEXT_MENU_UNCHECK_DONE = 1;
     private static final int NUM_OF_DAYS_IN_WEEK = 7;
 
-    private static DatabaseAdapter mDatabaseAdapter;
-    private static Task mTask;
-    private static LinearLayout mCalendarGrid;
-    private static volatile View mPressedView;
+    private DatabaseAdapter mDatabaseAdapter;
+    private Task mTask;
+    private LinearLayout mCalendarGrid;
+    private volatile View mPressedView;
 
     private CheckSoundPlayer mCheckSound;
     private int mMonthOffset;
     private int mDoneIconId;
-    private boolean mIsShareOnTop;
 
     public CalendarGrid() {
     }
 
-    static CalendarGrid newInstance(Bundle args) {
+    static CalendarGrid newInstance(int position) {
         CalendarGrid fragment = new CalendarGrid();
+        Bundle args = new Bundle();
+        args.putInt(CalendarGrid.POSITION_KEY, position);
         fragment.setArguments(args);
         return fragment;
-    }
-
-    static CharSequence getPageTitle(int position) {
-        final int pageNumber = position - CalendarFragment.INDEX_OF_THIS_MONTH;
-
-        Calendar current = DateChangeTimeUtil.getDateTimeCalendar();
-        current.add(Calendar.MONTH, pageNumber);
-        current.set(Calendar.DAY_OF_MONTH, 1);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM", Locale.JAPAN);
-
-        return sdf.format(current.getTime());
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
     }
 
     @Override
@@ -112,7 +88,6 @@ public class CalendarGrid extends Fragment {
 
     public void onResume() {
         mCheckSound.load();
-        mIsShareOnTop = false;
         setHasOptionsMenu(true);
 
         super.onResume();
@@ -128,31 +103,6 @@ public class CalendarGrid extends Fragment {
     public void onStop() {
         setHasOptionsMenu(false);
         super.onStop();
-    }
-
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.activity_task, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_info) {
-            final long taskId = requireActivity().getIntent().getLongExtra("TASK-ID", -1);
-            Intent intent = new Intent(getActivity(), TaskDetailActivity.class);
-            intent.putExtra("TASK-ID", taskId);
-            startActivity(intent);
-            return true;
-        } else if (item.getItemId() == R.id.menu_share) {
-            if (!mIsShareOnTop) {
-                shareDisplayedCalendarView();
-                mIsShareOnTop = true;
-            }
-            return true;
-        } else {
-            return super.onOptionsItemSelected(item);
-        }
     }
 
     @Override
@@ -254,8 +204,6 @@ public class CalendarGrid extends Fragment {
         current.add(Calendar.MONTH, mMonthOffset);
         current.set(Calendar.DAY_OF_MONTH, 1);
 
-        mCalendarGrid.removeAllViews();
-
         addDayOfWeek();
 
         addDayOfMonth(current);
@@ -279,7 +227,7 @@ public class CalendarGrid extends Fragment {
         final int today = DateChangeTimeUtil.getDateTimeCalendar().get(
                 Calendar.DAY_OF_MONTH);
 
-        ArrayList<Date> doneDateList = mDatabaseAdapter.getHistory(
+        ArrayList<Date> doneDateList = mDatabaseAdapter.getHistoryInMonth(
                 mTask.getTaskID(), calendar.getTime());
         SimpleDateFormat sdf_d = new SimpleDateFormat("dd", Locale.JAPAN);
 
@@ -403,66 +351,5 @@ public class CalendarGrid extends Fragment {
 
     private int getStartDayOfWeek() {
         return Settings.getWeekStartDay();
-    }
-
-    private void shareDisplayedCalendarView() {
-        final String BITMAP_DIR_PATH = mDatabaseAdapter.backupDirPath();
-        final String BITMAP_FILE_PATH = BITMAP_DIR_PATH  + "/temp_share_image.png";
-
-        View calendarRoot = requireActivity().findViewById(R.id.calendar_root);
-        calendarRoot.setDrawingCacheEnabled(true);
-
-        File bitmapFile = new File(BITMAP_FILE_PATH);
-        if(! new File(BITMAP_DIR_PATH).mkdir()) {
-            Bitmap bitmap = Bitmap.createBitmap(calendarRoot.getDrawingCache());
-
-            Bitmap baseBitmap = Bitmap.createBitmap(bitmap.getWidth(),
-                    bitmap.getHeight(), Bitmap.Config.ARGB_4444);
-            Canvas bmpCanvas = new Canvas(baseBitmap);
-            bmpCanvas.drawColor(CompatUtil.getColor(getContext(),
-                    R.color.calendar_bg_fargment));
-            bmpCanvas.drawBitmap(bitmap, 0, 0, null);
-
-            FileOutputStream fos = null;
-            try {
-                fos = new FileOutputStream(bitmapFile, false);
-                baseBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                fos.flush();
-                fos.close();
-                calendarRoot.setDrawingCacheEnabled(false);
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (fos != null) {
-                        fos.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            bitmap.recycle();
-            baseBitmap.recycle();
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            intent.setType("image/png");
-            Uri contentUri = FileProvider.getUriForFile(requireContext(), FILE_PROVIDER, bitmapFile);
-            intent.putExtra(Intent.EXTRA_STREAM, contentUri);
-            int comboCount = mDatabaseAdapter.getComboCount(mTask.getTaskID());
-            String extraText = "";
-            if (mMonthOffset == 0 && comboCount > 1) {
-                extraText += requireContext().getString(R.string.share_combo, mTask.getName(), comboCount);
-            } else {
-                Calendar current = DateChangeTimeUtil.getDateTimeCalendar();
-                current.add(Calendar.MONTH, mMonthOffset);
-                current.set(Calendar.DAY_OF_MONTH, 1);
-                ArrayList<Date> doneDateList = mDatabaseAdapter.getHistory(mTask.getTaskID(), current.getTime());
-                extraText += requireContext().getString(R.string.share_non_combo, mTask.getName(), doneDateList.size());
-            }
-            extraText += " " + requireContext().getString(R.string.share_app_url);
-            intent.putExtra(Intent.EXTRA_TEXT, extraText);
-            startActivity(intent);
-        }
     }
 }

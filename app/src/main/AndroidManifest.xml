@@ -27,19 +27,19 @@
         <activity
             android:name=".TaskSettingActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize"></activity>
+            android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".TaskActivity"
-            android:label="@string/title_activity_task"></activity>
+            android:name=".calendar.TaskCalendarActivity"
+            android:label="@string/title_activity_task" />
         <activity
             android:name=".TaskDetailActivity"
-            android:label="@string/title_activity_task"></activity>
+            android:label="@string/title_activity_task" />
         <activity
             android:name=".settings.SettingsActivity"
-            android:label="@string/settings"></activity>
+            android:label="@string/settings" />
         <activity
             android:name=".TaskSortingActivity"
-            android:label="@string/sort_task"></activity>
+            android:label="@string/sort_task" />
 
         <receiver android:name=".AlarmReceiver" />
         <receiver android:name=".RemindAlarmInitReceiver">
@@ -55,7 +55,7 @@
         <provider
             android:name=".KeepdoProvider"
             android:authorities="com.hkb48.keepdo.keepdoprovider"
-            android:exported="true"></provider>
+            android:exported="true" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

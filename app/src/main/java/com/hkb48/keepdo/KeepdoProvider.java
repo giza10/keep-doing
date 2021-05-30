@@ -326,6 +326,7 @@ public class KeepdoProvider extends ContentProvider {
         static final String REMINDER_ENABLED = "reminder_enabled";
         static final String REMINDER_TIME = "reminder_time";
         static final String TASK_LIST_ORDER = "task_list_order";
+
         private Tasks() {
         }
     }
@@ -344,6 +345,7 @@ public class KeepdoProvider extends ContentProvider {
         static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
         static final String TASK_NAME_ID = "task_id";
         static final String TASK_COMPLETION_DATE = "completion_date";
+
         private TaskCompletion() {
         }
     }
@@ -359,6 +361,7 @@ public class KeepdoProvider extends ContentProvider {
 
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, TABLE_URI);
         static final String ADJUSTED_DATE = "date";
+
         private DateChangeTime() {
         }
     }

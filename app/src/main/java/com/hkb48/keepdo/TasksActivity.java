@@ -34,6 +34,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.hkb48.keepdo.calendar.TaskCalendarActivity;
 import com.hkb48.keepdo.settings.Settings;
 import com.hkb48.keepdo.settings.SettingsActivity;
 import com.hkb48.keepdo.util.CompatUtil;
@@ -133,7 +134,7 @@ public class TasksActivity extends AppCompatActivity implements
                         Task task = (Task) item.data;
                         Long taskId = task.getTaskID();
                         Intent intent = new Intent(TasksActivity.this,
-                                TaskActivity.class);
+                                TaskCalendarActivity.class);
                         intent.putExtra("TASK-ID", taskId);
                         startActivity(intent);
                     }
@@ -341,10 +342,9 @@ public class TasksActivity extends AppCompatActivity implements
      */
     private void showBackupRestoreDeviceDialog() {
         final Context context = this;
-        final DatabaseAdapter dbAdapter = DatabaseAdapter.getInstance(context);
-        final String fineName = dbAdapter.backupFileName();
-        final String dirName = dbAdapter.backupDirName();
-        final String dirPath = dbAdapter.backupDirPath();
+        final String fineName = DatabaseAdapter.backupFileName();
+        final String dirName = DatabaseAdapter.backupDirName();
+        final String dirPath = DatabaseAdapter.backupDirPath();
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(
                 context);
@@ -425,7 +425,8 @@ public class TasksActivity extends AppCompatActivity implements
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           int[] grantResults) {
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             if (requestCode == BACKUP_PERMISSION_REQUEST_CODE) {
                 backupTaskData(getApplicationContext());

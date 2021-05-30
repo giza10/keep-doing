@@ -1,4 +1,4 @@
-package com.hkb48.keepdo;
+package com.hkb48.keepdo.calendar;
 
 import android.database.ContentObserver;
 import android.os.Bundle;
@@ -8,9 +8,12 @@ import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.hkb48.keepdo.calendar.CalendarFragment;
+import com.hkb48.keepdo.DatabaseAdapter;
+import com.hkb48.keepdo.KeepdoProvider;
+import com.hkb48.keepdo.R;
+import com.hkb48.keepdo.Task;
 
-public class TaskActivity extends AppCompatActivity {
+public class TaskCalendarActivity extends AppCompatActivity {
     private long mTaskId;
     private boolean mModelUpdated;
     private ContentObserver mContentObserver;
@@ -18,7 +21,7 @@ public class TaskActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_task);
+        setContentView(R.layout.activity_task_calendar);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

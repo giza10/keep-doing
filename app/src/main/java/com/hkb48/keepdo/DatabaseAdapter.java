@@ -58,6 +58,18 @@ public class DatabaseAdapter {
         return INSTANCE;
     }
 
+    static String backupFileName() {
+        return BACKUP_FILE_NAME;
+    }
+
+    static String backupDirName() {
+        return BACKUP_DIR_NAME;
+    }
+
+    public static String backupDirPath() {
+        return BACKUP_DIR_PATH;
+    }
+
     synchronized void close() {
         mDatabaseHelper.close();
     }
@@ -275,10 +287,12 @@ public class DatabaseAdapter {
         return task;
     }
 
-    public ArrayList<Date> getHistory(Long taskID, Date month) {
+    public ArrayList<Date> getHistoryInMonth(Long taskID, Date month) {
         ArrayList<Date> dateList = new ArrayList<>();
         Uri uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, String.valueOf(taskID));
-        Cursor cursor = mContentResolver.query(uri, null, null, null, null);
+        String[] projection = {TaskCompletion.TASK_COMPLETION_DATE};
+        Cursor cursor = mContentResolver.query(
+                uri.buildUpon().appendQueryParameter("distinct", "true").build(), projection, null, null, null);
         SimpleDateFormat sdf_ym = new SimpleDateFormat(SDF_PATTERN_YM, Locale.JAPAN);
 
         if (cursor != null) {
@@ -474,7 +488,6 @@ public class DatabaseAdapter {
         return nextAlarmTime;
     }
 
-
     private Date getDate(Cursor cursor) {
         String dateString = cursor.getString(cursor.getColumnIndex(TaskCompletion.TASK_COMPLETION_DATE));
         SimpleDateFormat sdf_ymd = new SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN);
@@ -658,17 +671,5 @@ public class DatabaseAdapter {
             }
         }
         return success;
-    }
-
-    String backupFileName() {
-        return BACKUP_FILE_NAME;
-    }
-
-    String backupDirName() {
-        return BACKUP_DIR_NAME;
-    }
-
-    public String backupDirPath() {
-        return BACKUP_DIR_PATH;
     }
 }
