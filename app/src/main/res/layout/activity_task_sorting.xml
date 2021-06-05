@@ -25,7 +25,6 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
-            android:onClick="onCancelClicked"
             android:text="@string/task_cancel" />
 
         <Button
@@ -35,7 +34,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
             android:enabled="false"
-            android:onClick="onSaveClicked"
             android:text="@string/task_save" />
     </LinearLayout>
 </LinearLayout>
