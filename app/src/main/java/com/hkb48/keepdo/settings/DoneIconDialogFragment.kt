@@ -1,9 +1,7 @@
 package com.hkb48.keepdo.settings
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.preference.PreferenceDialogFragmentCompat
@@ -15,9 +13,8 @@ class DoneIconDialogFragment : PreferenceDialogFragmentCompat() {
     }
 
     override fun onCreateDialogView(context: Context): View {
-        val inflater = LayoutInflater.from(getContext())
-        @SuppressLint("InflateParams") val view =
-            inflater.inflate(R.layout.done_icon_selector, null)
+        val view =
+            View.inflate(requireContext(), R.layout.done_icon_selector, null)
         val listener = OnClickListener()
         view.findViewById<View>(R.id.done_icon_1).setOnClickListener(listener)
         view.findViewById<View>(R.id.done_icon_2).setOnClickListener(listener)

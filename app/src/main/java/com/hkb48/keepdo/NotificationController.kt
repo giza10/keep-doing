@@ -16,10 +16,8 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.hkb48.keepdo.settings.Settings.Companion.getAlertsRingTone
-import com.hkb48.keepdo.settings.Settings.Companion.getAlertsVibrateWhen
-import com.hkb48.keepdo.settings.Settings.Companion.initialize
-import com.hkb48.keepdo.util.CompatUtil.isNotificationChannelSupported
+import com.hkb48.keepdo.settings.Settings
+import com.hkb48.keepdo.util.CompatUtil
 
 object NotificationController {
     const val NOTIFICATION_ID_HANDHELD = -1
@@ -41,12 +39,12 @@ object NotificationController {
         builder.setSmallIcon(R.drawable.ic_notification)
         builder.setTicker(taskName)
         builder.setDefaults(Notification.DEFAULT_LIGHTS)
-        initialize(context.applicationContext)
-        val reminderRingtone = getAlertsRingTone()
+        Settings.initialize(context.applicationContext)
+        val reminderRingtone = Settings.getAlertsRingTone()
         if (reminderRingtone != null) {
             builder.setSound(Uri.parse(reminderRingtone))
         }
-        val vibrateWhen = getAlertsVibrateWhen()
+        val vibrateWhen = Settings.getAlertsVibrateWhen()
         val vibrateAlways = vibrateWhen == "always"
         val vibrateSilent = vibrateWhen == "silent"
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager?
@@ -113,7 +111,7 @@ object NotificationController {
     @JvmStatic
     @RequiresApi(Build.VERSION_CODES.O)
     fun createNotificationChannel(context: Context) {
-        if (!isNotificationChannelSupported) {
+        if (!CompatUtil.isNotificationChannelSupported) {
             return
         }
 
@@ -130,8 +128,8 @@ object NotificationController {
         // Sets the notification light color for notifications posted to this
         // channel, if the device supports this feature.
         channel.lightColor = Color.WHITE
-        initialize(context.applicationContext)
-        val vibrateWhen = getAlertsVibrateWhen()
+        Settings.initialize(context.applicationContext)
+        val vibrateWhen = Settings.getAlertsVibrateWhen()
         val vibrateAlways = vibrateWhen == "always"
         val vibrateSilent = vibrateWhen == "silent"
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager?
@@ -142,7 +140,7 @@ object NotificationController {
             channel.enableVibration(true)
             channel.vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
         }
-        val reminderRingtone = getAlertsRingTone()
+        val reminderRingtone = Settings.getAlertsRingTone()
         if (reminderRingtone != null) {
             channel.setSound(
                 Uri.parse(reminderRingtone), AudioAttributes.Builder()

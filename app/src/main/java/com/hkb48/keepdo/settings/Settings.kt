@@ -3,8 +3,6 @@ package com.hkb48.keepdo.settings
 import android.content.Context
 import android.content.SharedPreferences
 import com.hkb48.keepdo.R
-import com.hkb48.keepdo.settings.GeneralSettingsFragment.Companion.getSharedPreferences
-import com.hkb48.keepdo.settings.GeneralSettingsFragment.Companion.setDefaultValues
 import java.util.*
 
 class Settings private constructor(private val sharedPref: SharedPreferences) {
@@ -42,8 +40,8 @@ class Settings private constructor(private val sharedPref: SharedPreferences) {
         @JvmStatic
         fun initialize(context: Context) {
             if (!::sInstance.isInitialized) {
-                setDefaultValues(context)
-                val pref = getSharedPreferences(context)
+                GeneralSettingsFragment.setDefaultValues(context)
+                val pref = GeneralSettingsFragment.getSharedPreferences(context)
                 sInstance = Settings(pref)
                 sInstance.doneIconType = sInstance.sharedPref.getString(
                     GeneralSettingsFragment.KEY_GENERAL_DONE_ICON,

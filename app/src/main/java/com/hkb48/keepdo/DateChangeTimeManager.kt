@@ -5,34 +5,34 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.hkb48.keepdo.DateChangeTimeUtil.dateChangeTime
-import com.hkb48.keepdo.DateChangeTimeUtil.dateTimeCalendar
-import com.hkb48.keepdo.settings.Settings.Companion.registerOnChangedListener
-import com.hkb48.keepdo.settings.Settings.Companion.unregisterOnChangedListener
-import com.hkb48.keepdo.settings.Settings.OnChangedListener
-import com.hkb48.keepdo.widget.TasksWidgetProvider.Companion.notifyDatasetChanged
+import com.hkb48.keepdo.settings.Settings
+import com.hkb48.keepdo.widget.TasksWidgetProvider
 import java.text.MessageFormat
 import java.util.*
 
 class DateChangeTimeManager private constructor(private val mContext: Context) {
     private val mChangedListeners: MutableList<OnDateChangedListener> = ArrayList()
-    private val mSettingsChangedListener: OnChangedListener = object : OnChangedListener {
-        override fun onDoneIconSettingChanged() {}
-        override fun onDateChangeTimeSettingChanged() {
-            startAlarm()
-            ReminderManager.instance.setAlarmForAll(mContext)
-            mContext.contentResolver.notifyChange(KeepdoProvider.DateChangeTime.CONTENT_URI, null)
-            notifyDatasetChanged(mContext)
-        }
+    private val mSettingsChangedListener: Settings.OnChangedListener =
+        object : Settings.OnChangedListener {
+            override fun onDoneIconSettingChanged() {}
+            override fun onDateChangeTimeSettingChanged() {
+                startAlarm()
+                ReminderManager.instance.setAlarmForAll(mContext)
+                mContext.contentResolver.notifyChange(
+                    KeepdoProvider.DateChangeTime.CONTENT_URI,
+                    null
+                )
+                TasksWidgetProvider.notifyDatasetChanged(mContext)
+            }
 
-        override fun onWeekStartDaySettingChanged() {}
-    }
+            override fun onWeekStartDaySettingChanged() {}
+        }
 
     fun registerOnDateChangedListener(listener: OnDateChangedListener?) {
         if (listener != null && !mChangedListeners.contains(listener)) {
             mChangedListeners.add(listener)
             if (mChangedListeners.size == 1) {
-                registerOnChangedListener(mSettingsChangedListener)
+                Settings.registerOnChangedListener(mSettingsChangedListener)
                 startAlarm()
             }
         }
@@ -42,7 +42,7 @@ class DateChangeTimeManager private constructor(private val mContext: Context) {
         if (listener != null) {
             mChangedListeners.remove(listener)
             if (mChangedListeners.size < 1) {
-                unregisterOnChangedListener(mSettingsChangedListener)
+                Settings.unregisterOnChangedListener(mSettingsChangedListener)
                 stopAlarm()
             }
         }
@@ -55,8 +55,8 @@ class DateChangeTimeManager private constructor(private val mContext: Context) {
     }
 
     private fun startAlarm() {
-        val dateChangeTime = dateChangeTime
-        val nextAlarmTime = dateTimeCalendar
+        val dateChangeTime = DateChangeTimeUtil.dateChangeTime
+        val nextAlarmTime = DateChangeTimeUtil.dateTimeCalendar
         nextAlarmTime.add(Calendar.DATE, 1)
         nextAlarmTime[Calendar.HOUR_OF_DAY] = dateChangeTime.hourOfDay
         nextAlarmTime[Calendar.MINUTE] = dateChangeTime.minute

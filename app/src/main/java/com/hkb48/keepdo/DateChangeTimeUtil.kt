@@ -1,6 +1,6 @@
 package com.hkb48.keepdo
 
-import com.hkb48.keepdo.settings.Settings.Companion.getDateChangeTime
+import com.hkb48.keepdo.settings.Settings
 import java.util.*
 
 object DateChangeTimeUtil {
@@ -39,7 +39,7 @@ object DateChangeTimeUtil {
     @JvmStatic
     val dateChangeTime: DateChangeTime
         get() {
-            val dateChangeTimeStr = getDateChangeTime()
+            val dateChangeTimeStr = Settings.getDateChangeTime()
             val timeHourMin = dateChangeTimeStr!!.split(":").toTypedArray()
             val dateChangeTime = DateChangeTime()
             dateChangeTime.hourOfDay = timeHourMin[0].toInt() - 24

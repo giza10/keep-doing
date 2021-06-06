@@ -2,7 +2,6 @@ package com.hkb48.keepdo.calendar
 
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.view.ContextMenu.ContextMenuInfo
 import android.widget.ImageView
@@ -15,14 +14,12 @@ import com.hkb48.keepdo.widget.TasksWidgetProvider
 import java.text.SimpleDateFormat
 import java.util.*
 
+
 class CalendarGrid : Fragment() {
     private lateinit var mDatabaseAdapter: DatabaseAdapter
     private lateinit var mTask: Task
     private lateinit var mCalendarGrid: LinearLayout
 
-    @Volatile
-    private var mPressedView: View? = null
-    private lateinit var mCheckSound: CheckSoundPlayer
     private var mMonthOffset = 0
     private var mDoneIconId = 0
 
@@ -40,7 +37,6 @@ class CalendarGrid : Fragment() {
         mDatabaseAdapter = DatabaseAdapter.getInstance(requireContext())
         mTask = mDatabaseAdapter.getTask(taskId)!!
         mDoneIconId = Settings.doneIconId
-        mCheckSound = CheckSoundPlayer(requireContext())
         mMonthOffset =
             requireArguments().getInt(POSITION_KEY) - CalendarFragment.INDEX_OF_THIS_MONTH
         mCalendarGrid = view.findViewById(R.id.calendar_grid)
@@ -48,14 +44,8 @@ class CalendarGrid : Fragment() {
     }
 
     override fun onResume() {
-        mCheckSound.load()
         setHasOptionsMenu(true)
         super.onResume()
-    }
-
-    override fun onPause() {
-        mCheckSound.unload()
-        super.onPause()
     }
 
     override fun onStop() {
@@ -68,7 +58,6 @@ class CalendarGrid : Fragment() {
         menuInfo: ContextMenuInfo?
     ) {
         super.onCreateContextMenu(menu, view, menuInfo)
-        mPressedView = view
         val date = view.tag as Date
         val sdf = SimpleDateFormat(
             getString(R.string.date_format), Locale.getDefault()
@@ -80,17 +69,15 @@ class CalendarGrid : Fragment() {
         } else {
             menu.add(0, CONTEXT_MENU_CHECK_DONE, 0, R.string.check_done)
         }
+        menu.getItem(0).actionView = view
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
         var consumed = false
-        if (mPressedView == null) {
-            Log.e(TAG, "mPressedView is null!")
-            return false
-        }
-        val imageView = mPressedView!!
+        val view = item.actionView
+        val imageView = view
             .findViewById<ImageView>(R.id.imageViewDone)
-        val selectedDate = mPressedView!!.tag as Date
+        val selectedDate = view.tag as Date
         when (item.itemId) {
             CONTEXT_MENU_CHECK_DONE -> {
                 showDoneIcon(imageView)
@@ -98,7 +85,7 @@ class CalendarGrid : Fragment() {
                     mTask.taskID, selectedDate,
                     true
                 )
-                mCheckSound.play()
+                (requireActivity() as TaskCalendarActivity).playCheckSound()
                 consumed = true
             }
             CONTEXT_MENU_UNCHECK_DONE -> {
@@ -130,7 +117,7 @@ class CalendarGrid : Fragment() {
         )
         for (i in 0 until NUM_OF_DAYS_IN_WEEK) {
             val dayOfWeek = getDayOfWeek(i)
-            val child = requireActivity().layoutInflater.inflate(R.layout.calendar_week, null)
+            val child = View.inflate(requireContext(), R.layout.calendar_week, null)
             val textView1 = child.findViewById<TextView>(R.id.textView1)
             textView1.text = weeks[dayOfWeek - 1]
             when (dayOfWeek) {
@@ -190,7 +177,8 @@ class CalendarGrid : Fragment() {
         val blankDaysInFirstWeek = ((week - startDayOfWeek + NUM_OF_DAYS_IN_WEEK)
                 % NUM_OF_DAYS_IN_WEEK)
         for (i in 0 until blankDaysInFirstWeek) {
-            val child = requireActivity().layoutInflater.inflate(
+            val child = View.inflate(
+                requireContext(),
                 R.layout.calendar_date, null
             )
             child.setBackgroundResource(R.drawable.bg_calendar_day_blank)
@@ -203,7 +191,8 @@ class CalendarGrid : Fragment() {
         date[Calendar.MILLISECOND] = 0
         var weekIndex = blankDaysInFirstWeek
         for (day in 1..maxDate) {
-            val child = requireActivity().layoutInflater.inflate(
+            val child = View.inflate(
+                requireContext(),
                 R.layout.calendar_date, null
             )
             val textView1 = child.findViewById<TextView>(R.id.textView1)
@@ -260,7 +249,8 @@ class CalendarGrid : Fragment() {
                 % NUM_OF_DAYS_IN_WEEK)
         if (blankDaysInLastWeek > 0) {
             for (i in 0 until blankDaysInLastWeek) {
-                val child = requireActivity().layoutInflater.inflate(
+                val child = View.inflate(
+                    requireContext(),
                     R.layout.calendar_date, null
                 )
                 child.setBackgroundResource(R.drawable.bg_calendar_day_blank)
@@ -294,7 +284,6 @@ class CalendarGrid : Fragment() {
 
     companion object {
         const val POSITION_KEY = "com.hkb48.keepdo.calendargrid.POSITION"
-        private const val TAG = "#KEEPDO_CALENDARGRID: "
         private const val CONTEXT_MENU_CHECK_DONE = 0
         private const val CONTEXT_MENU_UNCHECK_DONE = 1
         private const val NUM_OF_DAYS_IN_WEEK = 7

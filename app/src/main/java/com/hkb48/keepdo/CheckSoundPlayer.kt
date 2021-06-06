@@ -2,13 +2,13 @@ package com.hkb48.keepdo
 
 import android.content.Context
 import android.media.SoundPool
-import com.hkb48.keepdo.util.CompatUtil.soundPool
+import com.hkb48.keepdo.util.CompatUtil
 
 class CheckSoundPlayer(private val mContext: Context) {
     private var mSoundPool: SoundPool? = null
     private var mSoundId = 0
     fun load() {
-        mSoundPool = soundPool
+        mSoundPool = CompatUtil.soundPool
         mSoundId = mSoundPool!!.load(mContext, R.raw.done_pressed, 1)
     }
 

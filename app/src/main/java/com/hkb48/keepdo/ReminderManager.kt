@@ -5,9 +5,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.hkb48.keepdo.DateChangeTimeUtil.dateTime
-import com.hkb48.keepdo.DateChangeTimeUtil.getDateTimeCalendar
-import com.hkb48.keepdo.DateChangeTimeUtil.isDateAdjusted
 import java.text.MessageFormat
 import java.util.*
 
@@ -26,7 +23,7 @@ class ReminderManager private constructor() {
         if (task != null) {
             val reminder = task.reminder
             if (reminder.enabled) {
-                val today = dateTime
+                val today = DateChangeTimeUtil.dateTime
                 val isDoneToday = dbAdapter.getDoneStatus(taskId, today)
                 val hourOfDay = reminder.hourOfDay
                 val minute = reminder.minute
@@ -61,9 +58,9 @@ class ReminderManager private constructor() {
         val remainingList: MutableList<Task> = ArrayList()
         val realTime = Calendar.getInstance()
         realTime.timeInMillis = System.currentTimeMillis()
-        val today = getDateTimeCalendar(realTime)
+        val today = DateChangeTimeUtil.getDateTimeCalendar(realTime)
             .time
-        val dayOfWeek = getDateTimeCalendar(realTime)[Calendar.DAY_OF_WEEK]
+        val dayOfWeek = DateChangeTimeUtil.getDateTimeCalendar(realTime)[Calendar.DAY_OF_WEEK]
 
         // Add 1 minute to avoid that the next alarm is set to current time
         // again.
@@ -104,13 +101,13 @@ class ReminderManager private constructor() {
             recurrence.wednesday, recurrence.thursday,
             recurrence.friday, recurrence.saturday
         )
-        var dayOfWeek = getDateTimeCalendar(realTime)[Calendar.DAY_OF_WEEK] - 1
+        var dayOfWeek = DateChangeTimeUtil.getDateTimeCalendar(realTime)[Calendar.DAY_OF_WEEK] - 1
         val reminderTime = Calendar.getInstance()
         reminderTime.timeInMillis = System.currentTimeMillis()
         reminderTime[Calendar.HOUR_OF_DAY] = hourOfDay
         reminderTime[Calendar.MINUTE] = minute
-        val isRealTimeDateAdjusted = isDateAdjusted(realTime)
-        val isReminderTimeDateAdjusted = isDateAdjusted(reminderTime)
+        val isRealTimeDateAdjusted = DateChangeTimeUtil.isDateAdjusted(realTime)
+        val isReminderTimeDateAdjusted = DateChangeTimeUtil.isDateAdjusted(reminderTime)
 
         // Add 1 minute to avoid that the next alarm is set to current time
         // again.
@@ -163,8 +160,8 @@ class ReminderManager private constructor() {
         realTime: Calendar,
         reminderTime: Calendar
     ): Boolean {
-        val isRealTimeDateAdjusted = isDateAdjusted(realTime)
-        val isReminderTimeDateAdjusted = isDateAdjusted(reminderTime)
+        val isRealTimeDateAdjusted = DateChangeTimeUtil.isDateAdjusted(realTime)
+        val isReminderTimeDateAdjusted = DateChangeTimeUtil.isDateAdjusted(reminderTime)
         return if (isRealTimeDateAdjusted && !isReminderTimeDateAdjusted) {
             true
         } else if (!isRealTimeDateAdjusted && isReminderTimeDateAdjusted) {

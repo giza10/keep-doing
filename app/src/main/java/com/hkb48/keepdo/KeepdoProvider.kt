@@ -7,10 +7,7 @@ import android.database.sqlite.SQLiteQueryBuilder
 import android.net.Uri
 import android.provider.BaseColumns
 import android.util.Log
-import com.hkb48.keepdo.DateChangeTimeUtil.dateChangeTime
-import com.hkb48.keepdo.DateChangeTimeUtil.dateTime
-import com.hkb48.keepdo.DateChangeTimeUtil.dateTimeCalendar
-import com.hkb48.keepdo.settings.Settings.Companion.initialize
+import com.hkb48.keepdo.settings.Settings
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -94,7 +91,7 @@ class KeepdoProvider : ContentProvider() {
         val context = context!!
         mContentResolver = context.contentResolver
         mOpenHelper = DatabaseHelper.getInstance(context)
-        initialize(context)
+        Settings.initialize(context)
         return false
     }
 
@@ -191,9 +188,9 @@ class KeepdoProvider : ContentProvider() {
                         DateChangeTime.NEXT_DATE_CHANGE_TIME
                     )
                 )
-                val today = dateTime
-                val dateChangeTime = dateChangeTime
-                val dateChangeTimeCalendar = dateTimeCalendar
+                val today = DateChangeTimeUtil.dateTime
+                val dateChangeTime = DateChangeTimeUtil.dateChangeTime
+                val dateChangeTimeCalendar = DateChangeTimeUtil.dateTimeCalendar
                 dateChangeTimeCalendar.add(Calendar.DATE, 1)
                 dateChangeTimeCalendar[Calendar.HOUR_OF_DAY] = dateChangeTime.hourOfDay
                 dateChangeTimeCalendar[Calendar.MINUTE] = dateChangeTime.minute

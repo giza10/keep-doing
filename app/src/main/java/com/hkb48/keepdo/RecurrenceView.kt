@@ -6,8 +6,8 @@ import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
-import com.hkb48.keepdo.settings.Settings.Companion.getWeekStartDay
-import com.hkb48.keepdo.util.CompatUtil.getColor
+import com.hkb48.keepdo.settings.Settings
+import com.hkb48.keepdo.util.CompatUtil
 
 class RecurrenceView(context: Context, attrs: AttributeSet?) : AppCompatTextView(
     context, attrs
@@ -20,8 +20,8 @@ class RecurrenceView(context: Context, attrs: AttributeSet?) : AppCompatTextView
 
     fun update(recurrenceFlags: BooleanArray) {
         val separator = context.getString(R.string.recurrence_separator)
-        val colorOffDay = getColor(context, R.color.recurrence_off_day)
-        val weekStartDay = getWeekStartDay() - 1
+        val colorOffDay = CompatUtil.getColor(context, R.color.recurrence_off_day)
+        val weekStartDay = Settings.getWeekStartDay() - 1
         val ssb = SpannableStringBuilder()
         for (i in mWeekName!!.indices) {
             val index = (i + weekStartDay) % 7

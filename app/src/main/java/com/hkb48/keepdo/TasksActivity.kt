@@ -24,25 +24,12 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
-import com.hkb48.keepdo.DatabaseAdapter.Companion.backupDirName
-import com.hkb48.keepdo.DatabaseAdapter.Companion.backupDirPath
-import com.hkb48.keepdo.DatabaseAdapter.Companion.backupFileName
-import com.hkb48.keepdo.DateChangeTimeUtil.dateTime
-import com.hkb48.keepdo.DateChangeTimeUtil.dateTimeCalendar
-import com.hkb48.keepdo.NotificationController.cancelReminder
-import com.hkb48.keepdo.NotificationController.createNotificationChannel
-import com.hkb48.keepdo.ReminderManager.Companion.instance
 import com.hkb48.keepdo.calendar.TaskCalendarActivity
-import com.hkb48.keepdo.settings.Settings.Companion.doneIconId
-import com.hkb48.keepdo.settings.Settings.Companion.initialize
-import com.hkb48.keepdo.settings.Settings.Companion.notDoneIconId
-import com.hkb48.keepdo.settings.Settings.Companion.registerOnChangedListener
-import com.hkb48.keepdo.settings.Settings.OnChangedListener
+import com.hkb48.keepdo.settings.Settings
 import com.hkb48.keepdo.settings.SettingsActivity
-import com.hkb48.keepdo.util.CompatUtil.getColor
-import com.hkb48.keepdo.util.CompatUtil.isNotificationChannelSupported
+import com.hkb48.keepdo.util.CompatUtil
 import com.hkb48.keepdo.util.DateComparator
-import com.hkb48.keepdo.widget.TasksWidgetProvider.Companion.notifyDatasetChanged
+import com.hkb48.keepdo.widget.TasksWidgetProvider
 import java.io.File
 import java.util.*
 
@@ -53,19 +40,20 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     private lateinit var mAdapter: TaskAdapter
     private lateinit var mContentObserver: ContentObserver
     private var mContentsUpdated = false
-    private val mSettingsChangedListener: OnChangedListener = object : OnChangedListener {
-        override fun onDoneIconSettingChanged() {
-            mContentsUpdated = true
-        }
+    private val mSettingsChangedListener: Settings.OnChangedListener =
+        object : Settings.OnChangedListener {
+            override fun onDoneIconSettingChanged() {
+                mContentsUpdated = true
+            }
 
-        override fun onDateChangeTimeSettingChanged() {
-            mContentsUpdated = true
-        }
+            override fun onDateChangeTimeSettingChanged() {
+                mContentsUpdated = true
+            }
 
-        override fun onWeekStartDaySettingChanged() {
-            mContentsUpdated = true
+            override fun onWeekStartDaySettingChanged() {
+                mContentsUpdated = true
+            }
         }
-    }
     private lateinit var mDBAdapter: DatabaseAdapter
     private lateinit var mDrawerLayout: DrawerLayout
     private lateinit var mDrawerToggle: ActionBarDrawerToggle
@@ -101,14 +89,14 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             )
         }
         mDBAdapter = DatabaseAdapter.getInstance(this)
-        initialize(applicationContext)
-        registerOnChangedListener(mSettingsChangedListener)
+        Settings.initialize(applicationContext)
+        Settings.registerOnChangedListener(mSettingsChangedListener)
         DateChangeTimeManager.getInstance(this).registerOnDateChangedListener(
             this
         )
 
         // Cancel notification (if displayed)
-        cancelReminder(this)
+        NotificationController.cancelReminder(this)
         val taskListView = findViewById<ListView>(R.id.mainListView)
         mAdapter = TaskAdapter()
         taskListView.adapter = mAdapter
@@ -139,8 +127,8 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             true,
             mContentObserver
         )
-        if (isNotificationChannelSupported) {
-            createNotificationChannel(applicationContext)
+        if (CompatUtil.isNotificationChannelSupported) {
+            NotificationController.createNotificationChannel(applicationContext)
         }
         registerForContextMenu(taskListView)
         updateTaskList()
@@ -224,10 +212,10 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                         R.string.dialog_ok
                     ) { _: DialogInterface?, _: Int ->
                         // Cancel the alarm for Reminder before deleting the task.
-                        instance.cancelAlarm(applicationContext, taskId)
+                        ReminderManager.instance.cancelAlarm(applicationContext, taskId)
                         mDBAdapter.deleteTask(taskId)
                         updateTaskList()
-                        notifyDatasetChanged(applicationContext)
+                        TasksWidgetProvider.notifyDatasetChanged(applicationContext)
                     }
                     .setNegativeButton(
                         R.string.dialog_cancel
@@ -249,7 +237,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         val taskList: List<Task> = mDBAdapter.taskList
         val taskListToday: MutableList<Task> = ArrayList()
         val taskListNotToday: MutableList<Task> = ArrayList()
-        val dayOfWeek = dateTimeCalendar[Calendar.DAY_OF_WEEK]
+        val dayOfWeek = DateChangeTimeUtil.dateTimeCalendar[Calendar.DAY_OF_WEEK]
         mDataList.clear()
         for (task in taskList) {
             if (task.recurrence.isValidDay(dayOfWeek)) {
@@ -327,9 +315,9 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
      */
     private fun showBackupRestoreDeviceDialog() {
         val context: Context = this
-        val fineName = backupFileName()
-        val dirName = backupDirName()
-        val dirPath = backupDirPath()
+        val fineName = DatabaseAdapter.backupFileName()
+        val dirName = DatabaseAdapter.backupDirName()
+        val dirPath = DatabaseAdapter.backupDirPath()
         val dialogBuilder = AlertDialog.Builder(
             context
         )
@@ -423,8 +411,8 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         )
             .show()
         updateTaskList()
-        instance.setAlarmForAll(context)
-        notifyDatasetChanged(applicationContext)
+        ReminderManager.instance.setAlarmForAll(context)
+        TasksWidgetProvider.notifyDatasetChanged(applicationContext)
     }
 
     override fun onRequestPermissionsResult(
@@ -565,7 +553,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     textAlarm?.visibility = View.GONE
                 }
                 val imageView = itemViewHolder.imageView
-                val today = dateTime
+                val today = DateChangeTimeUtil.dateTime
                 val checked = DateComparator.equals(taskListItem.lastDoneDate, today)
                 updateView(taskListItem, checked, itemViewHolder)
                 imageView?.tag = position
@@ -585,8 +573,8 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     updateModel(task1, position1)
                     taskListItem1 = getItem(position1) as TaskListItem
                     updateView(taskListItem1, checked1, itemViewHolder1)
-                    instance.setAlarm(applicationContext, taskId)
-                    notifyDatasetChanged(applicationContext)
+                    ReminderManager.instance.setAlarm(applicationContext, taskId)
+                    TasksWidgetProvider.notifyDatasetChanged(applicationContext)
                     if (checked1) {
                         mCheckSound.play()
                     }
@@ -609,20 +597,20 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             taskListItem: TaskListItem, checked: Boolean,
             holder: ItemViewHolder
         ) {
-            val today = dateTime
+            val today = DateChangeTimeUtil.dateTime
             val imageView = holder.imageView
             val lastDoneDateTextView = holder.lastDoneDateTextView
-            val colorLastDoneDate = getColor(
+            val colorLastDoneDate = CompatUtil.getColor(
                 applicationContext,
                 R.color.tasklist_last_donedate
             )
             lastDoneDateTextView?.setTextColor(colorLastDoneDate)
             if (checked) {
-                imageView?.setImageResource(doneIconId)
+                imageView?.setImageResource(Settings.doneIconId)
                 val comboCount = taskListItem.comboCount
                 if (comboCount > 1) {
                     lastDoneDateTextView?.setTextColor(
-                        getColor(
+                        CompatUtil.getColor(
                             applicationContext,
                             R.color.tasklist_combo
                         )
@@ -634,13 +622,13 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     lastDoneDateTextView?.setText(R.string.tasklist_lastdonedate_today)
                 }
             } else {
-                imageView?.setImageResource(notDoneIconId)
+                imageView?.setImageResource(Settings.notDoneIconId)
                 val lastDoneDate = taskListItem.lastDoneDate
                 if (lastDoneDate != null) {
                     val comboCount = taskListItem.comboCount
                     if (comboCount > 1) {
                         lastDoneDateTextView?.setTextColor(
-                            getColor(
+                            CompatUtil.getColor(
                                 applicationContext,
                                 R.color.tasklist_combo
                             )

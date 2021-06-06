@@ -1,9 +1,13 @@
 package com.hkb48.keepdo.calendar
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.view.*
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
@@ -85,14 +89,92 @@ class CalendarFragment : Fragment() {
     }
 
     private fun shareDisplayedCalendarView(taskId: Long) {
-        val bmpDirPath = DatabaseAdapter.backupDirPath()
-        val bmpFilePath = "$bmpDirPath/temp_share_image.png"
-        val context = requireContext()
         val calendarRoot = requireActivity().findViewById<View>(R.id.calendar_root)
-        calendarRoot.isDrawingCacheEnabled = true
-        val bitmapFile = File(bmpFilePath)
-        if (!File(bmpDirPath).mkdir()) {
-            val bitmap = Bitmap.createBitmap(calendarRoot.drawingCache)
+        getBitmapFromView(calendarRoot, requireActivity(), callback = {
+            val bmpDirPath = DatabaseAdapter.backupDirPath()
+            val bmpFilePath = "$bmpDirPath/temp_share_image.png"
+            val bitmapFile = File(bmpFilePath)
+            if (!File(bmpDirPath).mkdir()) {
+                var fos: FileOutputStream? = null
+                try {
+                    fos = FileOutputStream(bitmapFile, false)
+                    it.compress(Bitmap.CompressFormat.PNG, 100, fos)
+                    fos.flush()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    try {
+                        fos?.close()
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+
+            val intent = Intent(Intent.ACTION_SEND)
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            intent.type = "image/png"
+            val contentUri = FileProvider.getUriForFile(requireContext(), FILE_PROVIDER, bitmapFile)
+            intent.putExtra(Intent.EXTRA_STREAM, contentUri)
+            val dbAdapter = DatabaseAdapter.getInstance(requireContext())
+            val comboCount = dbAdapter.getComboCount(taskId)
+            val taskName = dbAdapter.getTask(taskId)!!.name
+            var extraText = ""
+            val monthOffset = mViewPager.currentItem - INDEX_OF_THIS_MONTH
+            if (monthOffset == 0 && comboCount > 1) {
+                extraText += requireContext().getString(R.string.share_combo, taskName, comboCount)
+            } else {
+                val current = DateChangeTimeUtil.dateTimeCalendar
+                current.add(Calendar.MONTH, monthOffset)
+                current[Calendar.DAY_OF_MONTH] = 1
+                val doneDateList = dbAdapter.getHistoryInMonth(taskId, current.time)
+                extraText += requireContext().getString(
+                    R.string.share_non_combo,
+                    taskName,
+                    doneDateList.size
+                )
+            }
+            extraText += " " + requireContext().getString(R.string.share_app_url)
+            intent.putExtra(Intent.EXTRA_TEXT, extraText)
+            startActivity(intent)
+        })
+    }
+
+    private fun getBitmapFromView(view: View, activity: Activity, callback: (Bitmap) -> Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            activity.window?.let { window ->
+                val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+                val locationOfViewInWindow = IntArray(2)
+                view.getLocationInWindow(locationOfViewInWindow)
+                try {
+                    PixelCopy.request(
+                        window,
+                        Rect(
+                            locationOfViewInWindow[0],
+                            locationOfViewInWindow[1],
+                            locationOfViewInWindow[0] + view.width,
+                            locationOfViewInWindow[1] + view.height
+                        ),
+                        bitmap,
+                        { copyResult ->
+                            if (copyResult == PixelCopy.SUCCESS) {
+                                callback(bitmap)
+                            }
+                            // possible to handle other result codes ...
+                        },
+                        Handler()
+                    )
+                } catch (e: IllegalArgumentException) {
+                    // PixelCopy may throw IllegalArgumentException, make sure to handle it
+                    e.printStackTrace()
+                }
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            view.isDrawingCacheEnabled = true
+
+            @Suppress("DEPRECATION")
+            val bitmap = Bitmap.createBitmap(view.drawingCache)
             val baseBitmap = Bitmap.createBitmap(
                 bitmap.width,
                 bitmap.height, Bitmap.Config.ARGB_8888
@@ -100,55 +182,16 @@ class CalendarFragment : Fragment() {
             val bmpCanvas = Canvas(baseBitmap)
             bmpCanvas.drawColor(
                 CompatUtil.getColor(
-                    context,
+                    activity,
                     R.color.calendar_bg_fargment
                 )
             )
             bmpCanvas.drawBitmap(bitmap, 0f, 0f, null)
-            var fos: FileOutputStream? = null
-            try {
-                fos = FileOutputStream(bitmapFile, false)
-                baseBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
-                fos.flush()
-                fos.close()
-                calendarRoot.isDrawingCacheEnabled = false
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                try {
-                    fos?.close()
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
-            }
+            callback(baseBitmap)
             bitmap.recycle()
             baseBitmap.recycle()
-            val intent = Intent(Intent.ACTION_SEND)
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            intent.type = "image/png"
-            val contentUri = FileProvider.getUriForFile(context, FILE_PROVIDER, bitmapFile)
-            intent.putExtra(Intent.EXTRA_STREAM, contentUri)
-            val dbAdapter = DatabaseAdapter.getInstance(context)
-            val comboCount = dbAdapter.getComboCount(taskId)
-            val taskName = dbAdapter.getTask(taskId)!!.name
-            var extraText = ""
-            val monthOffset = mViewPager.currentItem - INDEX_OF_THIS_MONTH
-            if (monthOffset == 0 && comboCount > 1) {
-                extraText += context.getString(R.string.share_combo, taskName, comboCount)
-            } else {
-                val current = DateChangeTimeUtil.dateTimeCalendar
-                current.add(Calendar.MONTH, monthOffset)
-                current[Calendar.DAY_OF_MONTH] = 1
-                val doneDateList = dbAdapter.getHistoryInMonth(taskId, current.time)
-                extraText += context.getString(
-                    R.string.share_non_combo,
-                    taskName,
-                    doneDateList.size
-                )
-            }
-            extraText += " " + context.getString(R.string.share_app_url)
-            intent.putExtra(Intent.EXTRA_TEXT, extraText)
-            startActivity(intent)
+            @Suppress("DEPRECATION")
+            view.isDrawingCacheEnabled = false
         }
     }
 

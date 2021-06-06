@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Environment
 import android.provider.BaseColumns
 import android.util.Log
-import com.hkb48.keepdo.DateChangeTimeUtil.date
 import com.hkb48.keepdo.KeepdoProvider.TaskCompletion
 import com.hkb48.keepdo.KeepdoProvider.Tasks
 import java.io.*
@@ -280,20 +279,20 @@ class DatabaseAdapter private constructor(context: Context) {
         )
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                val calToday = getCalendar(date)
-                var calDone = getCalendar(getDate(cursor))
+                val calToday = getCalendar(DateChangeTimeUtil.date)
+                var calDone = getCalendar(getDate(cursor)!!)
                 val calIndex = calToday.clone() as Calendar
+                val recurrence = getTask(taskID)!!.recurrence
                 while (true) {
                     if (calIndex == calDone) {
                         // count up combo
                         count++
                         calDone = if (cursor.moveToNext()) {
-                            getCalendar(getDate(cursor))
+                            getCalendar(getDate(cursor)!!)
                         } else {
                             break
                         }
                     } else {
-                        val recurrence = getTask(taskID)!!.recurrence
                         if (recurrence.isValidDay(calIndex[Calendar.DAY_OF_WEEK])) {
                             if (calIndex != calToday) {
                                 break
@@ -323,9 +322,10 @@ class DatabaseAdapter private constructor(context: Context) {
         )
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                val calToday = getCalendar(date)
-                var calDone = getCalendar(getDate(cursor))
+                val calToday = getCalendar(DateChangeTimeUtil.date)
+                var calDone = getCalendar(getDate(cursor)!!)
                 var calIndex = calDone.clone() as Calendar
+                val recurrence = getTask(taskID)!!.recurrence
                 var isCompleted = false
                 do {
                     if (calIndex == calDone) {
@@ -335,13 +335,12 @@ class DatabaseAdapter private constructor(context: Context) {
                             maxCount = currentCount
                         }
                         if (cursor.moveToNext()) {
-                            calDone = getCalendar(getDate(cursor))
+                            calDone = getCalendar(getDate(cursor)!!)
                         } else {
                             isCompleted = true
                         }
                         calIndex.add(Calendar.DAY_OF_MONTH, 1)
                     } else {
-                        val recurrence = getTask(taskID)!!.recurrence
                         if (recurrence.isValidDay(calIndex[Calendar.DAY_OF_WEEK])) {
                             // stop combo
                             if (calIndex != calToday) {
@@ -413,7 +412,7 @@ class DatabaseAdapter private constructor(context: Context) {
         return date
     }
 
-    private fun getCalendar(date: Date?): Calendar {
+    private fun getCalendar(date: Date): Calendar {
         val calendar = Calendar.getInstance()
         calendar.time = date
         return calendar
@@ -488,51 +487,6 @@ class DatabaseAdapter private constructor(context: Context) {
             mContentResolver.notifyChange(KeepdoProvider.BASE_CONTENT_URI, null)
         }
         return success
-    }
-
-    @Synchronized
-    fun readDatabaseStream(): FileInputStream? {
-        var inputStream: FileInputStream? = null
-        try {
-            inputStream = FileInputStream(mDatabaseHelper.databasePath())
-        } catch (e: IOException) {
-            Log.e(TAG, "Exception: FileInputStream, e = $e")
-        }
-        return inputStream
-    }
-
-    @Synchronized
-    fun writeDatabaseStream(inputStream: InputStream) {
-        var bufferOutStream: BufferedOutputStream? = null
-        var bufferInputStream: BufferedInputStream? = null
-        try {
-            val outputStream: OutputStream = FileOutputStream(mDatabaseHelper.databasePath())
-            bufferOutStream = BufferedOutputStream(outputStream)
-            bufferInputStream = BufferedInputStream(inputStream)
-            val buffer = ByteArray(1024)
-            while (bufferInputStream.read(buffer) >= 0) {
-                bufferOutStream.write(buffer)
-            }
-            bufferOutStream.flush()
-            mContentResolver.notifyChange(KeepdoProvider.BASE_CONTENT_URI, null)
-        } catch (e: IOException) {
-            Log.e(TAG, Arrays.toString(e.stackTrace))
-        } finally {
-            if (bufferOutStream != null) {
-                try {
-                    bufferOutStream.close()
-                } catch (e: IOException) {
-                    Log.e(TAG, "Exception: close, e = $e")
-                }
-            }
-            if (bufferInputStream != null) {
-                try {
-                    bufferInputStream.close()
-                } catch (e: IOException) {
-                    Log.e(TAG, "Exception: close, e = $e")
-                }
-            }
-        }
     }
 
     @Synchronized

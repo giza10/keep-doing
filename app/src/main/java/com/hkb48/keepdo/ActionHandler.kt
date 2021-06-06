@@ -4,7 +4,7 @@ import android.app.IntentService
 import android.content.ContentValues
 import android.content.Intent
 import com.hkb48.keepdo.KeepdoProvider.TaskCompletion
-import com.hkb48.keepdo.widget.TasksWidgetProvider.Companion.notifyDatasetChanged
+import com.hkb48.keepdo.widget.TasksWidgetProvider
 
 class ActionHandler : IntentService(SERVICE_NAME) {
     override fun onHandleIntent(intent: Intent?) {
@@ -25,7 +25,7 @@ class ActionHandler : IntentService(SERVICE_NAME) {
             )
 
             // Update App widget
-            notifyDatasetChanged(applicationContext)
+            TasksWidgetProvider.notifyDatasetChanged(applicationContext)
         }
     }
 

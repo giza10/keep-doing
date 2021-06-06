@@ -6,6 +6,7 @@ import android.os.Handler
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import com.hkb48.keepdo.CheckSoundPlayer
 import com.hkb48.keepdo.DatabaseAdapter
 import com.hkb48.keepdo.KeepdoProvider
 import com.hkb48.keepdo.R
@@ -13,6 +14,7 @@ import com.hkb48.keepdo.R
 class TaskCalendarActivity : AppCompatActivity() {
     private var mTaskId: Long = 0
     private var mModelUpdated = false
+    private lateinit var mCheckSound: CheckSoundPlayer
     private lateinit var mContentObserver: ContentObserver
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,6 +24,7 @@ class TaskCalendarActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         mTaskId = intent.getLongExtra("TASK-ID", -1)
+        mCheckSound = CheckSoundPlayer(applicationContext)
         mContentObserver = object : ContentObserver(Handler()) {
             override fun onChange(selfChange: Boolean) {
                 super.onChange(selfChange)
@@ -44,7 +47,13 @@ class TaskCalendarActivity : AppCompatActivity() {
             mModelUpdated = false
             updateTitle()
         }
+        mCheckSound.load()
         super.onResume()
+    }
+
+    override fun onPause() {
+        mCheckSound.unload()
+        super.onPause()
     }
 
     public override fun onDestroy() {
@@ -59,6 +68,10 @@ class TaskCalendarActivity : AppCompatActivity() {
         } else {
             super.onOptionsItemSelected(item)
         }
+    }
+
+    fun playCheckSound() {
+        mCheckSound.play()
     }
 
     private fun updateTitle() {

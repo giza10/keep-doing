@@ -11,7 +11,7 @@ import android.view.ViewConfiguration
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.ListView
-import com.hkb48.keepdo.util.CompatUtil.getColor
+import com.hkb48.keepdo.util.CompatUtil
 
 class SortableListView @JvmOverloads constructor(
     context: Context,
@@ -197,29 +197,30 @@ class SortableListView @JvmOverloads constructor(
         return super.onTouchEvent(ev)
     }
 
-    private fun startDrag(bm: Bitmap, x: Int, y: Int) {
+    private fun startDrag(bitmap: Bitmap, x: Int, y: Int) {
         stopDrag()
-        mWindowParams = WindowManager.LayoutParams()
-        mWindowParams?.gravity = Gravity.TOP or Gravity.START
-        mWindowParams?.x = x
-        mWindowParams?.y = y - mDragPoint + mCoordOffset
-        mWindowParams?.height = WindowManager.LayoutParams.WRAP_CONTENT
-        mWindowParams?.width = WindowManager.LayoutParams.WRAP_CONTENT
-        mWindowParams?.flags = (WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+        val windowParams = WindowManager.LayoutParams()
+        windowParams.gravity = Gravity.TOP or Gravity.START
+        windowParams.x = x
+        windowParams.y = y - mDragPoint + mCoordOffset
+        windowParams.height = WindowManager.LayoutParams.WRAP_CONTENT
+        windowParams.width = WindowManager.LayoutParams.WRAP_CONTENT
+        windowParams.flags = (WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                 or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
                 or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
                 or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN)
-        mWindowParams?.format = PixelFormat.TRANSLUCENT
-        mWindowParams?.windowAnimations = 0
+        windowParams.format = PixelFormat.TRANSLUCENT
+        windowParams.windowAnimations = 0
         val context = context
         val v = ImageView(context)
-        val backGroundColor = getColor(
+        val backGroundColor = CompatUtil.getColor(
             context,
             R.color.tasksort_dragdrop_view_bg
         )
         v.setBackgroundColor(backGroundColor)
-        v.setImageBitmap(bm)
-        mDragBitmap = bm
+        v.setImageBitmap(bitmap)
+        mDragBitmap = bitmap
+        mWindowParams = windowParams
         mWindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager?
         mWindowManager?.addView(v, mWindowParams)
         mDragView = v

@@ -14,8 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
 import androidx.preference.*
 import com.hkb48.keepdo.NotificationController
 import com.hkb48.keepdo.R
-import com.hkb48.keepdo.settings.DoneIconDialogFragment.Companion.newInstance
-import com.hkb48.keepdo.util.CompatUtil.isNotificationChannelSupported
+import com.hkb48.keepdo.util.CompatUtil
 
 class GeneralSettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener {
     private lateinit var mDoneIconPref: DoneIconPreference
@@ -60,7 +59,7 @@ class GeneralSettingsFragment : PreferenceFragmentCompat(), Preference.OnPrefere
             KEY_ALERTS_NOTIFICATION
         )!!
 
-        if (isNotificationChannelSupported) {
+        if (CompatUtil.isNotificationChannelSupported) {
             notificationPref.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
                     val intent =
@@ -108,7 +107,7 @@ class GeneralSettingsFragment : PreferenceFragmentCompat(), Preference.OnPrefere
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
         if (preference is DoneIconPreference) {
-            val dialogFragment = newInstance(preference.getKey())
+            val dialogFragment = DoneIconDialogFragment.newInstance(preference.getKey())
             dialogFragment.setTargetFragment(this, 0)
             dialogFragment.show(parentFragmentManager, null)
         } else super.onDisplayPreferenceDialog(preference)

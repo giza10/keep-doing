@@ -5,7 +5,6 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
@@ -13,8 +12,7 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import com.hkb48.keepdo.ReminderManager.Companion.instance
-import com.hkb48.keepdo.widget.TasksWidgetProvider.Companion.notifyDatasetChanged
+import com.hkb48.keepdo.widget.TasksWidgetProvider
 import java.util.*
 
 class TaskSettingActivity : AppCompatActivity() {
@@ -38,8 +36,7 @@ class TaskSettingActivity : AppCompatActivity() {
             actionBar.setDisplayHomeAsUpEnabled(true)
             actionBar.setDisplayShowCustomEnabled(true)
             toolbar.setNavigationIcon(R.drawable.ic_close)
-            val inflater = LayoutInflater.from(this)
-            val v = inflater.inflate(R.layout.actionbar_task_setting, null)
+            val v = View.inflate(applicationContext, R.layout.actionbar_task_setting, null)
             mTitleText = v.findViewById(R.id.title_text)
             mSaveButton = v.findViewById(R.id.button_save)
             mSaveButton.setOnClickListener { onSaveClicked() }
@@ -211,8 +208,8 @@ class TaskSettingActivity : AppCompatActivity() {
             dbAdapter.editTask(mTask)
             taskId = mTask.taskID
         }
-        instance.setAlarm(this, taskId)
-        notifyDatasetChanged(this)
+        ReminderManager.instance.setAlarm(this, taskId)
+        TasksWidgetProvider.notifyDatasetChanged(this)
         finish()
     }
 

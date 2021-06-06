@@ -3,7 +3,7 @@ package com.hkb48.keepdo
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.hkb48.keepdo.settings.Settings.Companion.initialize
+import com.hkb48.keepdo.settings.Settings
 
 class RemindAlarmInitReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -14,7 +14,7 @@ class RemindAlarmInitReceiver : BroadcastReceiver() {
                 ignoreCase = true
             ) || Intent.ACTION_TIME_CHANGED == action || Intent.ACTION_TIMEZONE_CHANGED == action || Intent.ACTION_LOCALE_CHANGED == action
         ) {
-            initialize(context.applicationContext)
+            Settings.initialize(context.applicationContext)
             ReminderManager.instance.setAlarmForAll(context)
         }
     }
