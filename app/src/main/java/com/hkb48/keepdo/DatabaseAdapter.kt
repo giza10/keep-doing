@@ -18,7 +18,7 @@ import java.util.*
 
 class DatabaseAdapter private constructor(context: Context) {
     private val mDatabaseHelper: DatabaseHelper =
-        DatabaseHelper.getInstance(context.applicationContext)
+        DatabaseHelper(context.applicationContext)
     private val mContentResolver: ContentResolver = context.contentResolver
 
     @Synchronized

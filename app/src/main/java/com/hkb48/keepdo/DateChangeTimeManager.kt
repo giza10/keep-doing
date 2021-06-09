@@ -10,7 +10,7 @@ import com.hkb48.keepdo.widget.TasksWidgetProvider
 import java.text.MessageFormat
 import java.util.*
 
-class DateChangeTimeManager private constructor(private val mContext: Context) {
+class DateChangeTimeManager(private val mContext: Context) {
     private val mChangedListeners: MutableList<OnDateChangedListener> = ArrayList()
     private val mSettingsChangedListener: Settings.OnChangedListener =
         object : Settings.OnChangedListener {
@@ -100,14 +100,5 @@ class DateChangeTimeManager private constructor(private val mContext: Context) {
 
     companion object {
         private const val TAG_KEEPDO = "#LOG_KEEPDO: "
-        private var sInstance: DateChangeTimeManager? = null
-
-        @JvmStatic
-        fun getInstance(context: Context): DateChangeTimeManager {
-            if (sInstance == null) {
-                sInstance = DateChangeTimeManager(context)
-            }
-            return sInstance as DateChangeTimeManager
-        }
     }
 }

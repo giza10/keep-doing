@@ -89,11 +89,8 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             )
         }
         mDBAdapter = DatabaseAdapter.getInstance(this)
-        Settings.initialize(applicationContext)
         Settings.registerOnChangedListener(mSettingsChangedListener)
-        DateChangeTimeManager.getInstance(this).registerOnDateChangedListener(
-            this
-        )
+        (application as KeepdoApplication).mDateChangeTimeManager.registerOnDateChangedListener(this)
 
         // Cancel notification (if displayed)
         NotificationController.cancelReminder(this)
@@ -149,8 +146,9 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
     public override fun onDestroy() {
         mDBAdapter.close()
-        DateChangeTimeManager.getInstance(this)
-            .unregisterOnDateChangedListener(this)
+        (application as KeepdoApplication).mDateChangeTimeManager.unregisterOnDateChangedListener(
+            this
+        )
         contentResolver.unregisterContentObserver(mContentObserver)
         super.onDestroy()
     }

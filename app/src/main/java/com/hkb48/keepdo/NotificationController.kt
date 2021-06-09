@@ -39,7 +39,6 @@ object NotificationController {
         builder.setSmallIcon(R.drawable.ic_notification)
         builder.setTicker(taskName)
         builder.setDefaults(Notification.DEFAULT_LIGHTS)
-        Settings.initialize(context.applicationContext)
         val reminderRingtone = Settings.getAlertsRingTone()
         if (reminderRingtone != null) {
             builder.setSound(Uri.parse(reminderRingtone))
@@ -128,7 +127,6 @@ object NotificationController {
         // Sets the notification light color for notifications posted to this
         // channel, if the device supports this feature.
         channel.lightColor = Color.WHITE
-        Settings.initialize(context.applicationContext)
         val vibrateWhen = Settings.getAlertsVibrateWhen()
         val vibrateAlways = vibrateWhen == "always"
         val vibrateSilent = vibrateWhen == "silent"

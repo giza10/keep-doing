@@ -90,7 +90,7 @@ class KeepdoProvider : ContentProvider() {
         // Assumes that any failures will be reported by a thrown exception.
         val context = context!!
         mContentResolver = context.contentResolver
-        mOpenHelper = DatabaseHelper.getInstance(context)
+        mOpenHelper = DatabaseHelper(context.applicationContext)
         Settings.initialize(context)
         return false
     }

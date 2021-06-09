@@ -11,7 +11,7 @@ import com.hkb48.keepdo.KeepdoProvider.TaskCompletion
 import com.hkb48.keepdo.KeepdoProvider.Tasks
 import java.io.File
 
-internal class DatabaseHelper private constructor(private val mContext: Context) : SQLiteOpenHelper(
+internal class DatabaseHelper(private val mContext: Context) : SQLiteOpenHelper(
     mContext, DB_NAME, null, DB_VERSION
 ) {
     override fun onCreate(db: SQLiteDatabase) {
@@ -133,14 +133,5 @@ internal class DatabaseHelper private constructor(private val mContext: Context)
                     + TaskCompletion.TASK_NAME_ID + " REFERENCES "
                     + Tasks.TABLE_NAME + "(" + BaseColumns._ID + ")" + " ON DELETE CASCADE, "
                     + TaskCompletion.TASK_COMPLETION_DATE + " DATE" + ");")
-        private var INSTANCE: DatabaseHelper? = null
-
-        @JvmStatic
-        fun getInstance(context: Context): DatabaseHelper {
-            if (INSTANCE == null) {
-                INSTANCE = DatabaseHelper(context)
-            }
-            return INSTANCE as DatabaseHelper
-        }
     }
 }
