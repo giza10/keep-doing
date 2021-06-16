@@ -8,9 +8,8 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Vibrator
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.preference.*
 import com.hkb48.keepdo.NotificationController
 import com.hkb48.keepdo.R
@@ -23,26 +22,17 @@ class GeneralSettingsFragment : PreferenceFragmentCompat(), Preference.OnPrefere
     private lateinit var mEnableFutureDatePref: SwitchPreferenceCompat
     private lateinit var mRingtonePref: RingtonePreference
     private lateinit var mVibrateWhenPref: ListPreference
-    private lateinit var mRingtonePickerLauncher: ActivityResultLauncher<Intent>
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        mRingtonePickerLauncher = registerForActivityResult(
-            StartActivityForResult()
-        ) { result: ActivityResult ->
-            val data = result.data
-            if (result.resultCode == Activity.RESULT_OK && data != null) {
-                val toneUri =
-                    data.getParcelableExtra<Uri>(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
-                if (toneUri != null) {
-                    mRingtonePref.updatePreference(toneUri.toString())
-                }
+    private val mRingtonePickerLauncher: ActivityResultLauncher<Int> =
+        registerForActivityResult(
+            PickRingtone()
+        ) { uri ->
+            if (uri != null) {
+                mRingtonePref.updatePreference(uri.toString())
             }
         }
-    }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.general_settings, rootKey)
-        val activity: Activity = requireActivity()
         val preferenceScreen = preferenceScreen
         mDoneIconPref = preferenceScreen.findPreference(KEY_GENERAL_DONE_ICON)!!
         mDateChangeTimePref = preferenceScreen.findPreference(KEY_GENERAL_DATE_CHANGE_TIME)!!
@@ -79,7 +69,7 @@ class GeneralSettingsFragment : PreferenceFragmentCompat(), Preference.OnPrefere
             alertGroup.removePreference(mVibrateWhenPref)
         } else {
             alertGroup.removePreference(notificationPref)
-            val vibrator = activity.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
+            val vibrator = requireContext().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
             if (!vibrator?.hasVibrator()!!) {
                 alertGroup.removePreference(mVibrateWhenPref)
             } else {
@@ -87,19 +77,7 @@ class GeneralSettingsFragment : PreferenceFragmentCompat(), Preference.OnPrefere
             }
             mRingtonePref.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
-                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM)
-                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, mRingtonePref.title)
-                    val currentRingtone = Settings.getAlertsRingTone()
-                    if (currentRingtone != null) {
-                        intent.putExtra(
-                            RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
-                            Uri.parse(currentRingtone)
-                        )
-                    }
-                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
-                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
-                    mRingtonePickerLauncher.launch(intent)
+                    mRingtonePickerLauncher.launch(RingtoneManager.TYPE_ALARM)
                     true
                 }
         }
@@ -168,6 +146,29 @@ class GeneralSettingsFragment : PreferenceFragmentCompat(), Preference.OnPrefere
             }
         }
         return ret
+    }
+
+    class PickRingtone : ActivityResultContract<Int, Uri?>() {
+        override fun createIntent(context: Context, ringtoneType: Int) =
+            Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
+                putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, ringtoneType)
+                val currentRingtone = Settings.getAlertsRingTone()
+                if (currentRingtone != null) {
+                    putExtra(
+                        RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
+                        Uri.parse(currentRingtone)
+                    )
+                }
+                putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
+                putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
+            }
+
+        override fun parseResult(resultCode: Int, result: Intent?): Uri? {
+            if (resultCode != Activity.RESULT_OK) {
+                return null
+            }
+            return result?.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
+        }
     }
 
     companion object {

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.database.ContentObserver
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -25,7 +26,7 @@ class TaskDetailActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         mTaskId = intent.getLongExtra("TASK-ID", -1)
-        mContentObserver = object : ContentObserver(Handler()) {
+        mContentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
             override fun onChange(selfChange: Boolean) {
                 super.onChange(selfChange)
                 mModelUpdated = true

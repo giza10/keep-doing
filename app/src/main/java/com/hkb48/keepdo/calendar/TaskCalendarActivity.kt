@@ -3,6 +3,7 @@ package com.hkb48.keepdo.calendar
 import android.database.ContentObserver
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -25,7 +26,7 @@ class TaskCalendarActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         mTaskId = intent.getLongExtra("TASK-ID", -1)
         mCheckSound = CheckSoundPlayer(applicationContext)
-        mContentObserver = object : ContentObserver(Handler()) {
+        mContentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
             override fun onChange(selfChange: Boolean) {
                 super.onChange(selfChange)
                 mModelUpdated = true

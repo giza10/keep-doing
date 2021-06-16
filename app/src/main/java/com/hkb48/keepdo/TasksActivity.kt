@@ -1,25 +1,22 @@
 package com.hkb48.keepdo
 
-import android.Manifest
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.database.ContentObserver
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.*
 import android.view.ContextMenu.ContextMenuInfo
 import android.widget.*
 import android.widget.AdapterView.AdapterContextMenuInfo
 import android.widget.AdapterView.OnItemClickListener
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -30,8 +27,8 @@ import com.hkb48.keepdo.settings.SettingsActivity
 import com.hkb48.keepdo.util.CompatUtil
 import com.hkb48.keepdo.util.DateComparator
 import com.hkb48.keepdo.widget.TasksWidgetProvider
-import java.io.File
 import java.util.*
+
 
 class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
     DateChangeTimeManager.OnDateChangedListener {
@@ -57,6 +54,50 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     private lateinit var mDBAdapter: DatabaseAdapter
     private lateinit var mDrawerLayout: DrawerLayout
     private lateinit var mDrawerToggle: ActionBarDrawerToggle
+    private val mCreateBackupFileLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.CreateDocument()
+        ) { uri ->
+            if (uri != null) {
+                try {
+                    if (mDBAdapter.backupDataBase(uri)) {
+                        Toast.makeText(
+                            applicationContext,
+                            R.string.backup_done, Toast.LENGTH_LONG
+                        ).show()
+                    }
+                } catch (e: Exception) {
+                }
+            }
+        }
+    private val mPickRestoreFileLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.GetContent()
+        ) { uri ->
+            if (uri != null) {
+                var success = false
+                try {
+                    success =
+                        mDBAdapter.restoreDataBase(uri)
+                } catch (e: Exception) {
+                }
+                if (success) {
+                    Toast.makeText(
+                        applicationContext,
+                        R.string.restore_done, Toast.LENGTH_LONG
+                    ).show()
+                    updateTaskList()
+                    ReminderManager.instance.setAlarmForAll(applicationContext)
+                    TasksWidgetProvider.notifyDatasetChanged(applicationContext)
+                } else {
+                    Toast.makeText(
+                        applicationContext,
+                        R.string.restore_failed, Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -113,7 +154,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     startActivity(intent)
                 }
             }
-        mContentObserver = object : ContentObserver(Handler()) {
+        mContentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
             override fun onChange(selfChange: Boolean) {
                 super.onChange(selfChange)
                 mContentsUpdated = true
@@ -128,6 +169,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             NotificationController.createNotificationChannel(applicationContext)
         }
         registerForContextMenu(taskListView)
+
         updateTaskList()
     }
 
@@ -285,7 +327,10 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val itemId = item.itemId
-        Handler().postDelayed({ goToNavDrawerItem(itemId) }, NAVDRAWER_LAUNCH_DELAY.toLong())
+        Handler(Looper.getMainLooper()).postDelayed(
+            { goToNavDrawerItem(itemId) },
+            NAVDRAWER_LAUNCH_DELAY.toLong()
+        )
         mDrawerLayout.closeDrawer(GravityCompat.START)
         return false
     }
@@ -312,122 +357,35 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
      * Backup & Restore
      */
     private fun showBackupRestoreDeviceDialog() {
-        val context: Context = this
-        val fineName = DatabaseAdapter.backupFileName()
-        val dirName = DatabaseAdapter.backupDirName()
-        val dirPath = DatabaseAdapter.backupDirPath()
-        val dialogBuilder = AlertDialog.Builder(
-            context
-        )
-        val title = """
-             ${getString(R.string.backup_restore)}
-             $dirName$fineName
-             """.trimIndent()
-        dialogBuilder.setTitle(title)
-        dialogBuilder.setSingleChoiceItems(
-            R.array.dialog_choice_backup_restore, -1
-        ) { dialog: DialogInterface, which: Int ->
-            var enabled = true
-            if (which == 1) {
-                // Restore
-                val backupFile = File(dirPath + fineName)
-                if (!backupFile.exists()) {
-                    enabled = false
-                    Toast.makeText(
-                        context,
-                        R.string.no_backup_file,
-                        Toast.LENGTH_SHORT
-                    ).show()
+        AlertDialog.Builder(this).apply {
+            setTitle(getString(R.string.backup_restore))
+            setSingleChoiceItems(
+                R.array.dialog_choice_backup_restore, -1
+            ) { dialog: DialogInterface, _: Int ->
+                (dialog as AlertDialog).getButton(
+                    AlertDialog.BUTTON_POSITIVE
+                ).isEnabled = true
+            }
+            setNegativeButton(R.string.dialog_cancel, null)
+            setPositiveButton(
+                R.string.dialog_start
+            ) { dialog: DialogInterface, _: Int ->
+                when ((dialog as AlertDialog).listView
+                    .checkedItemPosition) {
+                    0 -> {
+                        // execute backup
+                        mCreateBackupFileLauncher.launch(DatabaseAdapter.BACKUP_FILE_NAME)
+                    }
+                    1 -> {
+                        // execute restore
+                        mPickRestoreFileLauncher.launch(("*/*"))
+                    }
+                    else -> {
+                    }
                 }
             }
-            (dialog as AlertDialog).getButton(
-                AlertDialog.BUTTON_POSITIVE
-            ).isEnabled = enabled
-        }
-        dialogBuilder.setNegativeButton(R.string.dialog_cancel, null)
-        dialogBuilder.setPositiveButton(
-            R.string.dialog_start
-        ) { dialog: DialogInterface, _: Int ->
-            when ((dialog as AlertDialog).listView
-                .checkedItemPosition) {
-                0 ->                             // execute backup
-                    if (ContextCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE
-                        ) == PackageManager.PERMISSION_GRANTED
-                    ) {
-                        backupTaskData(context)
-                    } else {
-                        ActivityCompat.requestPermissions(
-                            this@TasksActivity,
-                            arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                            BACKUP_PERMISSION_REQUEST_CODE
-                        )
-                    }
-                1 ->                             // execute restore
-                    if (ContextCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE
-                        ) == PackageManager.PERMISSION_GRANTED
-                    ) {
-                        restoreTaskData(context)
-                    } else {
-                        ActivityCompat.requestPermissions(
-                            this@TasksActivity,
-                            arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                            RESTORE_PERMISSION_REQUEST_CODE
-                        )
-                    }
-                else -> {
-                }
-            }
-        }
-        dialogBuilder.setCancelable(true)
-        val alertDialog = dialogBuilder.show()
-        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
-        alertDialog.setOnShowListener { dialog: DialogInterface ->
-            val backupFile = File(dirPath + fineName)
-            val existBackupFile = backupFile.exists()
-            (dialog as AlertDialog).listView.getChildAt(1).isEnabled = existBackupFile
-        }
-    }
-
-    private fun backupTaskData(context: Context) {
-        DatabaseAdapter.getInstance(this).backupDataBase()
-        Toast.makeText(
-            context,
-            R.string.backup_done, Toast.LENGTH_SHORT
-        )
-            .show()
-    }
-
-    private fun restoreTaskData(context: Context) {
-        DatabaseAdapter.getInstance(this).restoreDatabase()
-        Toast.makeText(
-            context,
-            R.string.restore_done, Toast.LENGTH_SHORT
-        )
-            .show()
-        updateTaskList()
-        ReminderManager.instance.setAlarmForAll(context)
-        TasksWidgetProvider.notifyDatasetChanged(applicationContext)
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            if (requestCode == BACKUP_PERMISSION_REQUEST_CODE) {
-                backupTaskData(applicationContext)
-            } else if (requestCode == RESTORE_PERMISSION_REQUEST_CODE) {
-                restoreTaskData(applicationContext)
-            }
-        } else {
-            // Permission request was denied.
-            Toast.makeText(this, "Permission request was denied.", Toast.LENGTH_SHORT)
-                .show()
+            val alertDialog = show()
+            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
         }
     }
 
@@ -679,8 +637,6 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         private const val CONTEXT_MENU_DELETE = 1
         private const val TYPE_HEADER = 0
         private const val TYPE_ITEM = 1
-        private const val BACKUP_PERMISSION_REQUEST_CODE = 100
-        private const val RESTORE_PERMISSION_REQUEST_CODE = 101
 
         // Delay to launch nav drawer item, to allow close animation to play
         private const val NAVDRAWER_LAUNCH_DELAY = 250

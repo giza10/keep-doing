@@ -112,7 +112,7 @@
     </string-array>
     <string name="backup_done">備份成功</string>
     <string name="restore_done">复制成功</string>
-    <string name="no_backup_file">沒有備份文件</string>
+    <string name="restore_failed">复制失败</string>
 
     <!-- Widget -->
     <string name="task_empty">沒有未完成作業</string>

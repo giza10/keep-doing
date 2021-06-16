@@ -106,7 +106,7 @@ class KeepdoProvider : ContentProvider() {
         }
     }
 
-    override fun insert(uri: Uri, values: ContentValues?): Uri? {
+    override fun insert(uri: Uri, values: ContentValues?): Uri {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "insert: uri=$uri  values=[$values]")
         }

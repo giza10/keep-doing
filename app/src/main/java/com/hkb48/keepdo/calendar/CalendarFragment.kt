@@ -5,9 +5,11 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.*
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
@@ -23,9 +25,9 @@ import com.hkb48.keepdo.settings.Settings
 import com.hkb48.keepdo.util.CompatUtil
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 class CalendarFragment : Fragment() {
     private lateinit var mViewPager: ViewPager2
@@ -91,30 +93,25 @@ class CalendarFragment : Fragment() {
     private fun shareDisplayedCalendarView(taskId: Long) {
         val calendarRoot = requireActivity().findViewById<View>(R.id.calendar_root)
         getBitmapFromView(calendarRoot, requireActivity(), callback = {
-            val bmpDirPath = DatabaseAdapter.backupDirPath()
-            val bmpFilePath = "$bmpDirPath/temp_share_image.png"
-            val bitmapFile = File(bmpFilePath)
-            if (!File(bmpDirPath).mkdir()) {
-                var fos: FileOutputStream? = null
-                try {
-                    fos = FileOutputStream(bitmapFile, false)
-                    it.compress(Bitmap.CompressFormat.PNG, 100, fos)
-                    fos.flush()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                } finally {
-                    try {
-                        fos?.close()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
+            val imageDir = File(requireContext().cacheDir, "images")
+            var contentUri: Uri? = null
+            try {
+                if(!imageDir.exists()) {
+                    imageDir.mkdir()
                 }
+                val file = File(imageDir, "shared_image.png")
+                val fos = FileOutputStream(file)
+                it.compress(Bitmap.CompressFormat.PNG, 100, fos)
+                fos.flush()
+                fos.close()
+                contentUri = FileProvider.getUriForFile(requireContext(), FILE_PROVIDER, file)
+            } catch (e: java.lang.Exception) {
+                e.printStackTrace()
             }
 
             val intent = Intent(Intent.ACTION_SEND)
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             intent.type = "image/png"
-            val contentUri = FileProvider.getUriForFile(requireContext(), FILE_PROVIDER, bitmapFile)
             intent.putExtra(Intent.EXTRA_STREAM, contentUri)
             val dbAdapter = DatabaseAdapter.getInstance(requireContext())
             val comboCount = dbAdapter.getComboCount(taskId)
@@ -162,7 +159,7 @@ class CalendarFragment : Fragment() {
                             }
                             // possible to handle other result codes ...
                         },
-                        Handler()
+                        Handler(Looper.getMainLooper())
                     )
                 } catch (e: IllegalArgumentException) {
                     // PixelCopy may throw IllegalArgumentException, make sure to handle it

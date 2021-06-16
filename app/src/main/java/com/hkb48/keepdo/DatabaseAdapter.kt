@@ -6,9 +6,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteException
 import android.net.Uri
-import android.os.Environment
 import android.provider.BaseColumns
-import android.util.Log
 import com.hkb48.keepdo.KeepdoProvider.TaskCompletion
 import com.hkb48.keepdo.KeepdoProvider.Tasks
 import java.io.*
@@ -69,7 +67,7 @@ class DatabaseAdapter private constructor(context: Context) {
             val uri = mContentResolver.insert(Tasks.CONTENT_URI, contentValues)!!
             uri.lastPathSegment!!.toLong()
         } catch (e: SQLiteException) {
-            Log.e(TAG, "Exception: insert, e = $e")
+            e.printStackTrace()
             Task.INVALID_TASKID
         }
     }
@@ -100,7 +98,7 @@ class DatabaseAdapter private constructor(context: Context) {
         try {
             mContentResolver.update(uri, contentValues, null, null)
         } catch (e: SQLiteException) {
-            Log.e(TAG, "Exception: update, e = $e")
+            e.printStackTrace()
         }
     }
 
@@ -123,7 +121,7 @@ class DatabaseAdapter private constructor(context: Context) {
             try {
                 mContentResolver.insert(TaskCompletion.CONTENT_URI, contentValues)
             } catch (e: SQLiteException) {
-                Log.e(TAG, "Exception: insert, e = $e")
+                e.printStackTrace()
             }
         } else {
             val whereClause = TaskCompletion.TASK_COMPLETION_DATE + "=?"
@@ -187,7 +185,7 @@ class DatabaseAdapter private constructor(context: Context) {
                 try {
                     date = sdf.parse(dateString)
                 } catch (e: ParseException) {
-                    Log.e(TAG, e.message + " in getFirstDoneDate() :" + dateString)
+                    e.printStackTrace()
                 }
             }
             cursor.close()
@@ -215,7 +213,7 @@ class DatabaseAdapter private constructor(context: Context) {
                 try {
                     date = sdf.parse(dateString)
                 } catch (e: ParseException) {
-                    Log.e(TAG, e.message + " in getLastDoneDate() :" + dateString)
+                    e.printStackTrace()
                 }
             }
             cursor.close()
@@ -406,7 +404,7 @@ class DatabaseAdapter private constructor(context: Context) {
             try {
                 date = sdf.parse(dateString)
             } catch (e: ParseException) {
-                Log.e(TAG, e.message + " in getDate() :" + dateString)
+                e.printStackTrace()
             }
         }
         return date
@@ -465,38 +463,60 @@ class DatabaseAdapter private constructor(context: Context) {
             }
             return maxOrderId
         }
-    private val backupFilePath: String
-        get() = BACKUP_DIR_PATH + BACKUP_FILE_NAME
 
-    fun backupDataBase(): Boolean {
-        val dir = File(BACKUP_DIR_PATH)
-        if (!dir.exists()) {
-            if (!dir.mkdir()) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "backup Database failed.")
-                }
-                return false
+    fun backupDataBase(outputFile: Uri): Boolean {
+        var inputStream: InputStream? = null
+        var outputStream: OutputStream? = null
+        var success = false
+        try {
+            inputStream = FileInputStream(mDatabaseHelper.databasePath())
+            outputStream = mContentResolver.openOutputStream(outputFile)!!
+            success = copyDataBase(inputStream, outputStream)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } finally {
+            try {
+                outputStream?.close()
+                inputStream?.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
-        }
-        return copyDataBase(mDatabaseHelper.databasePath(), backupFilePath)
-    }
-
-    fun restoreDatabase(): Boolean {
-        val success = copyDataBase(backupFilePath, mDatabaseHelper.databasePath())
-        if (success) {
-            mContentResolver.notifyChange(KeepdoProvider.BASE_CONTENT_URI, null)
         }
         return success
     }
 
+    fun restoreDataBase(inputFile: Uri): Boolean {
+        return if (isValidSQLite(inputFile)) {
+            var inputStream: InputStream? = null
+            var outputStream: OutputStream? = null
+            var success = false
+            try {
+                inputStream = mContentResolver.openInputStream(inputFile)!!
+                outputStream = FileOutputStream(mDatabaseHelper.databasePath())
+                success = copyDataBase(inputStream, outputStream)
+            } catch (e: IOException) {
+                e.printStackTrace()
+            } finally {
+                try {
+                    outputStream?.close()
+                    inputStream?.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+            if (success) {
+                mContentResolver.notifyChange(KeepdoProvider.BASE_CONTENT_URI, null)
+            }
+            success
+        } else {
+            false
+        }
+    }
+
     @Synchronized
-    private fun copyDataBase(fromPath: String, toPath: String): Boolean {
+    private fun copyDataBase(inputStream: InputStream, outputStream: OutputStream): Boolean {
         var success = false
-        var inputStream: InputStream? = null
-        var outputStream: OutputStream? = null
         try {
-            inputStream = FileInputStream(fromPath)
-            outputStream = FileOutputStream(toPath)
             val buffer = ByteArray(1024)
             var length: Int
             while (inputStream.read(buffer).also { length = it } > 0) {
@@ -505,56 +525,42 @@ class DatabaseAdapter private constructor(context: Context) {
             outputStream.flush()
             success = true
         } catch (e: IOException) {
-            if (BuildConfig.DEBUG) {
-                Log.e(TAG, "Exception: OutputStream, e = $e")
-            }
-        } finally {
-            try {
-                outputStream?.close()
-                inputStream?.close()
-            } catch (e: IOException) {
-                if (BuildConfig.DEBUG) {
-                    Log.e(TAG, "Exception: InputStream/OutputStream, e = $e")
-                }
-            }
+            e.printStackTrace()
         }
         return success
     }
 
-    companion object {
-        private const val TAG = "#KEEPDO_DB_ADAPTER: "
+    private fun isValidSQLite(inputFile: Uri): Boolean {
+        return try {
+            val inputStream = mContentResolver.openInputStream(inputFile)!!
+            val fr = InputStreamReader(inputStream)
+            val buffer = CharArray(16)
+            fr.read(buffer, 0, 16)
+            val str = String(buffer)
+            fr.close()
+            inputStream.close()
+            str == "SQLite format 3\u0000"
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
 
+    companion object {
         // Backup & Restore
-        private const val BACKUP_FILE_NAME = "/keepdo.db"
-        private const val BACKUP_DIR_NAME = "/keepdo"
-        private val BACKUP_DIR_PATH =
-            Environment.getExternalStorageDirectory().path + BACKUP_DIR_NAME
+        const val BACKUP_FILE_NAME = "keepdo.db"
+
         private const val SDF_PATTERN_YMD = "yyyy-MM-dd"
         private const val SDF_PATTERN_YM = "yyyy-MM"
-        private var INSTANCE: DatabaseAdapter? = null
+        private var sInstance: DatabaseAdapter? = null
 
         @JvmStatic
         @Synchronized
         fun getInstance(context: Context): DatabaseAdapter {
-            if (INSTANCE == null) {
-                INSTANCE = DatabaseAdapter(context)
+            if (sInstance == null) {
+                sInstance = DatabaseAdapter(context)
             }
-            return INSTANCE as DatabaseAdapter
-        }
-
-        @JvmStatic
-        fun backupFileName(): String {
-            return BACKUP_FILE_NAME
-        }
-
-        @JvmStatic
-        fun backupDirName(): String {
-            return BACKUP_DIR_NAME
-        }
-
-        @JvmStatic
-        fun backupDirPath(): String {
-            return BACKUP_DIR_PATH
+            return sInstance as DatabaseAdapter
         }
     }
 

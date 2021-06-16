@@ -10,6 +10,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.RemoteViews
 import com.hkb48.keepdo.*
@@ -40,7 +41,7 @@ class TasksWidgetProvider : AppWidgetProvider() {
                 )
                 updateWidgetList(ctx, appWidgetId)
                 val taskId = intent.getLongExtra(PARAM_TASK_ID, -1)
-                Handler().postDelayed({
+                Handler(Looper.getMainLooper()).postDelayed({
                     val model = TasksWidgetModel(ctx)
                     val date = model.todayDate
                     val doneToday = model.getDoneStatus(taskId, date)
