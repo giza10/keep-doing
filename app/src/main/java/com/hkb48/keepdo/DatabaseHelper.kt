@@ -20,7 +20,7 @@ internal class DatabaseHelper(private val mContext: Context) : SQLiteOpenHelper(
             db.execSQL(STRING_CREATE_COMPLETION)
         } catch (e: SQLiteException) {
             if (BuildConfig.DEBUG) {
-                Log.e(TAG, "Exception: execSQL() : e = $e")
+                e.printStackTrace()
             }
         }
     }
@@ -66,7 +66,7 @@ internal class DatabaseHelper(private val mContext: Context) : SQLiteOpenHelper(
             db.execSQL("ALTER TABLE " + Tasks.TABLE_NAME + " ADD COLUMN " + Tasks.REMINDER_TIME + " TEXT")
         } catch (e: SQLException) {
             if (BuildConfig.DEBUG) {
-                Log.e(TAG, "Exception: execSQL() : e = $e")
+                e.printStackTrace()
             }
             return false
         }
@@ -81,7 +81,7 @@ internal class DatabaseHelper(private val mContext: Context) : SQLiteOpenHelper(
             db.execSQL("ALTER TABLE " + Tasks.TABLE_NAME + " ADD COLUMN " + Tasks.TASK_LIST_ORDER + " INTEGER DEFAULT 0")
         } catch (e: SQLException) {
             if (BuildConfig.DEBUG) {
-                Log.e(TAG, "Exception: execSQL() : e = $e")
+                e.printStackTrace()
             }
             return false
         }

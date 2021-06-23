@@ -1,14 +1,15 @@
 package com.hkb48.keepdo
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.graphics.Rect
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.AttributeSet
-import android.view.Gravity
-import android.view.MotionEvent
-import android.view.ViewConfiguration
-import android.view.WindowManager
+import android.view.*
 import android.widget.ImageView
 import android.widget.ListView
 import com.hkb48.keepdo.util.CompatUtil
@@ -56,38 +57,71 @@ class SortableListView @JvmOverloads constructor(
             val grabberView = listItemView.grabberView
             mDragPoint = y - listItemView.top
             mCoordOffset = ev.rawY.toInt() - y
-            val rect = Rect()
-            rect.left = grabberView.left
-            rect.right = grabberView.right
-            rect.top = grabberView.top
-            rect.bottom = grabberView.bottom
+            val rect = Rect().apply {
+                left = grabberView.left
+                right = grabberView.right
+                top = grabberView.top
+                bottom = grabberView.bottom
+            }
             if (rect.left < x && x < rect.right) {
-                listItemView.isDrawingCacheEnabled = true
-                // Create a copy of the drawing cache so that it does
-                // not get recycled
-                // by the framework when the list tries to clean up
-                // memory
-                val bitmap = Bitmap.createBitmap(
-                    listItemView
-                        .drawingCache
-                )
-                listItemView.isDrawingCacheEnabled = false
-                val listBounds = Rect()
-                getGlobalVisibleRect(listBounds, null)
-                startDrag(bitmap, listBounds.left, y)
-                mDragPos = position
-                mFirstDragPos = mDragPos
-                mHeight = height
-                val context = context
-                val touchSlop = ViewConfiguration.get(context)
-                    .scaledTouchSlop
-                mUpperBound = (y - touchSlop).coerceAtMost(mHeight / 3)
-                mLowerBound = (y + touchSlop).coerceAtLeast(mHeight * 2 / 3)
+                // Create a copy of the drawing cache so that it does not get recycled
+                // by the framework when the list tries to clean up memory
+                getBitmapFromView(listItemView, context as Activity, callback = {
+                    val listBounds = Rect()
+                    getGlobalVisibleRect(listBounds, null)
+                    startDrag(it, listBounds.left, y)
+                    mDragPos = position
+                    mFirstDragPos = mDragPos
+                    mHeight = height
+                    val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+                    mUpperBound = (y - touchSlop).coerceAtMost(mHeight / 3)
+                    mLowerBound = (y + touchSlop).coerceAtLeast(mHeight * 2 / 3)
+                })
                 return false
             }
             mDragView = null
         }
         return super.onInterceptTouchEvent(ev)
+    }
+
+    private fun getBitmapFromView(view: View, activity: Activity, callback: (Bitmap) -> Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            activity.window?.let { window ->
+                val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+                val locationOfViewInWindow = IntArray(2)
+                view.getLocationInWindow(locationOfViewInWindow)
+                try {
+                    PixelCopy.request(
+                        window,
+                        Rect(
+                            locationOfViewInWindow[0],
+                            locationOfViewInWindow[1],
+                            locationOfViewInWindow[0] + view.width,
+                            locationOfViewInWindow[1] + view.height
+                        ),
+                        bitmap,
+                        { copyResult ->
+                            if (copyResult == PixelCopy.SUCCESS) {
+                                callback(bitmap)
+                            }
+                            // possible to handle other result codes ...
+                        },
+                        Handler(Looper.getMainLooper())
+                    )
+                } catch (e: IllegalArgumentException) {
+                    // PixelCopy may throw IllegalArgumentException, make sure to handle it
+                    e.printStackTrace()
+                }
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            view.isDrawingCacheEnabled = true
+            @Suppress("DEPRECATION")
+            val bitmap = Bitmap.createBitmap(view.drawingCache)
+            @Suppress("DEPRECATION")
+            view.isDrawingCacheEnabled = false
+            callback(bitmap)
+        }
     }
 
     private fun adjustScrollBounds(y: Int) {
@@ -150,7 +184,7 @@ class SortableListView @JvmOverloads constructor(
                     val rect = Rect()
                     mDragView?.getDrawingRect(rect)
                     stopDrag()
-                    if (mDragAndDropListener != null && mDragPos >= 0 && mDragPos < count) {
+                    if (mDragPos in 0 until count) {
                         mDragAndDropListener?.onDrop(mFirstDragPos, mDragPos)
                     }
                     unExpandViews()
@@ -183,9 +217,8 @@ class SortableListView @JvmOverloads constructor(
                                 // somewhere else
                                 ref = pointToPosition(0, mHeight / 2 + dividerHeight + mItemHeight)
                             }
-                            val v = getChildAt(ref - firstVisiblePosition)
-                            if (v != null) {
-                                val pos = v.top
+                            getChildAt(ref - firstVisiblePosition)?.let {
+                                val pos = it.top
                                 setSelectionFromTop(ref, pos - speed)
                             }
                         }
@@ -199,18 +232,19 @@ class SortableListView @JvmOverloads constructor(
 
     private fun startDrag(bitmap: Bitmap, x: Int, y: Int) {
         stopDrag()
-        val windowParams = WindowManager.LayoutParams()
-        windowParams.gravity = Gravity.TOP or Gravity.START
-        windowParams.x = x
-        windowParams.y = y - mDragPoint + mCoordOffset
-        windowParams.height = WindowManager.LayoutParams.WRAP_CONTENT
-        windowParams.width = WindowManager.LayoutParams.WRAP_CONTENT
-        windowParams.flags = (WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN)
-        windowParams.format = PixelFormat.TRANSLUCENT
-        windowParams.windowAnimations = 0
+        val windowParams = WindowManager.LayoutParams().apply {
+            gravity = Gravity.TOP or Gravity.START
+            this.x = x
+            this.y = y - mDragPoint + mCoordOffset
+            height = WindowManager.LayoutParams.WRAP_CONTENT
+            width = WindowManager.LayoutParams.WRAP_CONTENT
+            flags = (WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                    or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                    or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                    or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN)
+            format = PixelFormat.TRANSLUCENT
+            windowAnimations = 0
+        }
         val context = context
         val v = ImageView(context)
         val backGroundColor = CompatUtil.getColor(
@@ -232,10 +266,10 @@ class SortableListView @JvmOverloads constructor(
     }
 
     private fun stopDrag() {
-        if (mDragView != null) {
-            mDragView?.visibility = INVISIBLE
+        mDragView?.let {
+            it.visibility = INVISIBLE
             mWindowManager?.removeView(mDragView)
-            mDragView?.setImageDrawable(null)
+            it.setImageDrawable(null)
             mDragView = null
         }
         mDragBitmap?.recycle()

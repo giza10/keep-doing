@@ -21,7 +21,6 @@ class CalendarGrid : Fragment() {
     private lateinit var mCalendarGrid: LinearLayout
 
     private var mMonthOffset = 0
-    private var mDoneIconId = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,7 +35,6 @@ class CalendarGrid : Fragment() {
         val taskId = intent.getLongExtra("TASK-ID", -1)
         mDatabaseAdapter = DatabaseAdapter.getInstance(requireContext())
         mTask = mDatabaseAdapter.getTask(taskId)!!
-        mDoneIconId = Settings.doneIconId
         mMonthOffset =
             requireArguments().getInt(POSITION_KEY) - CalendarFragment.INDEX_OF_THIS_MONTH
         mCalendarGrid = view.findViewById(R.id.calendar_grid)
@@ -101,7 +99,7 @@ class CalendarGrid : Fragment() {
         }
         val today = DateChangeTimeUtil.date
         if (consumed && selectedDate.compareTo(today) == 0) {
-            ReminderManager.instance.setAlarm(requireContext(), mTask.taskID)
+            ReminderManager.setAlarm(requireContext(), mTask.taskID)
             TasksWidgetProvider.notifyDatasetChanged(requireContext())
         }
         return consumed || super.onContextItemSelected(item)
@@ -144,7 +142,7 @@ class CalendarGrid : Fragment() {
     }
 
     private fun showDoneIcon(view: ImageView) {
-        view.setImageResource(mDoneIconId)
+        view.setImageResource(Settings.doneIconId)
         view.visibility = View.VISIBLE
     }
 
@@ -157,7 +155,6 @@ class CalendarGrid : Fragment() {
         var week = calendar[Calendar.DAY_OF_WEEK]
         val year = calendar[Calendar.YEAR]
         val month = calendar[Calendar.MONTH]
-        val startDayOfWeek = startDayOfWeek
         val today = DateChangeTimeUtil.dateTimeCalendar[Calendar.DAY_OF_MONTH]
         val doneDateList = mDatabaseAdapter.getHistoryInMonth(
             mTask.taskID, calendar.time
@@ -199,7 +196,7 @@ class CalendarGrid : Fragment() {
             val imageView1 = child
                 .findViewById<ImageView>(R.id.imageViewDone)
             var enableContextMenu = false
-            if (Settings.getEnableFutureDate()) {
+            if (Settings.enableFutureDate) {
                 enableContextMenu = true
             } else if (mMonthOffset < 0 || mMonthOffset == 0 && day <= today) {
                 // Enable context menu to change done status of past days.
@@ -275,12 +272,11 @@ class CalendarGrid : Fragment() {
      * @return dayOfWeek Value defined in Calendar class.
      */
     private fun getDayOfWeek(indexOfWeek: Int): Int {
-        val startDayOfWeek = startDayOfWeek
         return (indexOfWeek + (startDayOfWeek - 1)) % NUM_OF_DAYS_IN_WEEK + 1
     }
 
     private val startDayOfWeek: Int
-        get() = Settings.getWeekStartDay()
+        get() = Settings.weekStartDay!!
 
     companion object {
         const val POSITION_KEY = "com.hkb48.keepdo.calendargrid.POSITION"

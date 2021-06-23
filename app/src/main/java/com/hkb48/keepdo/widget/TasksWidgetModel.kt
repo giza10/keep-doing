@@ -1,7 +1,6 @@
 package com.hkb48.keepdo.widget
 
 import android.content.Context
-import android.util.Log
 import com.hkb48.keepdo.DatabaseAdapter
 import com.hkb48.keepdo.Task
 import java.text.ParseException
@@ -33,15 +32,11 @@ internal class TasksWidgetModel(private val mContext: Context) {
     }
 
     fun getDoneStatus(taskId: Long, date: String): Boolean {
-        val dbAdapter = DatabaseAdapter.getInstance(mContext)
-        return dbAdapter.getDoneStatus(taskId, date)
+        return DatabaseAdapter.getInstance(mContext).getDoneStatus(taskId, date)
     }
 
     val todayDate: String
-        get() {
-            val dbAdapter = DatabaseAdapter.getInstance(mContext)
-            return dbAdapter.todayDate
-        }
+        get() = DatabaseAdapter.getInstance(mContext).todayDate
 
     private fun isValidDay(task: Task, dateString: String?): Boolean {
         val sdf = SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN)
@@ -50,8 +45,8 @@ internal class TasksWidgetModel(private val mContext: Context) {
             date = try {
                 sdf.parse(dateString)
             } catch (e: ParseException) {
-                Log.e(TAG, "Exception: isValidDay. e = $e")
-                return false
+                e.printStackTrace()
+                null
             }
         }
         if (date == null) {
@@ -64,7 +59,6 @@ internal class TasksWidgetModel(private val mContext: Context) {
     }
 
     companion object {
-        private const val TAG = "#TasksWidgetModel: "
         private const val SDF_PATTERN_YMD = "yyyy-MM-dd"
     }
 }

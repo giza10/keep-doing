@@ -7,9 +7,7 @@ object DateComparator {
         if (a == null || b == null) {
             return false
         }
-        val compA = truncate(a)
-        val compB = truncate(b)
-        return compA == compB
+        return truncate(a) == truncate(b)
     }
 
     private fun truncate(datetime: Date): Date {

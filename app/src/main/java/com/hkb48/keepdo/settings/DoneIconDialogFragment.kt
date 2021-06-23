@@ -30,29 +30,17 @@ class DoneIconDialogFragment : PreferenceDialogFragmentCompat() {
     private inner class OnClickListener : View.OnClickListener {
         override fun onClick(v: View) {
             requireDialog().dismiss()
-            val newValue: String
-            val id = v.id
-            newValue = when (id) {
-                R.id.done_icon_2 -> {
-                    "type2"
-                }
-                R.id.done_icon_3 -> {
-                    "type3"
-                }
-                R.id.done_icon_4 -> {
-                    "type4"
-                }
-                else -> {
-                    "type1"
-                }
+            val newValue: String = when (v.id) {
+                R.id.done_icon_2 -> "type2"
+                R.id.done_icon_3 -> "type3"
+                R.id.done_icon_4 -> "type4"
+                else -> "type1"
             }
-            val preference = preference as DoneIconPreference
-            preference.updatePreference(newValue)
+            (preference as DoneIconPreference).updatePreference(newValue)
         }
     }
 
     companion object {
-        @JvmStatic
         fun newInstance(key: String?): DoneIconDialogFragment {
             val fragment = DoneIconDialogFragment()
             val bundle = Bundle(1)

@@ -66,9 +66,10 @@ class CalendarFragment : Fragment() {
         val taskId = requireActivity().intent.getLongExtra("TASK-ID", -1)
         return when (item.itemId) {
             R.id.menu_info -> {
-                val intent = Intent(requireActivity(), TaskDetailActivity::class.java)
-                intent.putExtra("TASK-ID", taskId)
-                startActivity(intent)
+                startActivity(Intent(requireContext(), TaskDetailActivity::class.java).apply {
+                    putExtra("TASK-ID", taskId)
+                })
+
                 true
             }
             R.id.menu_share -> {
@@ -93,11 +94,12 @@ class CalendarFragment : Fragment() {
     private fun shareDisplayedCalendarView(taskId: Long) {
         val calendarRoot = requireActivity().findViewById<View>(R.id.calendar_root)
         getBitmapFromView(calendarRoot, requireActivity(), callback = {
-            val imageDir = File(requireContext().cacheDir, "images")
             var contentUri: Uri? = null
             try {
-                if(!imageDir.exists()) {
-                    imageDir.mkdir()
+                val imageDir = File(requireContext().cacheDir, "images").apply {
+                    if (!exists()) {
+                        mkdir()
+                    }
                 }
                 val file = File(imageDir, "shared_image.png")
                 val fos = FileOutputStream(file)
@@ -109,10 +111,6 @@ class CalendarFragment : Fragment() {
                 e.printStackTrace()
             }
 
-            val intent = Intent(Intent.ACTION_SEND)
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            intent.type = "image/png"
-            intent.putExtra(Intent.EXTRA_STREAM, contentUri)
             val dbAdapter = DatabaseAdapter.getInstance(requireContext())
             val comboCount = dbAdapter.getComboCount(taskId)
             val taskName = dbAdapter.getTask(taskId)!!.name
@@ -132,8 +130,15 @@ class CalendarFragment : Fragment() {
                 )
             }
             extraText += " " + requireContext().getString(R.string.share_app_url)
-            intent.putExtra(Intent.EXTRA_TEXT, extraText)
-            startActivity(intent)
+
+            startActivity(
+                Intent(Intent.ACTION_SEND).apply {
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    type = "image/png"
+                    putExtra(Intent.EXTRA_STREAM, contentUri)
+                    putExtra(Intent.EXTRA_TEXT, extraText)
+                }
+            )
         })
     }
 
@@ -176,14 +181,15 @@ class CalendarFragment : Fragment() {
                 bitmap.width,
                 bitmap.height, Bitmap.Config.ARGB_8888
             )
-            val bmpCanvas = Canvas(baseBitmap)
-            bmpCanvas.drawColor(
-                CompatUtil.getColor(
-                    activity,
-                    R.color.calendar_bg_fargment
+            Canvas(baseBitmap).apply {
+                drawColor(
+                    CompatUtil.getColor(
+                        activity,
+                        R.color.calendar_bg_fargment
+                    )
                 )
-            )
-            bmpCanvas.drawBitmap(bitmap, 0f, 0f, null)
+                drawBitmap(bitmap, 0f, 0f, null)
+            }
             callback(baseBitmap)
             bitmap.recycle()
             baseBitmap.recycle()
@@ -196,7 +202,7 @@ class CalendarFragment : Fragment() {
         fragment!!
     ) {
         override fun getItemCount(): Int {
-            return if (Settings.getEnableFutureDate()) NUM_MAXIMUM_MONTHS else NUM_MAXIMUM_MONTHS_PAST
+            return if (Settings.enableFutureDate) NUM_MAXIMUM_MONTHS else NUM_MAXIMUM_MONTHS_PAST
         }
 
         override fun createFragment(position: Int): Fragment {

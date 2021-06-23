@@ -15,8 +15,13 @@ import com.hkb48.keepdo.R
 class TaskCalendarActivity : AppCompatActivity() {
     private var mTaskId: Long = 0
     private var mModelUpdated = false
-    private lateinit var mCheckSound: CheckSoundPlayer
-    private lateinit var mContentObserver: ContentObserver
+    private val mCheckSound = CheckSoundPlayer(this)
+    private val mContentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean) {
+            super.onChange(selfChange)
+            mModelUpdated = true
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,22 +30,14 @@ class TaskCalendarActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         mTaskId = intent.getLongExtra("TASK-ID", -1)
-        mCheckSound = CheckSoundPlayer(applicationContext)
-        mContentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
-            override fun onChange(selfChange: Boolean) {
-                super.onChange(selfChange)
-                mModelUpdated = true
-            }
-        }
         contentResolver.registerContentObserver(
             KeepdoProvider.BASE_CONTENT_URI,
             true,
             mContentObserver
         )
         mModelUpdated = true
-        val fragment = CalendarFragment()
         supportFragmentManager.beginTransaction()
-            .replace(R.id.container, fragment).commit()
+            .replace(R.id.container, CalendarFragment()).commit()
     }
 
     public override fun onResume() {
@@ -76,9 +73,8 @@ class TaskCalendarActivity : AppCompatActivity() {
     }
 
     private fun updateTitle() {
-        val task = DatabaseAdapter.getInstance(this).getTask(mTaskId)
-        if (task != null) {
-            title = task.name
+        DatabaseAdapter.getInstance(this).getTask(mTaskId)?.let {
+            title = it.name
         }
     }
 }

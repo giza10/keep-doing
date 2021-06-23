@@ -16,11 +16,8 @@ class TasksWidgetService : RemoteViewsService() {
 
 internal class StackRemoteViewsFactory(private val mContext: Context) :
     RemoteViewsFactory {
-    private lateinit var mModel: TasksWidgetModel
-    override fun onCreate() {
-        mModel = TasksWidgetModel(mContext)
-    }
-
+    private val mModel = TasksWidgetModel(mContext)
+    override fun onCreate() {}
     override fun onDestroy() {}
     override fun getCount(): Int {
         return mModel.itemCount

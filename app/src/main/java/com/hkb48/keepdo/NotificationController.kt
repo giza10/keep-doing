@@ -27,23 +27,21 @@ object NotificationController {
     @get:RequiresApi(Build.VERSION_CODES.O)
     val notificationChannelId = "Channel_ID"
     fun showReminder(context: Context, taskId: Long) {
-        val task = DatabaseAdapter.getInstance(context).getTask(taskId)
         var taskName: String? = null
-        if (task != null) {
-            taskName = task.name
+        DatabaseAdapter.getInstance(context).getTask(taskId)?.let {
+            taskName = it.name
             if (BuildConfig.DEBUG) {
                 Log.v(TAG_KEEPDO, "taskId:$taskId, taskName:$taskName")
             }
         }
         val builder = NotificationCompat.Builder(context, notificationChannelId)
-        builder.setSmallIcon(R.drawable.ic_notification)
-        builder.setTicker(taskName)
-        builder.setDefaults(Notification.DEFAULT_LIGHTS)
-        val reminderRingtone = Settings.getAlertsRingTone()
-        if (reminderRingtone != null) {
-            builder.setSound(Uri.parse(reminderRingtone))
+            .setSmallIcon(R.drawable.ic_notification)
+            .setTicker(taskName)
+            .setDefaults(Notification.DEFAULT_LIGHTS)
+        Settings.alertsRingTone?.let {
+            builder.setSound(Uri.parse(it))
         }
-        val vibrateWhen = Settings.getAlertsVibrateWhen()
+        val vibrateWhen = Settings.alertsVibrateWhen
         val vibrateAlways = vibrateWhen == "always"
         val vibrateSilent = vibrateWhen == "silent"
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager?
@@ -57,9 +55,10 @@ object NotificationController {
         val launchPendingIntent = PendingIntent.getActivity(context, 0, launchIntent, 0)
         builder.setContentIntent(launchPendingIntent)
         builder.setAutoCancel(true)
-        val actionIntent = Intent(context, ActionHandler::class.java)
-        actionIntent.putExtra(ActionHandler.INTENT_EXTRA_TASK_ID, taskId)
-        val actionPendingIntent = PendingIntent.getService(
+        val actionIntent = Intent(context, ActionReceiver::class.java).apply {
+            putExtra(ActionReceiver.INTENT_EXTRA_TASK_ID, taskId)
+        }
+        val actionPendingIntent = PendingIntent.getBroadcast(
             context,
             taskId.toInt(),
             actionIntent,
@@ -74,8 +73,7 @@ object NotificationController {
         builder.setLargeIcon(largeIcon)
         builder.setGroup(GROUP_KEY_REMINDERS)
         builder.setGroupSummary(true)
-        val reminderManager = ReminderManager.instance
-        val remainingTaskList = reminderManager.getRemainingUndoneTaskList(context)
+        val remainingTaskList = ReminderManager.getRemainingUndoneTaskList(context)
         val numOfRemainingTasks = remainingTaskList.size
         if (numOfRemainingTasks > 1) {
             val inboxStyle = NotificationCompat.InboxStyle()
@@ -107,7 +105,6 @@ object NotificationController {
         NotificationManagerCompat.from(context).notify(NOTIFICATION_ID_HANDHELD, builder.build())
     }
 
-    @JvmStatic
     @RequiresApi(Build.VERSION_CODES.O)
     fun createNotificationChannel(context: Context) {
         if (!CompatUtil.isNotificationChannelSupported) {
@@ -127,7 +124,7 @@ object NotificationController {
         // Sets the notification light color for notifications posted to this
         // channel, if the device supports this feature.
         channel.lightColor = Color.WHITE
-        val vibrateWhen = Settings.getAlertsVibrateWhen()
+        val vibrateWhen = Settings.alertsVibrateWhen
         val vibrateAlways = vibrateWhen == "always"
         val vibrateSilent = vibrateWhen == "silent"
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager?
@@ -138,10 +135,9 @@ object NotificationController {
             channel.enableVibration(true)
             channel.vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
         }
-        val reminderRingtone = Settings.getAlertsRingTone()
-        if (reminderRingtone != null) {
+        Settings.alertsRingTone?.let {
             channel.setSound(
-                Uri.parse(reminderRingtone), AudioAttributes.Builder()
+                Uri.parse(it), AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                     .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()
             )
@@ -156,7 +152,6 @@ object NotificationController {
     }
 
     fun cancelReminder(context: Context, id: Long) {
-        val notificationId = id.toInt()
-        NotificationManagerCompat.from(context).cancel(notificationId)
+        NotificationManagerCompat.from(context).cancel(id.toInt())
     }
 }

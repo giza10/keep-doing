@@ -13,16 +13,19 @@ class RemindAlarmInitReceiver : BroadcastReceiver() {
                 ignoreCase = true
             ) || Intent.ACTION_TIME_CHANGED == action || Intent.ACTION_TIMEZONE_CHANGED == action || Intent.ACTION_LOCALE_CHANGED == action
         ) {
-            ReminderManager.instance.setAlarmForAll(context)
+            ReminderManager.setAlarmForAll(context)
         }
     }
 
     companion object {
-        private const val ACTION_UPDATE_REMINDER = "com.hkb48.keepdo.action.UPDATE_REMINDER"
+        private val PACKAGE_NAME = RemindAlarmInitReceiver::class.java.getPackage()!!.name
+        private val ACTION_UPDATE_REMINDER = "$PACKAGE_NAME.action.UPDATE_REMINDER"
         fun updateReminder(context: Context) {
-            val intent = Intent(context, RemindAlarmInitReceiver::class.java)
-            intent.action = ACTION_UPDATE_REMINDER
-            context.sendBroadcast(intent)
+            context.sendBroadcast(
+                Intent(context, RemindAlarmInitReceiver::class.java).apply {
+                    action = ACTION_UPDATE_REMINDER
+                }
+            )
         }
     }
 }

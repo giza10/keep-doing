@@ -21,7 +21,7 @@ class RecurrenceView(context: Context, attrs: AttributeSet?) : AppCompatTextView
     fun update(recurrenceFlags: BooleanArray) {
         val separator = context.getString(R.string.recurrence_separator)
         val colorOffDay = CompatUtil.getColor(context, R.color.recurrence_off_day)
-        val weekStartDay = Settings.getWeekStartDay() - 1
+        val weekStartDay = Settings.weekStartDay!! - 1
         val ssb = SpannableStringBuilder()
         for (i in mWeekName!!.indices) {
             val index = (i + weekStartDay) % 7

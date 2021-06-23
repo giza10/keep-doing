@@ -34,8 +34,14 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     DateChangeTimeManager.OnDateChangedListener {
     private val mDataList: MutableList<TaskListItem> = ArrayList()
     private val mCheckSound = CheckSoundPlayer(this)
-    private lateinit var mAdapter: TaskAdapter
-    private lateinit var mContentObserver: ContentObserver
+    private val mAdapter = TaskAdapter()
+    private val mContentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean) {
+            super.onChange(selfChange)
+            mContentsUpdated = true
+        }
+    }
+
     private var mContentsUpdated = false
     private val mSettingsChangedListener: Settings.OnChangedListener =
         object : Settings.OnChangedListener {
@@ -51,7 +57,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 mContentsUpdated = true
             }
         }
-    private lateinit var mDBAdapter: DatabaseAdapter
+    private val mDBAdapter = DatabaseAdapter.getInstance(this)
     private lateinit var mDrawerLayout: DrawerLayout
     private lateinit var mDrawerToggle: ActionBarDrawerToggle
     private val mCreateBackupFileLauncher =
@@ -87,7 +93,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                         R.string.restore_done, Toast.LENGTH_LONG
                     ).show()
                     updateTaskList()
-                    ReminderManager.instance.setAlarmForAll(applicationContext)
+                    ReminderManager.setAlarmForAll(applicationContext)
                     TasksWidgetProvider.notifyDatasetChanged(applicationContext)
                 } else {
                     Toast.makeText(
@@ -104,10 +110,9 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         val actionBar = supportActionBar
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setDisplayShowHomeEnabled(true)
-        }
+        actionBar?.setDisplayHomeAsUpEnabled(true)
+        actionBar?.setDisplayShowHomeEnabled(true)
+
         mDrawerLayout = findViewById(R.id.main_drawer_layout)
         mDrawerToggle = ActionBarDrawerToggle(
             this,
@@ -118,10 +123,8 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         )
         mDrawerToggle.isDrawerIndicatorEnabled = true
         mDrawerLayout.addDrawerListener(mDrawerToggle)
-        val navigationView = findViewById<NavigationView>(R.id.main_drawer_view)
-        navigationView.setNavigationItemSelectedListener(this)
-        val fab = findViewById<FloatingActionButton>(R.id.fab)
-        fab.setOnClickListener {
+        findViewById<NavigationView>(R.id.main_drawer_view).setNavigationItemSelectedListener(this)
+        findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
             startActivity(
                 Intent(
                     this@TasksActivity,
@@ -129,14 +132,12 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 )
             )
         }
-        mDBAdapter = DatabaseAdapter.getInstance(this)
         Settings.registerOnChangedListener(mSettingsChangedListener)
         (application as KeepdoApplication).mDateChangeTimeManager.registerOnDateChangedListener(this)
 
         // Cancel notification (if displayed)
         NotificationController.cancelReminder(this)
         val taskListView = findViewById<ListView>(R.id.mainListView)
-        mAdapter = TaskAdapter()
         taskListView.adapter = mAdapter
         taskListView.emptyView = findViewById(R.id.empty)
         taskListView.onItemClickListener =
@@ -145,21 +146,13 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 val item = mDataList[position]
                 if (item.type == TYPE_ITEM) {
                     val task = item.data as Task
-                    val taskId = task.taskID
-                    val intent = Intent(
-                        this@TasksActivity,
-                        TaskCalendarActivity::class.java
-                    )
-                    intent.putExtra("TASK-ID", taskId)
-                    startActivity(intent)
+                    startActivity(Intent(
+                        this@TasksActivity, TaskCalendarActivity::class.java
+                    ).apply {
+                        putExtra("TASK-ID", task.taskID)
+                    })
                 }
             }
-        mContentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
-            override fun onChange(selfChange: Boolean) {
-                super.onChange(selfChange)
-                mContentsUpdated = true
-            }
-        }
         contentResolver.registerContentObserver(
             KeepdoProvider.BASE_CONTENT_URI,
             true,
@@ -218,10 +211,10 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         menuInfo: ContextMenuInfo
     ) {
         super.onCreateContextMenu(menu, view, menuInfo)
-        val adapterinfo = menuInfo as AdapterContextMenuInfo
+        val adapterInfo = menuInfo as AdapterContextMenuInfo
         val listView = view as ListView
         val taskListItem = listView
-            .getItemAtPosition(adapterinfo.position) as TaskListItem
+            .getItemAtPosition(adapterInfo.position) as TaskListItem
         val task = taskListItem.data as Task
         menu.setHeaderTitle(task.name)
         menu.add(0, CONTEXT_MENU_EDIT, 0, R.string.edit_task)
@@ -237,12 +230,11 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         val taskId = task.taskID
         return when (item.itemId) {
             CONTEXT_MENU_EDIT -> {
-                val intent = Intent(
-                    this@TasksActivity,
-                    TaskSettingActivity::class.java
-                )
-                intent.putExtra(TaskSettingActivity.EXTRA_TASK_INFO, task)
-                startActivity(intent)
+                startActivity(Intent(
+                    this@TasksActivity, TaskSettingActivity::class.java
+                ).apply {
+                    putExtra(TaskSettingActivity.EXTRA_TASK_INFO, task)
+                })
                 true
             }
             CONTEXT_MENU_DELETE -> {
@@ -252,7 +244,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                         R.string.dialog_ok
                     ) { _: DialogInterface?, _: Int ->
                         // Cancel the alarm for Reminder before deleting the task.
-                        ReminderManager.instance.cancelAlarm(applicationContext, taskId)
+                        ReminderManager.cancelAlarm(applicationContext, taskId)
                         mDBAdapter.deleteTask(taskId)
                         updateTaskList()
                         TasksWidgetProvider.notifyDatasetChanged(applicationContext)
@@ -336,19 +328,16 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun goToNavDrawerItem(itemId: Int) {
-        val intent: Intent
         when (itemId) {
             R.id.drawer_item_1 -> {
-                intent = Intent(this, TaskSortingActivity::class.java)
-                startActivity(intent)
+                startActivity(Intent(this, TaskSortingActivity::class.java))
             }
             R.id.drawer_item_2 -> {
                 // Todo: Tentative implementation
                 showBackupRestoreDeviceDialog()
             }
             R.id.drawer_item_3 -> {
-                intent = Intent(this, SettingsActivity::class.java)
-                startActivity(intent)
+                startActivity(Intent(this, SettingsActivity::class.java))
             }
         }
     }
@@ -448,30 +437,22 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             }
             if (createView) {
                 if (isTask) {
-                    itemViewHolder = ItemViewHolder()
                     view = inflater.inflate(R.layout.task_list_row, parent, false)
+                    itemViewHolder = ItemViewHolder()
                     itemViewHolder.viewType = TYPE_ITEM
-                    itemViewHolder.imageView = view
-                        .findViewById(R.id.taskListItemCheck)
-                    itemViewHolder.textView1 = view
-                        .findViewById(R.id.taskName)
-                    itemViewHolder.textView2 = view
-                        .findViewById(R.id.taskContext)
-                    itemViewHolder.recurrenceView = view
-                        .findViewById(R.id.recurrenceView)
-                    itemViewHolder.lastDoneDateTextView = view
-                        .findViewById(R.id.taskLastDoneDate)
-                    itemViewHolder.imageAlarm = view
-                        .findViewById(R.id.AlarmIcon)
-                    itemViewHolder.textAlarm = view
-                        .findViewById(R.id.AlarmText)
+                    itemViewHolder.imageView = view.findViewById(R.id.taskListItemCheck)
+                    itemViewHolder.textView1 = view.findViewById(R.id.taskName)
+                    itemViewHolder.textView2 = view.findViewById(R.id.taskContext)
+                    itemViewHolder.recurrenceView = view.findViewById(R.id.recurrenceView)
+                    itemViewHolder.lastDoneDateTextView = view.findViewById(R.id.taskLastDoneDate)
+                    itemViewHolder.imageAlarm = view.findViewById(R.id.AlarmIcon)
+                    itemViewHolder.textAlarm = view.findViewById(R.id.AlarmText)
                     view.tag = itemViewHolder
                 } else {
                     headerViewHolder = HeaderViewHolder()
                     view = inflater.inflate(R.layout.task_list_header, parent, false)
                     headerViewHolder.viewType = TYPE_HEADER
-                    headerViewHolder.textView1 = view
-                        .findViewById(R.id.textView1)
+                    headerViewHolder.textView1 = view.findViewById(R.id.textView1)
                     view.tag = headerViewHolder
                 }
             }
@@ -529,7 +510,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     updateModel(task1, position1)
                     taskListItem1 = getItem(position1) as TaskListItem
                     updateView(taskListItem1, checked1, itemViewHolder1)
-                    ReminderManager.instance.setAlarm(applicationContext, taskId)
+                    ReminderManager.setAlarm(applicationContext, taskId)
                     TasksWidgetProvider.notifyDatasetChanged(applicationContext)
                     if (checked1) {
                         mCheckSound.play()

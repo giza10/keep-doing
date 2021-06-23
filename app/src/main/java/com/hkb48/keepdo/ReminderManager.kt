@@ -8,7 +8,7 @@ import android.util.Log
 import java.text.MessageFormat
 import java.util.*
 
-class ReminderManager private constructor() {
+object ReminderManager {
     fun setAlarmForAll(context: Context) {
         val dbAdapter = DatabaseAdapter.getInstance(context)
         val taskList = dbAdapter.taskList
@@ -43,13 +43,9 @@ class ReminderManager private constructor() {
     }
 
     fun cancelAlarm(context: Context, taskId: Long) {
-        val dbAdapter = DatabaseAdapter.getInstance(context)
-        val task = dbAdapter.getTask(taskId)
-        if (task != null) {
-            val reminder = task.reminder
-            if (reminder.enabled) {
-                stopAlarm(context, taskId)
-            }
+        val task = DatabaseAdapter.getInstance(context).getTask(taskId)
+        if (task?.reminder?.enabled == true) {
+            stopAlarm(context, taskId)
         }
     }
 
@@ -58,8 +54,7 @@ class ReminderManager private constructor() {
         val remainingList: MutableList<Task> = ArrayList()
         val realTime = Calendar.getInstance()
         realTime.timeInMillis = System.currentTimeMillis()
-        val today = DateChangeTimeUtil.getDateTimeCalendar(realTime)
-            .time
+        val today = DateChangeTimeUtil.getDateTimeCalendar(realTime).time
         val dayOfWeek = DateChangeTimeUtil.getDateTimeCalendar(realTime)[Calendar.DAY_OF_WEEK]
 
         // Add 1 minute to avoid that the next alarm is set to current time
@@ -67,8 +62,7 @@ class ReminderManager private constructor() {
         realTime.add(Calendar.MINUTE, 1)
         for (task in dbAdapter.taskList) {
             val reminder = task.reminder
-            val recurrence = task.recurrence
-            if (reminder.enabled && recurrence.isValidDay(dayOfWeek)) {
+            if (reminder.enabled && task.recurrence.isValidDay(dayOfWeek)) {
                 val hourOfDay = reminder.hourOfDay
                 val minute = reminder.minute
                 val reminderTime = Calendar.getInstance()
@@ -185,9 +179,10 @@ class ReminderManager private constructor() {
     }
 
     private fun getPendingIntent(context: Context, taskId: Long): PendingIntent {
-        val intent = Intent(context, AlarmReceiver::class.java)
-        intent.action = AlarmReceiver.ACTION_REMINDER
-        intent.putExtra(AlarmReceiver.PARAM_TASK_ID, taskId)
+        val intent = Intent(context, AlarmReceiver::class.java).apply {
+            action = AlarmReceiver.ACTION_REMINDER
+            putExtra(AlarmReceiver.PARAM_TASK_ID, taskId)
+        }
         return PendingIntent.getBroadcast(
             context, taskId.toInt(), intent,
             PendingIntent.FLAG_UPDATE_CURRENT
@@ -205,17 +200,6 @@ class ReminderManager private constructor() {
         }
     }
 
-    companion object {
-        private const val TAG_KEEPDO = "#LOG_KEEPDO: "
-        private var sInstance: ReminderManager? = null
+    private const val TAG_KEEPDO = "#LOG_KEEPDO: "
 
-        @JvmStatic
-        val instance: ReminderManager
-            get() {
-                if (sInstance == null) {
-                    sInstance = ReminderManager()
-                }
-                return sInstance as ReminderManager
-            }
-    }
 }

@@ -17,7 +17,7 @@ class DateChangeTimeManager(private val mContext: Context) {
             override fun onDoneIconSettingChanged() {}
             override fun onDateChangeTimeSettingChanged() {
                 startAlarm()
-                ReminderManager.instance.setAlarmForAll(mContext)
+                ReminderManager.setAlarmForAll(mContext)
                 mContext.contentResolver.notifyChange(
                     KeepdoProvider.DateChangeTime.CONTENT_URI,
                     null
@@ -78,8 +78,9 @@ class DateChangeTimeManager(private val mContext: Context) {
     }
 
     private fun getPendingIntent(context: Context): PendingIntent {
-        val intent = Intent(context, AlarmReceiver::class.java)
-        intent.action = AlarmReceiver.ACTION_DATE_CHANGED
+        val intent = Intent(context, AlarmReceiver::class.java).apply {
+            action = AlarmReceiver.ACTION_DATE_CHANGED
+        }
         return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 

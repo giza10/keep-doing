@@ -4,11 +4,9 @@ import com.hkb48.keepdo.settings.Settings
 import java.util.*
 
 object DateChangeTimeUtil {
-    @JvmStatic
     val dateTime: Date
         get() = dateTimeCalendar.time
 
-    @JvmStatic
     val date: Date
         get() {
             val calendar = dateTimeCalendar
@@ -19,7 +17,6 @@ object DateChangeTimeUtil {
             return calendar.time
         }
 
-    @JvmStatic
     val dateTimeCalendar: Calendar
         get() {
             val realTime = Calendar.getInstance()
@@ -36,10 +33,9 @@ object DateChangeTimeUtil {
         return calendar
     }
 
-    @JvmStatic
     val dateChangeTime: DateChangeTime
         get() {
-            val dateChangeTimeStr = Settings.getDateChangeTime()
+            val dateChangeTimeStr = Settings.dateChangeTime
             val timeHourMin = dateChangeTimeStr!!.split(":").toTypedArray()
             val dateChangeTime = DateChangeTime()
             dateChangeTime.hourOfDay = timeHourMin[0].toInt() - 24
@@ -47,17 +43,13 @@ object DateChangeTimeUtil {
             return dateChangeTime
         }
 
-    @JvmStatic
     fun isDateAdjusted(realTime: Calendar): Boolean {
         val dateChangeTime = getDateTimeCalendar(realTime)
         return realTime[Calendar.DAY_OF_MONTH] > dateChangeTime[Calendar.DAY_OF_MONTH]
     }
 
     class DateChangeTime {
-        @JvmField
         var hourOfDay = 0
-
-        @JvmField
         var minute = 0
     }
 }

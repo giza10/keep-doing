@@ -16,7 +16,6 @@ class KeepdoProvider : ContentProvider() {
         private const val TAG = "KeepdoProvider"
         private const val AUTHORITY = "com.hkb48.keepdo.keepdoprovider"
 
-        @JvmField
         val BASE_CONTENT_URI: Uri = Uri.parse("content://$AUTHORITY")
         private val sURIMatcher = UriMatcher(UriMatcher.NO_MATCH)
         private val sTasksProjectionMap = HashMap<String, String>()

@@ -51,19 +51,20 @@ class DatabaseAdapter private constructor(context: Context) {
         return if (taskName == null || taskName.isEmpty()) {
             Task.INVALID_TASKID
         } else try {
-            val contentValues = ContentValues()
-            contentValues.put(Tasks.TASK_NAME, taskName)
-            contentValues.put(Tasks.FREQUENCY_MON, recurrence.monday.toString())
-            contentValues.put(Tasks.FREQUENCY_TUE, recurrence.tuesday.toString())
-            contentValues.put(Tasks.FREQUENCY_WEN, recurrence.wednesday.toString())
-            contentValues.put(Tasks.FREQUENCY_THR, recurrence.thursday.toString())
-            contentValues.put(Tasks.FREQUENCY_FRI, recurrence.friday.toString())
-            contentValues.put(Tasks.FREQUENCY_SAT, recurrence.saturday.toString())
-            contentValues.put(Tasks.FREQUENCY_SUN, recurrence.sunday.toString())
-            contentValues.put(Tasks.TASK_CONTEXT, taskContext)
-            contentValues.put(Tasks.REMINDER_ENABLED, reminder.enabled.toString())
-            contentValues.put(Tasks.REMINDER_TIME, reminder.timeInMillis.toString())
-            contentValues.put(Tasks.TASK_LIST_ORDER, task.order)
+            val contentValues = ContentValues().apply {
+                put(Tasks.TASK_NAME, taskName)
+                put(Tasks.FREQUENCY_MON, recurrence.monday.toString())
+                put(Tasks.FREQUENCY_TUE, recurrence.tuesday.toString())
+                put(Tasks.FREQUENCY_WEN, recurrence.wednesday.toString())
+                put(Tasks.FREQUENCY_THR, recurrence.thursday.toString())
+                put(Tasks.FREQUENCY_FRI, recurrence.friday.toString())
+                put(Tasks.FREQUENCY_SAT, recurrence.saturday.toString())
+                put(Tasks.FREQUENCY_SUN, recurrence.sunday.toString())
+                put(Tasks.TASK_CONTEXT, taskContext)
+                put(Tasks.REMINDER_ENABLED, reminder.enabled.toString())
+                put(Tasks.REMINDER_TIME, reminder.timeInMillis.toString())
+                put(Tasks.TASK_LIST_ORDER, task.order)
+            }
             val uri = mContentResolver.insert(Tasks.CONTENT_URI, contentValues)!!
             uri.lastPathSegment!!.toLong()
         } catch (e: SQLiteException) {
@@ -81,19 +82,20 @@ class DatabaseAdapter private constructor(context: Context) {
         if (taskName == null || taskName.isEmpty()) {
             return
         }
-        val contentValues = ContentValues()
-        contentValues.put(Tasks.TASK_NAME, taskName)
-        contentValues.put(Tasks.FREQUENCY_MON, recurrence.monday.toString())
-        contentValues.put(Tasks.FREQUENCY_TUE, recurrence.tuesday.toString())
-        contentValues.put(Tasks.FREQUENCY_WEN, recurrence.wednesday.toString())
-        contentValues.put(Tasks.FREQUENCY_THR, recurrence.thursday.toString())
-        contentValues.put(Tasks.FREQUENCY_FRI, recurrence.friday.toString())
-        contentValues.put(Tasks.FREQUENCY_SAT, recurrence.saturday.toString())
-        contentValues.put(Tasks.FREQUENCY_SUN, recurrence.sunday.toString())
-        contentValues.put(Tasks.TASK_CONTEXT, taskContext)
-        contentValues.put(Tasks.REMINDER_ENABLED, reminder.enabled.toString())
-        contentValues.put(Tasks.REMINDER_TIME, reminder.timeInMillis.toString())
-        contentValues.put(Tasks.TASK_LIST_ORDER, task.order)
+        val contentValues = ContentValues().apply {
+            put(Tasks.TASK_NAME, taskName)
+            put(Tasks.FREQUENCY_MON, recurrence.monday.toString())
+            put(Tasks.FREQUENCY_TUE, recurrence.tuesday.toString())
+            put(Tasks.FREQUENCY_WEN, recurrence.wednesday.toString())
+            put(Tasks.FREQUENCY_THR, recurrence.thursday.toString())
+            put(Tasks.FREQUENCY_FRI, recurrence.friday.toString())
+            put(Tasks.FREQUENCY_SAT, recurrence.saturday.toString())
+            put(Tasks.FREQUENCY_SUN, recurrence.sunday.toString())
+            put(Tasks.TASK_CONTEXT, taskContext)
+            put(Tasks.REMINDER_ENABLED, reminder.enabled.toString())
+            put(Tasks.REMINDER_TIME, reminder.timeInMillis.toString())
+            put(Tasks.TASK_LIST_ORDER, task.order)
+        }
         val uri = Uri.withAppendedPath(Tasks.CONTENT_URI, taskID.toString())
         try {
             mContentResolver.update(uri, contentValues, null, null)
@@ -112,12 +114,13 @@ class DatabaseAdapter private constructor(context: Context) {
         mContentResolver.delete(uri, null, null)
     }
 
-    fun setDoneStatus(taskID: Long, date: Date, doneSwitch: Boolean?) {
+    fun setDoneStatus(taskID: Long, date: Date, doneSwitch: Boolean) {
         val dateFormat = SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN)
-        if (doneSwitch != null && doneSwitch) {
-            val contentValues = ContentValues()
-            contentValues.put(TaskCompletion.TASK_NAME_ID, taskID)
-            contentValues.put(TaskCompletion.TASK_COMPLETION_DATE, dateFormat.format(date))
+        if (doneSwitch) {
+            val contentValues = ContentValues().apply {
+                put(TaskCompletion.TASK_NAME_ID, taskID)
+                put(TaskCompletion.TASK_COMPLETION_DATE, dateFormat.format(date))
+            }
             try {
                 mContentResolver.insert(TaskCompletion.CONTENT_URI, contentValues)
             } catch (e: SQLiteException) {
@@ -146,9 +149,7 @@ class DatabaseAdapter private constructor(context: Context) {
             selectionArgs, null
         )
         if (cursor != null) {
-            if (cursor.count > 0) {
-                isDone = true
-            }
+            isDone = (cursor.count > 0)
             cursor.close()
         }
         return isDone
@@ -421,13 +422,13 @@ class DatabaseAdapter private constructor(context: Context) {
         val taskName = cursor.getString(cursor.getColumnIndex(Tasks.TASK_NAME))
         val taskContext = cursor.getString(cursor.getColumnIndex(Tasks.TASK_CONTEXT))
         val recurrence = Recurrence(
-            java.lang.Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_MON))),
-            java.lang.Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_TUE))),
-            java.lang.Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_WEN))),
-            java.lang.Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_THR))),
-            java.lang.Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_FRI))),
-            java.lang.Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_SAT))),
-            java.lang.Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_SUN)))
+            (cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_MON))).toBoolean(),
+            (cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_TUE))).toBoolean(),
+            (cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_WEN))).toBoolean(),
+            (cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_THR))).toBoolean(),
+            (cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_FRI))).toBoolean(),
+            (cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_SAT))).toBoolean(),
+            (cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_SUN))).toBoolean(),
         )
         val reminder: Reminder
         val reminderEnabled = cursor.getString(cursor.getColumnIndex(Tasks.REMINDER_ENABLED))
@@ -436,7 +437,7 @@ class DatabaseAdapter private constructor(context: Context) {
         reminder = if (reminderEnabled == null || reminderTime == null) {
             Reminder()
         } else {
-            Reminder(java.lang.Boolean.parseBoolean(reminderEnabled), reminderTime.toLong())
+            Reminder(reminderEnabled.toBoolean(), reminderTime.toLong())
         }
         val task = Task(taskName, taskContext, recurrence)
         task.reminder = reminder
@@ -455,10 +456,7 @@ class DatabaseAdapter private constructor(context: Context) {
             )
             if (cursor != null) {
                 cursor.moveToFirst()
-                val idString = cursor.getString(0)
-                if (idString != null) {
-                    maxOrderId = idString.toInt()
-                }
+                maxOrderId = cursor.getString(0)?.toInt() ?: 0
                 cursor.close()
             }
             return maxOrderId
@@ -515,19 +513,18 @@ class DatabaseAdapter private constructor(context: Context) {
 
     @Synchronized
     private fun copyDataBase(inputStream: InputStream, outputStream: OutputStream): Boolean {
-        var success = false
-        try {
+        return try {
             val buffer = ByteArray(1024)
             var length: Int
             while (inputStream.read(buffer).also { length = it } > 0) {
                 outputStream.write(buffer, 0, length)
             }
             outputStream.flush()
-            success = true
+            true
         } catch (e: IOException) {
             e.printStackTrace()
+            false
         }
-        return success
     }
 
     private fun isValidSQLite(inputFile: Uri): Boolean {
@@ -552,15 +549,12 @@ class DatabaseAdapter private constructor(context: Context) {
 
         private const val SDF_PATTERN_YMD = "yyyy-MM-dd"
         private const val SDF_PATTERN_YM = "yyyy-MM"
-        private var sInstance: DatabaseAdapter? = null
 
-        @JvmStatic
-        @Synchronized
-        fun getInstance(context: Context): DatabaseAdapter {
-            if (sInstance == null) {
-                sInstance = DatabaseAdapter(context)
-            }
-            return sInstance as DatabaseAdapter
+        @Volatile
+        private var instance: DatabaseAdapter? = null
+
+        fun getInstance(context: Context) = instance ?: synchronized(this) {
+            DatabaseAdapter(context).also { instance = it }
         }
     }
 

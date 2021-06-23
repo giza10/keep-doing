@@ -26,8 +26,8 @@ class GeneralSettingsFragment : PreferenceFragmentCompat(), Preference.OnPrefere
         registerForActivityResult(
             PickRingtone()
         ) { uri ->
-            if (uri != null) {
-                mRingtonePref.updatePreference(uri.toString())
+            uri?.let {
+                mRingtonePref.updatePreference(it.toString())
             }
         }
 
@@ -52,17 +52,16 @@ class GeneralSettingsFragment : PreferenceFragmentCompat(), Preference.OnPrefere
         if (CompatUtil.isNotificationChannelSupported) {
             notificationPref.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    val intent =
-                        Intent(android.provider.Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
-                    intent.putExtra(
-                        android.provider.Settings.EXTRA_CHANNEL_ID,
-                        NotificationController.notificationChannelId
-                    )
-                    intent.putExtra(
-                        android.provider.Settings.EXTRA_APP_PACKAGE,
-                        requireContext().packageName
-                    )
-                    startActivity(intent)
+                    startActivity(Intent(android.provider.Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
+                        putExtra(
+                            android.provider.Settings.EXTRA_CHANNEL_ID,
+                            NotificationController.notificationChannelId
+                        )
+                        putExtra(
+                            android.provider.Settings.EXTRA_APP_PACKAGE,
+                            requireContext().packageName
+                        )
+                    })
                     true
                 }
             alertGroup.removePreference(mRingtonePref)
@@ -114,11 +113,11 @@ class GeneralSettingsFragment : PreferenceFragmentCompat(), Preference.OnPrefere
         var ret = false
         when {
             preference === mDoneIconPref -> {
-                Settings.setDoneIcon(newValue as String)
+                Settings.doneIconType = newValue as String
                 ret = true
             }
             preference === mDateChangeTimePref -> {
-                Settings.setDateChangeTime(newValue as String)
+                Settings.dateChangeTime = newValue as String
                 mDateChangeTimePref.value = newValue
                 val summary = getString(
                     R.string.preferences_date_change_time_summary,
@@ -127,21 +126,21 @@ class GeneralSettingsFragment : PreferenceFragmentCompat(), Preference.OnPrefere
                 mDateChangeTimePref.summary = summary
             }
             preference === mWeekStartDayPref -> {
-                Settings.setWeekStartDay(newValue as String)
+                Settings.weekStartDay = (newValue as String).toInt()
                 mWeekStartDayPref.value = newValue
                 mWeekStartDayPref.summary = mWeekStartDayPref.entry
             }
             preference === mEnableFutureDatePref -> {
-                Settings.setEnableFutureDate(newValue as Boolean)
+                Settings.enableFutureDate = newValue as Boolean
                 ret = true
             }
             preference === mVibrateWhenPref -> {
-                Settings.setAlertsVibrateWhen(newValue as String)
+                Settings.alertsVibrateWhen = newValue as String
                 mVibrateWhenPref.value = newValue
                 mVibrateWhenPref.summary = mVibrateWhenPref.entry
             }
             preference === mRingtonePref -> {
-                Settings.setAlertsRingTone(newValue as String)
+                Settings.alertsRingTone = newValue as String
                 ret = true
             }
         }
@@ -152,11 +151,10 @@ class GeneralSettingsFragment : PreferenceFragmentCompat(), Preference.OnPrefere
         override fun createIntent(context: Context, ringtoneType: Int) =
             Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
                 putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, ringtoneType)
-                val currentRingtone = Settings.getAlertsRingTone()
-                if (currentRingtone != null) {
+                Settings.alertsRingTone?.let {
                     putExtra(
                         RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
-                        Uri.parse(currentRingtone)
+                        Uri.parse(it)
                     )
                 }
                 putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
@@ -181,7 +179,6 @@ class GeneralSettingsFragment : PreferenceFragmentCompat(), Preference.OnPrefere
         private const val KEY_ALERTS_CATEGORY = "preferences_alerts_category"
         private const val KEY_ALERTS_NOTIFICATION = "preferences_notification"
 
-        @JvmStatic
         fun getSharedPreferences(context: Context?): SharedPreferences {
             return PreferenceManager.getDefaultSharedPreferences(context)
         }
@@ -189,7 +186,6 @@ class GeneralSettingsFragment : PreferenceFragmentCompat(), Preference.OnPrefere
         /**
          * Set the default shared preferences in the proper context
          */
-        @JvmStatic
         fun setDefaultValues(context: Context?) {
             PreferenceManager.setDefaultValues(context, R.xml.general_settings, false)
         }

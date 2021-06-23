@@ -13,10 +13,10 @@ class SettingsActivity : AppCompatActivity() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.add(R.id.root_container, GeneralSettingsFragment())
-        fragmentTransaction.commit()
+        supportFragmentManager.beginTransaction().apply {
+            add(R.id.root_container, GeneralSettingsFragment())
+            commit()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

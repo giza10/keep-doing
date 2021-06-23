@@ -15,7 +15,7 @@ class AlarmReceiver : BroadcastReceiver() {
                 dispatchDateChangedEvent(context)
             }
             else -> {
-                Log.e(TAG_KEEPDO, "AlarmReceiver#onReceive(): Unknown intent type")
+                Log.e(TAG_KEEPDO, "AlarmReceiver#onReceive(): Unknown intent type=" + intent.action)
             }
         }
     }
@@ -23,7 +23,7 @@ class AlarmReceiver : BroadcastReceiver() {
     private fun dispatchReminderEvent(context: Context, intent: Intent) {
         val taskId = intent.getLongExtra(PARAM_TASK_ID, -1)
         NotificationController.showReminder(context, taskId)
-        ReminderManager.instance.setAlarm(context, taskId)
+        ReminderManager.setAlarm(context, taskId)
     }
 
     private fun dispatchDateChangedEvent(context: Context) {
@@ -31,12 +31,12 @@ class AlarmReceiver : BroadcastReceiver() {
         if (applicationContext is KeepdoApplication) {
             applicationContext.mDateChangeTimeManager.dateChanged()
         }
-
     }
 
     companion object {
-        const val ACTION_REMINDER = "com.hkb48.keepdo.action.REMINDER"
-        const val ACTION_DATE_CHANGED = "com.hkb48.keepdo.action.DATE_CHANGED"
+        private val PACKAGE_NAME = AlarmReceiver::class.java.getPackage()!!.name
+        val ACTION_REMINDER = "$PACKAGE_NAME.action.REMINDER"
+        val ACTION_DATE_CHANGED = "$PACKAGE_NAME.action.DATE_CHANGED"
         const val PARAM_TASK_ID = "TASK-ID"
         private const val TAG_KEEPDO = "#LOG_KEEPDO: "
     }

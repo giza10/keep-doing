@@ -8,7 +8,6 @@ import android.os.Build
 import androidx.core.content.ContextCompat
 
 object CompatUtil {
-    @JvmStatic
     fun getColor(context: Context, id: Int): Int {
         val version = Build.VERSION.SDK_INT
         return if (version >= 23) {
@@ -19,7 +18,6 @@ object CompatUtil {
         }
     }
 
-    @JvmStatic
     val soundPool: SoundPool
         get() = if (Build.VERSION.SDK_INT < 21) {
             @Suppress("DEPRECATION")
@@ -32,7 +30,6 @@ object CompatUtil {
             SoundPool.Builder().setAudioAttributes(attr).setMaxStreams(1).build()
         }
 
-    @JvmStatic
     val isNotificationChannelSupported: Boolean
         get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
 }

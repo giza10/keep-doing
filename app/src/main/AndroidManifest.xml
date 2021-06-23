@@ -83,9 +83,8 @@
                 android:resource="@xml/taskswidget" />
         </receiver>
 
-        <service
-            android:name=".ActionHandler"
-            android:exported="false" />
+        <receiver android:name=".ActionReceiver" />
+
         <service
             android:name=".widget.TasksWidgetService"
             android:exported="false"

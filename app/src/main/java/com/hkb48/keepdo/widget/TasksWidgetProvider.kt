@@ -27,10 +27,10 @@ class TasksWidgetProvider : AppWidgetProvider() {
         super.onDisabled(context)
     }
 
-    override fun onReceive(ctx: Context, intent: Intent) {
+    override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action
         if (ACTION_APPWIDGET_UPDATE == action || Intent.ACTION_TIME_CHANGED == action || Intent.ACTION_TIMEZONE_CHANGED == action || Intent.ACTION_LOCALE_CHANGED == action) {
-            updateAllWidgetsList(ctx)
+            updateAllWidgetsList(context)
         } else if (ACTION_ITEM_CLICKED == action) {
             val viewId = intent.getIntExtra(PARAM_VIEWID, -1)
             if (viewId == VIEWID_LIST_ITEM_ICON) {
@@ -39,28 +39,31 @@ class TasksWidgetProvider : AppWidgetProvider() {
                     AppWidgetManager.EXTRA_APPWIDGET_ID,
                     AppWidgetManager.INVALID_APPWIDGET_ID
                 )
-                updateWidgetList(ctx, appWidgetId)
+                updateWidgetList(context, appWidgetId)
                 val taskId = intent.getLongExtra(PARAM_TASK_ID, -1)
                 Handler(Looper.getMainLooper()).postDelayed({
-                    val model = TasksWidgetModel(ctx)
-                    val date = model.todayDate
-                    val doneToday = model.getDoneStatus(taskId, date)
+                    val model = TasksWidgetModel(context)
+                    val doneToday = model.getDoneStatus(taskId, model.todayDate)
                     if (!doneToday) {
-                        val intent1 = Intent(ctx, ActionHandler::class.java)
-                        intent1.putExtra(ActionHandler.INTENT_EXTRA_TASK_ID, taskId)
-                        ctx.startService(intent1)
+                        context.sendBroadcast(
+                            Intent(context, ActionReceiver::class.java).apply {
+                                putExtra(ActionReceiver.INTENT_EXTRA_TASK_ID, taskId)
+                            }
+                        )
                     }
                     selectedItemIndex = INVALID_INDEX
-                    RemindAlarmInitReceiver.updateReminder(ctx)
+                    RemindAlarmInitReceiver.updateReminder(context)
                 }, 500)
             } else {
-                val activityLaunchIntent = Intent(ctx, TasksActivity::class.java)
-                activityLaunchIntent.flags =
-                    Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED or Intent.FLAG_ACTIVITY_NEW_TASK
-                ctx.startActivity(activityLaunchIntent)
+                context.startActivity(
+                    Intent(context, TasksActivity::class.java).apply {
+                        flags =
+                            Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED or Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                )
             }
         }
-        super.onReceive(ctx, intent)
+        super.onReceive(context, intent)
     }
 
     override fun onUpdate(
@@ -89,31 +92,34 @@ class TasksWidgetProvider : AppWidgetProvider() {
 
         // Specify the service to provide data for the collection widget.  Note that we need to
         // embed the appWidgetId via the data otherwise it will be ignored.
-        val intent = Intent(context, TasksWidgetService::class.java)
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-        intent.data = Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME))
-        val rv = RemoteViews(context.packageName, R.layout.tasks_widget)
-        rv.setRemoteAdapter(R.id.task_list, intent)
-
-        // Set the empty view to be displayed if the collection is empty.  It must be a sibling
-        // view of the collection view.
-        rv.setEmptyView(R.id.task_list, R.id.empty_view)
-
+        val intent = Intent(context, TasksWidgetService::class.java).apply {
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
+        }
         // Bind a click listener template for the contents of the task list.  Note that we
         // need to update the intent's data if we set an extra, since the extras will be
         // ignored otherwise.
-        val onItemClickIntent = Intent(context, TasksWidgetProvider::class.java)
-        onItemClickIntent.action = ACTION_ITEM_CLICKED
-        onItemClickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+        val onItemClickIntent = Intent(context, TasksWidgetProvider::class.java).apply {
+            action = ACTION_ITEM_CLICKED
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+        }
         val onClickPendingIntent = PendingIntent.getBroadcast(
             context,
             appWidgetId,
             onItemClickIntent,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
-        rv.setPendingIntentTemplate(R.id.task_list, onClickPendingIntent)
-        rv.setOnClickPendingIntent(R.id.empty_view, onClickPendingIntent)
-        return rv
+
+        return RemoteViews(context.packageName, R.layout.tasks_widget).apply {
+            setRemoteAdapter(R.id.task_list, intent)
+
+            // Set the empty view to be displayed if the collection is empty.  It must be a sibling
+            // view of the collection view.
+            setEmptyView(R.id.task_list, R.id.empty_view)
+
+            setPendingIntentTemplate(R.id.task_list, onClickPendingIntent)
+            setOnClickPendingIntent(R.id.empty_view, onClickPendingIntent)
+        }
     }
 
     private fun updateAllWidgetsList(context: Context) {
@@ -147,8 +153,9 @@ class TasksWidgetProvider : AppWidgetProvider() {
     }
 
     private fun getPendingIntent(context: Context): PendingIntent {
-        val intent = Intent(context, TasksWidgetProvider::class.java)
-        intent.action = ACTION_APPWIDGET_UPDATE
+        val intent = Intent(context, TasksWidgetProvider::class.java).apply {
+            action = ACTION_APPWIDGET_UPDATE
+        }
         return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
@@ -169,16 +176,17 @@ class TasksWidgetProvider : AppWidgetProvider() {
         const val PARAM_VIEWID = "view-id"
         const val VIEWID_LIST_ITEM = 0
         const val VIEWID_LIST_ITEM_ICON = 1
-        private const val ACTION_APPWIDGET_UPDATE = "com.hkb48.keepdo.action.APPWIDGET_UPDATE"
-        private const val ACTION_ITEM_CLICKED = "com.hkb48.keepdo.action.ITEM_CLICKED"
+        private val PACKAGE_NAME = TasksWidgetProvider::class.java.getPackage()!!.name
+        private val ACTION_APPWIDGET_UPDATE = "$PACKAGE_NAME.action.APPWIDGET_UPDATE"
+        private val ACTION_ITEM_CLICKED = "$PACKAGE_NAME.action.ITEM_CLICKED"
         private const val INVALID_INDEX = -1
         var selectedItemIndex = INVALID_INDEX
             private set
 
-        @JvmStatic
         fun notifyDatasetChanged(context: Context) {
-            val intent = Intent(context, TasksWidgetProvider::class.java)
-            intent.action = ACTION_APPWIDGET_UPDATE
+            val intent = Intent(context, TasksWidgetProvider::class.java).apply {
+                action = ACTION_APPWIDGET_UPDATE
+            }
             context.sendBroadcast(intent)
         }
     }
