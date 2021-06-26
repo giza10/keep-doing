@@ -245,7 +245,6 @@ class SortableListView @JvmOverloads constructor(
             format = PixelFormat.TRANSLUCENT
             windowAnimations = 0
         }
-        val context = context
         val v = ImageView(context)
         val backGroundColor = CompatUtil.getColor(
             context,

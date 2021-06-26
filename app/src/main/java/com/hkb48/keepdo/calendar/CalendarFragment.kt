@@ -69,7 +69,6 @@ class CalendarFragment : Fragment() {
                 startActivity(Intent(requireContext(), TaskDetailActivity::class.java).apply {
                     putExtra("TASK-ID", taskId)
                 })
-
                 true
             }
             R.id.menu_share -> {
