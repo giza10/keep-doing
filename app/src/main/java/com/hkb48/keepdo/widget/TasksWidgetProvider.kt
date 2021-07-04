@@ -28,39 +28,44 @@ class TasksWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        val action = intent.action
-        if (ACTION_APPWIDGET_UPDATE == action || Intent.ACTION_TIME_CHANGED == action || Intent.ACTION_TIMEZONE_CHANGED == action || Intent.ACTION_LOCALE_CHANGED == action) {
-            updateAllWidgetsList(context)
-        } else if (ACTION_ITEM_CLICKED == action) {
-            val viewId = intent.getIntExtra(PARAM_VIEWID, -1)
-            if (viewId == VIEWID_LIST_ITEM_ICON) {
-                selectedItemIndex = intent.getIntExtra(PARAM_POSITION, INVALID_INDEX)
-                val appWidgetId = intent.getIntExtra(
-                    AppWidgetManager.EXTRA_APPWIDGET_ID,
-                    AppWidgetManager.INVALID_APPWIDGET_ID
-                )
-                updateWidgetList(context, appWidgetId)
-                val taskId = intent.getLongExtra(PARAM_TASK_ID, -1)
-                Handler(Looper.getMainLooper()).postDelayed({
-                    val model = TasksWidgetModel(context)
-                    val doneToday = model.getDoneStatus(taskId, model.todayDate)
-                    if (!doneToday) {
-                        context.sendBroadcast(
-                            Intent(context, ActionReceiver::class.java).apply {
-                                putExtra(ActionReceiver.INTENT_EXTRA_TASK_ID, taskId)
-                            }
-                        )
-                    }
-                    selectedItemIndex = INVALID_INDEX
-                    RemindAlarmInitReceiver.updateReminder(context)
-                }, 500)
-            } else {
-                context.startActivity(
-                    Intent(context, TasksActivity::class.java).apply {
-                        flags =
-                            Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED or Intent.FLAG_ACTIVITY_NEW_TASK
-                    }
-                )
+        when (intent.action) {
+            ACTION_APPWIDGET_UPDATE,
+            Intent.ACTION_TIME_CHANGED,
+            Intent.ACTION_TIMEZONE_CHANGED,
+            Intent.ACTION_LOCALE_CHANGED -> {
+                updateAllWidgetsList(context)
+            }
+            ACTION_ITEM_CLICKED -> {
+                val viewId = intent.getIntExtra(EXTRA_VIEWID, -1)
+                if (viewId == VIEWID_LIST_ITEM_ICON) {
+                    selectedItemIndex = intent.getIntExtra(EXTRA_POSITION, INVALID_INDEX)
+                    val appWidgetId = intent.getIntExtra(
+                        AppWidgetManager.EXTRA_APPWIDGET_ID,
+                        AppWidgetManager.INVALID_APPWIDGET_ID
+                    )
+                    updateWidgetList(context, appWidgetId)
+                    val taskId = intent.getIntExtra(EXTRA_TASK_ID, TaskInfo.INVALID_TASKID)
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        val model = TasksWidgetModel(context)
+                        val doneToday = model.getDoneStatus(taskId, model.todayDate)
+                        if (doneToday.not()) {
+                            context.sendBroadcast(
+                                Intent(context, ActionReceiver::class.java).apply {
+                                    putExtra(ActionReceiver.EXTRA_TASK_ID, taskId)
+                                }
+                            )
+                        }
+                        selectedItemIndex = INVALID_INDEX
+                        RemindAlarmInitReceiver.updateReminder(context)
+                    }, 500)
+                } else {
+                    context.startActivity(
+                        Intent(context, TasksActivity::class.java).apply {
+                            flags =
+                                Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED or Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                    )
+                }
             }
         }
         super.onReceive(context, intent)
@@ -134,7 +139,7 @@ class TasksWidgetProvider : AppWidgetProvider() {
     }
 
     private fun startAlarm(context: Context) {
-        val nextAlarmTime = DatabaseAdapter.getInstance(context).nextDateChangeTime
+        val nextAlarmTime = getNextDateChangeTime()
         if (nextAlarmTime > 0) {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
             alarmManager?.setRepeating(
@@ -159,6 +164,17 @@ class TasksWidgetProvider : AppWidgetProvider() {
         return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
+    private fun getNextDateChangeTime(): Long {
+        val dateChangeTime = DateChangeTimeUtil.dateChangeTime
+        val dateChangeTimeCalendar = DateChangeTimeUtil.dateTimeCalendar
+        dateChangeTimeCalendar.add(Calendar.DATE, 1)
+        dateChangeTimeCalendar[Calendar.HOUR_OF_DAY] = dateChangeTime.hourOfDay
+        dateChangeTimeCalendar[Calendar.MINUTE] = dateChangeTime.minute
+        dateChangeTimeCalendar[Calendar.SECOND] = 0
+        dateChangeTimeCalendar[Calendar.MILLISECOND] = 0
+        return dateChangeTimeCalendar.timeInMillis
+    }
+
     private fun dumpLog(timeInMillis: Long) {
         if (BuildConfig.DEBUG) {
             val time = Calendar.getInstance()
@@ -171,9 +187,9 @@ class TasksWidgetProvider : AppWidgetProvider() {
     }
 
     companion object {
-        const val PARAM_POSITION = "position"
-        const val PARAM_TASK_ID = "task-id"
-        const val PARAM_VIEWID = "view-id"
+        const val EXTRA_POSITION = "position"
+        const val EXTRA_TASK_ID = "task-id"
+        const val EXTRA_VIEWID = "view-id"
         const val VIEWID_LIST_ITEM = 0
         const val VIEWID_LIST_ITEM_ICON = 1
         private val PACKAGE_NAME = TasksWidgetProvider::class.java.getPackage()!!.name

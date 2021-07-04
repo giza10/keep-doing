@@ -11,13 +11,13 @@ import java.util.*
 object ReminderManager {
     fun setAlarmForAll(context: Context) {
         val dbAdapter = DatabaseAdapter.getInstance(context)
-        val taskList = dbAdapter.taskList
+        val taskList = dbAdapter.taskInfoList
         for (task in taskList) {
-            setAlarm(context, task.taskID)
+            setAlarm(context, task.taskId)
         }
     }
 
-    fun setAlarm(context: Context, taskId: Long) {
+    fun setAlarm(context: Context, taskId: Int) {
         val dbAdapter = DatabaseAdapter.getInstance(context)
         val task = dbAdapter.getTask(taskId)
         if (task != null) {
@@ -42,16 +42,16 @@ object ReminderManager {
         }
     }
 
-    fun cancelAlarm(context: Context, taskId: Long) {
+    fun cancelAlarm(context: Context, taskId: Int) {
         val task = DatabaseAdapter.getInstance(context).getTask(taskId)
         if (task?.reminder?.enabled == true) {
             stopAlarm(context, taskId)
         }
     }
 
-    fun getRemainingUndoneTaskList(context: Context): List<Task> {
+    fun getRemainingUndoneTaskList(context: Context): List<TaskInfo> {
         val dbAdapter = DatabaseAdapter.getInstance(context)
-        val remainingList: MutableList<Task> = ArrayList()
+        val remainingList: MutableList<TaskInfo> = ArrayList()
         val realTime = Calendar.getInstance()
         realTime.timeInMillis = System.currentTimeMillis()
         val today = DateChangeTimeUtil.getDateTimeCalendar(realTime).time
@@ -60,7 +60,7 @@ object ReminderManager {
         // Add 1 minute to avoid that the next alarm is set to current time
         // again.
         realTime.add(Calendar.MINUTE, 1)
-        for (task in dbAdapter.taskList) {
+        for (task in dbAdapter.taskInfoList) {
             val reminder = task.reminder
             if (reminder.enabled && task.recurrence.isValidDay(dayOfWeek)) {
                 val hourOfDay = reminder.hourOfDay
@@ -72,7 +72,7 @@ object ReminderManager {
 
                 // Check if today's reminder time is already exceeded
                 if (hasReminderAlreadyExceeded(realTime, reminderTime)) {
-                    if (!dbAdapter.getDoneStatus(task.taskID, today)) {
+                    if (dbAdapter.getDoneStatus(task.taskId, today).not()) {
                         remainingList.add(task)
                     }
                 }
@@ -139,7 +139,7 @@ object ReminderManager {
                 break
             }
         }
-        if (!isSuccess) {
+        if (isSuccess.not()) {
             return null
         }
         realTime.add(Calendar.DAY_OF_MONTH, dayOffset)
@@ -156,40 +156,40 @@ object ReminderManager {
     ): Boolean {
         val isRealTimeDateAdjusted = DateChangeTimeUtil.isDateAdjusted(realTime)
         val isReminderTimeDateAdjusted = DateChangeTimeUtil.isDateAdjusted(reminderTime)
-        return if (isRealTimeDateAdjusted && !isReminderTimeDateAdjusted) {
+        return if (isRealTimeDateAdjusted && isReminderTimeDateAdjusted.not()) {
             true
-        } else if (!isRealTimeDateAdjusted && isReminderTimeDateAdjusted) {
+        } else if (isRealTimeDateAdjusted.not() && isReminderTimeDateAdjusted) {
             false
         } else {
             realTime.after(reminderTime)
         }
     }
 
-    private fun startAlarm(context: Context, taskId: Long, timeInMillis: Long) {
+    private fun startAlarm(context: Context, taskId: Int, timeInMillis: Long) {
         val alarmManager = context
             .getSystemService(Context.ALARM_SERVICE) as AlarmManager?
         alarmManager?.set(AlarmManager.RTC_WAKEUP, timeInMillis, getPendingIntent(context, taskId))
         dumpLog(taskId, timeInMillis)
     }
 
-    private fun stopAlarm(context: Context, taskId: Long) {
+    private fun stopAlarm(context: Context, taskId: Int) {
         val alarmManager = context
             .getSystemService(Context.ALARM_SERVICE) as AlarmManager?
         alarmManager?.cancel(getPendingIntent(context, taskId))
     }
 
-    private fun getPendingIntent(context: Context, taskId: Long): PendingIntent {
+    private fun getPendingIntent(context: Context, taskId: Int): PendingIntent {
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             action = AlarmReceiver.ACTION_REMINDER
-            putExtra(AlarmReceiver.PARAM_TASK_ID, taskId)
+            putExtra(AlarmReceiver.EXTRA_TASK_ID, taskId)
         }
         return PendingIntent.getBroadcast(
-            context, taskId.toInt(), intent,
+            context, taskId, intent,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
 
-    private fun dumpLog(taskId: Long, timeInMillis: Long) {
+    private fun dumpLog(taskId: Int, timeInMillis: Long) {
         if (BuildConfig.DEBUG) {
             val time = Calendar.getInstance()
             time.timeInMillis = timeInMillis

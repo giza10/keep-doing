@@ -16,11 +16,11 @@ import com.hkb48.keepdo.widget.TasksWidgetProvider
 class TaskSortingActivity : AppCompatActivity() {
     private val mAdapter = TaskAdapter()
     private val mDBAdapter = DatabaseAdapter.getInstance(this)
-    private val mDataList: MutableList<Task> = mDBAdapter.taskList
+    private val mDataList: MutableList<TaskInfo> = mDBAdapter.taskInfoList
     private val onDrop: DragAndDropListener = object : DragAndDropListener {
         override fun onDrag(from: Int, to: Int) {
             if (from != to) {
-                val item = mAdapter.getItem(from) as Task
+                val item = mAdapter.getItem(from) as TaskInfo
                 mDataList.removeAt(from)
                 mDataList.add(to, item)
                 mAdapter.notifyDataSetChanged()
@@ -63,7 +63,7 @@ class TaskSortingActivity : AppCompatActivity() {
     private fun onSaveClicked() {
         for (index in mDataList.indices) {
             val task = mDataList[index]
-            task.order = index.toLong()
+            task.order = index
             mDBAdapter.editTask(task)
         }
         TasksWidgetProvider.notifyDatasetChanged(this)
@@ -105,7 +105,7 @@ class TaskSortingActivity : AppCompatActivity() {
             val view = convertView ?: LayoutInflater.from(parent.context)
                 .inflate(R.layout.task_sorting_list_item, parent, false)
             val itemView = view as SortableListItem
-            val task = getItem(position) as Task
+            val task = getItem(position) as TaskInfo
             itemView.setText(task.name)
             return view
         }

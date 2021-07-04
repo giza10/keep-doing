@@ -2,63 +2,49 @@ package com.hkb48.keepdo.widget
 
 import android.content.Context
 import com.hkb48.keepdo.DatabaseAdapter
-import com.hkb48.keepdo.Task
-import java.text.ParseException
-import java.text.SimpleDateFormat
+import com.hkb48.keepdo.DateChangeTimeUtil
+import com.hkb48.keepdo.TaskInfo
 import java.util.*
 
 internal class TasksWidgetModel(private val mContext: Context) {
-    private val mTaskList: MutableList<Task> = ArrayList()
+    private val mTaskInfoList: MutableList<TaskInfo> = ArrayList()
     fun reload() {
-        mTaskList.clear()
-        val fullTaskList = DatabaseAdapter.getInstance(mContext).taskList
+        mTaskInfoList.clear()
+        val fullTaskList = DatabaseAdapter.getInstance(mContext).taskInfoList
         val today = todayDate
         for (task in fullTaskList) {
-            if (!getDoneStatus(task.taskID, today) && isValidDay(task, today)) {
-                mTaskList.add(task)
+            if (getDoneStatus(task.taskId, today).not() && isValidDay(task, today)) {
+                mTaskInfoList.add(task)
             }
         }
     }
 
     val itemCount: Int
-        get() = mTaskList.size
+        get() = mTaskInfoList.size
 
-    fun getTaskId(position: Int): Long {
-        return mTaskList[position].taskID
+    fun getTaskId(position: Int): Int {
+        return mTaskInfoList[position].taskId
     }
 
     fun getTaskName(position: Int): String? {
-        return mTaskList[position].name
+        return mTaskInfoList[position].name
     }
 
-    fun getDoneStatus(taskId: Long, date: String): Boolean {
+    fun getDoneStatus(taskId: Int, date: Date): Boolean {
         return DatabaseAdapter.getInstance(mContext).getDoneStatus(taskId, date)
     }
 
-    val todayDate: String
-        get() = DatabaseAdapter.getInstance(mContext).todayDate
+    val todayDate: Date
+        get() = DateChangeTimeUtil.dateTime
 
-    private fun isValidDay(task: Task, dateString: String?): Boolean {
-        val sdf = SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN)
-        var date: Date? = null
-        if (dateString != null) {
-            date = try {
-                sdf.parse(dateString)
-            } catch (e: ParseException) {
-                e.printStackTrace()
-                null
-            }
+    private fun isValidDay(taskInfo: TaskInfo, date: Date?): Boolean {
+        return if (date != null) {
+            val calendar = Calendar.getInstance()
+            calendar.time = date
+            val dayOfWeek = calendar[Calendar.DAY_OF_WEEK]
+            taskInfo.recurrence.isValidDay(dayOfWeek)
+        } else {
+            false
         }
-        if (date == null) {
-            return false
-        }
-        val calendar = Calendar.getInstance()
-        calendar.time = date
-        val dayOfWeek = calendar[Calendar.DAY_OF_WEEK]
-        return task.recurrence.isValidDay(dayOfWeek)
-    }
-
-    companion object {
-        private const val SDF_PATTERN_YMD = "yyyy-MM-dd"
     }
 }

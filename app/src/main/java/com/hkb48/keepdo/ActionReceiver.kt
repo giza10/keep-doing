@@ -7,7 +7,7 @@ import com.hkb48.keepdo.widget.TasksWidgetProvider
 
 class ActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val taskId = intent.getLongExtra(INTENT_EXTRA_TASK_ID, 0)
+        val taskId = intent.getIntExtra(EXTRA_TASK_ID, TaskInfo.INVALID_TASKID)
         DatabaseAdapter.getInstance(context)
             .setDoneStatus(taskId, DateChangeTimeUtil.dateTime, true)
 
@@ -17,7 +17,7 @@ class ActionReceiver : BroadcastReceiver() {
         // Dismiss notification on handheld
         NotificationController.cancelReminder(
             context,
-            NotificationController.NOTIFICATION_ID_HANDHELD.toLong()
+            NotificationController.NOTIFICATION_ID_HANDHELD
         )
 
         // Update App widget
@@ -26,7 +26,7 @@ class ActionReceiver : BroadcastReceiver() {
 
     companion object {
         private val PACKAGE_NAME = ActionReceiver::class.java.getPackage()!!.name
-        val INTENT_EXTRA_TASK_ID = "$PACKAGE_NAME.intent_extra_task_id"
+        val EXTRA_TASK_ID = "$PACKAGE_NAME.intent_extra_task_id"
     }
 
 }

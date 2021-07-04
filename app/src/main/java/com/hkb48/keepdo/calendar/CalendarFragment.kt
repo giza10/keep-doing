@@ -17,10 +17,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import com.hkb48.keepdo.DatabaseAdapter
-import com.hkb48.keepdo.DateChangeTimeUtil
-import com.hkb48.keepdo.R
-import com.hkb48.keepdo.TaskDetailActivity
+import com.hkb48.keepdo.*
 import com.hkb48.keepdo.settings.Settings
 import com.hkb48.keepdo.util.CompatUtil
 import java.io.File
@@ -63,11 +60,13 @@ class CalendarFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val taskId = requireActivity().intent.getLongExtra("TASK-ID", -1)
+        val taskId = requireActivity().intent.getIntExtra(
+            TaskCalendarActivity.EXTRA_TASK_ID, TaskInfo.INVALID_TASKID
+        )
         return when (item.itemId) {
             R.id.menu_info -> {
                 startActivity(Intent(requireContext(), TaskDetailActivity::class.java).apply {
-                    putExtra("TASK-ID", taskId)
+                    putExtra(TaskDetailActivity.EXTRA_TASK_ID, taskId)
                 })
                 true
             }
@@ -90,13 +89,13 @@ class CalendarFragment : Fragment() {
         return sdf.format(current.time)
     }
 
-    private fun shareDisplayedCalendarView(taskId: Long) {
+    private fun shareDisplayedCalendarView(taskId: Int) {
         val calendarRoot = requireActivity().findViewById<View>(R.id.calendar_root)
         getBitmapFromView(calendarRoot, requireActivity(), callback = {
             var contentUri: Uri? = null
             try {
                 val imageDir = File(requireContext().cacheDir, "images").apply {
-                    if (!exists()) {
+                    if (exists().not()) {
                         mkdir()
                     }
                 }
@@ -121,7 +120,9 @@ class CalendarFragment : Fragment() {
                 val current = DateChangeTimeUtil.dateTimeCalendar
                 current.add(Calendar.MONTH, monthOffset)
                 current[Calendar.DAY_OF_MONTH] = 1
-                val doneDateList = dbAdapter.getHistoryInMonth(taskId, current.time)
+                val doneDateList = dbAdapter.getHistoryInMonth(
+                    taskId, current[Calendar.YEAR], current[Calendar.MONTH]
+                )
                 extraText += requireContext().getString(
                     R.string.share_non_combo,
                     taskName,

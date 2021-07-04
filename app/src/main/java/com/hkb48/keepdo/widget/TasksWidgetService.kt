@@ -30,14 +30,15 @@ internal class StackRemoteViewsFactory(private val mContext: Context) :
         rv.setImageViewResource(R.id.widget_item_icon, R.drawable.ic_not_done_3)
         val intentForListItem = Intent()
         val extras = Bundle()
-        extras.putInt(TasksWidgetProvider.PARAM_VIEWID, TasksWidgetProvider.VIEWID_LIST_ITEM)
+        extras.putInt(TasksWidgetProvider.EXTRA_VIEWID, TasksWidgetProvider.VIEWID_LIST_ITEM)
         intentForListItem.putExtras(extras)
         rv.setOnClickFillInIntent(R.id.widget_item_background, intentForListItem)
         val intentForDoneIcon = Intent()
-        val extras2 = Bundle()
-        extras2.putInt(TasksWidgetProvider.PARAM_VIEWID, TasksWidgetProvider.VIEWID_LIST_ITEM_ICON)
-        extras2.putLong(TasksWidgetProvider.PARAM_TASK_ID, mModel.getTaskId(position))
-        extras2.putInt(TasksWidgetProvider.PARAM_POSITION, position)
+        val extras2 = Bundle().apply {
+            putInt(TasksWidgetProvider.EXTRA_VIEWID, TasksWidgetProvider.VIEWID_LIST_ITEM_ICON)
+            putInt(TasksWidgetProvider.EXTRA_TASK_ID, mModel.getTaskId(position))
+            putInt(TasksWidgetProvider.EXTRA_POSITION, position)
+        }
         intentForDoneIcon.putExtras(extras2)
         rv.setOnClickFillInIntent(R.id.widget_item_icon, intentForDoneIcon)
         if (TasksWidgetProvider.selectedItemIndex == position) {

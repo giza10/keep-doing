@@ -26,7 +26,7 @@ object NotificationController {
 
     @get:RequiresApi(Build.VERSION_CODES.O)
     val notificationChannelId = "Channel_ID"
-    fun showReminder(context: Context, taskId: Long) {
+    fun showReminder(context: Context, taskId: Int) {
         var taskName: String? = null
         DatabaseAdapter.getInstance(context).getTask(taskId)?.let {
             taskName = it.name
@@ -56,11 +56,11 @@ object NotificationController {
         builder.setContentIntent(launchPendingIntent)
         builder.setAutoCancel(true)
         val actionIntent = Intent(context, ActionReceiver::class.java).apply {
-            putExtra(ActionReceiver.INTENT_EXTRA_TASK_ID, taskId)
+            putExtra(ActionReceiver.EXTRA_TASK_ID, taskId)
         }
         val actionPendingIntent = PendingIntent.getBroadcast(
             context,
-            taskId.toInt(),
+            taskId,
             actionIntent,
             PendingIntent.FLAG_CANCEL_CURRENT
         )
@@ -107,7 +107,7 @@ object NotificationController {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun createNotificationChannel(context: Context) {
-        if (!CompatUtil.isNotificationChannelSupported) {
+        if (CompatUtil.isNotificationChannelSupported.not()) {
             return
         }
 
@@ -151,7 +151,7 @@ object NotificationController {
         NotificationManagerCompat.from(context).cancelAll()
     }
 
-    fun cancelReminder(context: Context, id: Long) {
-        NotificationManagerCompat.from(context).cancel(id.toInt())
+    fun cancelReminder(context: Context, id: Int) {
+        NotificationManagerCompat.from(context).cancel(id)
     }
 }

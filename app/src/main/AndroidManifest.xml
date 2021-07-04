@@ -53,11 +53,6 @@
         </receiver>
 
         <provider
-            android:name=".KeepdoProvider"
-            android:authorities="com.hkb48.keepdo.keepdoprovider"
-            android:exported="true" />
-
-        <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
             android:exported="false"

@@ -20,7 +20,7 @@ class TaskSettingActivity : AppCompatActivity() {
         true, true, true, true, true, true,
         true
     )
-    private lateinit var mTask: Task
+    private lateinit var mTaskInfo: TaskInfo
     private var mMode = 0
     private lateinit var mSaveButton: Button
 
@@ -48,8 +48,8 @@ class TaskSettingActivity : AppCompatActivity() {
         enableInputEmoji(editTextDescription)
         val recurrence: Recurrence
         val intent = intent
-        val task = intent.getSerializableExtra("TASK-INFO") as Task?
-        if (task == null) {
+        val taskId = intent.getIntExtra(EXTRA_TASK_ID, TaskInfo.INVALID_TASKID)
+        if (taskId == TaskInfo.INVALID_TASKID) {
             mMode = MODE_NEW_TASK
             titleText?.setText(R.string.add_task)
             recurrence = Recurrence(
@@ -61,15 +61,16 @@ class TaskSettingActivity : AppCompatActivity() {
                 saturday = true,
                 sunday = true
             )
-            mTask = Task(null, null, recurrence)
+            mTaskInfo = TaskInfo(null, null, recurrence)
         } else {
-            mTask = task
+            mTaskInfo = DatabaseAdapter.getInstance(this).getTask(taskId)!!
             mMode = MODE_EDIT_TASK
             titleText?.setText(R.string.edit_task)
-            val taskName = mTask.name
-            editTextTaskName.setText(taskName)
-            editTextTaskName.setSelection(taskName!!.length)
-            recurrence = mTask.recurrence
+            mTaskInfo.name?.let {
+                editTextTaskName.setText(it)
+                editTextTaskName.setSelection(it.length)
+            }
+            recurrence = mTaskInfo.recurrence
             mRecurrenceFlags[0] = recurrence.sunday
             mRecurrenceFlags[1] = recurrence.monday
             mRecurrenceFlags[2] = recurrence.tuesday
@@ -77,7 +78,7 @@ class TaskSettingActivity : AppCompatActivity() {
             mRecurrenceFlags[4] = recurrence.thursday
             mRecurrenceFlags[5] = recurrence.friday
             mRecurrenceFlags[6] = recurrence.saturday
-            mTask.context?.let {
+            mTaskInfo.context?.let {
                 editTextDescription.setText(it)
                 editTextDescription.setSelection(it.length)
             }
@@ -152,7 +153,7 @@ class TaskSettingActivity : AppCompatActivity() {
     }
 
     private fun addReminder() {
-        val reminder = mTask.reminder
+        val reminder = mTaskInfo.reminder
         val reminderTime = findViewById<Button>(R.id.buttonReminderTime)
         val cancelButton = findViewById<ImageButton>(R.id.reminder_remove)
         val hourOfDay = reminder.hourOfDay
@@ -165,10 +166,10 @@ class TaskSettingActivity : AppCompatActivity() {
             cancelButton.visibility = View.INVISIBLE
         }
         cancelButton.setOnClickListener {
-            cancelButton.visibility = View.INVISIBLE
+            it.visibility = View.INVISIBLE
             reminderTime.setText(R.string.no_reminder)
             reminder.enabled = false
-            mTask.reminder = reminder
+            mTaskInfo.reminder = reminder
         }
         val timePickerDialog = TimePickerDialog(
             this,
@@ -178,7 +179,7 @@ class TaskSettingActivity : AppCompatActivity() {
                 reminder.enabled = true
                 reminder.hourOfDay = hourOfDay1
                 reminder.minute = minute1
-                mTask.reminder = reminder
+                mTaskInfo.reminder = reminder
             }, hourOfDay, minute, true
         )
         reminderTime.setOnClickListener { timePickerDialog.show() }
@@ -192,16 +193,16 @@ class TaskSettingActivity : AppCompatActivity() {
             mRecurrenceFlags[2], mRecurrenceFlags[3], mRecurrenceFlags[4],
             mRecurrenceFlags[5], mRecurrenceFlags[6], mRecurrenceFlags[0]
         )
-        mTask.name = editTextTaskName.text.toString()
-        mTask.recurrence = recurrence
-        mTask.context = editTextDescription.text.toString()
+        mTaskInfo.name = editTextTaskName.text.toString()
+        mTaskInfo.recurrence = recurrence
+        mTaskInfo.context = editTextDescription.text.toString()
         val dbAdapter = DatabaseAdapter.getInstance(this)
         val taskId = if (mMode == MODE_NEW_TASK) {
-            mTask.order = (dbAdapter.maxSortOrderId + 1).toLong()
-            dbAdapter.addTask(mTask)
+            mTaskInfo.order = dbAdapter.maxSortOrderId + 1
+            dbAdapter.addTask(mTaskInfo)
         } else {
-            dbAdapter.editTask(mTask)
-            mTask.taskID
+            dbAdapter.editTask(mTaskInfo)
+            mTaskInfo.taskId
         }
         ReminderManager.setAlarm(this, taskId)
         TasksWidgetProvider.notifyDatasetChanged(this)
@@ -219,7 +220,7 @@ class TaskSettingActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val EXTRA_TASK_INFO = "TASK-INFO"
+        const val EXTRA_TASK_ID = "TASK-ID"
         private const val MODE_NEW_TASK = 0
         private const val MODE_EDIT_TASK = 1
     }

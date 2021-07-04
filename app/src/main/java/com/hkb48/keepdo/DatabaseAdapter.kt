@@ -1,415 +1,226 @@
 package com.hkb48.keepdo
 
 import android.content.ContentResolver
-import android.content.ContentValues
 import android.content.Context
-import android.database.Cursor
 import android.database.sqlite.SQLiteException
 import android.net.Uri
-import android.provider.BaseColumns
-import com.hkb48.keepdo.KeepdoProvider.TaskCompletion
-import com.hkb48.keepdo.KeepdoProvider.Tasks
+import androidx.sqlite.db.SimpleSQLiteQuery
+import com.hkb48.keepdo.data.Task
+import com.hkb48.keepdo.data.TaskCompletion
+import com.hkb48.keepdo.data.TaskDatabase
 import java.io.*
-import java.text.ParseException
-import java.text.SimpleDateFormat
 import java.util.*
 
 class DatabaseAdapter private constructor(context: Context) {
-    private val mDatabaseHelper: DatabaseHelper =
-        DatabaseHelper(context.applicationContext)
+    private val mTaskDatabase = TaskDatabase.getInstance(context)
     private val mContentResolver: ContentResolver = context.contentResolver
 
-    @Synchronized
-    fun close() {
-        mDatabaseHelper.close()
-    }
-
-    val taskList: MutableList<Task>
+    val taskInfoList: MutableList<TaskInfo>
         get() {
-            val tasks: MutableList<Task> = mutableListOf()
-            val sortOrder = Tasks.TASK_LIST_ORDER + " asc"
-            val cursor = mContentResolver.query(
-                Tasks.CONTENT_URI, null, null,
-                null, sortOrder
-            )
-            if (cursor != null) {
-                if (cursor.moveToFirst()) {
-                    do {
-                        tasks.add(getTask(cursor))
-                    } while (cursor.moveToNext())
-                }
-                cursor.close()
+            val taskInfoList: MutableList<TaskInfo> = mutableListOf()
+            val taskList = mTaskDatabase.taskDao().getTaskListByOrder()
+            for (task in taskList) {
+                taskInfoList.add(getTaskInfo(task))
             }
-            return tasks
+            return taskInfoList
         }
 
-    fun addTask(task: Task): Long {
-        val taskName = task.name
-        val taskContext = task.context
-        val recurrence = task.recurrence
-        val reminder = task.reminder
+    fun addTask(taskInfo: TaskInfo): Int {
+        val taskName = taskInfo.name
+        val taskContext = taskInfo.context
+        val recurrence = taskInfo.recurrence
+        val reminder = taskInfo.reminder
         return if (taskName == null || taskName.isEmpty()) {
-            Task.INVALID_TASKID
+            TaskInfo.INVALID_TASKID
         } else try {
-            val contentValues = ContentValues().apply {
-                put(Tasks.TASK_NAME, taskName)
-                put(Tasks.FREQUENCY_MON, recurrence.monday.toString())
-                put(Tasks.FREQUENCY_TUE, recurrence.tuesday.toString())
-                put(Tasks.FREQUENCY_WEN, recurrence.wednesday.toString())
-                put(Tasks.FREQUENCY_THR, recurrence.thursday.toString())
-                put(Tasks.FREQUENCY_FRI, recurrence.friday.toString())
-                put(Tasks.FREQUENCY_SAT, recurrence.saturday.toString())
-                put(Tasks.FREQUENCY_SUN, recurrence.sunday.toString())
-                put(Tasks.TASK_CONTEXT, taskContext)
-                put(Tasks.REMINDER_ENABLED, reminder.enabled.toString())
-                put(Tasks.REMINDER_TIME, reminder.timeInMillis.toString())
-                put(Tasks.TASK_LIST_ORDER, task.order)
-            }
-            val uri = mContentResolver.insert(Tasks.CONTENT_URI, contentValues)!!
-            uri.lastPathSegment!!.toLong()
-        } catch (e: SQLiteException) {
+            val task = Task(
+                null, taskName,
+                recurrence.monday,
+                recurrence.tuesday,
+                recurrence.wednesday,
+                recurrence.thursday,
+                recurrence.friday,
+                recurrence.saturday,
+                recurrence.sunday,
+                taskContext,
+                reminder.enabled,
+                reminder.timeInMillis,
+                taskInfo.order
+            )
+            mTaskDatabase.taskDao().add(task).toInt()
+        } catch (e: Exception) {
             e.printStackTrace()
-            Task.INVALID_TASKID
+            TaskInfo.INVALID_TASKID
         }
     }
 
-    fun editTask(task: Task) {
-        val taskID = task.taskID
-        val taskName = task.name
-        val taskContext = task.context
-        val recurrence = task.recurrence
-        val reminder = task.reminder
+    fun editTask(taskInfo: TaskInfo) {
+        val taskId = taskInfo.taskId
+        val taskName = taskInfo.name
+        val taskContext = taskInfo.context
+        val recurrence = taskInfo.recurrence
+        val reminder = taskInfo.reminder
         if (taskName == null || taskName.isEmpty()) {
             return
         }
-        val contentValues = ContentValues().apply {
-            put(Tasks.TASK_NAME, taskName)
-            put(Tasks.FREQUENCY_MON, recurrence.monday.toString())
-            put(Tasks.FREQUENCY_TUE, recurrence.tuesday.toString())
-            put(Tasks.FREQUENCY_WEN, recurrence.wednesday.toString())
-            put(Tasks.FREQUENCY_THR, recurrence.thursday.toString())
-            put(Tasks.FREQUENCY_FRI, recurrence.friday.toString())
-            put(Tasks.FREQUENCY_SAT, recurrence.saturday.toString())
-            put(Tasks.FREQUENCY_SUN, recurrence.sunday.toString())
-            put(Tasks.TASK_CONTEXT, taskContext)
-            put(Tasks.REMINDER_ENABLED, reminder.enabled.toString())
-            put(Tasks.REMINDER_TIME, reminder.timeInMillis.toString())
-            put(Tasks.TASK_LIST_ORDER, task.order)
-        }
-        val uri = Uri.withAppendedPath(Tasks.CONTENT_URI, taskID.toString())
+        val task = Task(
+            taskId, taskName,
+            recurrence.monday,
+            recurrence.tuesday,
+            recurrence.wednesday,
+            recurrence.thursday,
+            recurrence.friday,
+            recurrence.saturday,
+            recurrence.sunday,
+            taskContext,
+            reminder.enabled,
+            reminder.timeInMillis,
+            taskInfo.order
+        )
         try {
-            mContentResolver.update(uri, contentValues, null, null)
+            mTaskDatabase.taskDao().update(task)
         } catch (e: SQLiteException) {
             e.printStackTrace()
         }
     }
 
-    fun deleteTask(taskID: Long) {
+    fun deleteTask(taskId: Int) {
         // Delete task from TASKS_TABLE_NAME
-        var uri = Uri.withAppendedPath(Tasks.CONTENT_URI, taskID.toString())!!
-        mContentResolver.delete(uri, null, null)
-
-        // Delete records of deleted task from TASK_COMPLETION_TABLE_NAME
-        uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, taskID.toString())!!
-        mContentResolver.delete(uri, null, null)
+        // Records corresponding to the deleted task are also removed from TASK_COMPLETION_TABLE_NAME
+        mTaskDatabase.taskDao().delete(taskId)
     }
 
-    fun setDoneStatus(taskID: Long, date: Date, doneSwitch: Boolean) {
-        val dateFormat = SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN)
-        if (doneSwitch) {
-            val contentValues = ContentValues().apply {
-                put(TaskCompletion.TASK_NAME_ID, taskID)
-                put(TaskCompletion.TASK_COMPLETION_DATE, dateFormat.format(date))
+    fun setDoneStatus(taskId: Int, date: Date, doneSwitch: Boolean) {
+        try {
+            if (doneSwitch) {
+                val taskCompletion = TaskCompletion(null, taskId, date)
+                mTaskDatabase.taskCompletionDao().insert(taskCompletion)
+            } else {
+                mTaskDatabase.taskCompletionDao().delete(taskId, date)
             }
-            try {
-                mContentResolver.insert(TaskCompletion.CONTENT_URI, contentValues)
-            } catch (e: SQLiteException) {
-                e.printStackTrace()
-            }
-        } else {
-            val whereClause = TaskCompletion.TASK_COMPLETION_DATE + "=?"
-            val whereArgs = arrayOf(dateFormat.format(date))
-            val uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, taskID.toString())
-            mContentResolver.delete(uri, whereClause, whereArgs)
+        } catch (e: SQLiteException) {
+            e.printStackTrace()
         }
     }
 
-    fun getDoneStatus(taskID: Long, date: Date): Boolean {
-        val dateFormat = SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN)
-        return getDoneStatus(taskID, dateFormat.format(date))
+    fun getDoneStatus(taskId: Int, date: Date): Boolean {
+        return mTaskDatabase.taskCompletionDao().getByDate(taskId, date).count() > 0
     }
 
-    fun getDoneStatus(taskID: Long, date: String): Boolean {
-        var isDone = false
-        val uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, taskID.toString())
-        val selection = TaskCompletion.TASK_COMPLETION_DATE + "=?"
-        val selectionArgs = arrayOf(date)
-        val cursor = mContentResolver.query(
-            uri, null, selection,
-            selectionArgs, null
+    fun getNumberOfDone(taskId: Int): Int {
+        return mTaskDatabase.taskCompletionDao().getAll(taskId).count()
+    }
+
+    fun getFirstDoneDate(taskId: Int): Date? {
+        return mTaskDatabase.taskCompletionDao().getFirstCompletionDate(taskId, todayDate)
+    }
+
+    fun getLastDoneDate(taskId: Int): Date? {
+        return mTaskDatabase.taskCompletionDao().getLastCompletionDate(taskId, todayDate)
+    }
+
+    fun getTask(taskId: Int): TaskInfo? {
+        return mTaskDatabase.taskDao().getTask(taskId)?.let {
+            getTaskInfo(it)
+        }
+    }
+
+    fun getHistoryInMonth(taskId: Int, year: Int, month: Int): ArrayList<Date> {
+        val calendar = Calendar.getInstance()
+        calendar[Calendar.YEAR] = year
+        calendar[Calendar.MONTH] = month
+        val firstDayInMonth = calendar.clone() as Calendar
+        firstDayInMonth[Calendar.DAY_OF_MONTH] = 1
+        val lastDayInMonth = calendar.clone() as Calendar
+        lastDayInMonth[Calendar.DAY_OF_MONTH] = lastDayInMonth.getActualMaximum(Calendar.DATE)
+
+        val doneList = mTaskDatabase.taskCompletionDao().getCompletionHistoryBetween(
+            taskId, firstDayInMonth.time, lastDayInMonth.time
         )
-        if (cursor != null) {
-            isDone = (cursor.count > 0)
-            cursor.close()
-        }
-        return isDone
+        return ArrayList(doneList)
     }
 
-    fun getNumberOfDone(taskID: Long): Int {
-        var numberOfDone = 0
-        val uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, taskID.toString())
-        val cursor = mContentResolver.query(uri, null, null, null, null)
-        if (cursor != null) {
-            numberOfDone = cursor.count
-            cursor.close()
-        }
-        return numberOfDone
-    }
-
-    fun getFirstDoneDate(taskID: Long): Date? {
-        val sdf = SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN)
-        var date: Date? = null
-        val uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, taskID.toString())
-        val selection = TaskCompletion.TASK_COMPLETION_DATE + "<=?"
-        val selectionArgs = arrayOf(todayDate)
-        val cursor = mContentResolver.query(
-            Uri.withAppendedPath(uri, "min"),
-            null,
-            selection,
-            selectionArgs,
-            null
-        )
-        if (cursor != null) {
-            cursor.moveToFirst()
-            val dateString = cursor.getString(0)
-            if (dateString != null) {
-                try {
-                    date = sdf.parse(dateString)
-                } catch (e: ParseException) {
-                    e.printStackTrace()
-                }
-            }
-            cursor.close()
-        }
-        return date
-    }
-
-    fun getLastDoneDate(taskID: Long): Date? {
-        val sdf = SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN)
-        var date: Date? = null
-        val uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, taskID.toString())
-        val selection = TaskCompletion.TASK_COMPLETION_DATE + "<=?"
-        val selectionArgs = arrayOf(todayDate)
-        val cursor = mContentResolver.query(
-            Uri.withAppendedPath(uri, "max"),
-            null,
-            selection,
-            selectionArgs,
-            null
-        )
-        if (cursor != null) {
-            cursor.moveToFirst()
-            val dateString = cursor.getString(0)
-            if (dateString != null) {
-                try {
-                    date = sdf.parse(dateString)
-                } catch (e: ParseException) {
-                    e.printStackTrace()
-                }
-            }
-            cursor.close()
-        }
-        return date
-    }
-
-    fun getTask(taskID: Long): Task? {
-        var task: Task? = null
-        val uri = Uri.withAppendedPath(Tasks.CONTENT_URI, taskID.toString())
-        val cursor = mContentResolver.query(uri, null, null, null, null)
-        if (cursor != null) {
-            cursor.moveToFirst()
-            task = getTask(cursor)
-            cursor.close()
-        }
-        return task
-    }
-
-    fun getHistoryInMonth(taskID: Long, month: Date): ArrayList<Date> {
-        val dateList = ArrayList<Date>()
-        val uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, taskID.toString())
-        val projection = arrayOf(TaskCompletion.TASK_COMPLETION_DATE)
-        val cursor = mContentResolver.query(
-            uri.buildUpon().appendQueryParameter("distinct", "true").build(),
-            projection,
-            null,
-            null,
-            null
-        )
-        val sdf = SimpleDateFormat(SDF_PATTERN_YM, Locale.JAPAN)
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                do {
-                    val date = getDate(cursor)
-                    if (date != null) {
-                        if (sdf.format(date) == sdf.format(month)) {
-                            dateList.add(date)
-                        }
-                    }
-                } while (cursor.moveToNext())
-            }
-            cursor.close()
-        }
-        return dateList
-    }
-
-    fun getComboCount(taskID: Long): Int {
+    fun getComboCount(taskId: Int): Int {
         var count = 0
-        val uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, taskID.toString())
-        val projection = arrayOf(TaskCompletion.TASK_COMPLETION_DATE)
-        val sortOrder = TaskCompletion.TASK_COMPLETION_DATE + " desc"
-        val selection = TaskCompletion.TASK_COMPLETION_DATE + "<=?"
-        val selectionArgs = arrayOf(todayDate)
-        val cursor = mContentResolver.query(
-            uri.buildUpon().appendQueryParameter("distinct", "true").build(),
-            projection,
-            selection,
-            selectionArgs,
-            sortOrder
-        )
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                val calToday = getCalendar(DateChangeTimeUtil.date)
-                var calDone = getCalendar(getDate(cursor)!!)
-                val calIndex = calToday.clone() as Calendar
-                val recurrence = getTask(taskID)!!.recurrence
-                while (true) {
-                    if (calIndex == calDone) {
-                        // count up combo
-                        count++
-                        calDone = if (cursor.moveToNext()) {
-                            getCalendar(getDate(cursor)!!)
-                        } else {
+        val mDoneHistory =
+            mTaskDatabase.taskCompletionDao().getCompletionHistoryDesc(taskId, todayDate)
+        if (mDoneHistory.isNotEmpty()) {
+            val calToday = getCalendar(DateChangeTimeUtil.date)
+            val calIndex = calToday.clone() as Calendar
+            var calDone = getCalendar(mDoneHistory[0])
+            val recurrence = getTask(taskId)!!.recurrence
+            var listIndex = 0
+            while (true) {
+                if (calIndex == calDone) {
+                    // count up combo
+                    count++
+                    calDone = if (++listIndex < mDoneHistory.size) {
+                        getCalendar(mDoneHistory[listIndex])
+                    } else {
+                        break
+                    }
+                } else {
+                    if (recurrence.isValidDay(calIndex[Calendar.DAY_OF_WEEK])) {
+                        if (calIndex != calToday) {
                             break
                         }
-                    } else {
-                        if (recurrence.isValidDay(calIndex[Calendar.DAY_OF_WEEK])) {
-                            if (calIndex != calToday) {
-                                break
-                            }
-                        }
                     }
-                    calIndex.add(Calendar.DAY_OF_MONTH, -1)
                 }
+                calIndex.add(Calendar.DAY_OF_MONTH, -1)
             }
-            cursor.close()
         }
         return count
     }
 
-    fun getMaxComboCount(taskID: Long): Int {
+    fun getMaxComboCount(taskId: Int): Int {
         var currentCount = 0
         var maxCount = 0
-        val uri = Uri.withAppendedPath(TaskCompletion.CONTENT_URI, taskID.toString())
-        val projection = arrayOf(TaskCompletion.TASK_COMPLETION_DATE)
-        val sortOrder = TaskCompletion.TASK_COMPLETION_DATE + " asc"
-        val cursor = mContentResolver.query(
-            uri.buildUpon().appendQueryParameter("distinct", "true").build(),
-            projection,
-            null,
-            null,
-            sortOrder
-        )
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                val calToday = getCalendar(DateChangeTimeUtil.date)
-                var calDone = getCalendar(getDate(cursor)!!)
-                var calIndex = calDone.clone() as Calendar
-                val recurrence = getTask(taskID)!!.recurrence
-                var isCompleted = false
-                do {
-                    if (calIndex == calDone) {
-                        // count up combo
-                        currentCount++
-                        if (currentCount > maxCount) {
-                            maxCount = currentCount
-                        }
-                        if (cursor.moveToNext()) {
-                            calDone = getCalendar(getDate(cursor)!!)
-                        } else {
-                            isCompleted = true
-                        }
-                        calIndex.add(Calendar.DAY_OF_MONTH, 1)
+        val mDoneHistory =
+            mTaskDatabase.taskCompletionDao().getCompletionHistoryAsc(taskId, todayDate)
+        if (mDoneHistory.isNotEmpty()) {
+            val calToday = getCalendar(DateChangeTimeUtil.date)
+            var calIndex = calToday.clone() as Calendar
+            var calDone = getCalendar(mDoneHistory[0])
+            val recurrence = getTask(taskId)!!.recurrence
+            var listIndex = 0
+            var isCompleted = false
+            do {
+                if (calIndex == calDone) {
+                    // count up combo
+                    currentCount++
+                    if (currentCount > maxCount) {
+                        maxCount = currentCount
+                    }
+                    if (++listIndex < mDoneHistory.size) {
+                        calDone = getCalendar(mDoneHistory[listIndex])
                     } else {
-                        if (recurrence.isValidDay(calIndex[Calendar.DAY_OF_WEEK])) {
-                            // stop combo
-                            if (calIndex != calToday) {
-                                currentCount = 0
-                            }
-                            if (!isCompleted) {
-                                calIndex = calDone.clone() as Calendar
-                            } else {
-                                calIndex.add(Calendar.DAY_OF_MONTH, 1)
-                            }
+                        isCompleted = true
+                    }
+                    calIndex.add(Calendar.DAY_OF_MONTH, 1)
+                } else {
+                    if (recurrence.isValidDay(calIndex[Calendar.DAY_OF_WEEK])) {
+                        // stop combo
+                        if (calIndex != calToday) {
+                            currentCount = 0
+                        }
+                        if (isCompleted.not()) {
+                            calIndex = calDone.clone() as Calendar
                         } else {
                             calIndex.add(Calendar.DAY_OF_MONTH, 1)
                         }
+                    } else {
+                        calIndex.add(Calendar.DAY_OF_MONTH, 1)
                     }
-                } while (!calIndex.after(calToday))
-            }
-            cursor.close()
+                }
+            } while (calIndex.after(calToday).not())
         }
         return maxCount
     }
 
-    val todayDate: String
+    private val todayDate: Date
         get() {
-            var date = ""
-            val cursor = mContentResolver.query(
-                KeepdoProvider.DateChangeTime.CONTENT_URI, null, null,
-                null, null
-            )
-            if (cursor != null) {
-                if (cursor.moveToFirst()) {
-                    val dateColIndex =
-                        cursor.getColumnIndex(KeepdoProvider.DateChangeTime.ADJUSTED_DATE)
-                    date = cursor.getString(dateColIndex)
-                }
-                cursor.close()
-            }
-            return date
+            return DateChangeTimeUtil.dateTime
         }
-    val nextDateChangeTime: Long
-        get() {
-            var nextAlarmTime: Long = -1
-            val cursor = mContentResolver.query(
-                KeepdoProvider.DateChangeTime.CONTENT_URI, null, null,
-                null, null
-            )
-            if (cursor != null) {
-                if (cursor.moveToFirst()) {
-                    val colIndex =
-                        cursor.getColumnIndex(KeepdoProvider.DateChangeTime.NEXT_DATE_CHANGE_TIME)
-                    nextAlarmTime = cursor.getLong(colIndex)
-                }
-                cursor.close()
-            }
-            return nextAlarmTime
-        }
-
-    private fun getDate(cursor: Cursor): Date? {
-        val dateString =
-            cursor.getString(cursor.getColumnIndex(TaskCompletion.TASK_COMPLETION_DATE))
-        val sdf = SimpleDateFormat(SDF_PATTERN_YMD, Locale.JAPAN)
-        var date: Date? = null
-        if (dateString != null) {
-            try {
-                date = sdf.parse(dateString)
-            } catch (e: ParseException) {
-                e.printStackTrace()
-            }
-        }
-        return date
-    }
 
     private fun getCalendar(date: Date): Calendar {
         val calendar = Calendar.getInstance()
@@ -417,49 +228,30 @@ class DatabaseAdapter private constructor(context: Context) {
         return calendar
     }
 
-    private fun getTask(cursor: Cursor): Task {
-        val taskID = cursor.getString(cursor.getColumnIndex(BaseColumns._ID)).toLong()
-        val taskName = cursor.getString(cursor.getColumnIndex(Tasks.TASK_NAME))
-        val taskContext = cursor.getString(cursor.getColumnIndex(Tasks.TASK_CONTEXT))
+    private fun getTaskInfo(task: Task): TaskInfo {
         val recurrence = Recurrence(
-            (cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_MON))).toBoolean(),
-            (cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_TUE))).toBoolean(),
-            (cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_WEN))).toBoolean(),
-            (cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_THR))).toBoolean(),
-            (cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_FRI))).toBoolean(),
-            (cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_SAT))).toBoolean(),
-            (cursor.getString(cursor.getColumnIndex(Tasks.FREQUENCY_SUN))).toBoolean(),
+            task.monFrequency,
+            task.tueFrequency,
+            task.wedFrequency,
+            task.thrFrequency,
+            task.friFrequency,
+            task.satFrequency,
+            task.sunFrequency
         )
-        val reminder: Reminder
-        val reminderEnabled = cursor.getString(cursor.getColumnIndex(Tasks.REMINDER_ENABLED))
-        val reminderTime = cursor.getString(cursor.getColumnIndex(Tasks.REMINDER_TIME))
-        val taskOrder = cursor.getInt(cursor.getColumnIndex(Tasks.TASK_LIST_ORDER)).toLong()
-        reminder = if (reminderEnabled == null || reminderTime == null) {
-            Reminder()
+        val taskInfo = TaskInfo(task.name, task.context, recurrence)
+        taskInfo.reminder = if (task.reminderEnabled && task.reminderTime != null) {
+            Reminder(task.reminderEnabled, task.reminderTime.toLong())
         } else {
-            Reminder(reminderEnabled.toBoolean(), reminderTime.toLong())
+            Reminder()
         }
-        val task = Task(taskName, taskContext, recurrence)
-        task.reminder = reminder
-        task.taskID = taskID
-        task.order = taskOrder
-        return task
+        taskInfo.taskId = task._id ?: TaskInfo.INVALID_TASKID
+        taskInfo.order = task.listOrder
+        return taskInfo
     }
 
     val maxSortOrderId: Int
         get() {
-            var maxOrderId = 0
-            val uri = Uri.withAppendedPath(Tasks.CONTENT_URI, "max_order")
-            val cursor = mContentResolver.query(
-                uri, null, null,
-                null, null
-            )
-            if (cursor != null) {
-                cursor.moveToFirst()
-                maxOrderId = cursor.getString(0)?.toInt() ?: 0
-                cursor.close()
-            }
-            return maxOrderId
+            return mTaskDatabase.taskDao().getMaxOrder()
         }
 
     fun backupDataBase(outputFile: Uri): Boolean {
@@ -467,7 +259,12 @@ class DatabaseAdapter private constructor(context: Context) {
         var outputStream: OutputStream? = null
         var success = false
         try {
-            inputStream = FileInputStream(mDatabaseHelper.databasePath())
+            // Execute checkpoint query to ensure all of the pending transactions are applied.
+            mTaskDatabase.taskDao().checkpoint((SimpleSQLiteQuery("pragma wal_checkpoint(full)")))
+            mTaskDatabase.taskCompletionDao()
+                .checkpoint((SimpleSQLiteQuery("pragma wal_checkpoint(full)")))
+
+            inputStream = FileInputStream(mTaskDatabase.databasePath)
             outputStream = mContentResolver.openOutputStream(outputFile)!!
             success = copyDataBase(inputStream, outputStream)
         } catch (e: IOException) {
@@ -490,7 +287,7 @@ class DatabaseAdapter private constructor(context: Context) {
             var success = false
             try {
                 inputStream = mContentResolver.openInputStream(inputFile)!!
-                outputStream = FileOutputStream(mDatabaseHelper.databasePath())
+                outputStream = FileOutputStream(mTaskDatabase.databasePath)
                 success = copyDataBase(inputStream, outputStream)
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -501,9 +298,6 @@ class DatabaseAdapter private constructor(context: Context) {
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
-            }
-            if (success) {
-                mContentResolver.notifyChange(KeepdoProvider.BASE_CONTENT_URI, null)
             }
             success
         } else {
@@ -546,9 +340,6 @@ class DatabaseAdapter private constructor(context: Context) {
     companion object {
         // Backup & Restore
         const val BACKUP_FILE_NAME = "keepdo.db"
-
-        private const val SDF_PATTERN_YMD = "yyyy-MM-dd"
-        private const val SDF_PATTERN_YM = "yyyy-MM"
 
         @Volatile
         private var instance: DatabaseAdapter? = null

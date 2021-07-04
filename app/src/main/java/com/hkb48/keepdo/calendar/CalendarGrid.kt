@@ -17,7 +17,7 @@ import java.util.*
 
 class CalendarGrid : Fragment() {
     private lateinit var mDatabaseAdapter: DatabaseAdapter
-    private lateinit var mTask: Task
+    private lateinit var mTaskInfo: TaskInfo
     private lateinit var mCalendarGrid: LinearLayout
 
     private var mMonthOffset = 0
@@ -32,9 +32,9 @@ class CalendarGrid : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val intent = requireActivity().intent
-        val taskId = intent.getLongExtra("TASK-ID", -1)
+        val taskId = intent.getIntExtra(TaskCalendarActivity.EXTRA_TASK_ID, TaskInfo.INVALID_TASKID)
         mDatabaseAdapter = DatabaseAdapter.getInstance(requireContext())
-        mTask = mDatabaseAdapter.getTask(taskId)!!
+        mTaskInfo = mDatabaseAdapter.getTask(taskId)!!
         mMonthOffset =
             requireArguments().getInt(POSITION_KEY) - CalendarFragment.INDEX_OF_THIS_MONTH
         mCalendarGrid = view.findViewById(R.id.calendar_grid)
@@ -80,7 +80,7 @@ class CalendarGrid : Fragment() {
             CONTEXT_MENU_CHECK_DONE -> {
                 showDoneIcon(imageView)
                 mDatabaseAdapter.setDoneStatus(
-                    mTask.taskID, selectedDate,
+                    mTaskInfo.taskId, selectedDate,
                     true
                 )
                 (requireActivity() as TaskCalendarActivity).playCheckSound()
@@ -89,7 +89,7 @@ class CalendarGrid : Fragment() {
             CONTEXT_MENU_UNCHECK_DONE -> {
                 hideDoneIcon(imageView)
                 mDatabaseAdapter.setDoneStatus(
-                    mTask.taskID, selectedDate,
+                    mTaskInfo.taskId, selectedDate,
                     false
                 )
                 consumed = true
@@ -99,7 +99,7 @@ class CalendarGrid : Fragment() {
         }
         val today = DateChangeTimeUtil.date
         if (consumed && selectedDate.compareTo(today) == 0) {
-            ReminderManager.setAlarm(requireContext(), mTask.taskID)
+            ReminderManager.setAlarm(requireContext(), mTaskInfo.taskId)
             TasksWidgetProvider.notifyDatasetChanged(requireContext())
         }
         return consumed || super.onContextItemSelected(item)
@@ -157,7 +157,7 @@ class CalendarGrid : Fragment() {
         val month = calendar[Calendar.MONTH]
         val today = DateChangeTimeUtil.dateTimeCalendar[Calendar.DAY_OF_MONTH]
         val doneDateList = mDatabaseAdapter.getHistoryInMonth(
-            mTask.taskID, calendar.time
+            mTaskInfo.taskId, year, month
         )
         val sdf = SimpleDateFormat("dd", Locale.JAPAN)
 
@@ -208,7 +208,7 @@ class CalendarGrid : Fragment() {
                 registerForContextMenu(child)
             }
             week = calendar[Calendar.DAY_OF_WEEK]
-            val isValidDay = mTask.recurrence.isValidDay(week)
+            val isValidDay = mTaskInfo.recurrence.isValidDay(week)
             if (isValidDay) {
                 if (mMonthOffset == 0 && day == today) {
                     child.setBackgroundResource(R.drawable.bg_calendar_day_today)

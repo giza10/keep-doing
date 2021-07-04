@@ -21,7 +21,7 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 
     private fun dispatchReminderEvent(context: Context, intent: Intent) {
-        val taskId = intent.getLongExtra(PARAM_TASK_ID, -1)
+        val taskId = intent.getIntExtra(EXTRA_TASK_ID, TaskInfo.INVALID_TASKID)
         NotificationController.showReminder(context, taskId)
         ReminderManager.setAlarm(context, taskId)
     }
@@ -37,7 +37,7 @@ class AlarmReceiver : BroadcastReceiver() {
         private val PACKAGE_NAME = AlarmReceiver::class.java.getPackage()!!.name
         val ACTION_REMINDER = "$PACKAGE_NAME.action.REMINDER"
         val ACTION_DATE_CHANGED = "$PACKAGE_NAME.action.DATE_CHANGED"
-        const val PARAM_TASK_ID = "TASK-ID"
+        const val EXTRA_TASK_ID = "TASK-ID"
         private const val TAG_KEEPDO = "#LOG_KEEPDO: "
     }
 }

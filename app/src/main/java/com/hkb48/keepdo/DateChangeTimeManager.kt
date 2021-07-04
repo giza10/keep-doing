@@ -16,12 +16,10 @@ class DateChangeTimeManager(private val mContext: Context) {
         object : Settings.OnChangedListener {
             override fun onDoneIconSettingChanged() {}
             override fun onDateChangeTimeSettingChanged() {
-                startAlarm()
+                if (mChangedListeners.size > 0) {
+                    startAlarm()
+                }
                 ReminderManager.setAlarmForAll(mContext)
-                mContext.contentResolver.notifyChange(
-                    KeepdoProvider.DateChangeTime.CONTENT_URI,
-                    null
-                )
                 TasksWidgetProvider.notifyDatasetChanged(mContext)
             }
 
