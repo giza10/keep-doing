@@ -1,4 +1,4 @@
-package com.hkb48.keepdo.data
+package com.hkb48.keepdo.db.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.sqlite.db.SupportSQLiteQuery
+import com.hkb48.keepdo.db.entity.TaskCompletion
 import java.util.*
 
 @Dao

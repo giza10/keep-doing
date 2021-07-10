@@ -1,5 +1,6 @@
 package com.hkb48.keepdo
 
+import com.hkb48.keepdo.db.entity.Task
 import java.io.Serializable
 import java.util.*
 
@@ -22,6 +23,20 @@ class Recurrence internal constructor(
             Calendar.FRIDAY -> friday
             Calendar.SATURDAY -> saturday
             else -> false
+        }
+    }
+
+    companion object {
+        fun getFromTask(task: Task): Recurrence {
+            return Recurrence(
+                task.monFrequency,
+                task.tueFrequency,
+                task.wedFrequency,
+                task.thrFrequency,
+                task.friFrequency,
+                task.satFrequency,
+                task.sunFrequency
+            )
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.hkb48.keepdo.data
+package com.hkb48.keepdo.db.entity
 
 import androidx.room.*
 import java.util.*

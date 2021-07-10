@@ -22,6 +22,8 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.hkb48.keepdo.calendar.TaskCalendarActivity
+import com.hkb48.keepdo.db.BackupManager
+import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.settings.Settings
 import com.hkb48.keepdo.settings.SettingsActivity
 import com.hkb48.keepdo.util.CompatUtil
@@ -50,19 +52,19 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             override fun onWeekStartDaySettingChanged() {
             }
         }
-    private val mDBAdapter by lazy { DatabaseAdapter.getInstance(this) }
-    private val taskViewModel: TaskViewModel by viewModels {
-        TaskViewModelFactory((application as KeepdoApplication).database)
-    }
     private lateinit var mDrawerLayout: DrawerLayout
     private lateinit var mDrawerToggle: ActionBarDrawerToggle
+    private val taskViewModel: TaskViewModel by viewModels {
+        TaskViewModelFactory(application)
+    }
+
     private val mCreateBackupFileLauncher =
         registerForActivityResult(
             ActivityResultContracts.CreateDocument()
         ) { uri ->
             if (uri != null) {
                 try {
-                    if (mDBAdapter.backupDataBase(uri)) {
+                    if (BackupManager.backup(applicationContext, uri)) {
                         Toast.makeText(
                             applicationContext,
                             R.string.backup_done, Toast.LENGTH_LONG
@@ -79,7 +81,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             if (uri != null) {
                 var success = false
                 try {
-                    success = mDBAdapter.restoreDataBase(uri)
+                    success = BackupManager.restore(applicationContext, uri)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -88,7 +90,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                         applicationContext,
                         R.string.restore_done, Toast.LENGTH_LONG
                     ).show()
-                    updateTaskList()
+                    updateTaskList(taskViewModel.getTaskList())
                     ReminderManager.setAlarmForAll(applicationContext)
                     TasksWidgetProvider.notifyDatasetChanged(applicationContext)
                 } else {
@@ -142,32 +144,27 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 // Show calendar view
                 val item = mDataList[position]
                 if (item.type == TYPE_ITEM) {
-                    val task = item.data as TaskInfo
+                    val task = item.data as Task
                     startActivity(Intent(
                         this@TasksActivity, TaskCalendarActivity::class.java
                     ).apply {
-                        putExtra(TaskCalendarActivity.EXTRA_TASK_ID, task.taskId)
+                        putExtra(TaskCalendarActivity.EXTRA_TASK_ID, task._id)
                     })
                 }
             }
 
-        taskViewModel.taskLiveData.observe(this, {
-            updateTaskList()
-        })
-        taskViewModel.doneStatusLiveData.observe(this, {
-            mContentsUpdated = true
-        })
+        subscribeToModel(taskViewModel)
+
         if (CompatUtil.isNotificationChannelSupported) {
             NotificationController.createNotificationChannel(applicationContext)
         }
         registerForContextMenu(taskListView)
-
-        updateTaskList()
+        updateTaskList(taskViewModel.getTaskList())
     }
 
     public override fun onResume() {
         if (mContentsUpdated) {
-            updateTaskList()
+            updateTaskList(taskViewModel.getTaskList())
         }
         mCheckSound.load()
         super.onResume()
@@ -212,7 +209,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         val listView = view as ListView
         val taskListItem = listView
             .getItemAtPosition(adapterInfo.position) as TaskListItem
-        val task = taskListItem.data as TaskInfo
+        val task = taskListItem.data as Task
         menu.setHeaderTitle(task.name)
         menu.add(0, CONTEXT_MENU_EDIT, 0, R.string.edit_task)
         menu.add(0, CONTEXT_MENU_DELETE, 1, R.string.delete_task)
@@ -221,8 +218,8 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     override fun onContextItemSelected(item: MenuItem): Boolean {
         val info = (item.menuInfo as AdapterContextMenuInfo)
         val taskListItem = mAdapter.getItem(info.position) as TaskListItem
-        val task = taskListItem.data as TaskInfo
-        val taskId = task.taskId
+        val task = taskListItem.data as Task
+        val taskId = task._id!!
         return when (item.itemId) {
             CONTEXT_MENU_EDIT -> {
                 startActivity(Intent(
@@ -240,8 +237,8 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     ) { _: DialogInterface?, _: Int ->
                         // Cancel the alarm for Reminder before deleting the task.
                         ReminderManager.cancelAlarm(applicationContext, taskId)
-                        mDBAdapter.deleteTask(taskId)
-                        updateTaskList()
+                        taskViewModel.deleteTask(taskId)
+                        updateTaskList(taskViewModel.getTaskList())
                         TasksWidgetProvider.notifyDatasetChanged(applicationContext)
                     }
                     .setNegativeButton(
@@ -257,44 +254,54 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         }
     }
 
+    private fun subscribeToModel(model: TaskViewModel) {
+        model.taskLiveData.observe(this, {
+            updateTaskList(it)
+        })
+        model.doneStatusLiveData.observe(this, {
+            updateTaskList(taskViewModel.getTaskList())
+        })
+    }
+
     /**
      * Update the task list view with latest DB information.
      */
-    private fun updateTaskList() {
-        val taskInfoList: List<TaskInfo> = mDBAdapter.taskInfoList
-        val taskInfoListToday: MutableList<TaskInfo> = ArrayList()
-        val taskInfoListNotToday: MutableList<TaskInfo> = ArrayList()
+    private fun updateTaskList(taskList: List<Task>) {
+        val taskListToday: MutableList<Task> = ArrayList()
+        val taskListNotToday: MutableList<Task> = ArrayList()
         val dayOfWeek = DateChangeTimeUtil.dateTimeCalendar[Calendar.DAY_OF_WEEK]
         mDataList.clear()
-        for (task in taskInfoList) {
-            if (task.recurrence.isValidDay(dayOfWeek)) {
-                taskInfoListToday.add(task)
+        for (task in taskList) {
+            if (Recurrence.getFromTask(task).isValidDay(dayOfWeek)) {
+                taskListToday.add(task)
             } else {
-                taskInfoListNotToday.add(task)
+                taskListNotToday.add(task)
             }
         }
-        if (taskInfoListToday.size > 0) {
+        if (taskListToday.size > 0) {
             // Dummy Task for header on the ListView
             val header = TaskListHeader()
             header.title = getString(R.string.tasklist_header_today_task)
             var taskListItem = TaskListItem(TYPE_HEADER, header, null, 0)
             mDataList.add(taskListItem)
-            for (task in taskInfoListToday) {
-                val lastDoneDate = mDBAdapter.getLastDoneDate(task.taskId)
-                val comboCount = mDBAdapter.getComboCount(task.taskId)
+            for (task in taskListToday) {
+                val taskId = task._id!!
+                val lastDoneDate = taskViewModel.getLastDoneDate(taskId)
+                val comboCount = taskViewModel.getComboCount(taskId)
                 taskListItem = TaskListItem(TYPE_ITEM, task, lastDoneDate, comboCount)
                 mDataList.add(taskListItem)
             }
         }
-        if (taskInfoListNotToday.size > 0) {
+        if (taskListNotToday.size > 0) {
             // Dummy Task for header on the ListView
             val header = TaskListHeader()
             header.title = getString(R.string.tasklist_header_other_task)
             var taskListItem = TaskListItem(TYPE_HEADER, header, null, 0)
             mDataList.add(taskListItem)
-            for (task in taskInfoListNotToday) {
-                val lastDoneDate = mDBAdapter.getLastDoneDate(task.taskId)
-                val comboCount = mDBAdapter.getComboCount(task.taskId)
+            for (task in taskListNotToday) {
+                val taskId = task._id!!
+                val lastDoneDate = taskViewModel.getLastDoneDate(taskId)
+                val comboCount = taskViewModel.getComboCount(taskId)
                 taskListItem = TaskListItem(TYPE_ITEM, task, lastDoneDate, comboCount)
                 mDataList.add(taskListItem)
             }
@@ -308,7 +315,9 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             .setMessage(R.string.date_changed)
             .setPositiveButton(
                 R.string.dialog_ok
-            ) { _: DialogInterface?, _: Int -> updateTaskList() }.setCancelable(false)
+            ) { _: DialogInterface?, _: Int ->
+                updateTaskList(taskViewModel.getTaskList())
+            }.setCancelable(false)
             .create().show()
     }
 
@@ -358,7 +367,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     .checkedItemPosition) {
                     0 -> {
                         // execute backup
-                        mCreateBackupFileLauncher.launch(DatabaseAdapter.BACKUP_FILE_NAME)
+                        mCreateBackupFileLauncher.launch(BackupManager.BACKUP_FILE_NAME)
                     }
                     1 -> {
                         // execute restore
@@ -452,7 +461,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 }
             }
             if (isTask && (itemViewHolder != null)) {
-                val task = taskListItem.data as TaskInfo
+                val task = taskListItem.data as Task
                 val textView1 = itemViewHolder.textView1
                 val taskName = task.name
                 textView1?.text = taskName
@@ -465,10 +474,10 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     textView2?.visibility = View.GONE
                 }
                 val recurrenceView = itemViewHolder.recurrenceView
-                recurrenceView?.update(task.recurrence)
+                recurrenceView?.update(Recurrence.getFromTask(task))
                 val imageAlarm = itemViewHolder.imageAlarm
                 val textAlarm = itemViewHolder.textAlarm
-                val reminder = task.reminder
+                val reminder = Reminder(task.reminderEnabled, task.reminderTime ?: 0)
                 if (reminder.enabled) {
                     val alarmStr = String.format(
                         Locale.getDefault(),
@@ -497,11 +506,11 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                         parent1.findViewById(R.id.taskLastDoneDate)
                     val position1 = v.getTag() as Int
                     var taskListItem1 = getItem(position1) as TaskListItem
-                    val task1 = taskListItem1.data as TaskInfo
-                    val taskId = task1.taskId
+                    val task1 = taskListItem1.data as Task
+                    val taskId = task1._id!!
                     var checked1 = DateComparator.equals(taskListItem1.lastDoneDate, today)
                     checked1 = !checked1
-                    mDBAdapter.setDoneStatus(taskId, today, checked1)
+                    taskViewModel.setDoneStatus(taskId, today, checked1)
                     updateModel(task1, position1)
                     taskListItem1 = getItem(position1) as TaskListItem
                     updateView(taskListItem1, checked1, itemViewHolder1)
@@ -518,10 +527,11 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             return view
         }
 
-        private fun updateModel(taskInfo: TaskInfo, position: Int) {
-            val lastDoneDate = mDBAdapter.getLastDoneDate(taskInfo.taskId)
-            val comboCount = mDBAdapter.getComboCount(taskInfo.taskId)
-            val newTaskListItem = TaskListItem(TYPE_ITEM, taskInfo, lastDoneDate, comboCount)
+        private fun updateModel(task: Task, position: Int) {
+            val taskId = task._id!!
+            val lastDoneDate = taskViewModel.getLastDoneDate(taskId)
+            val comboCount = taskViewModel.getComboCount(taskId)
+            val newTaskListItem = TaskListItem(TYPE_ITEM, task, lastDoneDate, comboCount)
             mDataList[position] = newTaskListItem
         }
 

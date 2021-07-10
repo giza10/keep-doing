@@ -14,6 +14,7 @@ import android.os.Looper
 import android.util.Log
 import android.widget.RemoteViews
 import com.hkb48.keepdo.*
+import com.hkb48.keepdo.db.entity.Task
 import java.text.MessageFormat
 import java.util.*
 
@@ -44,19 +45,14 @@ class TasksWidgetProvider : AppWidgetProvider() {
                         AppWidgetManager.INVALID_APPWIDGET_ID
                     )
                     updateWidgetList(context, appWidgetId)
-                    val taskId = intent.getIntExtra(EXTRA_TASK_ID, TaskInfo.INVALID_TASKID)
+                    val taskId = intent.getIntExtra(EXTRA_TASK_ID, Task.INVALID_TASKID)
                     Handler(Looper.getMainLooper()).postDelayed({
-                        val model = TasksWidgetModel(context)
-                        val doneToday = model.getDoneStatus(taskId, model.todayDate)
-                        if (doneToday.not()) {
-                            context.sendBroadcast(
-                                Intent(context, ActionReceiver::class.java).apply {
-                                    putExtra(ActionReceiver.EXTRA_TASK_ID, taskId)
-                                }
-                            )
-                        }
+                        context.sendBroadcast(
+                            Intent(context, ActionReceiver::class.java).apply {
+                                putExtra(ActionReceiver.EXTRA_TASK_ID, taskId)
+                            }
+                        )
                         selectedItemIndex = INVALID_INDEX
-                        RemindAlarmInitReceiver.updateReminder(context)
                     }, 500)
                 } else {
                     context.startActivity(

@@ -1,4 +1,4 @@
-package com.hkb48.keepdo.data
+package com.hkb48.keepdo.db
 
 import android.content.Context
 import androidx.room.Database
@@ -7,6 +7,10 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.hkb48.keepdo.db.dao.TaskCompletionDao
+import com.hkb48.keepdo.db.dao.TaskDao
+import com.hkb48.keepdo.db.entity.Task
+import com.hkb48.keepdo.db.entity.TaskCompletion
 
 @Database(entities = [Task::class, TaskCompletion::class], version = 4)
 @TypeConverters(Converters::class)
@@ -60,7 +64,7 @@ abstract class TaskDatabase : RoomDatabase() {
                     ${Task.TASK_NAME} TEXT NOT NULL,
                     ${Task.FREQUENCY_MON} TEXT NOT NULL DEFAULT 'true',
                     ${Task.FREQUENCY_TUE} TEXT NOT NULL DEFAULT 'true',
-                    ${Task.FREQUENCY_WEN} TEXT NOT NULL DEFAULT 'true',
+                    ${Task.FREQUENCY_WED} TEXT NOT NULL DEFAULT 'true',
                     ${Task.FREQUENCY_THR} TEXT NOT NULL DEFAULT 'true',
                     ${Task.FREQUENCY_FRI} TEXT NOT NULL DEFAULT 'true',
                     ${Task.FREQUENCY_SAT} TEXT NOT NULL DEFAULT 'true',

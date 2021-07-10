@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.hkb48.keepdo.db.entity.Task
 
 class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -21,7 +22,7 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 
     private fun dispatchReminderEvent(context: Context, intent: Intent) {
-        val taskId = intent.getIntExtra(EXTRA_TASK_ID, TaskInfo.INVALID_TASKID)
+        val taskId = intent.getIntExtra(EXTRA_TASK_ID, Task.INVALID_TASKID)
         NotificationController.showReminder(context, taskId)
         ReminderManager.setAlarm(context, taskId)
     }

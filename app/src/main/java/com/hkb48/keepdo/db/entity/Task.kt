@@ -1,4 +1,4 @@
-package com.hkb48.keepdo.data
+package com.hkb48.keepdo.db.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -10,7 +10,7 @@ data class Task(
     @ColumnInfo(name = TASK_NAME) val name: String,
     @ColumnInfo(name = FREQUENCY_MON) val monFrequency: Boolean,
     @ColumnInfo(name = FREQUENCY_TUE) val tueFrequency: Boolean,
-    @ColumnInfo(name = FREQUENCY_WEN) val wedFrequency: Boolean,
+    @ColumnInfo(name = FREQUENCY_WED) val wedFrequency: Boolean,
     @ColumnInfo(name = FREQUENCY_THR) val thrFrequency: Boolean,
     @ColumnInfo(name = FREQUENCY_FRI) val friFrequency: Boolean,
     @ColumnInfo(name = FREQUENCY_SAT) val satFrequency: Boolean,
@@ -25,7 +25,7 @@ data class Task(
         const val TASK_NAME = "task_name"
         const val FREQUENCY_MON = "mon_frequency"
         const val FREQUENCY_TUE = "tue_frequency"
-        const val FREQUENCY_WEN = "wen_frequency"
+        const val FREQUENCY_WED = "wen_frequency"
         const val FREQUENCY_THR = "thr_frequency"
         const val FREQUENCY_FRI = "fri_frequency"
         const val FREQUENCY_SAT = "sat_frequency"
@@ -34,5 +34,7 @@ data class Task(
         const val REMINDER_ENABLED = "reminder_enabled"
         const val REMINDER_TIME = "reminder_time"
         const val TASK_LIST_ORDER = "task_list_order"
+
+        const val INVALID_TASKID = Int.MIN_VALUE
     }
 }

@@ -8,7 +8,9 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.hkb48.keepdo.*
+import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.settings.Settings
 import com.hkb48.keepdo.widget.TasksWidgetProvider
 import java.text.SimpleDateFormat
@@ -16,9 +18,11 @@ import java.util.*
 
 
 class CalendarGrid : Fragment() {
-    private lateinit var mDatabaseAdapter: DatabaseAdapter
-    private lateinit var mTaskInfo: TaskInfo
+    private lateinit var mTask: Task
     private lateinit var mCalendarGrid: LinearLayout
+    private val taskViewModel: TaskViewModel by viewModels {
+        TaskViewModelFactory(requireActivity().application)
+    }
 
     private var mMonthOffset = 0
 
@@ -32,9 +36,8 @@ class CalendarGrid : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val intent = requireActivity().intent
-        val taskId = intent.getIntExtra(TaskCalendarActivity.EXTRA_TASK_ID, TaskInfo.INVALID_TASKID)
-        mDatabaseAdapter = DatabaseAdapter.getInstance(requireContext())
-        mTaskInfo = mDatabaseAdapter.getTask(taskId)!!
+        val taskId = intent.getIntExtra(TaskCalendarActivity.EXTRA_TASK_ID, Task.INVALID_TASKID)
+        mTask = taskViewModel.getTask(taskId)!!
         mMonthOffset =
             requireArguments().getInt(POSITION_KEY) - CalendarFragment.INDEX_OF_THIS_MONTH
         mCalendarGrid = view.findViewById(R.id.calendar_grid)
@@ -79,8 +82,8 @@ class CalendarGrid : Fragment() {
         when (item.itemId) {
             CONTEXT_MENU_CHECK_DONE -> {
                 showDoneIcon(imageView)
-                mDatabaseAdapter.setDoneStatus(
-                    mTaskInfo.taskId, selectedDate,
+                taskViewModel.setDoneStatus(
+                    mTask._id!!, selectedDate,
                     true
                 )
                 (requireActivity() as TaskCalendarActivity).playCheckSound()
@@ -88,8 +91,8 @@ class CalendarGrid : Fragment() {
             }
             CONTEXT_MENU_UNCHECK_DONE -> {
                 hideDoneIcon(imageView)
-                mDatabaseAdapter.setDoneStatus(
-                    mTaskInfo.taskId, selectedDate,
+                taskViewModel.setDoneStatus(
+                    mTask._id!!, selectedDate,
                     false
                 )
                 consumed = true
@@ -99,7 +102,7 @@ class CalendarGrid : Fragment() {
         }
         val today = DateChangeTimeUtil.date
         if (consumed && selectedDate.compareTo(today) == 0) {
-            ReminderManager.setAlarm(requireContext(), mTaskInfo.taskId)
+            ReminderManager.setAlarm(requireContext(), mTask._id!!)
             TasksWidgetProvider.notifyDatasetChanged(requireContext())
         }
         return consumed || super.onContextItemSelected(item)
@@ -156,8 +159,8 @@ class CalendarGrid : Fragment() {
         val year = calendar[Calendar.YEAR]
         val month = calendar[Calendar.MONTH]
         val today = DateChangeTimeUtil.dateTimeCalendar[Calendar.DAY_OF_MONTH]
-        val doneDateList = mDatabaseAdapter.getHistoryInMonth(
-            mTaskInfo.taskId, year, month
+        val doneDateList = taskViewModel.getHistoryInMonth(
+            mTask._id!!, year, month
         )
         val sdf = SimpleDateFormat("dd", Locale.JAPAN)
 
@@ -208,7 +211,7 @@ class CalendarGrid : Fragment() {
                 registerForContextMenu(child)
             }
             week = calendar[Calendar.DAY_OF_WEEK]
-            val isValidDay = mTaskInfo.recurrence.isValidDay(week)
+            val isValidDay = Recurrence.getFromTask(mTask).isValidDay(week)
             if (isValidDay) {
                 if (mMonthOffset == 0 && day == today) {
                     child.setBackgroundResource(R.drawable.bg_calendar_day_today)

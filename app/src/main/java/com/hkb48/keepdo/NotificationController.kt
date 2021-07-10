@@ -28,10 +28,13 @@ object NotificationController {
     val notificationChannelId = "Channel_ID"
     fun showReminder(context: Context, taskId: Int) {
         var taskName: String? = null
-        DatabaseAdapter.getInstance(context).getTask(taskId)?.let {
-            taskName = it.name
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG_KEEPDO, "taskId:$taskId, taskName:$taskName")
+        val applicationContext = context.applicationContext
+        if (applicationContext is KeepdoApplication) {
+            applicationContext.database.taskDao().getTask(taskId)?.let {
+                taskName = it.name
+                if (BuildConfig.DEBUG) {
+                    Log.v(TAG_KEEPDO, "taskId:$taskId, taskName:$taskName")
+                }
             }
         }
         val builder = NotificationCompat.Builder(context, notificationChannelId)

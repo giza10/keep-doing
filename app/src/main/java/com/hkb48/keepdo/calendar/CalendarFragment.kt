@@ -13,11 +13,13 @@ import android.os.Looper
 import android.view.*
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.hkb48.keepdo.*
+import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.settings.Settings
 import com.hkb48.keepdo.util.CompatUtil
 import java.io.File
@@ -28,6 +30,10 @@ import java.util.*
 
 class CalendarFragment : Fragment() {
     private lateinit var mViewPager: ViewPager2
+    private val taskViewModel: TaskViewModel by viewModels {
+        TaskViewModelFactory(requireActivity().application)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -61,7 +67,7 @@ class CalendarFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val taskId = requireActivity().intent.getIntExtra(
-            TaskCalendarActivity.EXTRA_TASK_ID, TaskInfo.INVALID_TASKID
+            TaskCalendarActivity.EXTRA_TASK_ID, Task.INVALID_TASKID
         )
         return when (item.itemId) {
             R.id.menu_info -> {
@@ -109,9 +115,8 @@ class CalendarFragment : Fragment() {
                 e.printStackTrace()
             }
 
-            val dbAdapter = DatabaseAdapter.getInstance(requireContext())
-            val comboCount = dbAdapter.getComboCount(taskId)
-            val taskName = dbAdapter.getTask(taskId)!!.name
+            val comboCount = taskViewModel.getComboCount(taskId)
+            val taskName = taskViewModel.getTask(taskId)!!.name
             var extraText = ""
             val monthOffset = mViewPager.currentItem - INDEX_OF_THIS_MONTH
             if (monthOffset == 0 && comboCount > 1) {
@@ -120,7 +125,7 @@ class CalendarFragment : Fragment() {
                 val current = DateChangeTimeUtil.dateTimeCalendar
                 current.add(Calendar.MONTH, monthOffset)
                 current[Calendar.DAY_OF_MONTH] = 1
-                val doneDateList = dbAdapter.getHistoryInMonth(
+                val doneDateList = taskViewModel.getHistoryInMonth(
                     taskId, current[Calendar.YEAR], current[Calendar.MONTH]
                 )
                 extraText += requireContext().getString(

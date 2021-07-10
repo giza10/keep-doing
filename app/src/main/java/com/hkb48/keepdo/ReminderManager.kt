@@ -5,30 +5,27 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.hkb48.keepdo.db.entity.Task
 import java.text.MessageFormat
 import java.util.*
 
 object ReminderManager {
     fun setAlarmForAll(context: Context) {
-        val dbAdapter = DatabaseAdapter.getInstance(context)
-        val taskList = dbAdapter.taskInfoList
-        for (task in taskList) {
-            setAlarm(context, task.taskId)
+        for (task in getTaskList(context)) {
+            setAlarm(context, task._id!!)
         }
     }
 
     fun setAlarm(context: Context, taskId: Int) {
-        val dbAdapter = DatabaseAdapter.getInstance(context)
-        val task = dbAdapter.getTask(taskId)
-        if (task != null) {
-            val reminder = task.reminder
+        getTask(context, taskId)?.apply {
+            val reminder = Reminder(this.reminderEnabled, this.reminderTime ?: 0)
             if (reminder.enabled) {
                 val today = DateChangeTimeUtil.dateTime
-                val isDoneToday = dbAdapter.getDoneStatus(taskId, today)
+                val isDoneToday = getDoneStatus(context, taskId, today)
                 val hourOfDay = reminder.hourOfDay
                 val minute = reminder.minute
                 val nextSchedule = getNextSchedule(
-                    task.recurrence,
+                    Recurrence.getFromTask(this),
                     isDoneToday, hourOfDay, minute
                 )
                 if (nextSchedule != null) {
@@ -43,15 +40,13 @@ object ReminderManager {
     }
 
     fun cancelAlarm(context: Context, taskId: Int) {
-        val task = DatabaseAdapter.getInstance(context).getTask(taskId)
-        if (task?.reminder?.enabled == true) {
+        if (getTask(context, taskId)?.reminderEnabled == true) {
             stopAlarm(context, taskId)
         }
     }
 
-    fun getRemainingUndoneTaskList(context: Context): List<TaskInfo> {
-        val dbAdapter = DatabaseAdapter.getInstance(context)
-        val remainingList: MutableList<TaskInfo> = ArrayList()
+    fun getRemainingUndoneTaskList(context: Context): List<Task> {
+        val remainingList: MutableList<Task> = ArrayList()
         val realTime = Calendar.getInstance()
         realTime.timeInMillis = System.currentTimeMillis()
         val today = DateChangeTimeUtil.getDateTimeCalendar(realTime).time
@@ -60,9 +55,9 @@ object ReminderManager {
         // Add 1 minute to avoid that the next alarm is set to current time
         // again.
         realTime.add(Calendar.MINUTE, 1)
-        for (task in dbAdapter.taskInfoList) {
-            val reminder = task.reminder
-            if (reminder.enabled && task.recurrence.isValidDay(dayOfWeek)) {
+        for (task in getTaskList(context)) {
+            val reminder = Reminder(task.reminderEnabled, task.reminderTime ?: 0)
+            if (reminder.enabled && Recurrence.getFromTask(task).isValidDay(dayOfWeek)) {
                 val hourOfDay = reminder.hourOfDay
                 val minute = reminder.minute
                 val reminderTime = Calendar.getInstance()
@@ -72,7 +67,7 @@ object ReminderManager {
 
                 // Check if today's reminder time is already exceeded
                 if (hasReminderAlreadyExceeded(realTime, reminderTime)) {
-                    if (dbAdapter.getDoneStatus(task.taskId, today).not()) {
+                    if (getDoneStatus(context, task._id!!, today).not()) {
                         remainingList.add(task)
                     }
                 }
@@ -189,6 +184,33 @@ object ReminderManager {
         )
     }
 
+    private fun getTaskList(context: Context): List<Task> {
+        val applicationContext = context.applicationContext
+        return if (applicationContext is KeepdoApplication) {
+            applicationContext.database.taskDao().getTaskListByOrder()
+        } else {
+            listOf()
+        }
+    }
+
+    private fun getTask(context: Context, taskId: Int): Task? {
+        val applicationContext = context.applicationContext
+        return if (applicationContext is KeepdoApplication) {
+            applicationContext.database.taskDao().getTask(taskId)
+        } else {
+            null
+        }
+    }
+
+    private fun getDoneStatus(context: Context, taskId: Int, date: Date): Boolean {
+        val applicationContext = context.applicationContext
+        return if (applicationContext is KeepdoApplication) {
+            applicationContext.database.taskCompletionDao().getByDate(taskId, date).count() > 0
+        } else {
+            false
+        }
+    }
+
     private fun dumpLog(taskId: Int, timeInMillis: Long) {
         if (BuildConfig.DEBUG) {
             val time = Calendar.getInstance()
@@ -201,5 +223,4 @@ object ReminderManager {
     }
 
     private const val TAG_KEEPDO = "#LOG_KEEPDO: "
-
 }

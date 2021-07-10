@@ -7,20 +7,24 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.Button
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.hkb48.keepdo.SortableListView.DragAndDropListener
+import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.widget.TasksWidgetProvider
 
 
 class TaskSortingActivity : AppCompatActivity() {
     private val mAdapter = TaskAdapter()
-    private val mDBAdapter = DatabaseAdapter.getInstance(this)
-    private val mDataList: MutableList<TaskInfo> = mDBAdapter.taskInfoList
+    private val taskViewModel: TaskViewModel by viewModels {
+        TaskViewModelFactory(application)
+    }
+    private val mDataList: MutableList<Task> by lazy { taskViewModel.getTaskList() }
     private val onDrop: DragAndDropListener = object : DragAndDropListener {
         override fun onDrag(from: Int, to: Int) {
             if (from != to) {
-                val item = mAdapter.getItem(from) as TaskInfo
+                val item = mAdapter.getItem(from) as Task
                 mDataList.removeAt(from)
                 mDataList.add(to, item)
                 mAdapter.notifyDataSetChanged()
@@ -63,8 +67,22 @@ class TaskSortingActivity : AppCompatActivity() {
     private fun onSaveClicked() {
         for (index in mDataList.indices) {
             val task = mDataList[index]
-            task.order = index
-            mDBAdapter.editTask(task)
+            val newTask = Task(
+                task._id,
+                task.name,
+                task.monFrequency,
+                task.tueFrequency,
+                task.wedFrequency,
+                task.thrFrequency,
+                task.friFrequency,
+                task.satFrequency,
+                task.sunFrequency,
+                task.context,
+                task.reminderEnabled,
+                task.reminderTime,
+                index
+            )
+            taskViewModel.editTask(newTask)
         }
         TasksWidgetProvider.notifyDatasetChanged(this)
         finish()
@@ -105,7 +123,7 @@ class TaskSortingActivity : AppCompatActivity() {
             val view = convertView ?: LayoutInflater.from(parent.context)
                 .inflate(R.layout.task_sorting_list_item, parent, false)
             val itemView = view as SortableListItem
-            val task = getItem(position) as TaskInfo
+            val task = getItem(position) as Task
             itemView.setText(task.name)
             return view
         }

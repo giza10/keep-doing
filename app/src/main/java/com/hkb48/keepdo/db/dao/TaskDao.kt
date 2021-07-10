@@ -1,8 +1,9 @@
-package com.hkb48.keepdo.data
+package com.hkb48.keepdo.db.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
+import com.hkb48.keepdo.db.entity.Task
 
 @Dao
 interface TaskDao {

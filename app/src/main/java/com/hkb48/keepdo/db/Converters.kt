@@ -1,4 +1,4 @@
-package com.hkb48.keepdo.data
+package com.hkb48.keepdo.db
 
 import androidx.room.TypeConverter
 import java.text.ParseException

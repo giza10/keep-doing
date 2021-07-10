@@ -1,48 +1,49 @@
 package com.hkb48.keepdo.widget
 
 import android.content.Context
-import com.hkb48.keepdo.DatabaseAdapter
 import com.hkb48.keepdo.DateChangeTimeUtil
-import com.hkb48.keepdo.TaskInfo
+import com.hkb48.keepdo.KeepdoApplication
+import com.hkb48.keepdo.Recurrence
+import com.hkb48.keepdo.db.entity.Task
 import java.util.*
 
 internal class TasksWidgetModel(private val mContext: Context) {
-    private val mTaskInfoList: MutableList<TaskInfo> = ArrayList()
+    private val mTaskList: MutableList<Task> = ArrayList()
     fun reload() {
-        mTaskInfoList.clear()
-        val fullTaskList = DatabaseAdapter.getInstance(mContext).taskInfoList
+        mTaskList.clear()
+        val fullTaskList = (mContext as KeepdoApplication).database.taskDao().getTaskListByOrder()
         val today = todayDate
         for (task in fullTaskList) {
-            if (getDoneStatus(task.taskId, today).not() && isValidDay(task, today)) {
-                mTaskInfoList.add(task)
+            if (getDoneStatus(task._id!!, today).not() && isValidDay(task, today)) {
+                mTaskList.add(task)
             }
         }
     }
 
     val itemCount: Int
-        get() = mTaskInfoList.size
+        get() = mTaskList.size
 
     fun getTaskId(position: Int): Int {
-        return mTaskInfoList[position].taskId
+        return mTaskList[position]._id!!
     }
 
-    fun getTaskName(position: Int): String? {
-        return mTaskInfoList[position].name
+    fun getTaskName(position: Int): String {
+        return mTaskList[position].name
     }
 
-    fun getDoneStatus(taskId: Int, date: Date): Boolean {
-        return DatabaseAdapter.getInstance(mContext).getDoneStatus(taskId, date)
+    private fun getDoneStatus(taskId: Int, date: Date): Boolean {
+        return (mContext as KeepdoApplication).database.taskCompletionDao().getByDate(taskId, date)
+            .count() > 0
     }
 
     val todayDate: Date
         get() = DateChangeTimeUtil.dateTime
 
-    private fun isValidDay(taskInfo: TaskInfo, date: Date?): Boolean {
+    private fun isValidDay(task: Task, date: Date?): Boolean {
         return if (date != null) {
             val calendar = Calendar.getInstance()
             calendar.time = date
-            val dayOfWeek = calendar[Calendar.DAY_OF_WEEK]
-            taskInfo.recurrence.isValidDay(dayOfWeek)
+            Recurrence.getFromTask(task).isValidDay(calendar[Calendar.DAY_OF_WEEK])
         } else {
             false
         }

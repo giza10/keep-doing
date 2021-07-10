@@ -3,25 +3,55 @@ package com.hkb48.keepdo
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.database.sqlite.SQLiteException
+import com.hkb48.keepdo.db.entity.Task
+import com.hkb48.keepdo.db.entity.TaskCompletion
 import com.hkb48.keepdo.widget.TasksWidgetProvider
+import java.util.*
 
 class ActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val taskId = intent.getIntExtra(EXTRA_TASK_ID, TaskInfo.INVALID_TASKID)
-        DatabaseAdapter.getInstance(context)
-            .setDoneStatus(taskId, DateChangeTimeUtil.dateTime, true)
+        val taskId = intent.getIntExtra(EXTRA_TASK_ID, Task.INVALID_TASKID)
+        val today = DateChangeTimeUtil.dateTime
+        if (getDoneStatus(context, taskId, today).not()) {
+            setDoneStatus(context, taskId, today)
 
-        // Dismiss notification on wearable
-        NotificationController.cancelReminder(context, taskId)
+            // Dismiss notification on wearable
+            NotificationController.cancelReminder(context, taskId)
 
-        // Dismiss notification on handheld
-        NotificationController.cancelReminder(
-            context,
-            NotificationController.NOTIFICATION_ID_HANDHELD
-        )
+            // Dismiss notification on handheld
+            NotificationController.cancelReminder(
+                context,
+                NotificationController.NOTIFICATION_ID_HANDHELD
+            )
 
-        // Update App widget
-        TasksWidgetProvider.notifyDatasetChanged(context)
+            // Update App widget
+            TasksWidgetProvider.notifyDatasetChanged(context)
+
+            // Update reminder alarm
+            RemindAlarmInitReceiver.updateReminder(context, taskId)
+        }
+    }
+
+    private fun getDoneStatus(context: Context, taskId: Int, date: Date): Boolean {
+        val applicationContext = context.applicationContext
+        return if (applicationContext is KeepdoApplication) {
+            applicationContext.database.taskCompletionDao().getByDate(taskId, date).count() > 0
+        } else {
+            true
+        }
+    }
+
+    private fun setDoneStatus(context: Context, taskId: Int, date: Date) {
+        val applicationContext = context.applicationContext
+        if (applicationContext is KeepdoApplication) {
+            try {
+                val taskCompletion = TaskCompletion(null, taskId, date)
+                applicationContext.database.taskCompletionDao().insert(taskCompletion)
+            } catch (e: SQLiteException) {
+                e.printStackTrace()
+            }
+        }
     }
 
     companion object {
