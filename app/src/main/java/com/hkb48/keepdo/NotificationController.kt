@@ -30,7 +30,7 @@ object NotificationController {
         var taskName: String? = null
         val applicationContext = context.applicationContext
         if (applicationContext is KeepdoApplication) {
-            applicationContext.database.taskDao().getTask(taskId)?.let {
+            applicationContext.getDatabase().taskDao().getTask(taskId)?.let {
                 taskName = it.name
                 if (BuildConfig.DEBUG) {
                     Log.v(TAG_KEEPDO, "taskId:$taskId, taskName:$taskName")

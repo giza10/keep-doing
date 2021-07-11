@@ -5,10 +5,16 @@ import com.hkb48.keepdo.db.TaskDatabase
 import com.hkb48.keepdo.settings.Settings
 
 class KeepdoApplication : Application() {
-    val database by lazy { TaskDatabase.getInstance(this) }
-    val mDateChangeTimeManager = DateChangeTimeManager(this)
     override fun onCreate() {
         super.onCreate()
         Settings.initialize(this)
+    }
+
+    fun getDatabase(): TaskDatabase {
+        return TaskDatabase.getInstance(this)
+    }
+
+    fun getDateChangeTimeManager(): DateChangeTimeManager {
+        return DateChangeTimeManager(this)
     }
 }

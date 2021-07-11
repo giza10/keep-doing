@@ -11,10 +11,10 @@ internal class TasksWidgetModel(private val mContext: Context) {
     private val mTaskList: MutableList<Task> = ArrayList()
     fun reload() {
         mTaskList.clear()
-        val fullTaskList = (mContext as KeepdoApplication).database.taskDao().getTaskListByOrder()
-        val today = todayDate
+        val fullTaskList =
+            (mContext as KeepdoApplication).getDatabase().taskDao().getTaskListByOrder()
         for (task in fullTaskList) {
-            if (getDoneStatus(task._id!!, today).not() && isValidDay(task, today)) {
+            if (getDoneStatus(task._id!!, todayDate).not() && isValidDay(task, todayDate)) {
                 mTaskList.add(task)
             }
         }
@@ -32,7 +32,8 @@ internal class TasksWidgetModel(private val mContext: Context) {
     }
 
     private fun getDoneStatus(taskId: Int, date: Date): Boolean {
-        return (mContext as KeepdoApplication).database.taskCompletionDao().getByDate(taskId, date)
+        return (mContext as KeepdoApplication).getDatabase().taskCompletionDao()
+            .getByDate(taskId, date)
             .count() > 0
     }
 

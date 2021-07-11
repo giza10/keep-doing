@@ -132,7 +132,8 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         }
 
         Settings.registerOnChangedListener(mSettingsChangedListener)
-        (application as KeepdoApplication).mDateChangeTimeManager.registerOnDateChangedListener(this)
+        (application as KeepdoApplication).getDateChangeTimeManager()
+            .registerOnDateChangedListener(this)
 
         // Cancel notification (if displayed)
         NotificationController.cancelReminder(this)
@@ -176,9 +177,10 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     }
 
     public override fun onDestroy() {
-        (application as KeepdoApplication).mDateChangeTimeManager.unregisterOnDateChangedListener(
-            this
-        )
+        (application as KeepdoApplication).getDateChangeTimeManager()
+            .unregisterOnDateChangedListener(
+                this
+            )
         super.onDestroy()
     }
 

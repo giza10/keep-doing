@@ -30,7 +30,7 @@ class AlarmReceiver : BroadcastReceiver() {
     private fun dispatchDateChangedEvent(context: Context) {
         val applicationContext = context.applicationContext
         if (applicationContext is KeepdoApplication) {
-            applicationContext.mDateChangeTimeManager.dateChanged()
+            applicationContext.getDateChangeTimeManager().dateChanged()
         }
     }
 

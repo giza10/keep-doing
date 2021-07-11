@@ -187,7 +187,7 @@ object ReminderManager {
     private fun getTaskList(context: Context): List<Task> {
         val applicationContext = context.applicationContext
         return if (applicationContext is KeepdoApplication) {
-            applicationContext.database.taskDao().getTaskListByOrder()
+            applicationContext.getDatabase().taskDao().getTaskListByOrder()
         } else {
             listOf()
         }
@@ -196,7 +196,7 @@ object ReminderManager {
     private fun getTask(context: Context, taskId: Int): Task? {
         val applicationContext = context.applicationContext
         return if (applicationContext is KeepdoApplication) {
-            applicationContext.database.taskDao().getTask(taskId)
+            applicationContext.getDatabase().taskDao().getTask(taskId)
         } else {
             null
         }
@@ -205,7 +205,7 @@ object ReminderManager {
     private fun getDoneStatus(context: Context, taskId: Int, date: Date): Boolean {
         val applicationContext = context.applicationContext
         return if (applicationContext is KeepdoApplication) {
-            applicationContext.database.taskCompletionDao().getByDate(taskId, date).count() > 0
+            applicationContext.getDatabase().taskCompletionDao().getByDate(taskId, date).count() > 0
         } else {
             false
         }

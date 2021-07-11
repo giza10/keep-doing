@@ -36,7 +36,7 @@ class ActionReceiver : BroadcastReceiver() {
     private fun getDoneStatus(context: Context, taskId: Int, date: Date): Boolean {
         val applicationContext = context.applicationContext
         return if (applicationContext is KeepdoApplication) {
-            applicationContext.database.taskCompletionDao().getByDate(taskId, date).count() > 0
+            applicationContext.getDatabase().taskCompletionDao().getByDate(taskId, date).count() > 0
         } else {
             true
         }
@@ -47,7 +47,7 @@ class ActionReceiver : BroadcastReceiver() {
         if (applicationContext is KeepdoApplication) {
             try {
                 val taskCompletion = TaskCompletion(null, taskId, date)
-                applicationContext.database.taskCompletionDao().insert(taskCompletion)
+                applicationContext.getDatabase().taskCompletionDao().insert(taskCompletion)
             } catch (e: SQLiteException) {
                 e.printStackTrace()
             }

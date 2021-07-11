@@ -8,7 +8,7 @@ import java.io.*
 
 object BackupManager {
     fun backup(context: Context, outputFile: Uri): Boolean {
-        val db = (context as KeepdoApplication).database
+        val db = (context as KeepdoApplication).getDatabase()
         var inputStream: InputStream? = null
         var outputStream: OutputStream? = null
         var success = false
@@ -36,7 +36,7 @@ object BackupManager {
 
     fun restore(context: Context, inputFile: Uri): Boolean {
         return if (isValidSQLite(context, inputFile)) {
-            val db = (context as KeepdoApplication).database
+            val db = (context as KeepdoApplication).getDatabase()
             var inputStream: InputStream? = null
             var outputStream: OutputStream? = null
             var success = false
