@@ -8,8 +8,7 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation 'com.google.android.material:material:1.5.0-alpha01'
     implementation "androidx.core:core-ktx:1.6.0"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation("com.google.devtools.ksp:symbol-processing-api:1.5.20-1.0.0-beta04")
+    implementation("com.google.devtools.ksp:symbol-processing-api:1.5.21-1.0.0-beta05")
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
     def room_version = "2.3.0"
@@ -21,7 +20,7 @@ dependencies {
 
 android {
     compileSdkVersion 30
-    buildToolsVersion '30.0.2'
+    buildToolsVersion '30.0.3'
 
     defaultConfig {
         applicationId "com.hkb48.keepdo"

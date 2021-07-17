@@ -68,6 +68,7 @@ class GeneralSettingsFragment : PreferenceFragmentCompat(), Preference.OnPrefere
             alertGroup.removePreference(mVibrateWhenPref)
         } else {
             alertGroup.removePreference(notificationPref)
+            @Suppress("DEPRECATION")
             val vibrator = requireContext().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
             if (!vibrator?.hasVibrator()!!) {
                 alertGroup.removePreference(mVibrateWhenPref)
