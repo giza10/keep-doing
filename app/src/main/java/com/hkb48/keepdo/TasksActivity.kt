@@ -369,7 +369,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     .checkedItemPosition) {
                     0 -> {
                         // execute backup
-                        mCreateBackupFileLauncher.launch(BackupManager.BACKUP_FILE_NAME)
+                        mCreateBackupFileLauncher.launch(BackupManager.backupFileName)
                     }
                     1 -> {
                         // execute restore

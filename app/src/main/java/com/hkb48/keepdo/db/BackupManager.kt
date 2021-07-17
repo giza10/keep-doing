@@ -5,6 +5,8 @@ import android.net.Uri
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.hkb48.keepdo.KeepdoApplication
 import java.io.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 object BackupManager {
     fun backup(context: Context, outputFile: Uri): Boolean {
@@ -92,5 +94,6 @@ object BackupManager {
         }
     }
 
-    const val BACKUP_FILE_NAME = "keepdo.db"
+    val backupFileName: String
+        get() = SimpleDateFormat("'keepdo_db_'yyyyMMdd'.bin'", Locale.JAPAN).format(Date())
 }
