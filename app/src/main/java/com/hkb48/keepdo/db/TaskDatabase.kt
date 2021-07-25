@@ -30,7 +30,6 @@ abstract class TaskDatabase : RoomDatabase() {
                 context.applicationContext,
                 TaskDatabase::class.java, DATABASE_NAME
             )
-                .allowMainThreadQueries()
                 .setJournalMode(JournalMode.TRUNCATE)
                 .addMigrations(MIGRATION_1_2)
                 .addMigrations(MIGRATION_2_3)

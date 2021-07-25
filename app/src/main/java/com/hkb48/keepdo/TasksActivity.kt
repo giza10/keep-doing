@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.*
 import android.view.ContextMenu.ContextMenuInfo
 import android.widget.*
@@ -19,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.hkb48.keepdo.calendar.TaskCalendarActivity
@@ -28,15 +30,22 @@ import com.hkb48.keepdo.settings.Settings
 import com.hkb48.keepdo.settings.SettingsActivity
 import com.hkb48.keepdo.util.CompatUtil
 import com.hkb48.keepdo.util.DateComparator
+import com.hkb48.keepdo.viewmodel.TaskViewModel
+import com.hkb48.keepdo.viewmodel.TaskViewModelFactory
 import com.hkb48.keepdo.widget.TasksWidgetProvider
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.*
 
 
 class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
     DateChangeTimeManager.OnDateChangedListener {
-    private val mDataList: MutableList<TaskListItem> = ArrayList()
+    private var mDataList: MutableList<TaskListItem> = ArrayList()
     private val mCheckSound = CheckSoundPlayer(this)
     private val mAdapter = TaskAdapter()
+    private lateinit var mTaskList: List<Task>
 
     private var mContentsUpdated = false
     private val mSettingsChangedListener: Settings.OnChangedListener =
@@ -86,13 +95,16 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     e.printStackTrace()
                 }
                 if (success) {
+                    lifecycleScope.launch {
+                        mTaskList = taskViewModel.getTaskList()
+                        updateTaskList()
+                        ReminderManager.setAlarmForAll(applicationContext)
+                        TasksWidgetProvider.notifyDatasetChanged(applicationContext)
+                    }
                     Toast.makeText(
                         applicationContext,
                         R.string.restore_done, Toast.LENGTH_LONG
                     ).show()
-                    updateTaskList(taskViewModel.getTaskList())
-                    ReminderManager.setAlarmForAll(applicationContext)
-                    TasksWidgetProvider.notifyDatasetChanged(applicationContext)
                 } else {
                     Toast.makeText(
                         applicationContext,
@@ -160,12 +172,16 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             NotificationController.createNotificationChannel(applicationContext)
         }
         registerForContextMenu(taskListView)
-        updateTaskList(taskViewModel.getTaskList())
+
+        runBlocking {
+            mTaskList = taskViewModel.getTaskList()
+            updateTaskList()
+        }
     }
 
     public override fun onResume() {
         if (mContentsUpdated) {
-            updateTaskList(taskViewModel.getTaskList())
+            updateTaskListWithLifecycleScope()
         }
         mCheckSound.load()
         super.onResume()
@@ -239,9 +255,10 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     ) { _: DialogInterface?, _: Int ->
                         // Cancel the alarm for Reminder before deleting the task.
                         ReminderManager.cancelAlarm(applicationContext, taskId)
-                        taskViewModel.deleteTask(taskId)
-                        updateTaskList(taskViewModel.getTaskList())
-                        TasksWidgetProvider.notifyDatasetChanged(applicationContext)
+                        lifecycleScope.launch {
+                            taskViewModel.deleteTask(taskId)
+                            TasksWidgetProvider.notifyDatasetChanged(applicationContext)
+                        }
                     }
                     .setNegativeButton(
                         R.string.dialog_cancel
@@ -257,59 +274,77 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun subscribeToModel(model: TaskViewModel) {
-        model.taskLiveData.observe(this, {
-            updateTaskList(it)
+        model.getObservableTaskList().observe(this, { taskList ->
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG_KEEPDO, "Task database updated")
+            }
+            mTaskList = taskList
+            updateTaskListWithLifecycleScope()
         })
-        model.doneStatusLiveData.observe(this, {
-            updateTaskList(taskViewModel.getTaskList())
+        model.getObservableDoneStatusList().observe(this, {
+            updateTaskListWithLifecycleScope()
         })
+    }
+
+    private val mutex = Mutex()
+
+    private fun updateTaskListWithLifecycleScope() = lifecycleScope.launch {
+        updateTaskList()
     }
 
     /**
      * Update the task list view with latest DB information.
      */
-    private fun updateTaskList(taskList: List<Task>) {
-        val taskListToday: MutableList<Task> = ArrayList()
-        val taskListNotToday: MutableList<Task> = ArrayList()
-        val dayOfWeek = DateChangeTimeUtil.dateTimeCalendar[Calendar.DAY_OF_WEEK]
-        mDataList.clear()
-        for (task in taskList) {
-            if (Recurrence.getFromTask(task).isValidDay(dayOfWeek)) {
-                taskListToday.add(task)
-            } else {
-                taskListNotToday.add(task)
-            }
+    private suspend fun updateTaskList() {
+        if (::mTaskList.isInitialized.not()) {
+            return
         }
-        if (taskListToday.size > 0) {
-            // Dummy Task for header on the ListView
-            val header = TaskListHeader()
-            header.title = getString(R.string.tasklist_header_today_task)
-            var taskListItem = TaskListItem(TYPE_HEADER, header, null, 0)
-            mDataList.add(taskListItem)
-            for (task in taskListToday) {
-                val taskId = task._id!!
-                val lastDoneDate = taskViewModel.getLastDoneDate(taskId)
-                val comboCount = taskViewModel.getComboCount(taskId)
-                taskListItem = TaskListItem(TYPE_ITEM, task, lastDoneDate, comboCount)
-                mDataList.add(taskListItem)
+
+        mutex.withLock {
+            val dataList: MutableList<TaskListItem> = ArrayList()
+            val taskListToday: MutableList<Task> = ArrayList()
+            val taskListNotToday: MutableList<Task> = ArrayList()
+            val dayOfWeek = DateChangeTimeUtil.dateTimeCalendar[Calendar.DAY_OF_WEEK]
+
+            for (task in mTaskList) {
+                if (Recurrence.getFromTask(task).isValidDay(dayOfWeek)) {
+                    taskListToday.add(task)
+                } else {
+                    taskListNotToday.add(task)
+                }
             }
-        }
-        if (taskListNotToday.size > 0) {
-            // Dummy Task for header on the ListView
-            val header = TaskListHeader()
-            header.title = getString(R.string.tasklist_header_other_task)
-            var taskListItem = TaskListItem(TYPE_HEADER, header, null, 0)
-            mDataList.add(taskListItem)
-            for (task in taskListNotToday) {
-                val taskId = task._id!!
-                val lastDoneDate = taskViewModel.getLastDoneDate(taskId)
-                val comboCount = taskViewModel.getComboCount(taskId)
-                taskListItem = TaskListItem(TYPE_ITEM, task, lastDoneDate, comboCount)
-                mDataList.add(taskListItem)
+            if (taskListToday.size > 0) {
+                // Dummy Task for header on the ListView
+                val header = TaskListHeader()
+                header.title = getString(R.string.tasklist_header_today_task)
+                var taskListItem = TaskListItem(TYPE_HEADER, header, null, 0)
+                dataList.add(taskListItem)
+                for (task in taskListToday) {
+                    val taskId = task._id!!
+                    val lastDoneDate = taskViewModel.getLastDoneDate(taskId)
+                    val comboCount = taskViewModel.getComboCount(taskId)
+                    taskListItem = TaskListItem(TYPE_ITEM, task, lastDoneDate, comboCount)
+                    dataList.add(taskListItem)
+                }
             }
+            if (taskListNotToday.size > 0) {
+                // Dummy Task for header on the ListView
+                val header = TaskListHeader()
+                header.title = getString(R.string.tasklist_header_other_task)
+                var taskListItem = TaskListItem(TYPE_HEADER, header, null, 0)
+                dataList.add(taskListItem)
+                for (task in taskListNotToday) {
+                    val taskId = task._id!!
+                    val lastDoneDate = taskViewModel.getLastDoneDate(taskId)
+                    val comboCount = taskViewModel.getComboCount(taskId)
+                    taskListItem = TaskListItem(TYPE_ITEM, task, lastDoneDate, comboCount)
+                    dataList.add(taskListItem)
+                }
+            }
+            mDataList = dataList
+            mAdapter.notifyDataSetChanged()
+            mContentsUpdated = false
         }
-        mAdapter.notifyDataSetChanged()
-        mContentsUpdated = false
     }
 
     override fun onDateChanged() {
@@ -318,7 +353,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             .setPositiveButton(
                 R.string.dialog_ok
             ) { _: DialogInterface?, _: Int ->
-                updateTaskList(taskViewModel.getTaskList())
+                updateTaskListWithLifecycleScope()
             }.setCancelable(false)
             .create().show()
     }
@@ -501,25 +536,27 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 updateView(taskListItem, checked, itemViewHolder)
                 imageView?.tag = position
                 imageView?.setOnClickListener { v: View ->
-                    val parent1 = v.parent as View
-                    val itemViewHolder1 = ItemViewHolder()
-                    itemViewHolder1.imageView = v as ImageView
-                    itemViewHolder1.lastDoneDateTextView =
-                        parent1.findViewById(R.id.taskLastDoneDate)
-                    val position1 = v.getTag() as Int
-                    var taskListItem1 = getItem(position1) as TaskListItem
-                    val task1 = taskListItem1.data as Task
-                    val taskId = task1._id!!
-                    var checked1 = DateComparator.equals(taskListItem1.lastDoneDate, today)
-                    checked1 = !checked1
-                    taskViewModel.setDoneStatus(taskId, today, checked1)
-                    updateModel(task1, position1)
-                    taskListItem1 = getItem(position1) as TaskListItem
-                    updateView(taskListItem1, checked1, itemViewHolder1)
-                    ReminderManager.setAlarm(applicationContext, taskId)
-                    TasksWidgetProvider.notifyDatasetChanged(applicationContext)
-                    if (checked1) {
-                        mCheckSound.play()
+                    lifecycleScope.launch {
+                        val parent1 = v.parent as View
+                        val itemViewHolder1 = ItemViewHolder()
+                        itemViewHolder1.imageView = v as ImageView
+                        itemViewHolder1.lastDoneDateTextView =
+                            parent1.findViewById(R.id.taskLastDoneDate)
+                        val position1 = v.getTag() as Int
+                        var taskListItem1 = getItem(position1) as TaskListItem
+                        val task1 = taskListItem1.data as Task
+                        val taskId = task1._id!!
+                        var checked1 = DateComparator.equals(taskListItem1.lastDoneDate, today)
+                        checked1 = !checked1
+                        taskViewModel.setDoneStatus(taskId, today, checked1)
+                        updateModel(task1, position1)
+                        taskListItem1 = getItem(position1) as TaskListItem
+                        updateView(taskListItem1, checked1, itemViewHolder1)
+                        ReminderManager.setAlarm(applicationContext, taskId)
+                        TasksWidgetProvider.notifyDatasetChanged(applicationContext)
+                        if (checked1) {
+                            mCheckSound.play()
+                        }
                     }
                 }
             } else if (isTask.not() && (headerViewHolder != null)) {
@@ -529,7 +566,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             return view
         }
 
-        private fun updateModel(task: Task, position: Int) {
+        private suspend fun updateModel(task: Task, position: Int) {
             val taskId = task._id!!
             val lastDoneDate = taskViewModel.getLastDoneDate(taskId)
             val comboCount = taskViewModel.getComboCount(taskId)
@@ -628,5 +665,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
         // Delay to launch nav drawer item, to allow close animation to play
         private const val NAVDRAWER_LAUNCH_DELAY: Long = 250
+
+        private const val TAG_KEEPDO = "#LOG_KEEPDO: "
     }
 }

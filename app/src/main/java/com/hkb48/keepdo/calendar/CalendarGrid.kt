@@ -9,10 +9,19 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.hkb48.keepdo.*
+import androidx.lifecycle.lifecycleScope
+import com.hkb48.keepdo.DateChangeTimeUtil
+import com.hkb48.keepdo.R
+import com.hkb48.keepdo.Recurrence
+import com.hkb48.keepdo.ReminderManager
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.settings.Settings
+import com.hkb48.keepdo.viewmodel.TaskViewModel
+import com.hkb48.keepdo.viewmodel.TaskViewModelFactory
 import com.hkb48.keepdo.widget.TasksWidgetProvider
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -37,11 +46,13 @@ class CalendarGrid : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val intent = requireActivity().intent
         val taskId = intent.getIntExtra(TaskCalendarActivity.EXTRA_TASK_ID, Task.INVALID_TASKID)
-        mTask = taskViewModel.getTask(taskId)!!
         mMonthOffset =
             requireArguments().getInt(POSITION_KEY) - CalendarFragment.INDEX_OF_THIS_MONTH
         mCalendarGrid = view.findViewById(R.id.calendar_grid)
-        buildCalendar()
+        taskViewModel.getObservableTask(taskId).observe(viewLifecycleOwner, { task ->
+            mTask = task
+            buildCalendar()
+        })
     }
 
     override fun onResume() {
@@ -82,19 +93,17 @@ class CalendarGrid : Fragment() {
         when (item.itemId) {
             CONTEXT_MENU_CHECK_DONE -> {
                 showDoneIcon(imageView)
-                taskViewModel.setDoneStatus(
-                    mTask._id!!, selectedDate,
-                    true
-                )
+                lifecycleScope.launch {
+                    taskViewModel.setDoneStatus(mTask._id!!, selectedDate, true)
+                }
                 (requireActivity() as TaskCalendarActivity).playCheckSound()
                 consumed = true
             }
             CONTEXT_MENU_UNCHECK_DONE -> {
                 hideDoneIcon(imageView)
-                taskViewModel.setDoneStatus(
-                    mTask._id!!, selectedDate,
-                    false
-                )
+                lifecycleScope.launch {
+                    taskViewModel.setDoneStatus(mTask._id!!, selectedDate, false)
+                }
                 consumed = true
             }
             else -> {
@@ -136,12 +145,19 @@ class CalendarGrid : Fragment() {
         mCalendarGrid.addView(row, rowParams)
     }
 
-    private fun buildCalendar() {
-        val current = DateChangeTimeUtil.dateTimeCalendar
-        current.add(Calendar.MONTH, mMonthOffset)
-        current[Calendar.DAY_OF_MONTH] = 1
-        addDayOfWeek()
-        addDayOfMonth(current)
+    private val mutex = Mutex()
+
+    private fun buildCalendar() = lifecycleScope.launch {
+        // Mutex lock to avoid concurrent view update because livedata notification sometimes
+        // comes twice.
+        mutex.withLock {
+            mCalendarGrid.removeAllViews()
+            val current = DateChangeTimeUtil.dateTimeCalendar
+            current.add(Calendar.MONTH, mMonthOffset)
+            current[Calendar.DAY_OF_MONTH] = 1
+            addDayOfWeek()
+            addDayOfMonth(current)
+        }
     }
 
     private fun showDoneIcon(view: ImageView) {
@@ -153,7 +169,7 @@ class CalendarGrid : Fragment() {
         view.visibility = View.INVISIBLE
     }
 
-    private fun addDayOfMonth(calendar: Calendar) {
+    private suspend fun addDayOfMonth(calendar: Calendar) {
         val maxDate = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
         var week = calendar[Calendar.DAY_OF_WEEK]
         val year = calendar[Calendar.YEAR]
@@ -166,7 +182,7 @@ class CalendarGrid : Fragment() {
 
         // Fill the days of previous month in the first week with blank
         // rectangle
-        var row = LinearLayout(this.context)
+        var row = LinearLayout(requireContext())
         row.orientation = LinearLayout.HORIZONTAL
         val rowParams = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.0f

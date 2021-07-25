@@ -5,11 +5,13 @@ import com.hkb48.keepdo.DateChangeTimeUtil
 import com.hkb48.keepdo.KeepdoApplication
 import com.hkb48.keepdo.Recurrence
 import com.hkb48.keepdo.db.entity.Task
+import kotlinx.coroutines.runBlocking
 import java.util.*
 
 internal class TasksWidgetModel(private val mContext: Context) {
     private val mTaskList: MutableList<Task> = ArrayList()
-    fun reload() {
+
+    fun reload() = runBlocking {
         mTaskList.clear()
         val fullTaskList =
             (mContext as KeepdoApplication).getDatabase().taskDao().getTaskListByOrder()
@@ -31,10 +33,9 @@ internal class TasksWidgetModel(private val mContext: Context) {
         return mTaskList[position].name
     }
 
-    private fun getDoneStatus(taskId: Int, date: Date): Boolean {
+    private suspend fun getDoneStatus(taskId: Int, date: Date): Boolean {
         return (mContext as KeepdoApplication).getDatabase().taskCompletionDao()
-            .getByDate(taskId, date)
-            .count() > 0
+            .getByDate(taskId, date).count() > 0
     }
 
     val todayDate: Date

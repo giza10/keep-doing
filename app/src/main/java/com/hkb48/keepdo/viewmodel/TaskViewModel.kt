@@ -1,80 +1,99 @@
-package com.hkb48.keepdo
+package com.hkb48.keepdo.viewmodel
 
 import android.app.Application
 import android.database.sqlite.SQLiteException
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.hkb48.keepdo.db.TaskDatabase
+import androidx.lifecycle.asLiveData
+import com.hkb48.keepdo.DateChangeTimeUtil
+import com.hkb48.keepdo.KeepdoApplication
+import com.hkb48.keepdo.Recurrence
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.db.entity.TaskCompletion
 import java.util.*
 
-class TaskViewModel(taskDatabase: TaskDatabase) : ViewModel() {
-    private val db = taskDatabase
-    val taskLiveData = db.taskDao().getTaskLiveDataListByOrder()
-    val doneStatusLiveData = db.taskCompletionDao().getAllLiveData()
+class TaskViewModel(application: KeepdoApplication) : ViewModel() {
+    private val repository = application.getRepository()
+    private val taskList = repository.getTaskListFlow().asLiveData()
 
-    fun getTaskList(): MutableList<Task> {
-        return db.taskDao().getTaskListByOrder() as MutableList<Task>
+    fun getObservableTaskList(): LiveData<List<Task>> {
+        return taskList
     }
 
-    fun addTask(task: Task): Int {
+    suspend fun getTaskList(): List<Task> {
+        return repository.getTaskList()
+    }
+
+    suspend fun addTask(task: Task): Int {
         return try {
-            db.taskDao().add(task).toInt()
+            repository.addTask(task)
         } catch (e: SQLiteException) {
             e.printStackTrace()
             Task.INVALID_TASKID
         }
     }
 
-    fun editTask(task: Task) {
+    suspend fun editTask(task: Task) {
         try {
-            db.taskDao().update(task)
+            repository.editTask(task)
         } catch (e: SQLiteException) {
             e.printStackTrace()
         }
     }
 
-    fun deleteTask(taskId: Int) {
+    suspend fun deleteTask(taskId: Int) {
         try {
             // Delete task from TASKS_TABLE_NAME
             // Records corresponding to the deleted task are also removed from TASK_COMPLETION_TABLE_NAME
-            db.taskDao().delete(taskId)
+            repository.deleteTask(taskId)
         } catch (e: SQLiteException) {
             e.printStackTrace()
         }
     }
 
-    fun setDoneStatus(taskId: Int, date: Date, doneSwitch: Boolean) {
+    fun getObservableTask(taskId: Int): LiveData<Task> {
+        return repository.getTaskFlow(taskId).asLiveData()
+    }
+
+    suspend fun getTask(taskId: Int): Task? {
+        return repository.getTask(taskId)
+    }
+
+    suspend fun getMaxSortOrderId(): Int {
+        return repository.getMaxOrder()
+    }
+
+    suspend fun setDoneStatus(taskId: Int, date: Date, doneSwitch: Boolean) {
         try {
             if (doneSwitch) {
                 val taskCompletion = TaskCompletion(null, taskId, date)
-                db.taskCompletionDao().insert(taskCompletion)
+                repository.setDone(taskCompletion)
             } else {
-                db.taskCompletionDao().delete(taskId, date)
+                repository.unsetDone(taskId, date)
             }
         } catch (e: SQLiteException) {
             e.printStackTrace()
         }
     }
 
-    fun getNumberOfDone(taskId: Int): Int {
-        return db.taskCompletionDao().getAll(taskId).count()
+    fun getObservableDoneStatusList(): LiveData<List<TaskCompletion>> {
+        return repository.getDoneStatusListFlow().asLiveData()
     }
 
-    fun getFirstDoneDate(taskId: Int): Date? {
-        return db.taskCompletionDao().getFirstCompletionDate(taskId, todayDate)
+    suspend fun getNumberOfDone(taskId: Int): Int {
+        return repository.getNumberOfDone(taskId)
     }
 
-    fun getLastDoneDate(taskId: Int): Date? {
-        return db.taskCompletionDao().getLastCompletionDate(taskId, todayDate)
+    suspend fun getFirstDoneDate(taskId: Int): Date? {
+        return repository.getFirstDoneDate(taskId, todayDate)
     }
 
-    fun getTask(taskId: Int): Task? {
-        return db.taskDao().getTask(taskId)
+    suspend fun getLastDoneDate(taskId: Int): Date? {
+        return repository.getLastDoneDate(taskId, todayDate)
     }
 
-    fun getHistoryInMonth(taskId: Int, year: Int, month: Int): ArrayList<Date> {
+    suspend fun getHistoryInMonth(taskId: Int, year: Int, month: Int): ArrayList<Date> {
         val calendar = Calendar.getInstance()
         calendar[Calendar.YEAR] = year
         calendar[Calendar.MONTH] = month
@@ -83,16 +102,15 @@ class TaskViewModel(taskDatabase: TaskDatabase) : ViewModel() {
         val lastDayInMonth = calendar.clone() as Calendar
         lastDayInMonth[Calendar.DAY_OF_MONTH] = lastDayInMonth.getActualMaximum(Calendar.DATE)
 
-        val doneList = db.taskCompletionDao().getCompletionHistoryBetween(
+        val doneList = repository.getDoneHistoryBetween(
             taskId, firstDayInMonth.time, lastDayInMonth.time
         )
         return ArrayList(doneList)
     }
 
-    fun getComboCount(taskId: Int): Int {
+    suspend fun getComboCount(taskId: Int): Int {
         var count = 0
-        val mDoneHistory =
-            db.taskCompletionDao().getCompletionHistoryDesc(taskId, todayDate)
+        val mDoneHistory = repository.getDoneHistoryDesc(taskId, todayDate)
         if (mDoneHistory.isNotEmpty()) {
             val calToday = getCalendar(DateChangeTimeUtil.date)
             val calIndex = calToday.clone() as Calendar
@@ -121,11 +139,10 @@ class TaskViewModel(taskDatabase: TaskDatabase) : ViewModel() {
         return count
     }
 
-    fun getMaxComboCount(taskId: Int): Int {
+    suspend fun getMaxComboCount(taskId: Int): Int {
         var currentCount = 0
         var maxCount = 0
-        val mDoneHistory =
-            db.taskCompletionDao().getCompletionHistoryAsc(taskId, todayDate)
+        val mDoneHistory = repository.getDoneHistoryAsc(taskId, todayDate)
         if (mDoneHistory.isNotEmpty()) {
             val calToday = getCalendar(DateChangeTimeUtil.date)
             var calIndex = calToday.clone() as Calendar
@@ -166,10 +183,6 @@ class TaskViewModel(taskDatabase: TaskDatabase) : ViewModel() {
         return maxCount
     }
 
-    fun getMaxSortOrderId(): Int {
-        return db.taskDao().getMaxOrder()
-    }
-
     private val todayDate: Date
         get() {
             return DateChangeTimeUtil.dateTime
@@ -186,7 +199,7 @@ class TaskViewModelFactory(private val application: Application) : ViewModelProv
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(TaskViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return TaskViewModel((application as KeepdoApplication).getDatabase()) as T
+            return TaskViewModel(application as KeepdoApplication) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

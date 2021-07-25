@@ -18,6 +18,9 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.hkb48.keepdo.settings.Settings
 import com.hkb48.keepdo.util.CompatUtil
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 object NotificationController {
     const val NOTIFICATION_ID_HANDHELD = -1
@@ -26,15 +29,14 @@ object NotificationController {
 
     @get:RequiresApi(Build.VERSION_CODES.O)
     val notificationChannelId = "Channel_ID"
-    fun showReminder(context: Context, taskId: Int) {
+    fun showReminder(context: Context, taskId: Int) = CoroutineScope(Dispatchers.Main).launch {
         var taskName: String? = null
         val applicationContext = context.applicationContext
         if (applicationContext is KeepdoApplication) {
-            applicationContext.getDatabase().taskDao().getTask(taskId)?.let {
-                taskName = it.name
-                if (BuildConfig.DEBUG) {
-                    Log.v(TAG_KEEPDO, "taskId:$taskId, taskName:$taskName")
-                }
+            val task = applicationContext.getDatabase().taskDao().getTask(taskId)
+            taskName = task?.name
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG_KEEPDO, "taskId:$taskId, taskName:$taskName")
             }
         }
         val builder = NotificationCompat.Builder(context, notificationChannelId)

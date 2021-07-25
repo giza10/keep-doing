@@ -7,9 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.hkb48.keepdo.CheckSoundPlayer
 import com.hkb48.keepdo.R
-import com.hkb48.keepdo.TaskViewModel
-import com.hkb48.keepdo.TaskViewModelFactory
 import com.hkb48.keepdo.db.entity.Task
+import com.hkb48.keepdo.viewmodel.TaskViewModel
+import com.hkb48.keepdo.viewmodel.TaskViewModelFactory
 
 class TaskCalendarActivity : AppCompatActivity() {
     private val mCheckSound = CheckSoundPlayer(this)
@@ -25,6 +25,8 @@ class TaskCalendarActivity : AppCompatActivity() {
             TaskViewModelFactory(application)
         }
         subscribeToModel(taskViewModel)
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.container, CalendarFragment()).commit()
     }
 
     public override fun onResume() {
@@ -46,14 +48,10 @@ class TaskCalendarActivity : AppCompatActivity() {
         }
     }
 
-    private fun subscribeToModel(view: TaskViewModel) {
+    private fun subscribeToModel(viewModel: TaskViewModel) {
         val taskId = intent.getIntExtra(EXTRA_TASK_ID, Task.INVALID_TASKID)
-        view.taskLiveData.observe(this, {
-            view.getTask(taskId)?.let {
-                title = it.name
-            }
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.container, CalendarFragment()).commit()
+        viewModel.getObservableTask(taskId).observe(this, { task ->
+            title = task.name
         })
     }
 

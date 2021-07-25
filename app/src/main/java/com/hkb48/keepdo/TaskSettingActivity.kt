@@ -13,8 +13,12 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.lifecycleScope
 import com.hkb48.keepdo.db.entity.Task
+import com.hkb48.keepdo.viewmodel.TaskViewModel
+import com.hkb48.keepdo.viewmodel.TaskViewModelFactory
 import com.hkb48.keepdo.widget.TasksWidgetProvider
+import kotlinx.coroutines.launch
 import java.util.*
 
 class TaskSettingActivity : AppCompatActivity() {
@@ -52,13 +56,12 @@ class TaskSettingActivity : AppCompatActivity() {
         enableInputEmoji(editTextTaskName)
         val editTextDescription = findViewById<EditText>(R.id.editTextDescription)
         enableInputEmoji(editTextDescription)
-        val recurrence: Recurrence
         val intent = intent
         val taskId = intent.getIntExtra(EXTRA_TASK_ID, Task.INVALID_TASKID)
         if (taskId == Task.INVALID_TASKID) {
             mMode = MODE_NEW_TASK
             titleText?.setText(R.string.add_task)
-            recurrence = Recurrence(
+            val recurrence = Recurrence(
                 monday = true,
                 tuesday = true,
                 wednesday = true,
@@ -67,33 +70,41 @@ class TaskSettingActivity : AppCompatActivity() {
                 saturday = true,
                 sunday = true
             )
+            addTaskName(editTextTaskName)
+            addRecurrence(recurrence)
+            addReminder()
+            if (::mSaveButton.isInitialized) {
+                mSaveButton.isEnabled = canSave()
+            }
         } else {
-            val task = taskViewModel.getTask(taskId)!!
-            mMode = MODE_EDIT_TASK
-            titleText?.setText(R.string.edit_task)
-            task.name.let {
-                editTextTaskName.setText(it)
-                editTextTaskName.setSelection(it.length)
-            }
-            recurrence = Recurrence.getFromTask(task)
-            mRecurrenceFlags[0] = task.sunFrequency
-            mRecurrenceFlags[1] = task.monFrequency
-            mRecurrenceFlags[2] = task.tueFrequency
-            mRecurrenceFlags[3] = task.wedFrequency
-            mRecurrenceFlags[4] = task.thrFrequency
-            mRecurrenceFlags[5] = task.friFrequency
-            mRecurrenceFlags[6] = task.satFrequency
-            task.context?.let {
-                editTextDescription.setText(it)
-                editTextDescription.setSelection(it.length)
-            }
-            mTask = task
-        }
-        addTaskName(editTextTaskName)
-        addRecurrence(recurrence)
-        addReminder()
-        if (::mSaveButton.isInitialized) {
-            mSaveButton.isEnabled = canSave()
+            taskViewModel.getObservableTask(taskId).observe(this, { task ->
+                taskViewModel.getObservableTask(taskId).removeObservers(this@TaskSettingActivity)
+                mMode = MODE_EDIT_TASK
+                titleText?.setText(R.string.edit_task)
+                task.name.let {
+                    editTextTaskName.setText(it)
+                    editTextTaskName.setSelection(it.length)
+                }
+                val recurrence = Recurrence.getFromTask(task)
+                mRecurrenceFlags[0] = task.sunFrequency
+                mRecurrenceFlags[1] = task.monFrequency
+                mRecurrenceFlags[2] = task.tueFrequency
+                mRecurrenceFlags[3] = task.wedFrequency
+                mRecurrenceFlags[4] = task.thrFrequency
+                mRecurrenceFlags[5] = task.friFrequency
+                mRecurrenceFlags[6] = task.satFrequency
+                task.context?.let {
+                    editTextDescription.setText(it)
+                    editTextDescription.setSelection(it.length)
+                }
+                mTask = task
+                addTaskName(editTextTaskName)
+                addRecurrence(recurrence)
+                addReminder()
+                if (::mSaveButton.isInitialized) {
+                    mSaveButton.isEnabled = canSave()
+                }
+            })
         }
     }
 
@@ -191,7 +202,7 @@ class TaskSettingActivity : AppCompatActivity() {
         reminderTime.setOnClickListener { timePickerDialog.show() }
     }
 
-    private fun onSaveClicked() {
+    private fun onSaveClicked() = lifecycleScope.launch {
         val editTextTaskName = findViewById<EditText>(R.id.editTextTaskName)
         val editTextDescription = findViewById<EditText>(R.id.editTextDescription)
         val newTask = Task(
@@ -216,8 +227,8 @@ class TaskSettingActivity : AppCompatActivity() {
             taskViewModel.editTask(newTask)
             mTask?._id ?: Task.INVALID_TASKID
         }
-        ReminderManager.setAlarm(this, taskId)
-        TasksWidgetProvider.notifyDatasetChanged(this)
+        ReminderManager.setAlarm(applicationContext, taskId)
+        TasksWidgetProvider.notifyDatasetChanged(applicationContext)
         finish()
     }
 

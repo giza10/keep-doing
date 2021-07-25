@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.hkb48.keepdo.KeepdoApplication
+import kotlinx.coroutines.runBlocking
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -15,14 +16,15 @@ object BackupManager {
         var outputStream: OutputStream? = null
         var success = false
         try {
-            // Execute checkpoint query to ensure all of the pending transactions are applied.
-            db.taskDao().checkpoint((SimpleSQLiteQuery("pragma wal_checkpoint(full)")))
-            db.taskCompletionDao()
-                .checkpoint((SimpleSQLiteQuery("pragma wal_checkpoint(full)")))
-
             inputStream = FileInputStream(db.databasePath)
             outputStream = context.contentResolver.openOutputStream(outputFile)!!
-            success = copy(inputStream, outputStream)
+            success = runBlocking {
+                // Execute checkpoint query to ensure all of the pending transactions are applied.
+                db.taskDao().checkpoint((SimpleSQLiteQuery("pragma wal_checkpoint(full)")))
+                db.taskCompletionDao()
+                    .checkpoint((SimpleSQLiteQuery("pragma wal_checkpoint(full)")))
+                copy(inputStream, outputStream)
+            }
         } catch (e: IOException) {
             e.printStackTrace()
         } finally {

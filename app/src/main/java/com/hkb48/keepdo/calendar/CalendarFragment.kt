@@ -14,14 +14,20 @@ import android.view.*
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import com.hkb48.keepdo.*
+import com.hkb48.keepdo.DateChangeTimeUtil
+import com.hkb48.keepdo.R
+import com.hkb48.keepdo.TaskDetailActivity
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.settings.Settings
 import com.hkb48.keepdo.util.CompatUtil
+import com.hkb48.keepdo.viewmodel.TaskViewModel
+import com.hkb48.keepdo.viewmodel.TaskViewModelFactory
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -115,35 +121,41 @@ class CalendarFragment : Fragment() {
                 e.printStackTrace()
             }
 
-            val comboCount = taskViewModel.getComboCount(taskId)
-            val taskName = taskViewModel.getTask(taskId)!!.name
-            var extraText = ""
-            val monthOffset = mViewPager.currentItem - INDEX_OF_THIS_MONTH
-            if (monthOffset == 0 && comboCount > 1) {
-                extraText += requireContext().getString(R.string.share_combo, taskName, comboCount)
-            } else {
-                val current = DateChangeTimeUtil.dateTimeCalendar
-                current.add(Calendar.MONTH, monthOffset)
-                current[Calendar.DAY_OF_MONTH] = 1
-                val doneDateList = taskViewModel.getHistoryInMonth(
-                    taskId, current[Calendar.YEAR], current[Calendar.MONTH]
-                )
-                extraText += requireContext().getString(
-                    R.string.share_non_combo,
-                    taskName,
-                    doneDateList.size
+            viewLifecycleOwner.lifecycleScope.launch {
+                val comboCount = taskViewModel.getComboCount(taskId)
+                val taskName = taskViewModel.getTask(taskId)?.name
+                var extraText = ""
+                val monthOffset = mViewPager.currentItem - INDEX_OF_THIS_MONTH
+                if (monthOffset == 0 && comboCount > 1) {
+                    extraText += requireContext().getString(
+                        R.string.share_combo,
+                        taskName,
+                        comboCount
+                    )
+                } else {
+                    val current = DateChangeTimeUtil.dateTimeCalendar
+                    current.add(Calendar.MONTH, monthOffset)
+                    current[Calendar.DAY_OF_MONTH] = 1
+                    val doneDateList = taskViewModel.getHistoryInMonth(
+                        taskId, current[Calendar.YEAR], current[Calendar.MONTH]
+                    )
+                    extraText += requireContext().getString(
+                        R.string.share_non_combo,
+                        taskName,
+                        doneDateList.size
+                    )
+                }
+                extraText += " " + requireContext().getString(R.string.share_app_url)
+
+                startActivity(
+                    Intent(Intent.ACTION_SEND).apply {
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        type = "image/png"
+                        putExtra(Intent.EXTRA_STREAM, contentUri)
+                        putExtra(Intent.EXTRA_TEXT, extraText)
+                    }
                 )
             }
-            extraText += " " + requireContext().getString(R.string.share_app_url)
-
-            startActivity(
-                Intent(Intent.ACTION_SEND).apply {
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    type = "image/png"
-                    putExtra(Intent.EXTRA_STREAM, contentUri)
-                    putExtra(Intent.EXTRA_TEXT, extraText)
-                }
-            )
         })
     }
 

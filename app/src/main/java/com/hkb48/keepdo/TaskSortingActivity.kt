@@ -10,9 +10,13 @@ import android.widget.Button
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.lifecycleScope
 import com.hkb48.keepdo.SortableListView.DragAndDropListener
 import com.hkb48.keepdo.db.entity.Task
+import com.hkb48.keepdo.viewmodel.TaskViewModel
+import com.hkb48.keepdo.viewmodel.TaskViewModelFactory
 import com.hkb48.keepdo.widget.TasksWidgetProvider
+import kotlinx.coroutines.launch
 
 
 class TaskSortingActivity : AppCompatActivity() {
@@ -20,7 +24,7 @@ class TaskSortingActivity : AppCompatActivity() {
     private val taskViewModel: TaskViewModel by viewModels {
         TaskViewModelFactory(application)
     }
-    private val mDataList: MutableList<Task> by lazy { taskViewModel.getTaskList() }
+    private lateinit var mDataList: MutableList<Task>
     private val onDrop: DragAndDropListener = object : DragAndDropListener {
         override fun onDrag(from: Int, to: Int) {
             if (from != to) {
@@ -44,12 +48,16 @@ class TaskSortingActivity : AppCompatActivity() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        findViewById<SortableListView>(R.id.mainListView).apply {
-            adapter = mAdapter
-            setDragAndDropListener(onDrop)
-        }
-        mAdapter.notifyDataSetChanged()
-        findViewById<Button>(R.id.cancelButton).setOnClickListener { onCancelClicked() }
+        taskViewModel.getObservableTaskList().observe(this, { taskList ->
+            taskViewModel.getObservableTaskList().removeObservers(this@TaskSortingActivity)
+            mDataList = taskList.toMutableList()
+            findViewById<SortableListView>(R.id.mainListView).apply {
+                adapter = mAdapter
+                setDragAndDropListener(onDrop)
+            }
+            findViewById<Button>(R.id.cancelButton).setOnClickListener { onCancelClicked() }
+            mAdapter.notifyDataSetChanged()
+        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -64,7 +72,7 @@ class TaskSortingActivity : AppCompatActivity() {
     /**
      * Callback method for "Save" button
      */
-    private fun onSaveClicked() {
+    private fun onSaveClicked() = lifecycleScope.launch {
         for (index in mDataList.indices) {
             val task = mDataList[index]
             val newTask = Task(
@@ -84,7 +92,7 @@ class TaskSortingActivity : AppCompatActivity() {
             )
             taskViewModel.editTask(newTask)
         }
-        TasksWidgetProvider.notifyDatasetChanged(this)
+        TasksWidgetProvider.notifyDatasetChanged(applicationContext)
         finish()
     }
 
