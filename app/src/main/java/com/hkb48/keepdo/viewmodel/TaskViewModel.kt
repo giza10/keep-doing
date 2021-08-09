@@ -21,10 +21,6 @@ class TaskViewModel(application: KeepdoApplication) : ViewModel() {
         return taskList
     }
 
-    suspend fun getTaskList(): List<Task> {
-        return repository.getTaskList()
-    }
-
     suspend fun addTask(task: Task): Int {
         return try {
             repository.addTask(task)

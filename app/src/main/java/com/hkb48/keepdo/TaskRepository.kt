@@ -11,10 +11,6 @@ class TaskRepository(private val database: TaskDatabase) {
         return database.taskDao().getTaskListByOrderFlow()
     }
 
-    suspend fun getTaskList(): List<Task> {
-        return database.taskDao().getTaskListByOrder()
-    }
-
     suspend fun addTask(task: Task): Int {
         return database.taskDao().add(task).toInt()
     }
@@ -36,7 +32,7 @@ class TaskRepository(private val database: TaskDatabase) {
     }
 
     suspend fun getMaxOrder(): Int {
-        return database.taskDao().getMaxOrder()
+        return database.taskDao().getMaxOrder() ?: 0
     }
 
     suspend fun setDone(taskCompletion: TaskCompletion) {

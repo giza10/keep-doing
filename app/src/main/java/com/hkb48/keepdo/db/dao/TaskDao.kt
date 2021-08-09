@@ -29,7 +29,7 @@ interface TaskDao {
     suspend fun getTask(id: Int): Task?
 
     @Query("SELECT MAX (" + Task.TASK_LIST_ORDER + ") FROM " + Task.TABLE_NAME)
-    suspend fun getMaxOrder(): Int
+    suspend fun getMaxOrder(): Int?
 
     @RawQuery
     suspend fun checkpoint(supportSQLiteQuery: SupportSQLiteQuery): Int
