@@ -22,6 +22,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.hkb48.keepdo.DateChangeTimeUtil
 import com.hkb48.keepdo.R
 import com.hkb48.keepdo.TaskDetailActivity
+import com.hkb48.keepdo.databinding.FragmentCalendarBinding
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.settings.Settings
 import com.hkb48.keepdo.util.CompatUtil
@@ -39,6 +40,8 @@ class CalendarFragment : Fragment() {
     private val taskViewModel: TaskViewModel by viewModels {
         TaskViewModelFactory(requireActivity().application)
     }
+    private var _viewBinding: FragmentCalendarBinding? = null
+    private val viewBinding get() = _viewBinding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,21 +52,27 @@ class CalendarFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_calendar, container, false)
+    ): View {
+        _viewBinding = FragmentCalendarBinding.inflate(inflater, container, false)
+        return viewBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mViewPager = view.findViewById(R.id.viewPager)
+        mViewPager = viewBinding.viewPager
         mViewPager.adapter = CalendarPageAdapter(this)
         mViewPager.setCurrentItem(INDEX_OF_THIS_MONTH, false)
-        val tabLayout: TabLayout = view.findViewById(R.id.tab_layout)
+        val tabLayout = viewBinding.tabLayout
         TabLayoutMediator(
             tabLayout, mViewPager
         ) { tab: TabLayout.Tab, position: Int ->
             tab.text = getPageTitle(position)
         }.attach()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _viewBinding = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -102,7 +111,7 @@ class CalendarFragment : Fragment() {
     }
 
     private fun shareDisplayedCalendarView(taskId: Int) {
-        val calendarRoot = requireActivity().findViewById<View>(R.id.calendar_root)
+        val calendarRoot = viewBinding.calendarRoot
         getBitmapFromView(calendarRoot, requireActivity(), callback = {
             var contentUri: Uri? = null
             try {

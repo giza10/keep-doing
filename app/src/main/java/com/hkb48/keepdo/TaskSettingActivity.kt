@@ -12,8 +12,9 @@ import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
+import com.hkb48.keepdo.databinding.ActionbarTaskSettingBinding
+import com.hkb48.keepdo.databinding.ActivityTaskSettingBinding
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.viewmodel.TaskViewModel
 import com.hkb48.keepdo.viewmodel.TaskViewModelFactory
@@ -33,28 +34,30 @@ class TaskSettingActivity : AppCompatActivity() {
     private val taskViewModel: TaskViewModel by viewModels {
         TaskViewModelFactory(application)
     }
+    private lateinit var viewBinding: ActivityTaskSettingBinding
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
-        setContentView(R.layout.activity_task_setting)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        viewBinding = ActivityTaskSettingBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
+        val toolbar = viewBinding.includedToolbar.toolbar
         setSupportActionBar(toolbar)
+        toolbar.setNavigationIcon(R.drawable.ic_close)
         val actionBar = supportActionBar
         var titleText: TextView? = null
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true)
             actionBar.setDisplayShowCustomEnabled(true)
-            toolbar.setNavigationIcon(R.drawable.ic_close)
-            val v = View.inflate(applicationContext, R.layout.actionbar_task_setting, null)
-            titleText = v.findViewById(R.id.title_text)
-            mSaveButton = v.findViewById(R.id.button_save)
+            val viewBindingActionbar = ActionbarTaskSettingBinding.inflate(layoutInflater)
+            titleText = viewBindingActionbar.titleText
+            mSaveButton = viewBindingActionbar.buttonSave
             mSaveButton.setOnClickListener { onSaveClicked() }
-            actionBar.customView = v
+            actionBar.customView = viewBindingActionbar.root
         }
-        val editTextTaskName = findViewById<EditText>(R.id.editTextTaskName)
+        val editTextTaskName = viewBinding.editTextTaskName
         enableInputEmoji(editTextTaskName)
-        val editTextDescription = findViewById<EditText>(R.id.editTextDescription)
+        val editTextDescription = viewBinding.editTextDescription
         enableInputEmoji(editTextDescription)
         val intent = intent
         val taskId = intent.getIntExtra(EXTRA_TASK_ID, Task.INVALID_TASKID)
@@ -143,9 +146,9 @@ class TaskSettingActivity : AppCompatActivity() {
         val weekNames = resources.getStringArray(
             R.array.week_names
         )
-        val recurrenceView = findViewById<RecurrenceView>(R.id.recurrenceView)
+        val recurrenceView = viewBinding.recurrenceView
         recurrenceView.update(recurrence)
-        findViewById<View>(R.id.recurrenceView).setOnClickListener {
+        recurrenceView.setOnClickListener {
             val tmpRecurrenceFlags = mRecurrenceFlags.copyOf(mRecurrenceFlags.size)
             AlertDialog.Builder(this@TaskSettingActivity)
                 .setTitle(getString(R.string.recurrence))
@@ -173,8 +176,8 @@ class TaskSettingActivity : AppCompatActivity() {
         if (mTask != null) {
             mReminder = Reminder(mTask!!.reminderEnabled, mTask!!.reminderTime ?: 0)
         }
-        val reminderTime = findViewById<Button>(R.id.buttonReminderTime)
-        val cancelButton = findViewById<ImageButton>(R.id.reminder_remove)
+        val reminderTime = viewBinding.buttonReminderTime
+        val cancelButton = viewBinding.reminderRemove
         val hourOfDay = mReminder.hourOfDay
         val minute = mReminder.minute
         if (mReminder.enabled) {
@@ -203,8 +206,8 @@ class TaskSettingActivity : AppCompatActivity() {
     }
 
     private fun onSaveClicked() = lifecycleScope.launch {
-        val editTextTaskName = findViewById<EditText>(R.id.editTextTaskName)
-        val editTextDescription = findViewById<EditText>(R.id.editTextDescription)
+        val editTextTaskName = viewBinding.editTextTaskName
+        val editTextDescription = viewBinding.editTextDescription
         val newTask = Task(
             mTask?._id,
             editTextTaskName.text.toString(),
@@ -233,8 +236,7 @@ class TaskSettingActivity : AppCompatActivity() {
     }
 
     private fun canSave(): Boolean {
-        val editTextTaskName = findViewById<EditText>(R.id.editTextTaskName)
-        return editTextTaskName.text.isNotEmpty()
+        return viewBinding.editTextTaskName.text.isNotEmpty()
     }
 
     private fun enableInputEmoji(editText: EditText) {

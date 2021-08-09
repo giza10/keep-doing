@@ -4,9 +4,9 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import com.hkb48.keepdo.CheckSoundPlayer
 import com.hkb48.keepdo.R
+import com.hkb48.keepdo.databinding.ActivityTaskCalendarBinding
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.viewmodel.TaskViewModel
 import com.hkb48.keepdo.viewmodel.TaskViewModelFactory
@@ -16,8 +16,9 @@ class TaskCalendarActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_task_calendar)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        val viewBinder = ActivityTaskCalendarBinding.inflate(layoutInflater)
+        setContentView(viewBinder.root)
+        val toolbar = viewBinder.includedToolbar.toolbar
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 

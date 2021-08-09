@@ -4,14 +4,13 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.TextView
+import com.hkb48.keepdo.databinding.TaskSortingListItemBinding
 
 class SortableListItem(context: Context, attrs: AttributeSet?) : LinearLayout(context, attrs) {
     fun setText(string: String?) {
-        val textView = findViewById<TextView>(R.id.textView1)
-        textView.text = string
+        TaskSortingListItemBinding.bind(this).textView1.text = string
     }
 
     val grabberView: View
-        get() = findViewById(R.id.imageViewSort)
+        get() = TaskSortingListItemBinding.bind(this).imageViewSort
 }

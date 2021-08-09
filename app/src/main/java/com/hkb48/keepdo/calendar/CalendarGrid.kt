@@ -6,7 +6,6 @@ import android.view.*
 import android.view.ContextMenu.ContextMenuInfo
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -14,6 +13,9 @@ import com.hkb48.keepdo.DateChangeTimeUtil
 import com.hkb48.keepdo.R
 import com.hkb48.keepdo.Recurrence
 import com.hkb48.keepdo.ReminderManager
+import com.hkb48.keepdo.databinding.CalendarDateBinding
+import com.hkb48.keepdo.databinding.CalendarSubPageBinding
+import com.hkb48.keepdo.databinding.CalendarWeekBinding
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.settings.Settings
 import com.hkb48.keepdo.viewmodel.TaskViewModel
@@ -28,18 +30,20 @@ import java.util.*
 
 class CalendarGrid : Fragment() {
     private lateinit var mTask: Task
-    private lateinit var mCalendarGrid: LinearLayout
     private val taskViewModel: TaskViewModel by viewModels {
         TaskViewModelFactory(requireActivity().application)
     }
 
     private var mMonthOffset = 0
+    private var _viewBinding: CalendarSubPageBinding? = null
+    private val viewBinding get() = _viewBinding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.calendar_sub_page, container, false)
+    ): View {
+        _viewBinding = CalendarSubPageBinding.inflate(inflater, container, false)
+        return viewBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -48,21 +52,25 @@ class CalendarGrid : Fragment() {
         val taskId = intent.getIntExtra(TaskCalendarActivity.EXTRA_TASK_ID, Task.INVALID_TASKID)
         mMonthOffset =
             requireArguments().getInt(POSITION_KEY) - CalendarFragment.INDEX_OF_THIS_MONTH
-        mCalendarGrid = view.findViewById(R.id.calendar_grid)
         taskViewModel.getObservableTask(taskId).observe(viewLifecycleOwner, { task ->
             mTask = task
             buildCalendar()
         })
     }
 
-    override fun onResume() {
+    override fun onStart() {
+        super.onStart()
         setHasOptionsMenu(true)
-        super.onResume()
     }
 
     override fun onStop() {
         setHasOptionsMenu(false)
         super.onStop()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _viewBinding = null
     }
 
     override fun onCreateContextMenu(
@@ -75,7 +83,7 @@ class CalendarGrid : Fragment() {
             getString(R.string.date_format), Locale.getDefault()
         )
         menu.setHeaderTitle(sdf.format(date))
-        val imageView = view.findViewById<ImageView>(R.id.imageViewDone)
+        val imageView = CalendarDateBinding.bind(view).imageViewDone
         if (imageView.visibility == View.VISIBLE) {
             menu.add(0, CONTEXT_MENU_UNCHECK_DONE, 0, R.string.uncheck_done)
         } else {
@@ -87,8 +95,7 @@ class CalendarGrid : Fragment() {
     override fun onContextItemSelected(item: MenuItem): Boolean {
         var consumed = false
         val view = item.actionView
-        val imageView = view
-            .findViewById<ImageView>(R.id.imageViewDone)
+        val imageView = CalendarDateBinding.bind(view).imageViewDone
         val selectedDate = view.tag as Date
         when (item.itemId) {
             CONTEXT_MENU_CHECK_DONE -> {
@@ -127,8 +134,9 @@ class CalendarGrid : Fragment() {
         )
         for (i in 0 until NUM_OF_DAYS_IN_WEEK) {
             val dayOfWeek = getDayOfWeek(i)
-            val child = View.inflate(requireContext(), R.layout.calendar_week, null)
-            val textView1 = child.findViewById<TextView>(R.id.textView1)
+            val viewBindingWeek = CalendarWeekBinding.inflate(layoutInflater)
+            val child = viewBindingWeek.root
+            val textView1 = viewBindingWeek.textView1
             textView1.text = weeks[dayOfWeek - 1]
             when (dayOfWeek) {
                 Calendar.SUNDAY -> textView1.setBackgroundResource(R.drawable.bg_calendar_sunday)
@@ -142,7 +150,7 @@ class CalendarGrid : Fragment() {
             )
             row.addView(child, params)
         }
-        mCalendarGrid.addView(row, rowParams)
+        viewBinding.calendarGrid.addView(row, rowParams)
     }
 
     private val mutex = Mutex()
@@ -151,7 +159,7 @@ class CalendarGrid : Fragment() {
         // Mutex lock to avoid concurrent view update because livedata notification sometimes
         // comes twice.
         mutex.withLock {
-            mCalendarGrid.removeAllViews()
+            viewBinding.calendarGrid.removeAllViews()
             val current = DateChangeTimeUtil.dateTimeCalendar
             current.add(Calendar.MONTH, mMonthOffset)
             current[Calendar.DAY_OF_MONTH] = 1
@@ -207,13 +215,10 @@ class CalendarGrid : Fragment() {
         date[Calendar.MILLISECOND] = 0
         var weekIndex = blankDaysInFirstWeek
         for (day in 1..maxDate) {
-            val child = View.inflate(
-                requireContext(),
-                R.layout.calendar_date, null
-            )
-            val textView1 = child.findViewById<TextView>(R.id.textView1)
-            val imageView1 = child
-                .findViewById<ImageView>(R.id.imageViewDone)
+            val viewBindingDate = CalendarDateBinding.inflate(layoutInflater)
+            val child = viewBindingDate.root
+            val textView1 = viewBindingDate.textView1
+            val imageView1 = viewBindingDate.imageViewDone
             var enableContextMenu = false
             if (Settings.enableFutureDate) {
                 enableContextMenu = true
@@ -255,7 +260,7 @@ class CalendarGrid : Fragment() {
             weekIndex = (weekIndex + 1) % NUM_OF_DAYS_IN_WEEK
             if (weekIndex == 0) {
                 // Go to next week
-                mCalendarGrid.addView(row, rowParams)
+                viewBinding.calendarGrid.addView(row, rowParams)
                 row = LinearLayout(context)
             }
         }
@@ -265,14 +270,12 @@ class CalendarGrid : Fragment() {
                 % NUM_OF_DAYS_IN_WEEK)
         if (blankDaysInLastWeek > 0) {
             for (i in 0 until blankDaysInLastWeek) {
-                val child = View.inflate(
-                    requireContext(),
-                    R.layout.calendar_date, null
-                )
+                val viewBindingDate = CalendarDateBinding.inflate(layoutInflater)
+                val child = viewBindingDate.root
                 child.setBackgroundResource(R.drawable.bg_calendar_day_blank)
                 row.addView(child, childParams)
             }
-            mCalendarGrid.addView(row, rowParams)
+            viewBinding.calendarGrid.addView(row, rowParams)
         }
     }
 

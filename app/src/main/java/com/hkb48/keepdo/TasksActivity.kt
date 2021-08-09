@@ -12,14 +12,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
+import com.hkb48.keepdo.databinding.ActivityMainBinding
 import com.hkb48.keepdo.db.BackupManager
 import com.hkb48.keepdo.settings.SettingsActivity
 import com.hkb48.keepdo.widget.TasksWidgetProvider
-
 
 class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private lateinit var mDrawerLayout: DrawerLayout
@@ -74,14 +73,15 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        val viewBinding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
+        val toolbar = viewBinding.includedToolbar.toolbar
         setSupportActionBar(toolbar)
         val actionBar = supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(true)
         actionBar?.setDisplayShowHomeEnabled(true)
 
-        mDrawerLayout = findViewById(R.id.main_drawer_layout)
+        mDrawerLayout = viewBinding.mainDrawerLayout
         mDrawerToggle = ActionBarDrawerToggle(
             this,
             mDrawerLayout,
@@ -91,7 +91,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         )
         mDrawerToggle.isDrawerIndicatorEnabled = true
         mDrawerLayout.addDrawerListener(mDrawerToggle)
-        findViewById<NavigationView>(R.id.main_drawer_view).setNavigationItemSelectedListener(this)
+        viewBinding.mainDrawerView.setNavigationItemSelectedListener(this)
 
         if (savedInstanceState == null) {
             createTaskListFragment()

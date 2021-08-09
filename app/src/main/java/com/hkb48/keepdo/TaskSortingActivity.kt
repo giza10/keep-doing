@@ -6,12 +6,12 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.Button
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import com.hkb48.keepdo.SortableListView.DragAndDropListener
+import com.hkb48.keepdo.databinding.ActivityTaskSortingBinding
+import com.hkb48.keepdo.databinding.TaskSortingListItemBinding
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.viewmodel.TaskViewModel
 import com.hkb48.keepdo.viewmodel.TaskViewModelFactory
@@ -25,6 +25,7 @@ class TaskSortingActivity : AppCompatActivity() {
         TaskViewModelFactory(application)
     }
     private lateinit var mDataList: MutableList<Task>
+    private lateinit var viewBinding: ActivityTaskSortingBinding
     private val onDrop: DragAndDropListener = object : DragAndDropListener {
         override fun onDrag(from: Int, to: Int) {
             if (from != to) {
@@ -44,18 +45,19 @@ class TaskSortingActivity : AppCompatActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_task_sorting)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        viewBinding = ActivityTaskSortingBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
+        val toolbar = viewBinding.includedToolbar.toolbar
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         taskViewModel.getObservableTaskList().observe(this, { taskList ->
             taskViewModel.getObservableTaskList().removeObservers(this@TaskSortingActivity)
             mDataList = taskList.toMutableList()
-            findViewById<SortableListView>(R.id.mainListView).apply {
+            viewBinding.mainListView.apply {
                 adapter = mAdapter
                 setDragAndDropListener(onDrop)
             }
-            findViewById<Button>(R.id.cancelButton).setOnClickListener { onCancelClicked() }
+            viewBinding.cancelButton.setOnClickListener { onCancelClicked() }
             mAdapter.notifyDataSetChanged()
         })
     }
@@ -104,7 +106,7 @@ class TaskSortingActivity : AppCompatActivity() {
     }
 
     private fun enableSaveButton() {
-        findViewById<Button>(R.id.okButton).apply {
+        viewBinding.okButton.apply {
             isEnabled = true
             setOnClickListener { onSaveClicked() }
         }
@@ -128,8 +130,11 @@ class TaskSortingActivity : AppCompatActivity() {
         }
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            val view = convertView ?: LayoutInflater.from(parent.context)
-                .inflate(R.layout.task_sorting_list_item, parent, false)
+            val view = convertView ?: TaskSortingListItemBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            ).root
             val itemView = view as SortableListItem
             val task = getItem(position) as Task
             itemView.setText(task.name)
