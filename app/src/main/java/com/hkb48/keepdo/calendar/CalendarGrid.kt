@@ -35,15 +35,15 @@ class CalendarGrid : Fragment() {
     }
 
     private var mMonthOffset = 0
-    private var _viewBinding: CalendarSubPageBinding? = null
-    private val viewBinding get() = _viewBinding!!
+    private var _binding: CalendarSubPageBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _viewBinding = CalendarSubPageBinding.inflate(inflater, container, false)
-        return viewBinding.root
+        _binding = CalendarSubPageBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -70,7 +70,7 @@ class CalendarGrid : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _viewBinding = null
+        _binding = null
     }
 
     override fun onCreateContextMenu(
@@ -134,9 +134,9 @@ class CalendarGrid : Fragment() {
         )
         for (i in 0 until NUM_OF_DAYS_IN_WEEK) {
             val dayOfWeek = getDayOfWeek(i)
-            val viewBindingWeek = CalendarWeekBinding.inflate(layoutInflater)
-            val child = viewBindingWeek.root
-            val textView1 = viewBindingWeek.textView1
+            val bindingWeek = CalendarWeekBinding.inflate(layoutInflater)
+            val child = bindingWeek.root
+            val textView1 = bindingWeek.textView1
             textView1.text = weeks[dayOfWeek - 1]
             when (dayOfWeek) {
                 Calendar.SUNDAY -> textView1.setBackgroundResource(R.drawable.bg_calendar_sunday)
@@ -150,7 +150,7 @@ class CalendarGrid : Fragment() {
             )
             row.addView(child, params)
         }
-        viewBinding.calendarGrid.addView(row, rowParams)
+        binding.calendarGrid.addView(row, rowParams)
     }
 
     private val mutex = Mutex()
@@ -159,7 +159,7 @@ class CalendarGrid : Fragment() {
         // Mutex lock to avoid concurrent view update because livedata notification sometimes
         // comes twice.
         mutex.withLock {
-            viewBinding.calendarGrid.removeAllViews()
+            binding.calendarGrid.removeAllViews()
             val current = DateChangeTimeUtil.dateTimeCalendar
             current.add(Calendar.MONTH, mMonthOffset)
             current[Calendar.DAY_OF_MONTH] = 1
@@ -215,10 +215,10 @@ class CalendarGrid : Fragment() {
         date[Calendar.MILLISECOND] = 0
         var weekIndex = blankDaysInFirstWeek
         for (day in 1..maxDate) {
-            val viewBindingDate = CalendarDateBinding.inflate(layoutInflater)
-            val child = viewBindingDate.root
-            val textView1 = viewBindingDate.textView1
-            val imageView1 = viewBindingDate.imageViewDone
+            val bindingDate = CalendarDateBinding.inflate(layoutInflater)
+            val child = bindingDate.root
+            val textView1 = bindingDate.textView1
+            val imageView1 = bindingDate.imageViewDone
             var enableContextMenu = false
             if (Settings.enableFutureDate) {
                 enableContextMenu = true
@@ -260,7 +260,7 @@ class CalendarGrid : Fragment() {
             weekIndex = (weekIndex + 1) % NUM_OF_DAYS_IN_WEEK
             if (weekIndex == 0) {
                 // Go to next week
-                viewBinding.calendarGrid.addView(row, rowParams)
+                binding.calendarGrid.addView(row, rowParams)
                 row = LinearLayout(context)
             }
         }
@@ -270,12 +270,12 @@ class CalendarGrid : Fragment() {
                 % NUM_OF_DAYS_IN_WEEK)
         if (blankDaysInLastWeek > 0) {
             for (i in 0 until blankDaysInLastWeek) {
-                val viewBindingDate = CalendarDateBinding.inflate(layoutInflater)
-                val child = viewBindingDate.root
+                val bindingDate = CalendarDateBinding.inflate(layoutInflater)
+                val child = bindingDate.root
                 child.setBackgroundResource(R.drawable.bg_calendar_day_blank)
                 row.addView(child, childParams)
             }
-            viewBinding.calendarGrid.addView(row, rowParams)
+            binding.calendarGrid.addView(row, rowParams)
         }
     }
 

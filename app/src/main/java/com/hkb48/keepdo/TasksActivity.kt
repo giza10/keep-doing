@@ -73,15 +73,15 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewBinding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(viewBinding.root)
-        val toolbar = viewBinding.includedToolbar.toolbar
+        val binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        val toolbar = binding.includedToolbar.toolbar
         setSupportActionBar(toolbar)
         val actionBar = supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(true)
         actionBar?.setDisplayShowHomeEnabled(true)
 
-        mDrawerLayout = viewBinding.mainDrawerLayout
+        mDrawerLayout = binding.mainDrawerLayout
         mDrawerToggle = ActionBarDrawerToggle(
             this,
             mDrawerLayout,
@@ -91,7 +91,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         )
         mDrawerToggle.isDrawerIndicatorEnabled = true
         mDrawerLayout.addDrawerListener(mDrawerToggle)
-        viewBinding.mainDrawerView.setNavigationItemSelectedListener(this)
+        binding.mainDrawerView.setNavigationItemSelectedListener(this)
 
         if (savedInstanceState == null) {
             createTaskListFragment()

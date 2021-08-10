@@ -15,13 +15,13 @@ class DoneIconDialogFragment : PreferenceDialogFragmentCompat() {
 
     override fun onCreateDialogView(context: Context): View {
         val listener = OnClickListener()
-        val viewBinding = DoneIconSelectorBinding.inflate(layoutInflater).apply {
+        val binding = DoneIconSelectorBinding.inflate(layoutInflater).apply {
             doneIcon1.setOnClickListener(listener)
             doneIcon2.setOnClickListener(listener)
             doneIcon3.setOnClickListener(listener)
             doneIcon4.setOnClickListener(listener)
         }
-        return viewBinding.root
+        return binding.root
     }
 
     override fun onDialogClosed(positiveResult: Boolean) {

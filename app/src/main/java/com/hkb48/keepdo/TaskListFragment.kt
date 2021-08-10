@@ -32,8 +32,8 @@ class TaskListFragment : Fragment() {
     private lateinit var mCheckSound: CheckSoundPlayer
     private val mAdapter = TaskAdapter()
     private lateinit var mTaskList: List<Task>
-    private var _viewBinding: FragmentTaskListBinding? = null
-    private val viewBinding get() = _viewBinding!!
+    private var _binding: FragmentTaskListBinding? = null
+    private val binding get() = _binding!!
 
     private var mContentsUpdated = false
     private val mSettingsChangedListener: Settings.OnChangedListener =
@@ -70,14 +70,14 @@ class TaskListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _viewBinding = FragmentTaskListBinding.inflate(inflater, container, false)
-        return viewBinding.root
+        _binding = FragmentTaskListBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.fab.setOnClickListener {
+        binding.fab.setOnClickListener {
             startActivity(
                 Intent(
                     requireContext(),
@@ -90,10 +90,10 @@ class TaskListFragment : Fragment() {
 
         // Cancel notification (if displayed)
         NotificationController.cancelReminder(requireContext())
-        viewBinding.mainListView.adapter = mAdapter
-        viewBinding.mainListView.emptyView = viewBinding.empty
-        viewBinding.mainListView.emptyView.visibility = View.INVISIBLE
-        viewBinding.mainListView.onItemClickListener =
+        binding.mainListView.adapter = mAdapter
+        binding.mainListView.emptyView = binding.empty
+        binding.mainListView.emptyView.visibility = View.INVISIBLE
+        binding.mainListView.onItemClickListener =
             AdapterView.OnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
                 // Show calendar view
                 val item = mDataList[position]
@@ -106,7 +106,7 @@ class TaskListFragment : Fragment() {
                     })
                 }
             }
-        registerForContextMenu(viewBinding.mainListView)
+        registerForContextMenu(binding.mainListView)
 
         subscribeToModel(taskViewModel)
 
@@ -136,7 +136,7 @@ class TaskListFragment : Fragment() {
     override fun onDestroyView() {
         (requireActivity().application as KeepdoApplication).getDateChangeTimeManager()
             .unregisterOnDateChangedListener(mOnDateChangedListener)
-        _viewBinding = null
+        _binding = null
         super.onDestroyView()
     }
 
@@ -202,7 +202,7 @@ class TaskListFragment : Fragment() {
                 Log.d(TAG_KEEPDO, "Task database updated")
             }
             if (taskList.isEmpty()) {
-                viewBinding.mainListView.emptyView.visibility = View.VISIBLE
+                binding.mainListView.emptyView.visibility = View.VISIBLE
             }
             mTaskList = taskList
             updateTaskListWithLifecycleScope()
@@ -332,24 +332,24 @@ class TaskListFragment : Fragment() {
             }
             if (createView) {
                 if (isTask) {
-                    val viewBindingRow = TaskListRowBinding.inflate(inflater, parent, false)
-                    view = viewBindingRow.root
+                    val bindingRow = TaskListRowBinding.inflate(inflater, parent, false)
+                    view = bindingRow.root
                     itemViewHolder = ItemViewHolder()
                     itemViewHolder.viewType = TYPE_ITEM
-                    itemViewHolder.imageView = viewBindingRow.taskListItemCheck
-                    itemViewHolder.textView1 = viewBindingRow.taskName
-                    itemViewHolder.textView2 = viewBindingRow.taskContext
-                    itemViewHolder.recurrenceView = viewBindingRow.recurrenceView
-                    itemViewHolder.lastDoneDateTextView = viewBindingRow.taskLastDoneDate
-                    itemViewHolder.imageAlarm = viewBindingRow.AlarmIcon
-                    itemViewHolder.textAlarm = viewBindingRow.AlarmText
+                    itemViewHolder.imageView = bindingRow.taskListItemCheck
+                    itemViewHolder.textView1 = bindingRow.taskName
+                    itemViewHolder.textView2 = bindingRow.taskContext
+                    itemViewHolder.recurrenceView = bindingRow.recurrenceView
+                    itemViewHolder.lastDoneDateTextView = bindingRow.taskLastDoneDate
+                    itemViewHolder.imageAlarm = bindingRow.AlarmIcon
+                    itemViewHolder.textAlarm = bindingRow.AlarmText
                     view.tag = itemViewHolder
                 } else {
                     headerViewHolder = HeaderViewHolder()
-                    val viewBindingHeader = TaskListHeaderBinding.inflate(inflater, parent, false)
-                    view = viewBindingHeader.root
+                    val bindingHeader = TaskListHeaderBinding.inflate(inflater, parent, false)
+                    view = bindingHeader.root
                     headerViewHolder.viewType = TYPE_HEADER
-                    headerViewHolder.textView1 = viewBindingHeader.textView1
+                    headerViewHolder.textView1 = bindingHeader.textView1
                     view.tag = headerViewHolder
                 }
             }

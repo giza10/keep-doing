@@ -18,14 +18,13 @@ import java.util.*
 
 class TaskDetailActivity : AppCompatActivity() {
     private var mTaskId: Int = Task.INVALID_TASKID
-    private lateinit var viewBinding: ActivityTaskDetailBinding
+    private lateinit var binding: ActivityTaskDetailBinding
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewBinding = ActivityTaskDetailBinding.inflate(layoutInflater)
-        setContentView(viewBinding.root)
-        val toolbar = viewBinding.includedToolbar.toolbar
-        setSupportActionBar(toolbar)
+        binding = ActivityTaskDetailBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.includedToolbar.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         mTaskId = intent.getIntExtra(EXTRA_TASK_ID, Task.INVALID_TASKID)
 
@@ -71,10 +70,10 @@ class TaskDetailActivity : AppCompatActivity() {
 
     private fun updateDetails(model: TaskViewModel, task: Task) = lifecycleScope.launch {
         // Recurrence
-        viewBinding.recurrenceView.update(Recurrence.getFromTask(task))
+        binding.recurrenceView.update(Recurrence.getFromTask(task))
 
         // Reminder
-        val reminderTextView = viewBinding.taskDetailReminderValue
+        val reminderTextView = binding.taskDetailReminderValue
         val reminder = Reminder(task.reminderEnabled, task.reminderTime ?: 0)
         if (reminder.enabled) {
             reminderTextView.text =
@@ -84,11 +83,11 @@ class TaskDetailActivity : AppCompatActivity() {
         }
 
         // Context
-        val contextTitleTextView = viewBinding.taskDetailContext
-        val contextTextView = viewBinding.taskDetailContextDescription
+        val contextTitleTextView = binding.taskDetailContext
+        val contextTextView = binding.taskDetailContextDescription
         val contextStr = task.context
         if (contextStr == null || contextStr.isEmpty()) {
-            val contextLayout = viewBinding.taskDetailContextContainer
+            val contextLayout = binding.taskDetailContextContainer
             contextLayout.visibility = View.GONE
             contextTitleTextView.visibility = View.INVISIBLE
             contextTextView.visibility = View.INVISIBLE
@@ -100,29 +99,29 @@ class TaskDetailActivity : AppCompatActivity() {
 
         // Total number of done
         val numOfDone = model.getNumberOfDone(task._id!!)
-        viewBinding.taskDetailNumOfDoneValue.text = getString(R.string.number_of_times, numOfDone)
+        binding.taskDetailNumOfDoneValue.text = getString(R.string.number_of_times, numOfDone)
 
         // Current combo / Max combo
         val combo = model.getComboCount(task._id)
         val maxCombo = model.getMaxComboCount(task._id)
-        viewBinding.taskDetailComboValue.text =
+        binding.taskDetailComboValue.text =
             getString(R.string.current_and_max_combo_num, combo, maxCombo)
 
         // First date that done is set
         val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN)
         val firstDoneDate = model.getFirstDoneDate(task._id)
         if (firstDoneDate != null) {
-            viewBinding.taskDetailFirstDoneDateValue.text = dateFormat.format(firstDoneDate)
+            binding.taskDetailFirstDoneDateValue.text = dateFormat.format(firstDoneDate)
         } else {
-            viewBinding.taskDetailFirstDoneDateContainer.visibility = View.GONE
+            binding.taskDetailFirstDoneDateContainer.visibility = View.GONE
         }
 
         // Last date that done is set
         val lastDoneDate = model.getLastDoneDate(task._id)
         if (lastDoneDate != null) {
-            viewBinding.taskDetailLastDoneDateValue.text = dateFormat.format(lastDoneDate)
+            binding.taskDetailLastDoneDateValue.text = dateFormat.format(lastDoneDate)
         } else {
-            viewBinding.taskDetailLastDoneDateContainer.visibility = View.GONE
+            binding.taskDetailLastDoneDateContainer.visibility = View.GONE
         }
     }
 

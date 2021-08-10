@@ -9,9 +9,9 @@ import com.hkb48.keepdo.databinding.ActivitySettingsBinding
 class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewBinding = ActivitySettingsBinding.inflate(layoutInflater)
-        setContentView(viewBinding.root)
-        setSupportActionBar(viewBinding.includedToolbar.toolbar)
+        val binding = ActivitySettingsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.includedToolbar.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportFragmentManager.beginTransaction().apply {
             add(R.id.root_container, GeneralSettingsFragment())

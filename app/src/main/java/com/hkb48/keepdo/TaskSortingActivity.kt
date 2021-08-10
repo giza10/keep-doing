@@ -25,7 +25,7 @@ class TaskSortingActivity : AppCompatActivity() {
         TaskViewModelFactory(application)
     }
     private lateinit var mDataList: MutableList<Task>
-    private lateinit var viewBinding: ActivityTaskSortingBinding
+    private lateinit var binding: ActivityTaskSortingBinding
     private val onDrop: DragAndDropListener = object : DragAndDropListener {
         override fun onDrag(from: Int, to: Int) {
             if (from != to) {
@@ -45,19 +45,19 @@ class TaskSortingActivity : AppCompatActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewBinding = ActivityTaskSortingBinding.inflate(layoutInflater)
-        setContentView(viewBinding.root)
-        val toolbar = viewBinding.includedToolbar.toolbar
+        binding = ActivityTaskSortingBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        val toolbar = binding.includedToolbar.toolbar
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         taskViewModel.getObservableTaskList().observe(this, { taskList ->
             taskViewModel.getObservableTaskList().removeObservers(this@TaskSortingActivity)
             mDataList = taskList.toMutableList()
-            viewBinding.mainListView.apply {
+            binding.mainListView.apply {
                 adapter = mAdapter
                 setDragAndDropListener(onDrop)
             }
-            viewBinding.cancelButton.setOnClickListener { onCancelClicked() }
+            binding.cancelButton.setOnClickListener { onCancelClicked() }
             mAdapter.notifyDataSetChanged()
         })
     }
@@ -106,7 +106,7 @@ class TaskSortingActivity : AppCompatActivity() {
     }
 
     private fun enableSaveButton() {
-        viewBinding.okButton.apply {
+        binding.okButton.apply {
             isEnabled = true
             setOnClickListener { onSaveClicked() }
         }

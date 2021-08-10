@@ -16,10 +16,9 @@ class TaskCalendarActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewBinder = ActivityTaskCalendarBinding.inflate(layoutInflater)
-        setContentView(viewBinder.root)
-        val toolbar = viewBinder.includedToolbar.toolbar
-        setSupportActionBar(toolbar)
+        val binder = ActivityTaskCalendarBinding.inflate(layoutInflater)
+        setContentView(binder.root)
+        setSupportActionBar(binder.includedToolbar.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val taskViewModel: TaskViewModel by viewModels {

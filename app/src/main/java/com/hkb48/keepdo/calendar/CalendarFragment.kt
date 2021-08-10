@@ -40,8 +40,8 @@ class CalendarFragment : Fragment() {
     private val taskViewModel: TaskViewModel by viewModels {
         TaskViewModelFactory(requireActivity().application)
     }
-    private var _viewBinding: FragmentCalendarBinding? = null
-    private val viewBinding get() = _viewBinding!!
+    private var _binding: FragmentCalendarBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,16 +53,16 @@ class CalendarFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _viewBinding = FragmentCalendarBinding.inflate(inflater, container, false)
-        return viewBinding.root
+        _binding = FragmentCalendarBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mViewPager = viewBinding.viewPager
+        mViewPager = binding.viewPager
         mViewPager.adapter = CalendarPageAdapter(this)
         mViewPager.setCurrentItem(INDEX_OF_THIS_MONTH, false)
-        val tabLayout = viewBinding.tabLayout
+        val tabLayout = binding.tabLayout
         TabLayoutMediator(
             tabLayout, mViewPager
         ) { tab: TabLayout.Tab, position: Int ->
@@ -72,7 +72,7 @@ class CalendarFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _viewBinding = null
+        _binding = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -111,7 +111,7 @@ class CalendarFragment : Fragment() {
     }
 
     private fun shareDisplayedCalendarView(taskId: Int) {
-        val calendarRoot = viewBinding.calendarRoot
+        val calendarRoot = binding.calendarRoot
         getBitmapFromView(calendarRoot, requireActivity(), callback = {
             var contentUri: Uri? = null
             try {
