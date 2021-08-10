@@ -17,11 +17,12 @@ import com.hkb48.keepdo.databinding.ActionbarTaskSettingBinding
 import com.hkb48.keepdo.databinding.ActivityTaskSettingBinding
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.viewmodel.TaskViewModel
-import com.hkb48.keepdo.viewmodel.TaskViewModelFactory
 import com.hkb48.keepdo.widget.TasksWidgetProvider
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.*
 
+@AndroidEntryPoint
 class TaskSettingActivity : AppCompatActivity() {
     private var mRecurrenceFlags = booleanArrayOf(
         true, true, true, true, true, true,
@@ -31,9 +32,7 @@ class TaskSettingActivity : AppCompatActivity() {
     private var mMode = 0
     private var mReminder: Reminder = Reminder()
     private lateinit var mSaveButton: Button
-    private val taskViewModel: TaskViewModel by viewModels {
-        TaskViewModelFactory(application)
-    }
+    private val taskViewModel: TaskViewModel by viewModels()
     private lateinit var binding: ActivityTaskSettingBinding
 
     public override fun onCreate(savedInstanceState: Bundle?) {

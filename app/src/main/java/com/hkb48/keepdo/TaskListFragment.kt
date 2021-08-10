@@ -19,14 +19,15 @@ import com.hkb48.keepdo.settings.Settings
 import com.hkb48.keepdo.util.CompatUtil
 import com.hkb48.keepdo.util.DateComparator
 import com.hkb48.keepdo.viewmodel.TaskViewModel
-import com.hkb48.keepdo.viewmodel.TaskViewModelFactory
 import com.hkb48.keepdo.widget.TasksWidgetProvider
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.*
 import kotlin.collections.ArrayList
 
+@AndroidEntryPoint
 class TaskListFragment : Fragment() {
     private var mDataList: MutableList<TaskListItem> = ArrayList()
     private lateinit var mCheckSound: CheckSoundPlayer
@@ -62,9 +63,7 @@ class TaskListFragment : Fragment() {
                     .create().show()
             }
         }
-    private val taskViewModel: TaskViewModel by viewModels {
-        TaskViewModelFactory(requireActivity().application)
-    }
+    private val taskViewModel: TaskViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

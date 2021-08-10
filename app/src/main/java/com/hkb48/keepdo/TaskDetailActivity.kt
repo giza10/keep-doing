@@ -11,12 +11,14 @@ import androidx.lifecycle.lifecycleScope
 import com.hkb48.keepdo.databinding.ActivityTaskDetailBinding
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.viewmodel.TaskViewModel
-import com.hkb48.keepdo.viewmodel.TaskViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
+@AndroidEntryPoint
 class TaskDetailActivity : AppCompatActivity() {
+    private val taskViewModel: TaskViewModel by viewModels()
     private var mTaskId: Int = Task.INVALID_TASKID
     private lateinit var binding: ActivityTaskDetailBinding
 
@@ -28,10 +30,7 @@ class TaskDetailActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         mTaskId = intent.getIntExtra(EXTRA_TASK_ID, Task.INVALID_TASKID)
 
-        val taskViewModel: TaskViewModel by viewModels {
-            TaskViewModelFactory(application)
-        }
-        subscribeToModel(taskViewModel)
+        subscribeToModel()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -60,15 +59,15 @@ class TaskDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun subscribeToModel(model: TaskViewModel) {
-        model.getObservableTask(mTaskId).observe(this, { task ->
+    private fun subscribeToModel() {
+        taskViewModel.getObservableTask(mTaskId).observe(this, { task ->
             title = task.name
-            updateDetails(model, task)
+            updateDetails(task)
         })
 
     }
 
-    private fun updateDetails(model: TaskViewModel, task: Task) = lifecycleScope.launch {
+    private fun updateDetails(task: Task) = lifecycleScope.launch {
         // Recurrence
         binding.recurrenceView.update(Recurrence.getFromTask(task))
 
@@ -98,18 +97,18 @@ class TaskDetailActivity : AppCompatActivity() {
         }
 
         // Total number of done
-        val numOfDone = model.getNumberOfDone(task._id!!)
+        val numOfDone = taskViewModel.getNumberOfDone(task._id!!)
         binding.taskDetailNumOfDoneValue.text = getString(R.string.number_of_times, numOfDone)
 
         // Current combo / Max combo
-        val combo = model.getComboCount(task._id)
-        val maxCombo = model.getMaxComboCount(task._id)
+        val combo = taskViewModel.getComboCount(task._id)
+        val maxCombo = taskViewModel.getMaxComboCount(task._id)
         binding.taskDetailComboValue.text =
             getString(R.string.current_and_max_combo_num, combo, maxCombo)
 
         // First date that done is set
         val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN)
-        val firstDoneDate = model.getFirstDoneDate(task._id)
+        val firstDoneDate = taskViewModel.getFirstDoneDate(task._id)
         if (firstDoneDate != null) {
             binding.taskDetailFirstDoneDateValue.text = dateFormat.format(firstDoneDate)
         } else {
@@ -117,7 +116,7 @@ class TaskDetailActivity : AppCompatActivity() {
         }
 
         // Last date that done is set
-        val lastDoneDate = model.getLastDoneDate(task._id)
+        val lastDoneDate = taskViewModel.getLastDoneDate(task._id)
         if (lastDoneDate != null) {
             binding.taskDetailLastDoneDateValue.text = dateFormat.format(lastDoneDate)
         } else {

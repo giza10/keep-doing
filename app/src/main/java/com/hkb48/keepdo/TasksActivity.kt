@@ -19,7 +19,9 @@ import com.hkb48.keepdo.databinding.ActivityMainBinding
 import com.hkb48.keepdo.db.BackupManager
 import com.hkb48.keepdo.settings.SettingsActivity
 import com.hkb48.keepdo.widget.TasksWidgetProvider
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private lateinit var mDrawerLayout: DrawerLayout
     private lateinit var mDrawerToggle: ActionBarDrawerToggle

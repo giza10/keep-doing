@@ -19,20 +19,18 @@ import com.hkb48.keepdo.databinding.CalendarWeekBinding
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.settings.Settings
 import com.hkb48.keepdo.viewmodel.TaskViewModel
-import com.hkb48.keepdo.viewmodel.TaskViewModelFactory
 import com.hkb48.keepdo.widget.TasksWidgetProvider
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.text.SimpleDateFormat
 import java.util.*
 
-
-class CalendarGrid : Fragment() {
+@AndroidEntryPoint
+class CalendarGridFragment : Fragment() {
     private lateinit var mTask: Task
-    private val taskViewModel: TaskViewModel by viewModels {
-        TaskViewModelFactory(requireActivity().application)
-    }
+    private val taskViewModel: TaskViewModel by viewModels()
 
     private var mMonthOffset = 0
     private var _binding: CalendarSubPageBinding? = null
@@ -305,8 +303,8 @@ class CalendarGrid : Fragment() {
         private const val CONTEXT_MENU_CHECK_DONE = 0
         private const val CONTEXT_MENU_UNCHECK_DONE = 1
         private const val NUM_OF_DAYS_IN_WEEK = 7
-        fun newInstance(position: Int): CalendarGrid {
-            val fragment = CalendarGrid()
+        fun newInstance(position: Int): CalendarGridFragment {
+            val fragment = CalendarGridFragment()
             val args = Bundle()
             args.putInt(POSITION_KEY, position)
             fragment.arguments = args

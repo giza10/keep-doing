@@ -1,20 +1,22 @@
 package com.hkb48.keepdo.viewmodel
 
-import android.app.Application
 import android.database.sqlite.SQLiteException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import com.hkb48.keepdo.DateChangeTimeUtil
-import com.hkb48.keepdo.KeepdoApplication
 import com.hkb48.keepdo.Recurrence
+import com.hkb48.keepdo.TaskRepository
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.db.entity.TaskCompletion
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.*
+import javax.inject.Inject
 
-class TaskViewModel(application: KeepdoApplication) : ViewModel() {
-    private val repository = application.getRepository()
+@HiltViewModel
+class TaskViewModel @Inject constructor(
+    private val repository: TaskRepository
+) : ViewModel() {
     private val taskList = repository.getTaskListFlow().asLiveData()
 
     fun getObservableTaskList(): LiveData<List<Task>> {
@@ -188,15 +190,5 @@ class TaskViewModel(application: KeepdoApplication) : ViewModel() {
         val calendar = Calendar.getInstance()
         calendar.time = date
         return calendar
-    }
-}
-
-class TaskViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(TaskViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return TaskViewModel(application as KeepdoApplication) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

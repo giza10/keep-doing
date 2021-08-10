@@ -9,9 +9,11 @@ import com.hkb48.keepdo.R
 import com.hkb48.keepdo.databinding.ActivityTaskCalendarBinding
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.viewmodel.TaskViewModel
-import com.hkb48.keepdo.viewmodel.TaskViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class TaskCalendarActivity : AppCompatActivity() {
+    private val taskViewModel: TaskViewModel by viewModels()
     private val mCheckSound = CheckSoundPlayer(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,10 +23,7 @@ class TaskCalendarActivity : AppCompatActivity() {
         setSupportActionBar(binder.includedToolbar.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val taskViewModel: TaskViewModel by viewModels {
-            TaskViewModelFactory(application)
-        }
-        subscribeToModel(taskViewModel)
+        subscribeToModel()
         supportFragmentManager.beginTransaction()
             .replace(R.id.container, CalendarFragment()).commit()
     }
@@ -48,9 +47,9 @@ class TaskCalendarActivity : AppCompatActivity() {
         }
     }
 
-    private fun subscribeToModel(viewModel: TaskViewModel) {
+    private fun subscribeToModel() {
         val taskId = intent.getIntExtra(EXTRA_TASK_ID, Task.INVALID_TASKID)
-        viewModel.getObservableTask(taskId).observe(this, { task ->
+        taskViewModel.getObservableTask(taskId).observe(this, { task ->
             title = task.name
         })
     }

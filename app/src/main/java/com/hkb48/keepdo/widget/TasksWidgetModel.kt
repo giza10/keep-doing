@@ -38,7 +38,7 @@ internal class TasksWidgetModel(private val mContext: Context) {
             .getByDate(taskId, date).count() > 0
     }
 
-    val todayDate: Date
+    private val todayDate: Date
         get() = DateChangeTimeUtil.dateTime
 
     private fun isValidDay(task: Task, date: Date?): Boolean {

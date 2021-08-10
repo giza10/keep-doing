@@ -27,19 +27,17 @@ import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.settings.Settings
 import com.hkb48.keepdo.util.CompatUtil
 import com.hkb48.keepdo.viewmodel.TaskViewModel
-import com.hkb48.keepdo.viewmodel.TaskViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
-
+@AndroidEntryPoint
 class CalendarFragment : Fragment() {
     private lateinit var mViewPager: ViewPager2
-    private val taskViewModel: TaskViewModel by viewModels {
-        TaskViewModelFactory(requireActivity().application)
-    }
+    private val taskViewModel: TaskViewModel by viewModels()
     private var _binding: FragmentCalendarBinding? = null
     private val binding get() = _binding!!
 
@@ -232,7 +230,7 @@ class CalendarFragment : Fragment() {
         }
 
         override fun createFragment(position: Int): Fragment {
-            return CalendarGrid.newInstance(position)
+            return CalendarGridFragment.newInstance(position)
         }
     }
 

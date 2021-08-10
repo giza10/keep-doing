@@ -14,16 +14,14 @@ import com.hkb48.keepdo.databinding.ActivityTaskSortingBinding
 import com.hkb48.keepdo.databinding.TaskSortingListItemBinding
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.viewmodel.TaskViewModel
-import com.hkb48.keepdo.viewmodel.TaskViewModelFactory
 import com.hkb48.keepdo.widget.TasksWidgetProvider
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-
+@AndroidEntryPoint
 class TaskSortingActivity : AppCompatActivity() {
     private val mAdapter = TaskAdapter()
-    private val taskViewModel: TaskViewModel by viewModels {
-        TaskViewModelFactory(application)
-    }
+    private val taskViewModel: TaskViewModel by viewModels()
     private lateinit var mDataList: MutableList<Task>
     private lateinit var binding: ActivityTaskSortingBinding
     private val onDrop: DragAndDropListener = object : DragAndDropListener {

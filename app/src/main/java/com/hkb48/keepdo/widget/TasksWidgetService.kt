@@ -14,8 +14,9 @@ class TasksWidgetService : RemoteViewsService() {
     }
 }
 
-internal class StackRemoteViewsFactory(private val mContext: Context) :
-    RemoteViewsFactory {
+internal class StackRemoteViewsFactory(
+    private val mContext: Context
+) : RemoteViewsFactory {
     private val mModel = TasksWidgetModel(mContext)
     override fun onCreate() {}
     override fun onDestroy() {}
