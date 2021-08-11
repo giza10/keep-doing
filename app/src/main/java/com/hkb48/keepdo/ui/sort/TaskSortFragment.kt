@@ -1,29 +1,30 @@
-package com.hkb48.keepdo
+package com.hkb48.keepdo.ui.sort
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.hkb48.keepdo.SortableListView.DragAndDropListener
-import com.hkb48.keepdo.databinding.ActivityTaskSortingBinding
+import androidx.navigation.fragment.findNavController
+import com.hkb48.keepdo.databinding.FragmentTaskSortBinding
 import com.hkb48.keepdo.databinding.TaskSortingListItemBinding
 import com.hkb48.keepdo.db.entity.Task
-import com.hkb48.keepdo.viewmodel.TaskViewModel
+import com.hkb48.keepdo.ui.sort.SortableListView.DragAndDropListener
 import com.hkb48.keepdo.widget.TasksWidgetProvider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class TaskSortingActivity : AppCompatActivity() {
+class TaskSortFragment : Fragment() {
+    private val viewModel: TaskSortViewModel by viewModels()
+    private var _binding: FragmentTaskSortBinding? = null
+    private val binding get() = _binding!!
+
     private val mAdapter = TaskAdapter()
-    private val taskViewModel: TaskViewModel by viewModels()
     private lateinit var mDataList: MutableList<Task>
-    private lateinit var binding: ActivityTaskSortingBinding
     private val onDrop: DragAndDropListener = object : DragAndDropListener {
         override fun onDrag(from: Int, to: Int) {
             if (from != to) {
@@ -41,15 +42,19 @@ class TaskSortingActivity : AppCompatActivity() {
         }
     }
 
-    public override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityTaskSortingBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        val toolbar = binding.includedToolbar.toolbar
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        taskViewModel.getObservableTaskList().observe(this, { taskList ->
-            taskViewModel.getObservableTaskList().removeObservers(this@TaskSortingActivity)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentTaskSortBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.getObservableTaskList().observe(viewLifecycleOwner, { taskList ->
+            viewModel.getObservableTaskList().removeObservers(viewLifecycleOwner)
             mDataList = taskList.toMutableList()
             binding.mainListView.apply {
                 adapter = mAdapter
@@ -60,13 +65,9 @@ class TaskSortingActivity : AppCompatActivity() {
         })
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == android.R.id.home) {
-            finish()
-            true
-        } else {
-            super.onOptionsItemSelected(item)
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     /**
@@ -90,17 +91,17 @@ class TaskSortingActivity : AppCompatActivity() {
                 task.reminderTime,
                 index
             )
-            taskViewModel.editTask(newTask)
+            viewModel.editTask(newTask)
         }
-        TasksWidgetProvider.notifyDatasetChanged(applicationContext)
-        finish()
+        TasksWidgetProvider.notifyDatasetChanged(requireContext())
+        findNavController().popBackStack()
     }
 
     /**
      * Callback method for "Cancel" button
      */
     private fun onCancelClicked() {
-        finish()
+        findNavController().popBackStack()
     }
 
     private fun enableSaveButton() {

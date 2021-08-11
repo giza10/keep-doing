@@ -1,24 +1,24 @@
-package com.hkb48.keepdo
+package com.hkb48.keepdo.ui.tasklist
 
 import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import com.hkb48.keepdo.calendar.TaskCalendarActivity
+import androidx.navigation.fragment.findNavController
+import com.hkb48.keepdo.*
 import com.hkb48.keepdo.databinding.FragmentTaskListBinding
 import com.hkb48.keepdo.databinding.TaskListHeaderBinding
 import com.hkb48.keepdo.databinding.TaskListRowBinding
 import com.hkb48.keepdo.db.entity.Task
-import com.hkb48.keepdo.settings.Settings
+import com.hkb48.keepdo.ui.TasksActivity
+import com.hkb48.keepdo.ui.settings.Settings
 import com.hkb48.keepdo.util.CompatUtil
 import com.hkb48.keepdo.util.DateComparator
-import com.hkb48.keepdo.viewmodel.TaskViewModel
 import com.hkb48.keepdo.widget.TasksWidgetProvider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -29,13 +29,13 @@ import kotlin.collections.ArrayList
 
 @AndroidEntryPoint
 class TaskListFragment : Fragment() {
-    private var mDataList: MutableList<TaskListItem> = ArrayList()
-    private lateinit var mCheckSound: CheckSoundPlayer
-    private val mAdapter = TaskAdapter()
-    private lateinit var mTaskList: List<Task>
+    private val viewModel: TaskListViewModel by activityViewModels()
     private var _binding: FragmentTaskListBinding? = null
     private val binding get() = _binding!!
 
+    private var mDataList: MutableList<TaskListItem> = ArrayList()
+    private val mAdapter = TaskAdapter()
+    private lateinit var mTaskList: List<Task>
     private var mContentsUpdated = false
     private val mSettingsChangedListener: Settings.OnChangedListener =
         object : Settings.OnChangedListener {
@@ -63,7 +63,6 @@ class TaskListFragment : Fragment() {
                     .create().show()
             }
         }
-    private val taskViewModel: TaskViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -77,39 +76,40 @@ class TaskListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.fab.setOnClickListener {
-            startActivity(
-                Intent(
-                    requireContext(),
-                    TaskSettingActivity::class.java
-                )
+            val action = TaskListFragmentDirections.actionTaskListFragmentToAddEditTaskFragment(
+                Task.INVALID_TASKID,
+                getString(R.string.add_task)
             )
+            findNavController().navigate(action)
         }
 
         Settings.registerOnChangedListener(mSettingsChangedListener)
 
         // Cancel notification (if displayed)
         NotificationController.cancelReminder(requireContext())
-        binding.mainListView.adapter = mAdapter
-        binding.mainListView.emptyView = binding.empty
-        binding.mainListView.emptyView.visibility = View.INVISIBLE
-        binding.mainListView.onItemClickListener =
-            AdapterView.OnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
-                // Show calendar view
-                val item = mDataList[position]
-                if (item.type == TYPE_ITEM) {
-                    val task = item.data as Task
-                    startActivity(Intent(
-                        requireContext(), TaskCalendarActivity::class.java
-                    ).apply {
-                        putExtra(TaskCalendarActivity.EXTRA_TASK_ID, task._id)
-                    })
+
+        binding.mainListView.apply {
+            adapter = mAdapter
+            emptyView = binding.empty
+            emptyView.visibility = View.INVISIBLE
+            onItemClickListener =
+                AdapterView.OnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
+                    // Show calendar view
+                    val item = mDataList[position]
+                    if (item.type == TYPE_ITEM) {
+                        val task = item.data as Task
+                        val action =
+                            TaskListFragmentDirections.actionTaskListFragmentToCalendarFragment(
+                                task._id!!,
+                                task.name
+                            )
+                        findNavController().navigate(action)
+                    }
                 }
-            }
-        registerForContextMenu(binding.mainListView)
+            registerForContextMenu(this)
+        }
 
-        subscribeToModel(taskViewModel)
-
-        mCheckSound = CheckSoundPlayer(requireContext())
+        subscribeToModel()
 
         if (CompatUtil.isNotificationChannelSupported) {
             NotificationController.createNotificationChannel(requireContext())
@@ -123,20 +123,14 @@ class TaskListFragment : Fragment() {
         if (mContentsUpdated) {
             updateTaskListWithLifecycleScope()
         }
-        mCheckSound.load()
         super.onResume()
-    }
-
-    override fun onPause() {
-        mCheckSound.unload()
-        super.onPause()
     }
 
     override fun onDestroyView() {
         (requireActivity().application as KeepdoApplication).getDateChangeTimeManager()
             .unregisterOnDateChangedListener(mOnDateChangedListener)
-        _binding = null
         super.onDestroyView()
+        _binding = null
     }
 
     override fun onCreateContextMenu(
@@ -162,11 +156,12 @@ class TaskListFragment : Fragment() {
         val taskId = task._id!!
         return when (item.itemId) {
             CONTEXT_MENU_EDIT -> {
-                startActivity(Intent(
-                    requireContext(), TaskSettingActivity::class.java
-                ).apply {
-                    putExtra(TaskSettingActivity.EXTRA_TASK_ID, taskId)
-                })
+                val action =
+                    TaskListFragmentDirections.actionTaskListFragmentToAddEditTaskFragment(
+                        taskId,
+                        getString(R.string.edit_task)
+                    )
+                findNavController().navigate(action)
                 true
             }
             CONTEXT_MENU_DELETE -> {
@@ -178,7 +173,7 @@ class TaskListFragment : Fragment() {
                         // Cancel the alarm for Reminder before deleting the task.
                         ReminderManager.cancelAlarm(requireContext(), taskId)
                         lifecycleScope.launch {
-                            taskViewModel.deleteTask(taskId)
+                            viewModel.deleteTask(taskId)
                             TasksWidgetProvider.notifyDatasetChanged(requireContext())
                         }
                     }
@@ -195,8 +190,8 @@ class TaskListFragment : Fragment() {
         }
     }
 
-    private fun subscribeToModel(model: TaskViewModel) {
-        model.getObservableTaskList().observe(viewLifecycleOwner, { taskList ->
+    private fun subscribeToModel() {
+        viewModel.getObservableTaskList().observe(viewLifecycleOwner, { taskList ->
             if (BuildConfig.DEBUG) {
                 Log.d(TAG_KEEPDO, "Task database updated")
             }
@@ -206,7 +201,7 @@ class TaskListFragment : Fragment() {
             mTaskList = taskList
             updateTaskListWithLifecycleScope()
         })
-        model.getObservableDoneStatusList().observe(viewLifecycleOwner, {
+        viewModel.getObservableDoneStatusList().observe(viewLifecycleOwner, {
             updateTaskListWithLifecycleScope()
         })
     }
@@ -246,8 +241,8 @@ class TaskListFragment : Fragment() {
                 dataList.add(taskListItem)
                 for (task in taskListToday) {
                     val taskId = task._id!!
-                    val lastDoneDate = taskViewModel.getLastDoneDate(taskId)
-                    val comboCount = taskViewModel.getComboCount(taskId)
+                    val lastDoneDate = viewModel.getLastDoneDate(taskId)
+                    val comboCount = viewModel.getComboCount(task)
                     taskListItem = TaskListItem(TYPE_ITEM, task, lastDoneDate, comboCount)
                     dataList.add(taskListItem)
                 }
@@ -260,8 +255,8 @@ class TaskListFragment : Fragment() {
                 dataList.add(taskListItem)
                 for (task in taskListNotToday) {
                     val taskId = task._id!!
-                    val lastDoneDate = taskViewModel.getLastDoneDate(taskId)
-                    val comboCount = taskViewModel.getComboCount(taskId)
+                    val lastDoneDate = viewModel.getLastDoneDate(taskId)
+                    val comboCount = viewModel.getComboCount(task)
                     taskListItem = TaskListItem(TYPE_ITEM, task, lastDoneDate, comboCount)
                     dataList.add(taskListItem)
                 }
@@ -403,14 +398,14 @@ class TaskListFragment : Fragment() {
                         val taskId = task1._id!!
                         var checked1 = DateComparator.equals(taskListItem1.lastDoneDate, today)
                         checked1 = !checked1
-                        taskViewModel.setDoneStatus(taskId, today, checked1)
+                        viewModel.setDoneStatus(taskId, today, checked1)
                         updateModel(task1, position1)
                         taskListItem1 = getItem(position1) as TaskListItem
                         updateView(taskListItem1, checked1, itemViewHolder1)
                         ReminderManager.setAlarm(requireContext(), taskId)
                         TasksWidgetProvider.notifyDatasetChanged(requireContext())
                         if (checked1) {
-                            mCheckSound.play()
+                            (requireActivity() as TasksActivity).playCheckSound()
                         }
                     }
                 }
@@ -423,8 +418,8 @@ class TaskListFragment : Fragment() {
 
         private suspend fun updateModel(task: Task, position: Int) {
             val taskId = task._id!!
-            val lastDoneDate = taskViewModel.getLastDoneDate(taskId)
-            val comboCount = taskViewModel.getComboCount(taskId)
+            val lastDoneDate = viewModel.getLastDoneDate(taskId)
+            val comboCount = viewModel.getComboCount(task)
             val newTaskListItem = TaskListItem(TYPE_ITEM, task, lastDoneDate, comboCount)
             mDataList[position] = newTaskListItem
         }

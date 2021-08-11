@@ -1,6 +1,6 @@
 package com.hkb48.keepdo
 
-import com.hkb48.keepdo.settings.Settings
+import com.hkb48.keepdo.ui.settings.Settings
 import java.util.*
 
 object DateChangeTimeUtil {

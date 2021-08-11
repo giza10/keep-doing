@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.hkb48.keepdo.SortableListItem xmlns:android="http://schemas.android.com/apk/res/android"
+<com.hkb48.keepdo.ui.sort.SortableListItem xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="@dimen/tasksort_item_height"
@@ -31,4 +31,4 @@
         android:paddingRight="10dp"
         android:scaleType="fitXY"
         app:srcCompat="@drawable/ic_grabber" />
-</com.hkb48.keepdo.SortableListItem>
+</com.hkb48.keepdo.ui.sort.SortableListItem>

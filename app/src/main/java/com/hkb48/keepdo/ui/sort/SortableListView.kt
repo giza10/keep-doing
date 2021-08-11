@@ -1,4 +1,4 @@
-package com.hkb48.keepdo
+package com.hkb48.keepdo.ui.sort
 
 import android.app.Activity
 import android.content.Context
@@ -12,6 +12,7 @@ import android.util.AttributeSet
 import android.view.*
 import android.widget.ImageView
 import android.widget.ListView
+import com.hkb48.keepdo.R
 import com.hkb48.keepdo.util.CompatUtil
 
 class SortableListView @JvmOverloads constructor(
@@ -66,17 +67,18 @@ class SortableListView @JvmOverloads constructor(
             if (rect.left < x && x < rect.right) {
                 // Create a copy of the drawing cache so that it does not get recycled
                 // by the framework when the list tries to clean up memory
-                getBitmapFromView(listItemView, context as Activity, callback = {
-                    val listBounds = Rect()
-                    getGlobalVisibleRect(listBounds, null)
-                    startDrag(it, listBounds.left, y)
-                    mDragPos = position
-                    mFirstDragPos = mDragPos
-                    mHeight = height
-                    val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
-                    mUpperBound = (y - touchSlop).coerceAtMost(mHeight / 3)
-                    mLowerBound = (y + touchSlop).coerceAtLeast(mHeight * 2 / 3)
-                })
+                listItemView.isDrawingCacheEnabled = true
+                val bitmap = Bitmap.createBitmap(listItemView.drawingCache)
+                listItemView.isDrawingCacheEnabled = false
+                val listBounds = Rect()
+                getGlobalVisibleRect(listBounds, null)
+                startDrag(bitmap, listBounds.left, y)
+                mDragPos = position
+                mFirstDragPos = mDragPos
+                mHeight = height
+                val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+                mUpperBound = (y - touchSlop).coerceAtMost(mHeight / 3)
+                mLowerBound = (y + touchSlop).coerceAtLeast(mHeight * 2 / 3)
                 return false
             }
             mDragView = null

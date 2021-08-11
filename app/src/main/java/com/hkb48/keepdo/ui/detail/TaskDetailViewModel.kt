@@ -1,6 +1,5 @@
-package com.hkb48.keepdo.viewmodel
+package com.hkb48.keepdo.ui.detail
 
-import android.database.sqlite.SQLiteException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
@@ -8,75 +7,16 @@ import com.hkb48.keepdo.DateChangeTimeUtil
 import com.hkb48.keepdo.Recurrence
 import com.hkb48.keepdo.TaskRepository
 import com.hkb48.keepdo.db.entity.Task
-import com.hkb48.keepdo.db.entity.TaskCompletion
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
-class TaskViewModel @Inject constructor(
+class TaskDetailViewModel @Inject constructor(
     private val repository: TaskRepository
 ) : ViewModel() {
-    private val taskList = repository.getTaskListFlow().asLiveData()
-
-    fun getObservableTaskList(): LiveData<List<Task>> {
-        return taskList
-    }
-
-    suspend fun addTask(task: Task): Int {
-        return try {
-            repository.addTask(task)
-        } catch (e: SQLiteException) {
-            e.printStackTrace()
-            Task.INVALID_TASKID
-        }
-    }
-
-    suspend fun editTask(task: Task) {
-        try {
-            repository.editTask(task)
-        } catch (e: SQLiteException) {
-            e.printStackTrace()
-        }
-    }
-
-    suspend fun deleteTask(taskId: Int) {
-        try {
-            // Delete task from TASKS_TABLE_NAME
-            // Records corresponding to the deleted task are also removed from TASK_COMPLETION_TABLE_NAME
-            repository.deleteTask(taskId)
-        } catch (e: SQLiteException) {
-            e.printStackTrace()
-        }
-    }
-
     fun getObservableTask(taskId: Int): LiveData<Task> {
         return repository.getTaskFlow(taskId).asLiveData()
-    }
-
-    suspend fun getTask(taskId: Int): Task? {
-        return repository.getTask(taskId)
-    }
-
-    suspend fun getMaxSortOrderId(): Int {
-        return repository.getMaxOrder()
-    }
-
-    suspend fun setDoneStatus(taskId: Int, date: Date, doneSwitch: Boolean) {
-        try {
-            if (doneSwitch) {
-                val taskCompletion = TaskCompletion(null, taskId, date)
-                repository.setDone(taskCompletion)
-            } else {
-                repository.unsetDone(taskId, date)
-            }
-        } catch (e: SQLiteException) {
-            e.printStackTrace()
-        }
-    }
-
-    fun getObservableDoneStatusList(): LiveData<List<TaskCompletion>> {
-        return repository.getDoneStatusListFlow().asLiveData()
     }
 
     suspend fun getNumberOfDone(taskId: Int): Int {
@@ -91,29 +31,14 @@ class TaskViewModel @Inject constructor(
         return repository.getLastDoneDate(taskId, todayDate)
     }
 
-    suspend fun getHistoryInMonth(taskId: Int, year: Int, month: Int): ArrayList<Date> {
-        val calendar = Calendar.getInstance()
-        calendar[Calendar.YEAR] = year
-        calendar[Calendar.MONTH] = month
-        val firstDayInMonth = calendar.clone() as Calendar
-        firstDayInMonth[Calendar.DAY_OF_MONTH] = 1
-        val lastDayInMonth = calendar.clone() as Calendar
-        lastDayInMonth[Calendar.DAY_OF_MONTH] = lastDayInMonth.getActualMaximum(Calendar.DATE)
-
-        val doneList = repository.getDoneHistoryBetween(
-            taskId, firstDayInMonth.time, lastDayInMonth.time
-        )
-        return ArrayList(doneList)
-    }
-
-    suspend fun getComboCount(taskId: Int): Int {
+    suspend fun getComboCount(task: Task): Int {
         var count = 0
-        val mDoneHistory = repository.getDoneHistoryDesc(taskId, todayDate)
+        val mDoneHistory = repository.getDoneHistoryDesc(task._id!!, todayDate)
         if (mDoneHistory.isNotEmpty()) {
             val calToday = getCalendar(DateChangeTimeUtil.date)
             val calIndex = calToday.clone() as Calendar
             var calDone = getCalendar(mDoneHistory[0])
-            val recurrence = Recurrence.getFromTask(getTask(taskId)!!)
+            val recurrence = Recurrence.getFromTask(task)
             var listIndex = 0
             while (true) {
                 if (calIndex == calDone) {
@@ -137,15 +62,15 @@ class TaskViewModel @Inject constructor(
         return count
     }
 
-    suspend fun getMaxComboCount(taskId: Int): Int {
+    suspend fun getMaxComboCount(task: Task): Int {
         var currentCount = 0
         var maxCount = 0
-        val mDoneHistory = repository.getDoneHistoryAsc(taskId, todayDate)
+        val mDoneHistory = repository.getDoneHistoryAsc(task._id!!, todayDate)
         if (mDoneHistory.isNotEmpty()) {
             val calToday = getCalendar(DateChangeTimeUtil.date)
             var calIndex = calToday.clone() as Calendar
             var calDone = getCalendar(mDoneHistory[0])
-            val recurrence = Recurrence.getFromTask(getTask(taskId)!!)
+            val recurrence = Recurrence.getFromTask(task)
             var listIndex = 0
             var isCompleted = false
             do {

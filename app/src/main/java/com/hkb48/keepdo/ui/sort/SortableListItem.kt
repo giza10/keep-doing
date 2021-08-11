@@ -1,4 +1,4 @@
-package com.hkb48.keepdo
+package com.hkb48.keepdo.ui.sort
 
 import android.content.Context
 import android.util.AttributeSet

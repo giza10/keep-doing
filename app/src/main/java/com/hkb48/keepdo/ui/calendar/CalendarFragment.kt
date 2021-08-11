@@ -1,4 +1,4 @@
-package com.hkb48.keepdo.calendar
+package com.hkb48.keepdo.ui.calendar
 
 import android.app.Activity
 import android.content.Intent
@@ -11,22 +11,23 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.hkb48.keepdo.DateChangeTimeUtil
 import com.hkb48.keepdo.R
-import com.hkb48.keepdo.TaskDetailActivity
 import com.hkb48.keepdo.databinding.FragmentCalendarBinding
 import com.hkb48.keepdo.db.entity.Task
-import com.hkb48.keepdo.settings.Settings
+import com.hkb48.keepdo.ui.settings.Settings
 import com.hkb48.keepdo.util.CompatUtil
-import com.hkb48.keepdo.viewmodel.TaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.File
@@ -36,10 +37,13 @@ import java.util.*
 
 @AndroidEntryPoint
 class CalendarFragment : Fragment() {
-    private lateinit var mViewPager: ViewPager2
-    private val taskViewModel: TaskViewModel by viewModels()
+    private val viewModel: CalendarViewModel by viewModels()
     private var _binding: FragmentCalendarBinding? = null
     private val binding get() = _binding!!
+    private val args: CalendarFragmentArgs by navArgs()
+
+    private lateinit var mViewPager: ViewPager2
+    private lateinit var task: Task
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,8 +61,9 @@ class CalendarFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        subscribeToModel()
         mViewPager = binding.viewPager
-        mViewPager.adapter = CalendarPageAdapter(this)
+        mViewPager.adapter = CalendarPageAdapter(this, args.taskId)
         mViewPager.setCurrentItem(INDEX_OF_THIS_MONTH, false)
         val tabLayout = binding.tabLayout
         TabLayoutMediator(
@@ -74,19 +79,20 @@ class CalendarFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.activity_task, menu)
+        inflater.inflate(R.menu.menu_calendar, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val taskId = requireActivity().intent.getIntExtra(
-            TaskCalendarActivity.EXTRA_TASK_ID, Task.INVALID_TASKID
-        )
+        val taskId = args.taskId
         return when (item.itemId) {
             R.id.menu_info -> {
-                startActivity(Intent(requireContext(), TaskDetailActivity::class.java).apply {
-                    putExtra(TaskDetailActivity.EXTRA_TASK_ID, taskId)
-                })
+                val action =
+                    CalendarFragmentDirections.actionCalendarFragmentToTaskDetailFragment(
+                        taskId,
+                        args.title
+                    )
+                findNavController().navigate(action)
                 true
             }
             R.id.menu_share -> {
@@ -97,6 +103,13 @@ class CalendarFragment : Fragment() {
                 super.onOptionsItemSelected(item)
             }
         }
+    }
+
+    private fun subscribeToModel() {
+        viewModel.getObservableTask(args.taskId).observe(viewLifecycleOwner, { task ->
+            this.task = task
+            (requireActivity() as AppCompatActivity).supportActionBar?.title = task.name
+        })
     }
 
     private fun getPageTitle(position: Int): CharSequence {
@@ -129,8 +142,8 @@ class CalendarFragment : Fragment() {
             }
 
             viewLifecycleOwner.lifecycleScope.launch {
-                val comboCount = taskViewModel.getComboCount(taskId)
-                val taskName = taskViewModel.getTask(taskId)?.name
+                val comboCount = viewModel.getComboCount(task)
+                val taskName = task.name
                 var extraText = ""
                 val monthOffset = mViewPager.currentItem - INDEX_OF_THIS_MONTH
                 if (monthOffset == 0 && comboCount > 1) {
@@ -143,7 +156,7 @@ class CalendarFragment : Fragment() {
                     val current = DateChangeTimeUtil.dateTimeCalendar
                     current.add(Calendar.MONTH, monthOffset)
                     current[Calendar.DAY_OF_MONTH] = 1
-                    val doneDateList = taskViewModel.getHistoryInMonth(
+                    val doneDateList = viewModel.getHistoryInMonth(
                         taskId, current[Calendar.YEAR], current[Calendar.MONTH]
                     )
                     extraText += requireContext().getString(
@@ -222,15 +235,16 @@ class CalendarFragment : Fragment() {
         }
     }
 
-    class CalendarPageAdapter internal constructor(fragment: Fragment?) : FragmentStateAdapter(
-        fragment!!
-    ) {
+    class CalendarPageAdapter internal constructor(
+        fragment: Fragment?,
+        private val taskId: Int
+    ) : FragmentStateAdapter(fragment!!) {
         override fun getItemCount(): Int {
             return if (Settings.enableFutureDate) NUM_MAXIMUM_MONTHS else NUM_MAXIMUM_MONTHS_PAST
         }
 
         override fun createFragment(position: Int): Fragment {
-            return CalendarGridFragment.newInstance(position)
+            return CalendarGridFragment.newInstance(taskId, position)
         }
     }
 

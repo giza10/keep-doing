@@ -5,7 +5,7 @@
         android:key="preferences_general_category"
         android:title="@string/general_setting">
 
-        <com.hkb48.keepdo.settings.DoneIconPreference
+        <com.hkb48.keepdo.ui.settings.DoneIconPreference
             android:defaultValue="@string/prefDefault_done_icon"
             android:dialogTitle="@string/prefDialogTitle_selectDoneIcon"
             android:key="preferences_done_icon"
@@ -47,7 +47,7 @@
         android:key="preferences_alerts_category"
         android:title="@string/reminder_setting">
 
-        <com.hkb48.keepdo.settings.RingtonePreference
+        <com.hkb48.keepdo.ui.settings.RingtonePreference
             android:defaultValue="content://settings/system/notification_sound"
             android:key="preferences_alerts_ringtone"
             android:layout="?android:attr/preferenceLayoutChild"

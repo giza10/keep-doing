@@ -1,5 +1,6 @@
 package com.hkb48.keepdo
 
+import android.database.sqlite.SQLiteException
 import com.hkb48.keepdo.db.dao.TaskCompletionDao
 import com.hkb48.keepdo.db.dao.TaskDao
 import com.hkb48.keepdo.db.entity.Task
@@ -17,15 +18,28 @@ class TaskRepository @Inject constructor(
     }
 
     suspend fun addTask(task: Task): Int {
-        return taskDao.add(task).toInt()
+        return try {
+            taskDao.add(task).toInt()
+        } catch (e: SQLiteException) {
+            e.printStackTrace()
+            Task.INVALID_TASKID
+        }
     }
 
     suspend fun editTask(task: Task) {
-        taskDao.update(task)
+        try {
+            taskDao.update(task)
+        } catch (e: SQLiteException) {
+            e.printStackTrace()
+        }
     }
 
     suspend fun deleteTask(taskId: Int) {
-        taskDao.delete(taskId)
+        try {
+            taskDao.delete(taskId)
+        } catch (e: SQLiteException) {
+            e.printStackTrace()
+        }
     }
 
     fun getTaskFlow(taskId: Int): Flow<Task> {
@@ -41,11 +55,19 @@ class TaskRepository @Inject constructor(
     }
 
     suspend fun setDone(taskCompletion: TaskCompletion) {
-        taskCompletionDao.insert(taskCompletion)
+        try {
+            taskCompletionDao.insert(taskCompletion)
+        } catch (e: SQLiteException) {
+            e.printStackTrace()
+        }
     }
 
     suspend fun unsetDone(taskId: Int, date: Date) {
-        taskCompletionDao.delete(taskId, date)
+        try {
+            taskCompletionDao.delete(taskId, date)
+        } catch (e: SQLiteException) {
+            e.printStackTrace()
+        }
     }
 
     fun getDoneStatusListFlow(): Flow<List<TaskCompletion>> {

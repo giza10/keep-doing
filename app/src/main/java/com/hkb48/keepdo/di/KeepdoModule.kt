@@ -1,6 +1,7 @@
 package com.hkb48.keepdo.di
 
 import android.content.Context
+import com.hkb48.keepdo.CheckSoundPlayer
 import com.hkb48.keepdo.TaskRepository
 import com.hkb48.keepdo.db.TaskDatabase
 import com.hkb48.keepdo.db.dao.TaskCompletionDao
@@ -40,5 +41,11 @@ object KeepdoModule {
         taskCompletionDao: TaskCompletionDao
     ): TaskRepository {
         return TaskRepository(taskDao, taskCompletionDao)
+    }
+
+    @Singleton
+    @Provides
+    fun provideCheckSoundPlayer(@ApplicationContext context: Context): CheckSoundPlayer {
+        return CheckSoundPlayer(context)
     }
 }

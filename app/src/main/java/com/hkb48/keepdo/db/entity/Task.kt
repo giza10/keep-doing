@@ -35,6 +35,6 @@ data class Task(
         const val REMINDER_TIME = "reminder_time"
         const val TASK_LIST_ORDER = "task_list_order"
 
-        const val INVALID_TASKID = Int.MIN_VALUE
+        const val INVALID_TASKID = -1
     }
 }

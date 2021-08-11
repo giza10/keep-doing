@@ -6,7 +6,7 @@ import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
-import com.hkb48.keepdo.settings.Settings
+import com.hkb48.keepdo.ui.settings.Settings
 import com.hkb48.keepdo.util.CompatUtil
 
 class RecurrenceView(context: Context, attrs: AttributeSet?) : AppCompatTextView(

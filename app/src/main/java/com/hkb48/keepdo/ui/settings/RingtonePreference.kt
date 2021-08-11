@@ -1,12 +1,12 @@
-package com.hkb48.keepdo.settings
+package com.hkb48.keepdo.ui.settings
 
 import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
-import androidx.preference.DialogPreference
+import androidx.preference.Preference
 
-internal class DoneIconPreference(context: Context?, attrs: AttributeSet?) :
-    DialogPreference(context, attrs) {
+internal class RingtonePreference(context: Context?, attrs: AttributeSet?) :
+    Preference(context, attrs) {
     override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
         return a.getString(index)!!
     }

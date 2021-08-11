@@ -1,56 +1,68 @@
-package com.hkb48.keepdo
+package com.hkb48.keepdo.ui.detail
 
-import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import androidx.activity.viewModels
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.hkb48.keepdo.databinding.ActivityTaskDetailBinding
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import com.hkb48.keepdo.R
+import com.hkb48.keepdo.Recurrence
+import com.hkb48.keepdo.Reminder
+import com.hkb48.keepdo.databinding.FragmentTaskDetailBinding
 import com.hkb48.keepdo.db.entity.Task
-import com.hkb48.keepdo.viewmodel.TaskViewModel
+import com.hkb48.keepdo.ui.addedit.AddEditTaskFragmentArgs
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
 @AndroidEntryPoint
-class TaskDetailActivity : AppCompatActivity() {
-    private val taskViewModel: TaskViewModel by viewModels()
-    private var mTaskId: Int = Task.INVALID_TASKID
-    private lateinit var binding: ActivityTaskDetailBinding
+class TaskDetailFragment : Fragment() {
+    private val viewModel: TaskDetailViewModel by viewModels()
+    private var _binding: FragmentTaskDetailBinding? = null
+    private val binding get() = _binding!!
+    private val args: AddEditTaskFragmentArgs by navArgs()
 
-    public override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityTaskDetailBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        setSupportActionBar(binding.includedToolbar.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        mTaskId = intent.getIntExtra(EXTRA_TASK_ID, Task.INVALID_TASKID)
+        setHasOptionsMenu(true)
+    }
 
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentTaskDetailBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         subscribeToModel()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.activity_detail, menu)
-        return super.onCreateOptionsMenu(menu)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_detail, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                true
-            }
             R.id.menu_edit -> {
-                startActivity(Intent(
-                    this@TaskDetailActivity,
-                    TaskSettingActivity::class.java
-                ).apply {
-                    putExtra(TaskSettingActivity.EXTRA_TASK_ID, mTaskId)
-                })
+                val action =
+                    TaskDetailFragmentDirections.actionTaskDetailFragmentToAddEditTaskFragment(
+                        args.taskId,
+                        getString(R.string.edit_task)
+                    )
+                findNavController().navigate(action)
                 true
             }
             else -> {
@@ -60,11 +72,10 @@ class TaskDetailActivity : AppCompatActivity() {
     }
 
     private fun subscribeToModel() {
-        taskViewModel.getObservableTask(mTaskId).observe(this, { task ->
-            title = task.name
+        viewModel.getObservableTask(args.taskId).observe(viewLifecycleOwner, { task ->
+            (requireActivity() as AppCompatActivity).supportActionBar?.title = task.name
             updateDetails(task)
         })
-
     }
 
     private fun updateDetails(task: Task) = lifecycleScope.launch {
@@ -97,18 +108,18 @@ class TaskDetailActivity : AppCompatActivity() {
         }
 
         // Total number of done
-        val numOfDone = taskViewModel.getNumberOfDone(task._id!!)
+        val numOfDone = viewModel.getNumberOfDone(task._id!!)
         binding.taskDetailNumOfDoneValue.text = getString(R.string.number_of_times, numOfDone)
 
         // Current combo / Max combo
-        val combo = taskViewModel.getComboCount(task._id)
-        val maxCombo = taskViewModel.getMaxComboCount(task._id)
+        val combo = viewModel.getComboCount(task)
+        val maxCombo = viewModel.getMaxComboCount(task)
         binding.taskDetailComboValue.text =
             getString(R.string.current_and_max_combo_num, combo, maxCombo)
 
         // First date that done is set
         val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN)
-        val firstDoneDate = taskViewModel.getFirstDoneDate(task._id)
+        val firstDoneDate = viewModel.getFirstDoneDate(task._id)
         if (firstDoneDate != null) {
             binding.taskDetailFirstDoneDateValue.text = dateFormat.format(firstDoneDate)
         } else {
@@ -116,15 +127,11 @@ class TaskDetailActivity : AppCompatActivity() {
         }
 
         // Last date that done is set
-        val lastDoneDate = taskViewModel.getLastDoneDate(task._id)
+        val lastDoneDate = viewModel.getLastDoneDate(task._id)
         if (lastDoneDate != null) {
             binding.taskDetailLastDoneDateValue.text = dateFormat.format(lastDoneDate)
         } else {
             binding.taskDetailLastDoneDateContainer.visibility = View.GONE
         }
-    }
-
-    companion object {
-        const val EXTRA_TASK_ID = "TASK-ID"
     }
 }

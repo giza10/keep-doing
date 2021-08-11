@@ -15,6 +15,7 @@ import android.util.Log
 import android.widget.RemoteViews
 import com.hkb48.keepdo.*
 import com.hkb48.keepdo.db.entity.Task
+import com.hkb48.keepdo.ui.TasksActivity
 import java.text.MessageFormat
 import java.util.*
 

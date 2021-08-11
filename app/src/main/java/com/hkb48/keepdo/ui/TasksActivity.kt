@@ -1,30 +1,44 @@
-package com.hkb48.keepdo
+package com.hkb48.keepdo.ui
 
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
+import com.hkb48.keepdo.CheckSoundPlayer
+import com.hkb48.keepdo.R
+import com.hkb48.keepdo.ReminderManager
 import com.hkb48.keepdo.databinding.ActivityMainBinding
 import com.hkb48.keepdo.db.BackupManager
-import com.hkb48.keepdo.settings.SettingsActivity
+import com.hkb48.keepdo.ui.settings.SettingsActivity
+import com.hkb48.keepdo.ui.tasklist.TaskListViewModel
 import com.hkb48.keepdo.widget.TasksWidgetProvider
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-    private lateinit var mDrawerLayout: DrawerLayout
-    private lateinit var mDrawerToggle: ActionBarDrawerToggle
+    private val viewModel: TaskListViewModel by viewModels()
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var appBarConfiguration: AppBarConfiguration
+
+    @Inject
+    lateinit var mCheckSound: CheckSoundPlayer
 
     private val mCreateBackupFileLauncher =
         registerForActivityResult(
@@ -54,9 +68,8 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     e.printStackTrace()
                 }
                 if (success) {
-                    // Todo: should trigger LiveData onChanged event thant recreating fragment
-                    // Recreate the fragment to update the UI
-                    createTaskListFragment()
+                    // Triggers onChange event of liveData to reflect UI
+                    viewModel.refresh()
 
                     ReminderManager.setAlarmForAll(applicationContext)
                     TasksWidgetProvider.notifyDatasetChanged(applicationContext)
@@ -77,42 +90,36 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         super.onCreate(savedInstanceState)
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val toolbar = binding.includedToolbar.toolbar
-        setSupportActionBar(toolbar)
-        val actionBar = supportActionBar
-        actionBar?.setDisplayHomeAsUpEnabled(true)
-        actionBar?.setDisplayShowHomeEnabled(true)
+        setSupportActionBar(binding.includedToolbar.toolbar)
 
-        mDrawerLayout = binding.mainDrawerLayout
-        mDrawerToggle = ActionBarDrawerToggle(
-            this,
-            mDrawerLayout,
-            toolbar,
-            R.string.app_name,
-            R.string.app_name
-        )
-        mDrawerToggle.isDrawerIndicatorEnabled = true
-        mDrawerLayout.addDrawerListener(mDrawerToggle)
+        drawerLayout = binding.mainDrawerLayout
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+        appBarConfiguration = AppBarConfiguration(navController.graph, drawerLayout)
+        setupActionBarWithNavController(navController, appBarConfiguration)
+        binding.mainDrawerView.setupWithNavController(navController)
         binding.mainDrawerView.setNavigationItemSelectedListener(this)
-
-        if (savedInstanceState == null) {
-            createTaskListFragment()
-        }
     }
 
-    override fun onPostCreate(savedInstanceState: Bundle?) {
-        super.onPostCreate(savedInstanceState)
-        mDrawerToggle.syncState()
+    public override fun onResume() {
+        super.onResume()
+        mCheckSound.load()
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        mDrawerToggle.onConfigurationChanged(newConfig)
+    override fun onPause() {
+        mCheckSound.unload()
+        super.onPause()
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        val navController = findNavController(R.id.nav_host_fragment)
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
     override fun onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-            mDrawerLayout.closeDrawer(GravityCompat.START)
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
         } else {
             super.onBackPressed()
         }
@@ -124,14 +131,14 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             { goToNavDrawerItem(itemId) },
             NAVDRAWER_LAUNCH_DELAY
         )
-        mDrawerLayout.closeDrawer(GravityCompat.START)
+        drawerLayout.closeDrawer(GravityCompat.START)
         return false
     }
 
     private fun goToNavDrawerItem(itemId: Int) {
         when (itemId) {
             R.id.drawer_item_1 -> {
-                startActivity(Intent(this, TaskSortingActivity::class.java))
+                findNavController(R.id.nav_host_fragment).navigate(R.id.taskSortFragment)
             }
             R.id.drawer_item_2 -> {
                 // Todo: Tentative implementation
@@ -141,14 +148,6 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 startActivity(Intent(this, SettingsActivity::class.java))
             }
         }
-    }
-
-    private fun createTaskListFragment() {
-        val fragment = TaskListFragment()
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.container, fragment)
-            .commit()
     }
 
     /**
@@ -185,6 +184,10 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             val alertDialog = show()
             alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
         }
+    }
+
+    fun playCheckSound() {
+        mCheckSound.play()
     }
 
     companion object {

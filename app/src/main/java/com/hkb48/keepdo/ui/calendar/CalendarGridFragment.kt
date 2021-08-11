@@ -1,4 +1,4 @@
-package com.hkb48.keepdo.calendar
+package com.hkb48.keepdo.ui.calendar
 
 import android.graphics.Color
 import android.os.Bundle
@@ -9,16 +9,13 @@ import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.hkb48.keepdo.DateChangeTimeUtil
-import com.hkb48.keepdo.R
-import com.hkb48.keepdo.Recurrence
-import com.hkb48.keepdo.ReminderManager
+import com.hkb48.keepdo.*
 import com.hkb48.keepdo.databinding.CalendarDateBinding
 import com.hkb48.keepdo.databinding.CalendarSubPageBinding
 import com.hkb48.keepdo.databinding.CalendarWeekBinding
 import com.hkb48.keepdo.db.entity.Task
-import com.hkb48.keepdo.settings.Settings
-import com.hkb48.keepdo.viewmodel.TaskViewModel
+import com.hkb48.keepdo.ui.TasksActivity
+import com.hkb48.keepdo.ui.settings.Settings
 import com.hkb48.keepdo.widget.TasksWidgetProvider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -29,12 +26,12 @@ import java.util.*
 
 @AndroidEntryPoint
 class CalendarGridFragment : Fragment() {
-    private lateinit var mTask: Task
-    private val taskViewModel: TaskViewModel by viewModels()
-
-    private var mMonthOffset = 0
+    private val viewModel: CalendarViewModel by viewModels()
     private var _binding: CalendarSubPageBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var mTask: Task
+    private var mMonthOffset = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,11 +43,10 @@ class CalendarGridFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val intent = requireActivity().intent
-        val taskId = intent.getIntExtra(TaskCalendarActivity.EXTRA_TASK_ID, Task.INVALID_TASKID)
+        val taskId = requireArguments().getInt(TASK_ID_KEY)
         mMonthOffset =
             requireArguments().getInt(POSITION_KEY) - CalendarFragment.INDEX_OF_THIS_MONTH
-        taskViewModel.getObservableTask(taskId).observe(viewLifecycleOwner, { task ->
+        viewModel.getObservableTask(taskId).observe(viewLifecycleOwner, { task ->
             mTask = task
             buildCalendar()
         })
@@ -99,15 +95,15 @@ class CalendarGridFragment : Fragment() {
             CONTEXT_MENU_CHECK_DONE -> {
                 showDoneIcon(imageView)
                 lifecycleScope.launch {
-                    taskViewModel.setDoneStatus(mTask._id!!, selectedDate, true)
+                    viewModel.setDoneStatus(mTask._id!!, selectedDate, true)
                 }
-                (requireActivity() as TaskCalendarActivity).playCheckSound()
+                (requireActivity() as TasksActivity).playCheckSound()
                 consumed = true
             }
             CONTEXT_MENU_UNCHECK_DONE -> {
                 hideDoneIcon(imageView)
                 lifecycleScope.launch {
-                    taskViewModel.setDoneStatus(mTask._id!!, selectedDate, false)
+                    viewModel.setDoneStatus(mTask._id!!, selectedDate, false)
                 }
                 consumed = true
             }
@@ -181,7 +177,7 @@ class CalendarGridFragment : Fragment() {
         val year = calendar[Calendar.YEAR]
         val month = calendar[Calendar.MONTH]
         val today = DateChangeTimeUtil.dateTimeCalendar[Calendar.DAY_OF_MONTH]
-        val doneDateList = taskViewModel.getHistoryInMonth(
+        val doneDateList = viewModel.getHistoryInMonth(
             mTask._id!!, year, month
         )
         val sdf = SimpleDateFormat("dd", Locale.JAPAN)
@@ -299,13 +295,15 @@ class CalendarGridFragment : Fragment() {
         get() = Settings.weekStartDay!!
 
     companion object {
+        const val TASK_ID_KEY = "com.hkb48.keepdo.calendargrid.TASK_ID"
         const val POSITION_KEY = "com.hkb48.keepdo.calendargrid.POSITION"
         private const val CONTEXT_MENU_CHECK_DONE = 0
         private const val CONTEXT_MENU_UNCHECK_DONE = 1
         private const val NUM_OF_DAYS_IN_WEEK = 7
-        fun newInstance(position: Int): CalendarGridFragment {
+        fun newInstance(taskId: Int, position: Int): CalendarGridFragment {
             val fragment = CalendarGridFragment()
             val args = Bundle()
+            args.putInt(TASK_ID_KEY, taskId)
             args.putInt(POSITION_KEY, position)
             fragment.arguments = args
             return fragment

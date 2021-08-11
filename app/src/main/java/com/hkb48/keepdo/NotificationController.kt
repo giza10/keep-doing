@@ -16,7 +16,8 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.hkb48.keepdo.settings.Settings
+import com.hkb48.keepdo.ui.TasksActivity
+import com.hkb48.keepdo.ui.settings.Settings
 import com.hkb48.keepdo.util.CompatUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

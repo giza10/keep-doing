@@ -4,11 +4,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
-    <include
-        android:id="@+id/includedToolbar"
-        layout="@layout/toolbar" />
-
-    <com.hkb48.keepdo.SortableListView
+    <com.hkb48.keepdo.ui.sort.SortableListView
         android:id="@+id/mainListView"
         android:layout_width="match_parent"
         android:layout_height="0dp"

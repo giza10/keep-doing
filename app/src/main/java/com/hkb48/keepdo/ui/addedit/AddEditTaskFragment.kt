@@ -1,29 +1,35 @@
-package com.hkb48.keepdo
+package com.hkb48.keepdo.ui.addedit
 
 import android.app.TimePickerDialog
+import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.view.MenuItem
-import android.view.View
-import android.view.WindowManager
+import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
-import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.hkb48.keepdo.databinding.ActionbarTaskSettingBinding
-import com.hkb48.keepdo.databinding.ActivityTaskSettingBinding
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import com.hkb48.keepdo.R
+import com.hkb48.keepdo.Recurrence
+import com.hkb48.keepdo.Reminder
+import com.hkb48.keepdo.ReminderManager
+import com.hkb48.keepdo.databinding.FragmentAddeditTaskBinding
 import com.hkb48.keepdo.db.entity.Task
-import com.hkb48.keepdo.viewmodel.TaskViewModel
 import com.hkb48.keepdo.widget.TasksWidgetProvider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.util.*
 
 @AndroidEntryPoint
-class TaskSettingActivity : AppCompatActivity() {
+class AddEditTaskFragment : Fragment() {
+    private val viewModel: AddEditViewModel by viewModels()
+    private var _binding: FragmentAddeditTaskBinding? = null
+    private val binding get() = _binding!!
+    private val args: AddEditTaskFragmentArgs by navArgs()
+
     private var mRecurrenceFlags = booleanArrayOf(
         true, true, true, true, true, true,
         true
@@ -31,38 +37,29 @@ class TaskSettingActivity : AppCompatActivity() {
     private var mTask: Task? = null
     private var mMode = 0
     private var mReminder: Reminder = Reminder()
-    private lateinit var mSaveButton: Button
-    private val taskViewModel: TaskViewModel by viewModels()
-    private lateinit var binding: ActivityTaskSettingBinding
 
-    public override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
-        binding = ActivityTaskSettingBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        val toolbar = binding.includedToolbar.toolbar
-        setSupportActionBar(toolbar)
-        toolbar.setNavigationIcon(R.drawable.ic_close)
-        val actionBar = supportActionBar
-        var titleText: TextView? = null
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setDisplayShowCustomEnabled(true)
-            val bindingActionbar = ActionbarTaskSettingBinding.inflate(layoutInflater)
-            titleText = bindingActionbar.titleText
-            mSaveButton = bindingActionbar.buttonSave
-            mSaveButton.setOnClickListener { onSaveClicked() }
-            actionBar.customView = bindingActionbar.root
-        }
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentAddeditTaskBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         val editTextTaskName = binding.editTextTaskName
         enableInputEmoji(editTextTaskName)
         val editTextDescription = binding.editTextDescription
         enableInputEmoji(editTextDescription)
-        val intent = intent
-        val taskId = intent.getIntExtra(EXTRA_TASK_ID, Task.INVALID_TASKID)
+        val taskId = args.taskId
         if (taskId == Task.INVALID_TASKID) {
             mMode = MODE_NEW_TASK
-            titleText?.setText(R.string.add_task)
             val recurrence = Recurrence(
                 monday = true,
                 tuesday = true,
@@ -72,17 +69,12 @@ class TaskSettingActivity : AppCompatActivity() {
                 saturday = true,
                 sunday = true
             )
-            addTaskName(editTextTaskName)
             addRecurrence(recurrence)
             addReminder()
-            if (::mSaveButton.isInitialized) {
-                mSaveButton.isEnabled = canSave()
-            }
         } else {
-            taskViewModel.getObservableTask(taskId).observe(this, { task ->
-                taskViewModel.getObservableTask(taskId).removeObservers(this@TaskSettingActivity)
+            viewModel.getObservableTask(taskId).observe(viewLifecycleOwner, { task ->
+                viewModel.getObservableTask(taskId).removeObservers(viewLifecycleOwner)
                 mMode = MODE_EDIT_TASK
-                titleText?.setText(R.string.edit_task)
                 task.name.let {
                     editTextTaskName.setText(it)
                     editTextTaskName.setSelection(it.length)
@@ -100,45 +92,45 @@ class TaskSettingActivity : AppCompatActivity() {
                     editTextDescription.setSelection(it.length)
                 }
                 mTask = task
-                addTaskName(editTextTaskName)
                 addRecurrence(recurrence)
                 addReminder()
-                if (::mSaveButton.isInitialized) {
-                    mSaveButton.isEnabled = canSave()
-                }
             })
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_addedit, menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == android.R.id.home) {
-            finish()
-            true
-        } else {
-            super.onOptionsItemSelected(item)
+        return when (item.itemId) {
+            R.id.action_save -> {
+                if (canSave()) {
+                    hideKeyboard()
+                    save()
+                }
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
-    private fun addTaskName(editText: EditText) {
-        editText.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable) {
-                if (::mSaveButton.isInitialized) {
-                    mSaveButton.isEnabled = s.isNotEmpty()
-                }
-            }
+    private fun hideKeyboard() {
+        val inputMethodManager =
+            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
-            override fun beforeTextChanged(
-                s: CharSequence, start: Int, count: Int,
-                after: Int
-            ) {
-            }
-
-            override fun onTextChanged(
-                s: CharSequence, start: Int, before: Int,
-                count: Int
-            ) {
-            }
-        })
+        // Check if no view has focus
+        requireActivity().currentFocus?.let { currentFocusedView ->
+            inputMethodManager.hideSoftInputFromWindow(
+                currentFocusedView.windowToken, InputMethodManager.HIDE_NOT_ALWAYS
+            )
+        }
     }
 
     private fun addRecurrence(recurrence: Recurrence) {
@@ -149,7 +141,7 @@ class TaskSettingActivity : AppCompatActivity() {
         recurrenceView.update(recurrence)
         recurrenceView.setOnClickListener {
             val tmpRecurrenceFlags = mRecurrenceFlags.copyOf(mRecurrenceFlags.size)
-            AlertDialog.Builder(this@TaskSettingActivity)
+            AlertDialog.Builder(requireContext())
                 .setTitle(getString(R.string.recurrence))
                 .setMultiChoiceItems(
                     weekNames,
@@ -192,7 +184,7 @@ class TaskSettingActivity : AppCompatActivity() {
             mReminder.enabled = false
         }
         val timePickerDialog = TimePickerDialog(
-            this,
+            requireContext(),
             { _: TimePicker?, hourOfDay1: Int, minute1: Int ->
                 reminderTime.text = getString(R.string.reminder_time, hourOfDay1, minute1)
                 cancelButton.visibility = View.VISIBLE
@@ -204,7 +196,7 @@ class TaskSettingActivity : AppCompatActivity() {
         reminderTime.setOnClickListener { timePickerDialog.show() }
     }
 
-    private fun onSaveClicked() = lifecycleScope.launch {
+    private fun save() = lifecycleScope.launch {
         val editTextTaskName = binding.editTextTaskName
         val editTextDescription = binding.editTextDescription
         val newTask = Task(
@@ -220,22 +212,22 @@ class TaskSettingActivity : AppCompatActivity() {
             editTextDescription.text.toString(),
             mReminder.enabled,
             mReminder.timeInMillis,
-            mTask?.listOrder ?: taskViewModel.getMaxSortOrderId() + 1
+            mTask?.listOrder ?: viewModel.getNewSortOrder()
         )
 
         val taskId = if (mMode == MODE_NEW_TASK) {
-            taskViewModel.addTask(newTask)
+            viewModel.addTask(newTask)
         } else {
-            taskViewModel.editTask(newTask)
+            viewModel.editTask(newTask)
             mTask?._id ?: Task.INVALID_TASKID
         }
-        ReminderManager.setAlarm(applicationContext, taskId)
-        TasksWidgetProvider.notifyDatasetChanged(applicationContext)
-        finish()
+        ReminderManager.setAlarm(requireContext(), taskId)
+        TasksWidgetProvider.notifyDatasetChanged(requireContext())
+        findNavController().popBackStack()
     }
 
     private fun canSave(): Boolean {
-        return binding.editTextTaskName.text.isNotEmpty()
+        return binding.editTextTaskName.text.trim().isNotEmpty()
     }
 
     private fun enableInputEmoji(editText: EditText) {
@@ -244,7 +236,6 @@ class TaskSettingActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val EXTRA_TASK_ID = "TASK-ID"
         private const val MODE_NEW_TASK = 0
         private const val MODE_EDIT_TASK = 1
     }

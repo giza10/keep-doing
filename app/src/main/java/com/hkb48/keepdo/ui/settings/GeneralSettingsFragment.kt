@@ -1,4 +1,4 @@
-package com.hkb48.keepdo.settings
+package com.hkb48.keepdo.ui.settings
 
 import android.app.Activity
 import android.content.Context

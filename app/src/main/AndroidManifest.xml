@@ -15,7 +15,7 @@
         android:theme="@style/Theme.AppTheme">
 
         <activity
-            android:name=".TasksActivity"
+            android:name=".ui.TasksActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:launchMode="singleTask">
@@ -26,21 +26,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".TaskSettingActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".calendar.TaskCalendarActivity"
-            android:label="@string/title_activity_task" />
-        <activity
-            android:name=".TaskDetailActivity"
-            android:label="@string/title_activity_task" />
-        <activity
-            android:name=".settings.SettingsActivity"
+            android:name=".ui.settings.SettingsActivity"
             android:label="@string/settings" />
-        <activity
-            android:name=".TaskSortingActivity"
-            android:label="@string/sort_task" />
 
         <receiver android:name=".AlarmReceiver" />
         <receiver
