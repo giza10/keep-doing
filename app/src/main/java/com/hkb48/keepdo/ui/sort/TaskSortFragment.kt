@@ -10,7 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.hkb48.keepdo.databinding.FragmentTaskSortBinding
-import com.hkb48.keepdo.databinding.TaskSortingListItemBinding
+import com.hkb48.keepdo.databinding.TaskSortListItemBinding
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.ui.sort.SortableListView.DragAndDropListener
 import com.hkb48.keepdo.widget.TasksWidgetProvider
@@ -129,7 +129,7 @@ class TaskSortFragment : Fragment() {
         }
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            val view = convertView ?: TaskSortingListItemBinding.inflate(
+            val view = convertView ?: TaskSortListItemBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false

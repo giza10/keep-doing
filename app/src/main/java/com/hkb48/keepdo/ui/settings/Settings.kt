@@ -55,30 +55,30 @@ object Settings {
     }
 
     fun initialize(context: Context) {
-        GeneralSettingsFragment.setDefaultValues(context)
-        val sharedPref = GeneralSettingsFragment.getSharedPreferences(context)
+        SettingsFragment.setDefaultValues(context)
+        val sharedPref = SettingsFragment.getSharedPreferences(context)
         doneIconType = sharedPref.getString(
-            GeneralSettingsFragment.KEY_GENERAL_DONE_ICON,
+            SettingsFragment.KEY_GENERAL_DONE_ICON,
             null
         )
         dateChangeTime = sharedPref.getString(
-            GeneralSettingsFragment.KEY_GENERAL_DATE_CHANGE_TIME,
+            SettingsFragment.KEY_GENERAL_DATE_CHANGE_TIME,
             null
         )
         weekStartDay = sharedPref.getString(
-            GeneralSettingsFragment.KEY_CALENDAR_WEEK_START_DAY,
+            SettingsFragment.KEY_CALENDAR_WEEK_START_DAY,
             null
         )?.toInt()
         enableFutureDate = sharedPref.getBoolean(
-            GeneralSettingsFragment.KEY_CALENDAR_ENABLE_FUTURE_DATE,
+            SettingsFragment.KEY_CALENDAR_ENABLE_FUTURE_DATE,
             false
         )
         alertsRingTone = sharedPref.getString(
-            GeneralSettingsFragment.KEY_ALERTS_RINGTONE,
+            SettingsFragment.KEY_ALERTS_RINGTONE,
             null
         )
         alertsVibrateWhen = sharedPref.getString(
-            GeneralSettingsFragment.KEY_ALERTS_VIBRATE_WHEN,
+            SettingsFragment.KEY_ALERTS_VIBRATE_WHEN,
             null
         )
     }

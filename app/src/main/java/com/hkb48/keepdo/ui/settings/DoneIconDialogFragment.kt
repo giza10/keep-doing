@@ -6,7 +6,7 @@ import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.preference.PreferenceDialogFragmentCompat
 import com.hkb48.keepdo.R
-import com.hkb48.keepdo.databinding.DoneIconSelectorBinding
+import com.hkb48.keepdo.databinding.SettingsDoneIconSelectorBinding
 
 class DoneIconDialogFragment : PreferenceDialogFragmentCompat() {
     override fun onPrepareDialogBuilder(builder: AlertDialog.Builder) {
@@ -15,7 +15,7 @@ class DoneIconDialogFragment : PreferenceDialogFragmentCompat() {
 
     override fun onCreateDialogView(context: Context): View {
         val listener = OnClickListener()
-        val binding = DoneIconSelectorBinding.inflate(layoutInflater).apply {
+        val binding = SettingsDoneIconSelectorBinding.inflate(layoutInflater).apply {
             doneIcon1.setOnClickListener(listener)
             doneIcon2.setOnClickListener(listener)
             doneIcon3.setOnClickListener(listener)

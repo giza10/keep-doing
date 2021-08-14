@@ -1,7 +1,6 @@
 package com.hkb48.keepdo.ui
 
 import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -25,7 +24,6 @@ import com.hkb48.keepdo.R
 import com.hkb48.keepdo.ReminderManager
 import com.hkb48.keepdo.databinding.ActivityMainBinding
 import com.hkb48.keepdo.db.BackupManager
-import com.hkb48.keepdo.ui.settings.SettingsActivity
 import com.hkb48.keepdo.ui.tasklist.TaskListViewModel
 import com.hkb48.keepdo.widget.TasksWidgetProvider
 import dagger.hilt.android.AndroidEntryPoint
@@ -90,7 +88,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         super.onCreate(savedInstanceState)
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setSupportActionBar(binding.includedToolbar.toolbar)
+        setSupportActionBar(binding.toolbar)
 
         drawerLayout = binding.mainDrawerLayout
         val navHostFragment =
@@ -145,7 +143,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 showBackupRestoreDeviceDialog()
             }
             R.id.drawer_item_3 -> {
-                startActivity(Intent(this, SettingsActivity::class.java))
+                findNavController(R.id.nav_host_fragment).navigate(R.id.settingsFragment)
             }
         }
     }

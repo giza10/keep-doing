@@ -18,7 +18,6 @@ import com.hkb48.keepdo.*
 import com.hkb48.keepdo.databinding.FragmentTaskListBinding
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.ui.TasksActivity
-import com.hkb48.keepdo.ui.settings.Settings
 import com.hkb48.keepdo.util.CompatUtil
 import com.hkb48.keepdo.widget.TasksWidgetProvider
 import dagger.hilt.android.AndroidEntryPoint
@@ -62,20 +61,6 @@ class TaskListFragment : Fragment() {
         }
     })
 
-    private var mContentsUpdated = false
-    private val mSettingsChangedListener: Settings.OnChangedListener =
-        object : Settings.OnChangedListener {
-            override fun onDoneIconSettingChanged() {
-                mContentsUpdated = true
-            }
-
-            override fun onDateChangeTimeSettingChanged() {
-                mContentsUpdated = true
-            }
-
-            override fun onWeekStartDaySettingChanged() {
-            }
-        }
     private val mOnDateChangedListener: DateChangeTimeManager.OnDateChangedListener =
         object : DateChangeTimeManager.OnDateChangedListener {
             override fun onDateChanged() {
@@ -117,8 +102,6 @@ class TaskListFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-        Settings.registerOnChangedListener(mSettingsChangedListener)
-
         // Cancel notification (if displayed)
         NotificationController.cancelReminder(requireContext())
 
@@ -130,13 +113,6 @@ class TaskListFragment : Fragment() {
 
         (requireActivity().application as KeepdoApplication).getDateChangeTimeManager()
             .registerOnDateChangedListener(mOnDateChangedListener)
-    }
-
-    override fun onResume() {
-        if (mContentsUpdated) {
-            adapter.notifyDataSetChanged()
-        }
-        super.onResume()
     }
 
     override fun onDestroyView() {

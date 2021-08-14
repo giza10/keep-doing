@@ -15,7 +15,7 @@ import com.hkb48.keepdo.NotificationController
 import com.hkb48.keepdo.R
 import com.hkb48.keepdo.util.CompatUtil
 
-class GeneralSettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener {
+class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener {
     private lateinit var mDoneIconPref: DoneIconPreference
     private lateinit var mDateChangeTimePref: ListPreference
     private lateinit var mWeekStartDayPref: ListPreference

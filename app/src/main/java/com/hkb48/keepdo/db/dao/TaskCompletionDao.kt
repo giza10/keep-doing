@@ -6,7 +6,6 @@ import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.hkb48.keepdo.db.entity.TaskCompletion
-import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 @Dao

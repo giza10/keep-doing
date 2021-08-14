@@ -10,9 +10,14 @@
         android:layout_height="fill_parent"
         android:orientation="vertical">
 
-        <include
-            android:id="@+id/includedToolbar"
-            layout="@layout/toolbar" />
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/action_bar"
+            android:minHeight="50dp"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:theme="@style/ActionBarThemeOverlay" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/nav_host_fragment"
