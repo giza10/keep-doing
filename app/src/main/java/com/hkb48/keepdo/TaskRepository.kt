@@ -46,10 +46,6 @@ class TaskRepository @Inject constructor(
         return taskDao.getTaskFlow(taskId)
     }
 
-    suspend fun getTask(taskId: Int): Task? {
-        return taskDao.getTask(taskId)
-    }
-
     suspend fun getMaxOrder(): Int {
         return taskDao.getMaxOrder() ?: 0
     }
@@ -68,10 +64,6 @@ class TaskRepository @Inject constructor(
         } catch (e: SQLiteException) {
             e.printStackTrace()
         }
-    }
-
-    fun getDoneStatusListFlow(): Flow<List<TaskCompletion>> {
-        return taskCompletionDao.getAllFlow()
     }
 
     suspend fun getNumberOfDone(taskId: Int): Int {

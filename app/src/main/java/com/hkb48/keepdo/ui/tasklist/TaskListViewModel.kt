@@ -34,21 +34,22 @@ class TaskListViewModel @Inject constructor(
         repository.deleteTask(taskId)
     }
 
-    suspend fun setDoneStatus(taskId: Int, date: Date, doneSwitch: Boolean) {
+    suspend fun setDoneStatus(taskId: Int, doneSwitch: Boolean) {
         if (doneSwitch) {
-            val taskCompletion = TaskCompletion(null, taskId, date)
+            val taskCompletion = TaskCompletion(null, taskId, todayDate)
             repository.setDone(taskCompletion)
         } else {
-            repository.unsetDone(taskId, date)
+            repository.unsetDone(taskId, todayDate)
         }
     }
 
-    fun getObservableDoneStatusList(): LiveData<List<TaskCompletion>> {
-        return repository.getDoneStatusListFlow().asLiveData()
-    }
-
-    suspend fun getLastDoneDate(taskId: Int): Date? {
-        return repository.getLastDoneDate(taskId, todayDate)
+    suspend fun getElapsedDaysSinceLastDoneDate(taskId: Int): Int? {
+        val lastDoneDate = repository.getLastDoneDate(taskId, todayDate)
+        return if (lastDoneDate != null) {
+            ((todayDate.time - lastDoneDate.time) / (1000 * 60 * 60 * 24).toLong()).toInt()
+        } else {
+            null
+        }
     }
 
     suspend fun getComboCount(task: Task): Int {

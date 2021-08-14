@@ -43,7 +43,7 @@ abstract class TaskDatabase : RoomDatabase() {
 
         private val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("""ALTER TABLE ${Task.TABLE_NAME} ADD COLUMN ${Task.TASK_CONTEXT} TEXT""".trimIndent())
+                database.execSQL("""ALTER TABLE ${Task.TABLE_NAME} ADD COLUMN ${Task.DESCRIPTION} TEXT""".trimIndent())
                 database.execSQL("""ALTER TABLE ${Task.TABLE_NAME} ADD COLUMN ${Task.REMINDER_ENABLED} TEXT""".trimIndent())
                 database.execSQL("""ALTER TABLE ${Task.TABLE_NAME} ADD COLUMN ${Task.REMINDER_TIME} TEXT""".trimIndent())
             }
@@ -68,7 +68,7 @@ abstract class TaskDatabase : RoomDatabase() {
                     ${Task.FREQUENCY_FRI} TEXT NOT NULL DEFAULT 'true',
                     ${Task.FREQUENCY_SAT} TEXT NOT NULL DEFAULT 'true',
                     ${Task.FREQUENCY_SUN} TEXT NOT NULL DEFAULT 'true',
-                    ${Task.TASK_CONTEXT} TEXT,
+                    ${Task.DESCRIPTION} TEXT,
                     ${Task.REMINDER_ENABLED} TEXT NOT NULL DEFAULT 'false',
                     ${Task.REMINDER_TIME} INTEGER,
                     ${Task.TASK_LIST_ORDER} INTEGER NOT NULL DEFAULT 0);""".trimIndent()

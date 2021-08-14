@@ -92,19 +92,19 @@ class TaskDetailFragment : Fragment() {
             reminderTextView.setText(R.string.no_reminder)
         }
 
-        // Context
-        val contextTitleTextView = binding.taskDetailContext
-        val contextTextView = binding.taskDetailContextDescription
-        val contextStr = task.context
-        if (contextStr == null || contextStr.isEmpty()) {
-            val contextLayout = binding.taskDetailContextContainer
-            contextLayout.visibility = View.GONE
-            contextTitleTextView.visibility = View.INVISIBLE
-            contextTextView.visibility = View.INVISIBLE
+        // Description
+        val descriptionTitleTextView = binding.taskDetailDescription
+        val descriptionTextView = binding.taskDetailDescriptionValue
+        val descriptionStr = task.description
+        if (descriptionStr == null || descriptionStr.isEmpty()) {
+            val descriptionLayout = binding.taskDetailDescriptionContainer
+            descriptionLayout.visibility = View.GONE
+            descriptionTitleTextView.visibility = View.INVISIBLE
+            descriptionTextView.visibility = View.INVISIBLE
         } else {
-            contextTitleTextView.visibility = View.VISIBLE
-            contextTextView.visibility = View.VISIBLE
-            contextTextView.text = contextStr
+            descriptionTitleTextView.visibility = View.VISIBLE
+            descriptionTextView.visibility = View.VISIBLE
+            descriptionTextView.text = descriptionStr
         }
 
         // Total number of done

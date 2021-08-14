@@ -15,7 +15,7 @@ data class Task(
     @ColumnInfo(name = FREQUENCY_FRI) val friFrequency: Boolean,
     @ColumnInfo(name = FREQUENCY_SAT) val satFrequency: Boolean,
     @ColumnInfo(name = FREQUENCY_SUN) val sunFrequency: Boolean,
-    @ColumnInfo(name = TASK_CONTEXT) val context: String?,
+    @ColumnInfo(name = DESCRIPTION) val description: String?,
     @ColumnInfo(name = REMINDER_ENABLED) val reminderEnabled: Boolean,
     @ColumnInfo(name = REMINDER_TIME) val reminderTime: Long?,
     @ColumnInfo(name = TASK_LIST_ORDER) val listOrder: Int
@@ -30,7 +30,7 @@ data class Task(
         const val FREQUENCY_FRI = "fri_frequency"
         const val FREQUENCY_SAT = "sat_frequency"
         const val FREQUENCY_SUN = "sun_frequency"
-        const val TASK_CONTEXT = "task_context"
+        const val DESCRIPTION = "task_context"
         const val REMINDER_ENABLED = "reminder_enabled"
         const val REMINDER_TIME = "reminder_time"
         const val TASK_LIST_ORDER = "task_list_order"

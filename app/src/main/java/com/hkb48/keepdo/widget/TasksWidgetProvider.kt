@@ -13,7 +13,10 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.RemoteViews
-import com.hkb48.keepdo.*
+import com.hkb48.keepdo.ActionReceiver
+import com.hkb48.keepdo.BuildConfig
+import com.hkb48.keepdo.DateChangeTimeUtil
+import com.hkb48.keepdo.R
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.ui.TasksActivity
 import java.text.MessageFormat

@@ -22,11 +22,6 @@ interface TaskCompletionDao {
     suspend fun delete(taskId: Int, completionDate: Date)
 
     @Query(
-        """SELECT * FROM ${TaskCompletion.TABLE_NAME}"""
-    )
-    fun getAllFlow(): Flow<List<TaskCompletion>>
-
-    @Query(
         """SELECT DISTINCT ${TaskCompletion.TASK_COMPLETION_DATE} FROM
             ${TaskCompletion.TABLE_NAME} WHERE ${TaskCompletion.TASK_NAME_ID} = :taskId AND
             ${TaskCompletion.TASK_COMPLETION_DATE} = :date"""

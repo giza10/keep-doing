@@ -6,7 +6,8 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.EditText
+import android.widget.TimePicker
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -87,7 +88,7 @@ class AddEditTaskFragment : Fragment() {
                 mRecurrenceFlags[4] = task.thrFrequency
                 mRecurrenceFlags[5] = task.friFrequency
                 mRecurrenceFlags[6] = task.satFrequency
-                task.context?.let {
+                task.description?.let {
                     editTextDescription.setText(it)
                     editTextDescription.setSelection(it.length)
                 }
@@ -100,6 +101,7 @@ class AddEditTaskFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        hideKeyboard()
         _binding = null
     }
 
@@ -112,7 +114,6 @@ class AddEditTaskFragment : Fragment() {
         return when (item.itemId) {
             R.id.action_save -> {
                 if (canSave()) {
-                    hideKeyboard()
                     save()
                 }
                 true

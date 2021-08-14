@@ -86,7 +86,7 @@ class TaskSortFragment : Fragment() {
                 task.friFrequency,
                 task.satFrequency,
                 task.sunFrequency,
-                task.context,
+                task.description,
                 task.reminderEnabled,
                 task.reminderTime,
                 index

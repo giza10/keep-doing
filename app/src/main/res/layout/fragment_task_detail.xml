@@ -41,16 +41,16 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/taskDetailContextContainer"
+                android:id="@+id/taskDetailDescriptionContainer"
                 style="@style/TaskDetailItemStyle">
 
                 <TextView
-                    android:id="@+id/taskDetailContext"
+                    android:id="@+id/taskDetailDescription"
                     style="@style/TaskDetailItemCategoryStyle"
                     android:text="@string/description" />
 
                 <TextView
-                    android:id="@+id/taskDetailContextDescription"
+                    android:id="@+id/taskDetailDescriptionValue"
                     style="@style/TaskDetailItemContentsStyle"
                     android:textIsSelectable="false" />
             </LinearLayout>
