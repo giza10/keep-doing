@@ -1,20 +1,31 @@
 package com.hkb48.keepdo
 
 import android.database.sqlite.SQLiteException
-import com.hkb48.keepdo.db.dao.TaskCompletionDao
+import com.hkb48.keepdo.db.dao.DoneHistoryDao
 import com.hkb48.keepdo.db.dao.TaskDao
+import com.hkb48.keepdo.db.dao.TaskWithDoneHistoryDao
+import com.hkb48.keepdo.db.entity.DoneHistory
 import com.hkb48.keepdo.db.entity.Task
-import com.hkb48.keepdo.db.entity.TaskCompletion
+import com.hkb48.keepdo.db.entity.TaskWithDoneHistory
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 import javax.inject.Inject
 
 class TaskRepository @Inject constructor(
     private val taskDao: TaskDao,
-    private val taskCompletionDao: TaskCompletionDao
+    private val doneHistoryDao: DoneHistoryDao,
+    private val taskWithDoneHistoryDao: TaskWithDoneHistoryDao
 ) {
     fun getTaskListFlow(): Flow<List<Task>> {
         return taskDao.getTaskListByOrderFlow()
+    }
+
+    fun getTaskListWithDoneHistory(): Flow<List<TaskWithDoneHistory>> {
+        return taskWithDoneHistoryDao.getTaskListWithDoneHistory()
+    }
+
+    fun getTaskWithDoneHistory(id: Int): Flow<TaskWithDoneHistory> {
+        return taskWithDoneHistoryDao.getTaskWithDoneHistory(id)
     }
 
     suspend fun addTask(task: Task): Int {
@@ -50,9 +61,9 @@ class TaskRepository @Inject constructor(
         return taskDao.getMaxOrder() ?: 0
     }
 
-    suspend fun setDone(taskCompletion: TaskCompletion) {
+    suspend fun setDone(doneHistory: DoneHistory) {
         try {
-            taskCompletionDao.insert(taskCompletion)
+            doneHistoryDao.insert(doneHistory)
         } catch (e: SQLiteException) {
             e.printStackTrace()
         }
@@ -60,35 +71,9 @@ class TaskRepository @Inject constructor(
 
     suspend fun unsetDone(taskId: Int, date: Date) {
         try {
-            taskCompletionDao.delete(taskId, date)
+            doneHistoryDao.delete(taskId, date)
         } catch (e: SQLiteException) {
             e.printStackTrace()
         }
-    }
-
-    suspend fun getNumberOfDone(taskId: Int): Int {
-        return taskCompletionDao.getCount(taskId)
-    }
-
-    suspend fun getFirstDoneDate(taskId: Int, untilDate: Date): Date? {
-        return taskCompletionDao.getFirstCompletionDate(taskId, untilDate)
-    }
-
-    suspend fun getLastDoneDate(taskId: Int, untilDate: Date): Date? {
-        return taskCompletionDao.getLastCompletionDate(taskId, untilDate)
-    }
-
-    suspend fun getDoneHistoryBetween(
-        taskId: Int, fromDate: Date, untilDate: Date
-    ): List<Date> {
-        return taskCompletionDao.getCompletionHistoryBetween(taskId, fromDate, untilDate)
-    }
-
-    suspend fun getDoneHistoryAsc(taskId: Int, untilDate: Date): List<Date> {
-        return taskCompletionDao.getCompletionHistoryAsc(taskId, untilDate)
-    }
-
-    suspend fun getDoneHistoryDesc(taskId: Int, untilDate: Date): List<Date> {
-        return taskCompletionDao.getCompletionHistoryDesc(taskId, untilDate)
     }
 }

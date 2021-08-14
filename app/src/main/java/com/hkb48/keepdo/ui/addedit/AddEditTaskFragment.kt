@@ -73,8 +73,8 @@ class AddEditTaskFragment : Fragment() {
             addRecurrence(recurrence)
             addReminder()
         } else {
-            viewModel.getObservableTask(taskId).observe(viewLifecycleOwner, { task ->
-                viewModel.getObservableTask(taskId).removeObservers(viewLifecycleOwner)
+            viewModel.getTask(taskId).observe(viewLifecycleOwner, { task ->
+                viewModel.getTask(taskId).removeObservers(viewLifecycleOwner)
                 mMode = MODE_EDIT_TASK
                 task.name.let {
                     editTextTaskName.setText(it)

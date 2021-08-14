@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -24,12 +23,12 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.hkb48.keepdo.R
 import com.hkb48.keepdo.databinding.FragmentCalendarBinding
-import com.hkb48.keepdo.db.entity.Task
+import com.hkb48.keepdo.db.entity.TaskWithDoneHistory
 import com.hkb48.keepdo.ui.settings.Settings
 import com.hkb48.keepdo.util.CompatUtil
 import com.hkb48.keepdo.util.DateChangeTimeUtil
+import com.hkb48.keepdo.util.DoneHistoryUtil
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -43,7 +42,7 @@ class CalendarFragment : Fragment() {
     private val args: CalendarFragmentArgs by navArgs()
 
     private lateinit var mViewPager: ViewPager2
-    private lateinit var task: Task
+    private lateinit var taskWithDoneHistory: TaskWithDoneHistory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,7 +95,7 @@ class CalendarFragment : Fragment() {
                 true
             }
             R.id.menu_share -> {
-                shareDisplayedCalendarView(taskId)
+                shareDisplayedCalendarView()
                 true
             }
             else -> {
@@ -106,10 +105,12 @@ class CalendarFragment : Fragment() {
     }
 
     private fun subscribeToModel() {
-        viewModel.getObservableTask(args.taskId).observe(viewLifecycleOwner, { task ->
-            this.task = task
-            (requireActivity() as AppCompatActivity).supportActionBar?.title = task.name
-        })
+        viewModel.getTaskWithDoneHistory(args.taskId)
+            .observe(viewLifecycleOwner, { taskWithDoneHistory ->
+                this.taskWithDoneHistory = taskWithDoneHistory
+                (requireActivity() as AppCompatActivity).supportActionBar?.title =
+                    taskWithDoneHistory.task.name
+            })
     }
 
     private fun getPageTitle(position: Int): CharSequence {
@@ -121,7 +122,7 @@ class CalendarFragment : Fragment() {
         return sdf.format(current.time)
     }
 
-    private fun shareDisplayedCalendarView(taskId: Int) {
+    private fun shareDisplayedCalendarView() {
         val calendarRoot = binding.calendarRoot
         getBitmapFromView(calendarRoot, requireActivity(), callback = {
             var contentUri: Uri? = null
@@ -141,41 +142,40 @@ class CalendarFragment : Fragment() {
                 e.printStackTrace()
             }
 
-            viewLifecycleOwner.lifecycleScope.launch {
-                val comboCount = viewModel.getComboCount(task)
-                val taskName = task.name
-                var extraText = ""
-                val monthOffset = mViewPager.currentItem - INDEX_OF_THIS_MONTH
-                if (monthOffset == 0 && comboCount > 1) {
-                    extraText += requireContext().getString(
-                        R.string.share_combo,
-                        taskName,
-                        comboCount
-                    )
-                } else {
-                    val current = DateChangeTimeUtil.dateTimeCalendar
-                    current.add(Calendar.MONTH, monthOffset)
-                    current[Calendar.DAY_OF_MONTH] = 1
-                    val doneDateList = viewModel.getHistoryInMonth(
-                        taskId, current[Calendar.YEAR], current[Calendar.MONTH]
-                    )
-                    extraText += requireContext().getString(
-                        R.string.share_non_combo,
-                        taskName,
-                        doneDateList.size
-                    )
-                }
-                extraText += " " + requireContext().getString(R.string.share_app_url)
-
-                startActivity(
-                    Intent(Intent.ACTION_SEND).apply {
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        type = "image/png"
-                        putExtra(Intent.EXTRA_STREAM, contentUri)
-                        putExtra(Intent.EXTRA_TEXT, extraText)
-                    }
+            val util = DoneHistoryUtil(taskWithDoneHistory)
+            val comboCount = util.getComboCount()
+            val taskName = taskWithDoneHistory.task.name
+            var extraText = ""
+            val monthOffset = mViewPager.currentItem - INDEX_OF_THIS_MONTH
+            if (monthOffset == 0 && comboCount > 1) {
+                extraText += requireContext().getString(
+                    R.string.share_combo,
+                    taskName,
+                    comboCount
+                )
+            } else {
+                val current = DateChangeTimeUtil.dateTimeCalendar
+                current.add(Calendar.MONTH, monthOffset)
+                current[Calendar.DAY_OF_MONTH] = 1
+                val doneDateList = util.getHistoryInMonth(
+                    current[Calendar.YEAR], current[Calendar.MONTH]
+                )
+                extraText += requireContext().getString(
+                    R.string.share_non_combo,
+                    taskName,
+                    doneDateList.size
                 )
             }
+            extraText += " " + requireContext().getString(R.string.share_app_url)
+
+            startActivity(
+                Intent(Intent.ACTION_SEND).apply {
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    type = "image/png"
+                    putExtra(Intent.EXTRA_STREAM, contentUri)
+                    putExtra(Intent.EXTRA_TEXT, extraText)
+                }
+            )
         })
     }
 

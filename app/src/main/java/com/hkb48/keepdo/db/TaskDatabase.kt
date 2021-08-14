@@ -7,16 +7,18 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.hkb48.keepdo.db.dao.TaskCompletionDao
+import com.hkb48.keepdo.db.dao.DoneHistoryDao
 import com.hkb48.keepdo.db.dao.TaskDao
+import com.hkb48.keepdo.db.dao.TaskWithDoneHistoryDao
+import com.hkb48.keepdo.db.entity.DoneHistory
 import com.hkb48.keepdo.db.entity.Task
-import com.hkb48.keepdo.db.entity.TaskCompletion
 
-@Database(entities = [Task::class, TaskCompletion::class], version = 4)
+@Database(entities = [Task::class, DoneHistory::class], version = 4)
 @TypeConverters(Converters::class)
 abstract class TaskDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
-    abstract fun taskCompletionDao(): TaskCompletionDao
+    abstract fun doneHistoryDao(): DoneHistoryDao
+    abstract fun taskWithDoneHistoryDao(): TaskWithDoneHistoryDao
     var databasePath: String? = null
 
     companion object {
@@ -79,15 +81,13 @@ abstract class TaskDatabase : RoomDatabase() {
                 database.execSQL(
                     """CREATE TABLE IF NOT EXISTS new_table_completions (
                     _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                    ${TaskCompletion.TASK_NAME_ID} INTEGER NOT NULL CONSTRAINT 
-                    ${TaskCompletion.TASK_NAME_ID} REFERENCES 
-                    ${Task.TABLE_NAME} (_id) ON DELETE CASCADE,
-                    ${TaskCompletion.TASK_COMPLETION_DATE} TEXT NOT NULL);""".trimIndent()
+                    ${DoneHistory.TASK_NAME_ID} INTEGER NOT NULL CONSTRAINT ${DoneHistory.TASK_NAME_ID} REFERENCES ${Task.TABLE_NAME} (_id) ON DELETE CASCADE,
+                    ${DoneHistory.DONE_DATE} TEXT NOT NULL);""".trimIndent()
                 )
-                database.execSQL("""CREATE INDEX index_table_completions_task_id ON new_table_completions(${TaskCompletion.TASK_NAME_ID})""".trimIndent())
-                database.execSQL("""INSERT INTO new_table_completions SELECT * FROM ${TaskCompletion.TABLE_NAME}""".trimIndent())
-                database.execSQL("""DROP TABLE ${TaskCompletion.TABLE_NAME}""".trimIndent())
-                database.execSQL("""ALTER TABLE new_table_completions RENAME TO ${TaskCompletion.TABLE_NAME}""".trimIndent())
+                database.execSQL("""CREATE INDEX index_table_completions_task_id ON new_table_completions(${DoneHistory.TASK_NAME_ID})""".trimIndent())
+                database.execSQL("""INSERT INTO new_table_completions SELECT * FROM ${DoneHistory.TABLE_NAME}""".trimIndent())
+                database.execSQL("""DROP TABLE ${DoneHistory.TABLE_NAME}""".trimIndent())
+                database.execSQL("""ALTER TABLE new_table_completions RENAME TO ${DoneHistory.TABLE_NAME}""".trimIndent())
             }
         }
     }

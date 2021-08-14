@@ -13,22 +13,22 @@ interface TaskDao {
     @Update
     suspend fun update(task: Task): Int
 
-    @Query("DELETE FROM " + Task.TABLE_NAME + " WHERE _id = :id")
+    @Query("""DELETE FROM ${Task.TABLE_NAME} WHERE _id = :id""")
     suspend fun delete(id: Int)
 
-    @Query("SELECT * fROM " + Task.TABLE_NAME + " ORDER BY + " + Task.TASK_LIST_ORDER + " asc")
+    @Query("""SELECT * fROM ${Task.TABLE_NAME} ORDER BY ${Task.TASK_LIST_ORDER} asc""")
     fun getTaskListByOrderFlow(): Flow<List<Task>>
 
-    @Query("SELECT * fROM " + Task.TABLE_NAME + " ORDER BY + " + Task.TASK_LIST_ORDER + " asc")
+    @Query("""SELECT * fROM ${Task.TABLE_NAME} ORDER BY ${Task.TASK_LIST_ORDER} asc""")
     suspend fun getTaskListByOrder(): List<Task>
 
-    @Query("SELECT * fROM " + Task.TABLE_NAME + " WHERE _id = :id")
+    @Query("""SELECT * fROM ${Task.TABLE_NAME} WHERE _id = :id""")
     fun getTaskFlow(id: Int): Flow<Task>
 
-    @Query("SELECT * fROM " + Task.TABLE_NAME + " WHERE _id = :id")
+    @Query("""SELECT * fROM ${Task.TABLE_NAME} WHERE _id = :id""")
     suspend fun getTask(id: Int): Task?
 
-    @Query("SELECT MAX (" + Task.TASK_LIST_ORDER + ") FROM " + Task.TABLE_NAME)
+    @Query("""SELECT MAX (${Task.TASK_LIST_ORDER}) FROM ${Task.TABLE_NAME}""")
     suspend fun getMaxOrder(): Int?
 
     @RawQuery

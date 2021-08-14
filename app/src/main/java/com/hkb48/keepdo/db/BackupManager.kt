@@ -21,7 +21,7 @@ object BackupManager {
             success = runBlocking {
                 // Execute checkpoint query to ensure all of the pending transactions are applied.
                 db.taskDao().checkpoint((SimpleSQLiteQuery("pragma wal_checkpoint(full)")))
-                db.taskCompletionDao()
+                db.doneHistoryDao()
                     .checkpoint((SimpleSQLiteQuery("pragma wal_checkpoint(full)")))
                 copy(inputStream, outputStream)
             }

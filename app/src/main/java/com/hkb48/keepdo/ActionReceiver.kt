@@ -4,8 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.database.sqlite.SQLiteException
+import com.hkb48.keepdo.db.entity.DoneHistory
 import com.hkb48.keepdo.db.entity.Task
-import com.hkb48.keepdo.db.entity.TaskCompletion
 import com.hkb48.keepdo.util.DateChangeTimeUtil
 import com.hkb48.keepdo.widget.TasksWidgetProvider
 import kotlinx.coroutines.CoroutineScope
@@ -43,7 +43,7 @@ class ActionReceiver : BroadcastReceiver() {
     private suspend fun getDoneStatus(context: Context, taskId: Int, date: Date): Boolean {
         val applicationContext = context.applicationContext
         return if (applicationContext is KeepdoApplication) {
-            applicationContext.getDatabase().taskCompletionDao().getByDate(taskId, date).count() > 0
+            applicationContext.getDatabase().doneHistoryDao().getByDate(taskId, date).count() > 0
         } else {
             true
         }
@@ -53,8 +53,8 @@ class ActionReceiver : BroadcastReceiver() {
         val applicationContext = context.applicationContext
         if (applicationContext is KeepdoApplication) {
             try {
-                val taskCompletion = TaskCompletion(0, taskId, date)
-                applicationContext.getDatabase().taskCompletionDao().insert(taskCompletion)
+                val doneInfo = DoneHistory(0, taskId, date)
+                applicationContext.getDatabase().doneHistoryDao().insert(doneInfo)
             } catch (e: SQLiteException) {
                 e.printStackTrace()
             }

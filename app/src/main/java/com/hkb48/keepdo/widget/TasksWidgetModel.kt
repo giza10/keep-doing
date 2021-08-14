@@ -34,7 +34,7 @@ internal class TasksWidgetModel(private val mContext: Context) {
     }
 
     private suspend fun getDoneStatus(taskId: Int, date: Date): Boolean {
-        return (mContext as KeepdoApplication).getDatabase().taskCompletionDao()
+        return (mContext as KeepdoApplication).getDatabase().doneHistoryDao()
             .getByDate(taskId, date).count() > 0
     }
 

@@ -210,7 +210,7 @@ object ReminderManager {
         val applicationContext = context.applicationContext
         return if (applicationContext is KeepdoApplication) {
             val result =
-                applicationContext.getDatabase().taskCompletionDao().getByDate(taskId, date)
+                applicationContext.getDatabase().doneHistoryDao().getByDate(taskId, date)
             result.count() > 0
         } else {
             false

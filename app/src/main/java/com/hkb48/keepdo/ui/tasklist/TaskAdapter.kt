@@ -12,7 +12,7 @@ import com.hkb48.keepdo.R
 import com.hkb48.keepdo.Recurrence
 import com.hkb48.keepdo.databinding.TaskListItemBinding
 import com.hkb48.keepdo.databinding.TaskListSectionBinding
-import com.hkb48.keepdo.db.entity.Task
+import com.hkb48.keepdo.db.entity.TaskWithDoneHistory
 import com.hkb48.keepdo.util.DateChangeTimeUtil
 import java.util.*
 import kotlin.collections.ArrayList
@@ -53,7 +53,7 @@ class TaskAdapter(
             }
             is ViewHolder -> {
                 val item = getItem(position) as DataItem.TaskDataItem
-                holder.bind(item.taskListItem, clickListener)
+                holder.bind(item.taskWithDoneHistory, clickListener)
                 holder.itemView.setOnLongClickListener {
                     setLongPressedPosition(holder.bindingAdapterPosition)
                     false
@@ -74,12 +74,12 @@ class TaskAdapter(
         super.onViewRecycled(holder)
     }
 
-    fun addHeaderAndSubmitList(context: Context, list: List<TaskListItem>) {
+    fun addHeaderAndSubmitList(context: Context, taskList: List<TaskWithDoneHistory>) {
         val newListItems: MutableList<DataItem> = ArrayList()
-        val taskListToday: MutableList<TaskListItem> = ArrayList()
-        val taskListNotToday: MutableList<TaskListItem> = ArrayList()
+        val taskListToday: MutableList<TaskWithDoneHistory> = ArrayList()
+        val taskListNotToday: MutableList<TaskWithDoneHistory> = ArrayList()
         val dayOfWeek = DateChangeTimeUtil.dateTimeCalendar[Calendar.DAY_OF_WEEK]
-        for (item in list) {
+        for (item in taskList) {
             if (Recurrence.getFromTask(item.task).isValidDay(dayOfWeek)) {
                 taskListToday.add(item)
             } else {
@@ -98,21 +98,9 @@ class TaskAdapter(
         listItems = newListItems
     }
 
-    fun getItemAt(position: Int): TaskListItem {
+    fun getItemAt(position: Int): TaskWithDoneHistory {
         val item = getItem(position) as DataItem.TaskDataItem
-        return item.taskListItem
-    }
-
-    fun updateTask(newItem: TaskListItem) {
-        for ((position, item) in listItems.withIndex()) {
-            if (item is DataItem.TaskDataItem) {
-                if (item.taskListItem.task._id == newItem.task._id) {
-                    listItems[position] = DataItem.TaskDataItem(newItem)
-                    notifyItemChanged(position)
-                    return
-                }
-            }
-        }
+        return item.taskWithDoneHistory
     }
 
     class SectionViewHolder(
@@ -134,8 +122,8 @@ class TaskAdapter(
     class ViewHolder(
         private val binding: TaskListItemBinding
     ) : RecyclerView.ViewHolder(binding.root), View.OnCreateContextMenuListener {
-        fun bind(taskListItem: TaskListItem, clickListener: ClickListener) {
-            binding.taskListItem = taskListItem
+        fun bind(taskWithDoneHistory: TaskWithDoneHistory, clickListener: ClickListener) {
+            binding.taskWithDoneHistory = taskWithDoneHistory
             binding.clickListener = clickListener
             binding.root.setOnCreateContextMenuListener(this)
         }
@@ -160,8 +148,8 @@ class TaskAdapter(
     }
 
     interface ClickListener {
-        fun onItemClick(task: Task)
-        fun onDoneClick(task: Task)
+        fun onItemClick(taskWithDoneHistory: TaskWithDoneHistory)
+        fun onDoneClick(taskWithDoneHistory: TaskWithDoneHistory)
     }
 
     companion object {
@@ -178,8 +166,8 @@ class TaskAdapter(
 }
 
 sealed class DataItem {
-    data class TaskDataItem(val taskListItem: TaskListItem) : DataItem() {
-        override val id: Long = taskListItem.task._id.toLong()
+    data class TaskDataItem(val taskWithDoneHistory: TaskWithDoneHistory) : DataItem() {
+        override val id: Long = taskWithDoneHistory.task._id.toLong()
     }
 
     data class Section(val text: String) : DataItem() {

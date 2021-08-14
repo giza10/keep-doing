@@ -9,12 +9,15 @@ import com.hkb48.keepdo.Recurrence
 import com.hkb48.keepdo.RecurrenceView
 import com.hkb48.keepdo.Reminder
 import com.hkb48.keepdo.db.entity.Task
+import com.hkb48.keepdo.db.entity.TaskWithDoneHistory
 import com.hkb48.keepdo.ui.settings.Settings
 import com.hkb48.keepdo.util.CompatUtil
+import com.hkb48.keepdo.util.DoneHistoryUtil
 import java.util.*
 
 @BindingAdapter("doneIcon")
-fun ImageView.setDoneIcon(daysSinceLastDone: Int?) {
+fun ImageView.setDoneIcon(taskWithDoneHistory: TaskWithDoneHistory) {
+    val daysSinceLastDone = DoneHistoryUtil(taskWithDoneHistory).getElapsedDaysSinceLastDone()
     val doneToday = (daysSinceLastDone == 0)
     setImageResource(
         if (doneToday) Settings.doneIconId
@@ -54,13 +57,15 @@ fun TextView.setAlarmText(task: Task) {
 }
 
 @BindingAdapter("lastDoneDateOrCombo")
-fun TextView.setLastDoneDateOrCombo(item: TaskListItem) {
-    val comboCount = item.comboCount
+fun TextView.setLastDoneDateOrCombo(taskWithDoneHistory: TaskWithDoneHistory) {
+    val util = DoneHistoryUtil(taskWithDoneHistory)
+    val comboCount = util.getComboCount()
     if (comboCount > 1) {
         text = context.getString(R.string.tasklist_combo, comboCount)
         setTextColor(CompatUtil.getColor(context, R.color.tasklist_combo))
     } else {
-        text = when (val daysSinceLastDone = item.daysSinceLastDone) {
+        val daysSinceLastDone = util.getElapsedDaysSinceLastDone()
+        text = when (daysSinceLastDone) {
             null -> context.getString(R.string.tasklist_lastdonedate_notyet)
             0 -> context.getString(R.string.tasklist_lastdonedate_today)
             1 -> context.getString(R.string.tasklist_lastdonedate_yesterday)

@@ -4,8 +4,9 @@ import android.content.Context
 import com.hkb48.keepdo.CheckSoundPlayer
 import com.hkb48.keepdo.TaskRepository
 import com.hkb48.keepdo.db.TaskDatabase
-import com.hkb48.keepdo.db.dao.TaskCompletionDao
+import com.hkb48.keepdo.db.dao.DoneHistoryDao
 import com.hkb48.keepdo.db.dao.TaskDao
+import com.hkb48.keepdo.db.dao.TaskWithDoneHistoryDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,17 +31,24 @@ object KeepdoModule {
 
     @Singleton
     @Provides
-    fun provideTaskCompletionDao(database: TaskDatabase): TaskCompletionDao {
-        return database.taskCompletionDao()
+    fun provideDoneHistoryDao(database: TaskDatabase): DoneHistoryDao {
+        return database.doneHistoryDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideTaskWithDoneHistoryDao(database: TaskDatabase): TaskWithDoneHistoryDao {
+        return database.taskWithDoneHistoryDao()
     }
 
     @Singleton
     @Provides
     fun provideTaskRepository(
         taskDao: TaskDao,
-        taskCompletionDao: TaskCompletionDao
+        doneHistoryDao: DoneHistoryDao,
+        taskWithDoneHistoryDao: TaskWithDoneHistoryDao
     ): TaskRepository {
-        return TaskRepository(taskDao, taskCompletionDao)
+        return TaskRepository(taskDao, doneHistoryDao, taskWithDoneHistoryDao)
     }
 
     @Singleton

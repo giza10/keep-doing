@@ -2,6 +2,7 @@ package com.hkb48.keepdo.ui.tasklist
 
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -17,8 +18,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.hkb48.keepdo.*
 import com.hkb48.keepdo.databinding.FragmentTaskListBinding
 import com.hkb48.keepdo.db.entity.Task
+import com.hkb48.keepdo.db.entity.TaskWithDoneHistory
 import com.hkb48.keepdo.ui.TasksActivity
 import com.hkb48.keepdo.util.CompatUtil
+import com.hkb48.keepdo.util.DoneHistoryUtil
 import com.hkb48.keepdo.widget.TasksWidgetProvider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -33,20 +36,21 @@ class TaskListFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val adapter = TaskAdapter(object : TaskAdapter.ClickListener {
-        override fun onItemClick(task: Task) {
-            val taskId = task._id
+        override fun onItemClick(taskWithDoneHistory: TaskWithDoneHistory) {
+            val task = taskWithDoneHistory.task
             val action =
                 TaskListFragmentDirections.actionTaskListFragmentToCalendarFragment(
-                    taskId,
+                    task._id,
                     task.name
                 )
             findNavController().navigate(action)
         }
 
-        override fun onDoneClick(task: Task) {
+        override fun onDoneClick(taskWithDoneHistory: TaskWithDoneHistory) {
             lifecycleScope.launch {
-                val taskId = task._id
-                val daysSinceLastDone = viewModel.getElapsedDaysSinceLastDoneDate(taskId)
+                val taskId = taskWithDoneHistory.task._id
+                val daysSinceLastDone =
+                    DoneHistoryUtil(taskWithDoneHistory).getElapsedDaysSinceLastDone()
                 val doneTodayBefore = (daysSinceLastDone == 0)
                 val doneTodayAfter = doneTodayBefore.not()
                 if (doneTodayAfter) {
@@ -54,7 +58,6 @@ class TaskListFragment : Fragment() {
                 }
                 viewModel.setDoneStatus(taskId, doneTodayAfter)
 
-                updateTaskListItem(task)
                 ReminderManager.setAlarm(requireContext(), taskId)
                 TasksWidgetProvider.notifyDatasetChanged(requireContext())
             }
@@ -69,7 +72,7 @@ class TaskListFragment : Fragment() {
                     .setPositiveButton(
                         R.string.dialog_ok
                     ) { _: DialogInterface?, _: Int ->
-                        adapter.notifyDataSetChanged()
+                        viewModel.refresh()
                     }.setCancelable(false)
                     .create().show()
             }
@@ -163,23 +166,22 @@ class TaskListFragment : Fragment() {
     }
 
     private fun subscribeToModel() {
-        viewModel.getObservableTaskList().observe(viewLifecycleOwner, { taskList ->
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG_KEEPDO, "TaskListFragment#subscribeToModel() called.")
+        }
+        viewModel.getTaskListWithDoneHistory().observe(viewLifecycleOwner, { taskList ->
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG_KEEPDO, "TaskListFragment#subscribeToModel() - viewModel onChanged().")
+            }
             updateTaskList(taskList)
         })
     }
 
     private val mutex = Mutex()
 
-    private fun updateTaskList(taskList: List<Task>) = lifecycleScope.launch {
+    private fun updateTaskList(taskList: List<TaskWithDoneHistory>) = lifecycleScope.launch {
         mutex.withLock {
-            val taskListItems: MutableList<TaskListItem> = ArrayList()
-            for (task in taskList) {
-                val daysSinceLastDone = viewModel.getElapsedDaysSinceLastDoneDate(task._id)
-                val comboCount = viewModel.getComboCount(task)
-                val item = TaskListItem(task, daysSinceLastDone, comboCount)
-                taskListItems.add(item)
-            }
-            adapter.addHeaderAndSubmitList(requireContext(), taskListItems)
+            adapter.addHeaderAndSubmitList(requireContext(), taskList)
             if (taskList.isEmpty()) {
                 binding.empty.visibility = View.VISIBLE
             } else {
@@ -188,10 +190,7 @@ class TaskListFragment : Fragment() {
         }
     }
 
-    private suspend fun updateTaskListItem(task: Task) {
-        val daysSinceLastDone = viewModel.getElapsedDaysSinceLastDoneDate(task._id)
-        val comboCount = viewModel.getComboCount(task)
-        val newItem = TaskListItem(task, daysSinceLastDone, comboCount)
-        adapter.updateTask(newItem)
+    companion object {
+        private const val TAG_KEEPDO = "#LOG_KEEPDO: "
     }
 }

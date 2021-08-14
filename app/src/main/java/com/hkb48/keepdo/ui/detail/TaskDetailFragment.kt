@@ -5,17 +5,16 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.hkb48.keepdo.R
 import com.hkb48.keepdo.Recurrence
 import com.hkb48.keepdo.Reminder
 import com.hkb48.keepdo.databinding.FragmentTaskDetailBinding
-import com.hkb48.keepdo.db.entity.Task
+import com.hkb48.keepdo.db.entity.TaskWithDoneHistory
 import com.hkb48.keepdo.ui.addedit.AddEditTaskFragmentArgs
+import com.hkb48.keepdo.util.DoneHistoryUtil
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -72,13 +71,18 @@ class TaskDetailFragment : Fragment() {
     }
 
     private fun subscribeToModel() {
-        viewModel.getObservableTask(args.taskId).observe(viewLifecycleOwner, { task ->
-            (requireActivity() as AppCompatActivity).supportActionBar?.title = task.name
-            updateDetails(task)
-        })
+        viewModel.getTaskWithDoneHistory(args.taskId)
+            .observe(viewLifecycleOwner, { taskWithDoneHistory ->
+                (requireActivity() as AppCompatActivity).supportActionBar?.title =
+                    taskWithDoneHistory.task.name
+                updateDetails(taskWithDoneHistory)
+            })
     }
 
-    private fun updateDetails(task: Task) = lifecycleScope.launch {
+    private fun updateDetails(taskWithDoneHistory: TaskWithDoneHistory) {
+        val task = taskWithDoneHistory.task
+        val doneHistoryUtil = DoneHistoryUtil(taskWithDoneHistory)
+
         // Recurrence
         binding.recurrenceView.update(Recurrence.getFromTask(task))
 
@@ -108,18 +112,18 @@ class TaskDetailFragment : Fragment() {
         }
 
         // Total number of done
-        val numOfDone = viewModel.getNumberOfDone(task._id)
+        val numOfDone = doneHistoryUtil.getNumberOfDone()
         binding.taskDetailNumOfDoneValue.text = getString(R.string.number_of_times, numOfDone)
 
         // Current combo / Max combo
-        val combo = viewModel.getComboCount(task)
-        val maxCombo = viewModel.getMaxComboCount(task)
+        val combo = doneHistoryUtil.getComboCount()
+        val maxCombo = doneHistoryUtil.getMaxComboCount()
         binding.taskDetailComboValue.text =
             getString(R.string.current_and_max_combo_num, combo, maxCombo)
 
         // First date that done is set
         val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN)
-        val firstDoneDate = viewModel.getFirstDoneDate(task._id)
+        val firstDoneDate = doneHistoryUtil.getFirstDoneDate()
         if (firstDoneDate != null) {
             binding.taskDetailFirstDoneDateValue.text = dateFormat.format(firstDoneDate)
         } else {
@@ -127,7 +131,7 @@ class TaskDetailFragment : Fragment() {
         }
 
         // Last date that done is set
-        val lastDoneDate = viewModel.getLastDoneDate(task._id)
+        val lastDoneDate = doneHistoryUtil.getLastDoneDate()
         if (lastDoneDate != null) {
             binding.taskDetailLastDoneDateValue.text = dateFormat.format(lastDoneDate)
         } else {

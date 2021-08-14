@@ -8,8 +8,8 @@
         <import type="android.view.View" />
 
         <variable
-            name="taskListItem"
-            type="com.hkb48.keepdo.ui.tasklist.TaskListItem" />
+            name="taskWithDoneHistory"
+            type="com.hkb48.keepdo.db.entity.TaskWithDoneHistory" />
 
         <variable
             name="clickListener"
@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
-        android:onClick="@{() -> clickListener.onItemClick(taskListItem.task)}"
+        android:onClick="@{() -> clickListener.onItemClick(taskWithDoneHistory)}"
         android:orientation="horizontal">
 
         <ImageView
@@ -29,11 +29,11 @@
             android:layout_height="60dp"
             android:layout_gravity="center"
             android:contentDescription="@string/accessibility_done_mark"
-            android:onClick="@{() -> clickListener.onDoneClick(taskListItem.task)}"
+            android:onClick="@{() -> clickListener.onDoneClick(taskWithDoneHistory)}"
             android:padding="10dp"
             android:soundEffectsEnabled="false"
             android:visibility="visible"
-            app:doneIcon="@{taskListItem.daysSinceLastDone}" />
+            app:doneIcon="@{taskWithDoneHistory}" />
 
         <LinearLayout
             android:id="@+id/taskListItemMain"
@@ -57,7 +57,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:paddingBottom="3dp"
-                    android:text="@{taskListItem.task.name}"
+                    android:text="@{taskWithDoneHistory.task.name}"
                     android:textColor="?android:attr/textColorPrimary"
                     android:textIsSelectable="false"
                     android:textSize="18sp"
@@ -69,7 +69,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="end|top"
                     android:orientation="horizontal"
-                    android:visibility="@{taskListItem.task.reminderEnabled ? View.VISIBLE : View.GONE}">
+                    android:visibility="@{taskWithDoneHistory.task.reminderEnabled ? View.VISIBLE : View.GONE}">
 
                     <ImageView
                         android:id="@+id/AlarmIcon"
@@ -86,7 +86,7 @@
                         android:textColor="?android:attr/textColorSecondary"
                         android:textIsSelectable="false"
                         android:textSize="12sp"
-                        app:alarmText="@{taskListItem.task}"
+                        app:alarmText="@{taskWithDoneHistory.task}"
                         tools:text="12:34" />
                 </LinearLayout>
             </LinearLayout>
@@ -101,7 +101,7 @@
                 android:textColor="?android:attr/textColorSecondary"
                 android:textIsSelectable="false"
                 android:textSize="12sp"
-                app:description="@{taskListItem.task.description}"
+                app:description="@{taskWithDoneHistory.task.description}"
                 tools:text="Detail" />
 
             <LinearLayout
@@ -119,7 +119,7 @@
                     android:layout_weight="1"
                     android:orientation="horizontal"
                     android:textSize="12sp"
-                    app:recurrence="@{taskListItem.task}" />
+                    app:recurrence="@{taskWithDoneHistory.task}" />
 
                 <TextView
                     android:id="@+id/taskLastDoneDate"
@@ -129,7 +129,7 @@
                     android:textColor="@color/tasklist_last_donedate"
                     android:textIsSelectable="false"
                     android:textSize="12sp"
-                    app:lastDoneDateOrCombo="@{taskListItem}"
+                    app:lastDoneDateOrCombo="@{taskWithDoneHistory}"
                     tools:text="xx Combo" />
             </LinearLayout>
         </LinearLayout>

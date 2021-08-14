@@ -20,7 +20,7 @@ class AddEditViewModel @Inject constructor(
         repository.editTask(task)
     }
 
-    fun getObservableTask(taskId: Int): LiveData<Task> {
+    fun getTask(taskId: Int): LiveData<Task> {
         return repository.getTaskFlow(taskId).asLiveData()
     }
 

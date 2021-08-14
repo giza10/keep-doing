@@ -12,14 +12,14 @@ import java.util.*
         onUpdate = ForeignKey.NO_ACTION
     )], indices = [Index("task_id")]
 )
-data class TaskCompletion(
+data class DoneHistory(
     @PrimaryKey(autoGenerate = true) val _id: Int,
     @ColumnInfo(name = TASK_NAME_ID) val taskId: Int,
-    @ColumnInfo(name = TASK_COMPLETION_DATE) val date: Date
+    @ColumnInfo(name = DONE_DATE) val date: Date
 ) {
     companion object {
         const val TABLE_NAME = "table_completions"
         const val TASK_NAME_ID = "task_id"
-        const val TASK_COMPLETION_DATE = "completion_date"
+        const val DONE_DATE = "completion_date"
     }
 }

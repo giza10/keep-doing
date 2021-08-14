@@ -15,10 +15,11 @@ import com.hkb48.keepdo.ReminderManager
 import com.hkb48.keepdo.databinding.CalendarDateBinding
 import com.hkb48.keepdo.databinding.CalendarSubPageBinding
 import com.hkb48.keepdo.databinding.CalendarWeekBinding
-import com.hkb48.keepdo.db.entity.Task
+import com.hkb48.keepdo.db.entity.TaskWithDoneHistory
 import com.hkb48.keepdo.ui.TasksActivity
 import com.hkb48.keepdo.ui.settings.Settings
 import com.hkb48.keepdo.util.DateChangeTimeUtil
+import com.hkb48.keepdo.util.DoneHistoryUtil
 import com.hkb48.keepdo.widget.TasksWidgetProvider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -33,7 +34,7 @@ class CalendarGridFragment : Fragment() {
     private var _binding: CalendarSubPageBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var mTask: Task
+    private lateinit var taskWithDoneHistory: TaskWithDoneHistory
     private var mMonthOffset = 0
 
     override fun onCreateView(
@@ -49,10 +50,11 @@ class CalendarGridFragment : Fragment() {
         val taskId = requireArguments().getInt(TASK_ID_KEY)
         mMonthOffset =
             requireArguments().getInt(POSITION_KEY) - CalendarFragment.INDEX_OF_THIS_MONTH
-        viewModel.getObservableTask(taskId).observe(viewLifecycleOwner, { task ->
-            mTask = task
-            buildCalendar()
-        })
+        viewModel.getTaskWithDoneHistory(taskId)
+            .observe(viewLifecycleOwner, { taskWithDoneHistory ->
+                this.taskWithDoneHistory = taskWithDoneHistory
+                buildCalendar()
+            })
     }
 
     override fun onStart() {
@@ -94,11 +96,12 @@ class CalendarGridFragment : Fragment() {
         val view = item.actionView
         val imageView = CalendarDateBinding.bind(view).imageViewDone
         val selectedDate = view.tag as Date
+        val taskId = taskWithDoneHistory.task._id
         when (item.itemId) {
             CONTEXT_MENU_CHECK_DONE -> {
                 showDoneIcon(imageView)
                 lifecycleScope.launch {
-                    viewModel.setDoneStatus(mTask._id, selectedDate, true)
+                    viewModel.setDoneStatus(taskId, selectedDate, true)
                 }
                 (requireActivity() as TasksActivity).playCheckSound()
                 consumed = true
@@ -106,7 +109,7 @@ class CalendarGridFragment : Fragment() {
             CONTEXT_MENU_UNCHECK_DONE -> {
                 hideDoneIcon(imageView)
                 lifecycleScope.launch {
-                    viewModel.setDoneStatus(mTask._id, selectedDate, false)
+                    viewModel.setDoneStatus(taskId, selectedDate, false)
                 }
                 consumed = true
             }
@@ -115,7 +118,7 @@ class CalendarGridFragment : Fragment() {
         }
         val today = DateChangeTimeUtil.date
         if (consumed && selectedDate.compareTo(today) == 0) {
-            ReminderManager.setAlarm(requireContext(), mTask._id)
+            ReminderManager.setAlarm(requireContext(), taskId)
             TasksWidgetProvider.notifyDatasetChanged(requireContext())
         }
         return consumed || super.onContextItemSelected(item)
@@ -174,15 +177,13 @@ class CalendarGridFragment : Fragment() {
         view.visibility = View.INVISIBLE
     }
 
-    private suspend fun addDayOfMonth(calendar: Calendar) {
+    private fun addDayOfMonth(calendar: Calendar) {
         val maxDate = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
         var week = calendar[Calendar.DAY_OF_WEEK]
         val year = calendar[Calendar.YEAR]
         val month = calendar[Calendar.MONTH]
         val today = DateChangeTimeUtil.dateTimeCalendar[Calendar.DAY_OF_MONTH]
-        val doneDateList = viewModel.getHistoryInMonth(
-            mTask._id, year, month
-        )
+        val doneDateList = DoneHistoryUtil(taskWithDoneHistory).getHistoryInMonth(year, month)
         val sdf = SimpleDateFormat("dd", Locale.JAPAN)
 
         // Fill the days of previous month in the first week with blank
@@ -229,7 +230,7 @@ class CalendarGridFragment : Fragment() {
                 registerForContextMenu(child)
             }
             week = calendar[Calendar.DAY_OF_WEEK]
-            val isValidDay = Recurrence.getFromTask(mTask).isValidDay(week)
+            val isValidDay = Recurrence.getFromTask(taskWithDoneHistory.task).isValidDay(week)
             if (isValidDay) {
                 if (mMonthOffset == 0 && day == today) {
                     child.setBackgroundResource(R.drawable.bg_calendar_day_today)
