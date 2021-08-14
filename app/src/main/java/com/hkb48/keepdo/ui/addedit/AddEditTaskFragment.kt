@@ -31,13 +31,13 @@ class AddEditTaskFragment : Fragment() {
     private val binding get() = _binding!!
     private val args: AddEditTaskFragmentArgs by navArgs()
 
-    private var mRecurrenceFlags = booleanArrayOf(
+    private var recurrenceFlags = booleanArrayOf(
         true, true, true, true, true, true,
         true
     )
-    private var mTask: Task? = null
-    private var mMode = 0
-    private var mReminder: Reminder = Reminder()
+    private var task: Task? = null
+    private var mode = 0
+    private var reminder: Reminder = Reminder()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,7 +60,7 @@ class AddEditTaskFragment : Fragment() {
         enableInputEmoji(editTextDescription)
         val taskId = args.taskId
         if (taskId == Task.INVALID_TASKID) {
-            mMode = MODE_NEW_TASK
+            mode = MODE_NEW_TASK
             val recurrence = Recurrence(
                 monday = true,
                 tuesday = true,
@@ -74,25 +74,26 @@ class AddEditTaskFragment : Fragment() {
             addReminder()
         } else {
             viewModel.getTask(taskId).observe(viewLifecycleOwner, { task ->
+                // Remove observer to avoid onChange() call while saving the model.
                 viewModel.getTask(taskId).removeObservers(viewLifecycleOwner)
-                mMode = MODE_EDIT_TASK
+                mode = MODE_EDIT_TASK
                 task.name.let {
                     editTextTaskName.setText(it)
                     editTextTaskName.setSelection(it.length)
                 }
                 val recurrence = Recurrence.getFromTask(task)
-                mRecurrenceFlags[0] = task.sunFrequency
-                mRecurrenceFlags[1] = task.monFrequency
-                mRecurrenceFlags[2] = task.tueFrequency
-                mRecurrenceFlags[3] = task.wedFrequency
-                mRecurrenceFlags[4] = task.thrFrequency
-                mRecurrenceFlags[5] = task.friFrequency
-                mRecurrenceFlags[6] = task.satFrequency
+                recurrenceFlags[0] = task.sunFrequency
+                recurrenceFlags[1] = task.monFrequency
+                recurrenceFlags[2] = task.tueFrequency
+                recurrenceFlags[3] = task.wedFrequency
+                recurrenceFlags[4] = task.thrFrequency
+                recurrenceFlags[5] = task.friFrequency
+                recurrenceFlags[6] = task.satFrequency
                 task.description?.let {
                     editTextDescription.setText(it)
                     editTextDescription.setSelection(it.length)
                 }
-                mTask = task
+                this.task = task
                 addRecurrence(recurrence)
                 addReminder()
             })
@@ -141,38 +142,38 @@ class AddEditTaskFragment : Fragment() {
         val recurrenceView = binding.recurrenceView
         recurrenceView.update(recurrence)
         recurrenceView.setOnClickListener {
-            val tmpRecurrenceFlags = mRecurrenceFlags.copyOf(mRecurrenceFlags.size)
+            val tmpRecurrenceFlags = recurrenceFlags.copyOf(recurrenceFlags.size)
             AlertDialog.Builder(requireContext())
                 .setTitle(getString(R.string.recurrence))
                 .setMultiChoiceItems(
                     weekNames,
-                    mRecurrenceFlags
+                    recurrenceFlags
                 ) { _: DialogInterface?, which: Int, isChecked: Boolean ->
-                    mRecurrenceFlags[which] = isChecked
+                    recurrenceFlags[which] = isChecked
                 }
                 .setPositiveButton(
                     getString(R.string.dialog_ok)
                 ) { _: DialogInterface?, _: Int ->
-                    recurrenceView.update(mRecurrenceFlags)
+                    recurrenceView.update(recurrenceFlags)
                 }
                 .setNegativeButton(
                     getString(R.string.dialog_cancel)
                 ) { _: DialogInterface?, _: Int ->
-                    mRecurrenceFlags = tmpRecurrenceFlags
+                    recurrenceFlags = tmpRecurrenceFlags
                 }
                 .show()
         }
     }
 
     private fun addReminder() {
-        if (mTask != null) {
-            mReminder = Reminder(mTask!!.reminderEnabled, mTask!!.reminderTime ?: 0)
+        if (task != null) {
+            reminder = Reminder(task!!.reminderEnabled, task!!.reminderTime ?: 0)
         }
         val reminderTime = binding.buttonReminderTime
         val cancelButton = binding.reminderRemove
-        val hourOfDay = mReminder.hourOfDay
-        val minute = mReminder.minute
-        if (mReminder.enabled) {
+        val hourOfDay = reminder.hourOfDay
+        val minute = reminder.minute
+        if (reminder.enabled) {
             reminderTime.text = getString(R.string.reminder_time, hourOfDay, minute)
             cancelButton.visibility = View.VISIBLE
         } else {
@@ -182,16 +183,16 @@ class AddEditTaskFragment : Fragment() {
         cancelButton.setOnClickListener {
             it.visibility = View.INVISIBLE
             reminderTime.setText(R.string.no_reminder)
-            mReminder.enabled = false
+            reminder.enabled = false
         }
         val timePickerDialog = TimePickerDialog(
             requireContext(),
             { _: TimePicker?, hourOfDay1: Int, minute1: Int ->
                 reminderTime.text = getString(R.string.reminder_time, hourOfDay1, minute1)
                 cancelButton.visibility = View.VISIBLE
-                mReminder.enabled = true
-                mReminder.hourOfDay = hourOfDay1
-                mReminder.minute = minute1
+                reminder.enabled = true
+                reminder.hourOfDay = hourOfDay1
+                reminder.minute = minute1
             }, hourOfDay, minute, true
         )
         reminderTime.setOnClickListener { timePickerDialog.show() }
@@ -201,26 +202,26 @@ class AddEditTaskFragment : Fragment() {
         val editTextTaskName = binding.editTextTaskName
         val editTextDescription = binding.editTextDescription
         val newTask = Task(
-            mTask?._id ?: 0,
+            task?._id ?: 0,
             editTextTaskName.text.toString(),
-            mRecurrenceFlags[1],
-            mRecurrenceFlags[2],
-            mRecurrenceFlags[3],
-            mRecurrenceFlags[4],
-            mRecurrenceFlags[5],
-            mRecurrenceFlags[6],
-            mRecurrenceFlags[0],
+            recurrenceFlags[1],
+            recurrenceFlags[2],
+            recurrenceFlags[3],
+            recurrenceFlags[4],
+            recurrenceFlags[5],
+            recurrenceFlags[6],
+            recurrenceFlags[0],
             editTextDescription.text.toString(),
-            mReminder.enabled,
-            mReminder.timeInMillis,
-            mTask?.listOrder ?: viewModel.getNewSortOrder()
+            reminder.enabled,
+            reminder.timeInMillis,
+            task?.listOrder ?: viewModel.getNewSortOrder()
         )
 
-        val taskId = if (mMode == MODE_NEW_TASK) {
+        val taskId = if (mode == MODE_NEW_TASK) {
             viewModel.addTask(newTask)
         } else {
             viewModel.editTask(newTask)
-            mTask?._id ?: Task.INVALID_TASKID
+            task?._id ?: Task.INVALID_TASKID
         }
         ReminderManager.setAlarm(requireContext(), taskId)
         TasksWidgetProvider.notifyDatasetChanged(requireContext())

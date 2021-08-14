@@ -35,26 +35,24 @@ class CalendarGridFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var taskWithDoneHistory: TaskWithDoneHistory
-    private var mMonthOffset = 0
+    private var monthOffset = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = CalendarSubPageBinding.inflate(inflater, container, false)
-        return binding.root
-    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         val taskId = requireArguments().getInt(TASK_ID_KEY)
-        mMonthOffset =
+        monthOffset =
             requireArguments().getInt(POSITION_KEY) - CalendarFragment.INDEX_OF_THIS_MONTH
         viewModel.getTaskWithDoneHistory(taskId)
             .observe(viewLifecycleOwner, { taskWithDoneHistory ->
                 this.taskWithDoneHistory = taskWithDoneHistory
                 buildCalendar()
             })
+
+        return binding.root
     }
 
     override fun onStart() {
@@ -161,7 +159,7 @@ class CalendarGridFragment : Fragment() {
         mutex.withLock {
             binding.calendarGrid.removeAllViews()
             val current = DateChangeTimeUtil.dateTimeCalendar
-            current.add(Calendar.MONTH, mMonthOffset)
+            current.add(Calendar.MONTH, monthOffset)
             current[Calendar.DAY_OF_MONTH] = 1
             addDayOfWeek()
             addDayOfMonth(current)
@@ -220,7 +218,7 @@ class CalendarGridFragment : Fragment() {
             var enableContextMenu = false
             if (Settings.enableFutureDate) {
                 enableContextMenu = true
-            } else if (mMonthOffset < 0 || mMonthOffset == 0 && day <= today) {
+            } else if (monthOffset < 0 || monthOffset == 0 && day <= today) {
                 // Enable context menu to change done status of past days.
                 enableContextMenu = true
             }
@@ -232,11 +230,11 @@ class CalendarGridFragment : Fragment() {
             week = calendar[Calendar.DAY_OF_WEEK]
             val isValidDay = Recurrence.getFromTask(taskWithDoneHistory.task).isValidDay(week)
             if (isValidDay) {
-                if (mMonthOffset == 0 && day == today) {
+                if (monthOffset == 0 && day == today) {
                     child.setBackgroundResource(R.drawable.bg_calendar_day_today)
                 }
             } else {
-                if (mMonthOffset == 0 && day == today) {
+                if (monthOffset == 0 && day == today) {
                     child.setBackgroundResource(R.drawable.bg_calendar_day_today_off)
                 } else {
                     child.setBackgroundResource(R.drawable.bg_calendar_day_off)

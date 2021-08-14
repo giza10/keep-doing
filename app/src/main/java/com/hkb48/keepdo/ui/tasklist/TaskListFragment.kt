@@ -64,7 +64,7 @@ class TaskListFragment : Fragment() {
         }
     })
 
-    private val mOnDateChangedListener: DateChangeTimeManager.OnDateChangedListener =
+    private val dateChangedListener: DateChangeTimeManager.OnDateChangedListener =
         object : DateChangeTimeManager.OnDateChangedListener {
             override fun onDateChanged() {
                 AlertDialog.Builder(requireContext())
@@ -83,6 +83,12 @@ class TaskListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTaskListBinding.inflate(inflater, container, false)
+
+        subscribeToModel()
+
+        (requireActivity().application as KeepdoApplication).getDateChangeTimeManager()
+            .registerOnDateChangedListener(dateChangedListener)
+
         return binding.root
     }
 
@@ -108,19 +114,14 @@ class TaskListFragment : Fragment() {
         // Cancel notification (if displayed)
         NotificationController.cancelReminder(requireContext())
 
-        subscribeToModel()
-
         if (CompatUtil.isNotificationChannelSupported) {
             NotificationController.createNotificationChannel(requireContext())
         }
-
-        (requireActivity().application as KeepdoApplication).getDateChangeTimeManager()
-            .registerOnDateChangedListener(mOnDateChangedListener)
     }
 
     override fun onDestroyView() {
         (requireActivity().application as KeepdoApplication).getDateChangeTimeManager()
-            .unregisterOnDateChangedListener(mOnDateChangedListener)
+            .unregisterOnDateChangedListener(dateChangedListener)
         super.onDestroyView()
         _binding = null
     }

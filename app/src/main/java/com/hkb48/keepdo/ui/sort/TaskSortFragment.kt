@@ -23,15 +23,15 @@ class TaskSortFragment : Fragment() {
     private var _binding: FragmentTaskSortBinding? = null
     private val binding get() = _binding!!
 
-    private val mAdapter = TaskAdapter()
-    private lateinit var mDataList: MutableList<Task>
+    private val adapter = TaskAdapter()
+    private lateinit var dataList: MutableList<Task>
     private val onDrop: DragAndDropListener = object : DragAndDropListener {
         override fun onDrag(from: Int, to: Int) {
             if (from != to) {
-                val item = mAdapter.getItem(from) as Task
-                mDataList.removeAt(from)
-                mDataList.add(to, item)
-                mAdapter.notifyDataSetChanged()
+                val item = adapter.getItem(from) as Task
+                dataList.removeAt(from)
+                dataList.add(to, item)
+                adapter.notifyDataSetChanged()
             }
         }
 
@@ -48,21 +48,19 @@ class TaskSortFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTaskSortBinding.inflate(inflater, container, false)
-        return binding.root
-    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         viewModel.getObservableTaskList().observe(viewLifecycleOwner, { taskList ->
+            // Remove observer to avoid onChange() call while saving the sort order.
             viewModel.getObservableTaskList().removeObservers(viewLifecycleOwner)
-            mDataList = taskList.toMutableList()
-            binding.mainListView.apply {
-                adapter = mAdapter
-                setDragAndDropListener(onDrop)
-            }
+
+            dataList = taskList.toMutableList()
+            binding.mainListView.adapter = adapter
+            binding.mainListView.setDragAndDropListener(onDrop)
             binding.cancelButton.setOnClickListener { onCancelClicked() }
-            mAdapter.notifyDataSetChanged()
+            adapter.notifyDataSetChanged()
         })
+
+        return binding.root
     }
 
     override fun onDestroyView() {
@@ -74,8 +72,8 @@ class TaskSortFragment : Fragment() {
      * Callback method for "Save" button
      */
     private fun onSaveClicked() = lifecycleScope.launch {
-        for (index in mDataList.indices) {
-            val task = mDataList[index]
+        for (index in dataList.indices) {
+            val task = dataList[index]
             val newTask = Task(
                 task._id,
                 task.name,
@@ -113,11 +111,11 @@ class TaskSortFragment : Fragment() {
 
     private inner class TaskAdapter : BaseAdapter() {
         override fun getCount(): Int {
-            return mDataList.size
+            return dataList.size
         }
 
         override fun getItem(position: Int): Any {
-            return mDataList[position]
+            return dataList[position]
         }
 
         override fun getItemId(position: Int): Long {

@@ -41,7 +41,7 @@ class CalendarFragment : Fragment() {
     private val binding get() = _binding!!
     private val args: CalendarFragmentArgs by navArgs()
 
-    private lateinit var mViewPager: ViewPager2
+    private lateinit var viewPager: ViewPager2
     private lateinit var taskWithDoneHistory: TaskWithDoneHistory
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,18 +55,21 @@ class CalendarFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCalendarBinding.inflate(inflater, container, false)
+
+        subscribeToModel()
+        viewPager = binding.viewPager
+        viewPager.adapter = CalendarPageAdapter(this, args.taskId)
+        viewPager.setCurrentItem(INDEX_OF_THIS_MONTH, false)
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        subscribeToModel()
-        mViewPager = binding.viewPager
-        mViewPager.adapter = CalendarPageAdapter(this, args.taskId)
-        mViewPager.setCurrentItem(INDEX_OF_THIS_MONTH, false)
+
         val tabLayout = binding.tabLayout
         TabLayoutMediator(
-            tabLayout, mViewPager
+            tabLayout, viewPager
         ) { tab: TabLayout.Tab, position: Int ->
             tab.text = getPageTitle(position)
         }.attach()
@@ -146,7 +149,7 @@ class CalendarFragment : Fragment() {
             val comboCount = util.getComboCount()
             val taskName = taskWithDoneHistory.task.name
             var extraText = ""
-            val monthOffset = mViewPager.currentItem - INDEX_OF_THIS_MONTH
+            val monthOffset = viewPager.currentItem - INDEX_OF_THIS_MONTH
             if (monthOffset == 0 && comboCount > 1) {
                 extraText += requireContext().getString(
                     R.string.share_combo,
