@@ -13,7 +13,7 @@ import java.util.*
     )], indices = [Index("task_id")]
 )
 data class TaskCompletion(
-    @PrimaryKey(autoGenerate = true) val _id: Int? = 0,
+    @PrimaryKey(autoGenerate = true) val _id: Int,
     @ColumnInfo(name = TASK_NAME_ID) val taskId: Int,
     @ColumnInfo(name = TASK_COMPLETION_DATE) val date: Date
 ) {

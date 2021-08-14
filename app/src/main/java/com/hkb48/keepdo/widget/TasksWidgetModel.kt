@@ -1,10 +1,10 @@
 package com.hkb48.keepdo.widget
 
 import android.content.Context
-import com.hkb48.keepdo.DateChangeTimeUtil
 import com.hkb48.keepdo.KeepdoApplication
 import com.hkb48.keepdo.Recurrence
 import com.hkb48.keepdo.db.entity.Task
+import com.hkb48.keepdo.util.DateChangeTimeUtil
 import kotlinx.coroutines.runBlocking
 import java.util.*
 
@@ -16,7 +16,7 @@ internal class TasksWidgetModel(private val mContext: Context) {
         val fullTaskList =
             (mContext as KeepdoApplication).getDatabase().taskDao().getTaskListByOrder()
         for (task in fullTaskList) {
-            if (getDoneStatus(task._id!!, todayDate).not() && isValidDay(task, todayDate)) {
+            if (getDoneStatus(task._id, todayDate).not() && isValidDay(task, todayDate)) {
                 mTaskList.add(task)
             }
         }
@@ -26,7 +26,7 @@ internal class TasksWidgetModel(private val mContext: Context) {
         get() = mTaskList.size
 
     fun getTaskId(position: Int): Int {
-        return mTaskList[position]._id!!
+        return mTaskList[position]._id
     }
 
     fun getTaskName(position: Int): String {

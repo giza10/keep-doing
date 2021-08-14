@@ -201,7 +201,7 @@ class AddEditTaskFragment : Fragment() {
         val editTextTaskName = binding.editTextTaskName
         val editTextDescription = binding.editTextDescription
         val newTask = Task(
-            mTask?._id,
+            mTask?._id ?: 0,
             editTextTaskName.text.toString(),
             mRecurrenceFlags[1],
             mRecurrenceFlags[2],

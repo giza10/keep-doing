@@ -108,7 +108,7 @@ class TaskDetailFragment : Fragment() {
         }
 
         // Total number of done
-        val numOfDone = viewModel.getNumberOfDone(task._id!!)
+        val numOfDone = viewModel.getNumberOfDone(task._id)
         binding.taskDetailNumOfDoneValue.text = getString(R.string.number_of_times, numOfDone)
 
         // Current combo / Max combo

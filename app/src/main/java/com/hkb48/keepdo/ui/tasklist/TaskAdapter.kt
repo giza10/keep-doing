@@ -8,12 +8,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.hkb48.keepdo.DateChangeTimeUtil
 import com.hkb48.keepdo.R
 import com.hkb48.keepdo.Recurrence
 import com.hkb48.keepdo.databinding.TaskListItemBinding
 import com.hkb48.keepdo.databinding.TaskListSectionBinding
 import com.hkb48.keepdo.db.entity.Task
+import com.hkb48.keepdo.util.DateChangeTimeUtil
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -179,7 +179,7 @@ class TaskAdapter(
 
 sealed class DataItem {
     data class TaskDataItem(val taskListItem: TaskListItem) : DataItem() {
-        override val id: Long = taskListItem.task._id!!.toLong()
+        override val id: Long = taskListItem.task._id.toLong()
     }
 
     data class Section(val text: String) : DataItem() {

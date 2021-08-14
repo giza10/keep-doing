@@ -9,7 +9,6 @@ import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.hkb48.keepdo.DateChangeTimeUtil
 import com.hkb48.keepdo.R
 import com.hkb48.keepdo.Recurrence
 import com.hkb48.keepdo.ReminderManager
@@ -19,6 +18,7 @@ import com.hkb48.keepdo.databinding.CalendarWeekBinding
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.ui.TasksActivity
 import com.hkb48.keepdo.ui.settings.Settings
+import com.hkb48.keepdo.util.DateChangeTimeUtil
 import com.hkb48.keepdo.widget.TasksWidgetProvider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -98,7 +98,7 @@ class CalendarGridFragment : Fragment() {
             CONTEXT_MENU_CHECK_DONE -> {
                 showDoneIcon(imageView)
                 lifecycleScope.launch {
-                    viewModel.setDoneStatus(mTask._id!!, selectedDate, true)
+                    viewModel.setDoneStatus(mTask._id, selectedDate, true)
                 }
                 (requireActivity() as TasksActivity).playCheckSound()
                 consumed = true
@@ -106,7 +106,7 @@ class CalendarGridFragment : Fragment() {
             CONTEXT_MENU_UNCHECK_DONE -> {
                 hideDoneIcon(imageView)
                 lifecycleScope.launch {
-                    viewModel.setDoneStatus(mTask._id!!, selectedDate, false)
+                    viewModel.setDoneStatus(mTask._id, selectedDate, false)
                 }
                 consumed = true
             }
@@ -115,7 +115,7 @@ class CalendarGridFragment : Fragment() {
         }
         val today = DateChangeTimeUtil.date
         if (consumed && selectedDate.compareTo(today) == 0) {
-            ReminderManager.setAlarm(requireContext(), mTask._id!!)
+            ReminderManager.setAlarm(requireContext(), mTask._id)
             TasksWidgetProvider.notifyDatasetChanged(requireContext())
         }
         return consumed || super.onContextItemSelected(item)
@@ -181,7 +181,7 @@ class CalendarGridFragment : Fragment() {
         val month = calendar[Calendar.MONTH]
         val today = DateChangeTimeUtil.dateTimeCalendar[Calendar.DAY_OF_MONTH]
         val doneDateList = viewModel.getHistoryInMonth(
-            mTask._id!!, year, month
+            mTask._id, year, month
         )
         val sdf = SimpleDateFormat("dd", Locale.JAPAN)
 

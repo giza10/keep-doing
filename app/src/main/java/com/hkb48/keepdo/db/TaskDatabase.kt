@@ -59,7 +59,7 @@ abstract class TaskDatabase : RoomDatabase() {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL(
                     """CREATE TABLE IF NOT EXISTS new_table_tasks (
-                    _id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                     ${Task.TASK_NAME} TEXT NOT NULL,
                     ${Task.FREQUENCY_MON} TEXT NOT NULL DEFAULT 'true',
                     ${Task.FREQUENCY_TUE} TEXT NOT NULL DEFAULT 'true',
@@ -78,7 +78,7 @@ abstract class TaskDatabase : RoomDatabase() {
                 database.execSQL("""ALTER TABLE new_table_tasks RENAME TO ${Task.TABLE_NAME}""".trimIndent())
                 database.execSQL(
                     """CREATE TABLE IF NOT EXISTS new_table_completions (
-                    _id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                     ${TaskCompletion.TASK_NAME_ID} INTEGER NOT NULL CONSTRAINT 
                     ${TaskCompletion.TASK_NAME_ID} REFERENCES 
                     ${Task.TABLE_NAME} (_id) ON DELETE CASCADE,

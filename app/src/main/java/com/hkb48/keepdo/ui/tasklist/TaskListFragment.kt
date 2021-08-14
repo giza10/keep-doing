@@ -34,7 +34,7 @@ class TaskListFragment : Fragment() {
 
     private val adapter = TaskAdapter(object : TaskAdapter.ClickListener {
         override fun onItemClick(task: Task) {
-            val taskId = task._id!!
+            val taskId = task._id
             val action =
                 TaskListFragmentDirections.actionTaskListFragmentToCalendarFragment(
                     taskId,
@@ -45,7 +45,7 @@ class TaskListFragment : Fragment() {
 
         override fun onDoneClick(task: Task) {
             lifecycleScope.launch {
-                val taskId = task._id!!
+                val taskId = task._id
                 val daysSinceLastDone = viewModel.getElapsedDaysSinceLastDoneDate(taskId)
                 val doneTodayBefore = (daysSinceLastDone == 0)
                 val doneTodayAfter = doneTodayBefore.not()
@@ -125,7 +125,7 @@ class TaskListFragment : Fragment() {
     override fun onContextItemSelected(item: MenuItem): Boolean {
         val position = adapter.getLongPressedPosition()
         val taskListItem = adapter.getItemAt(position)
-        val taskId = taskListItem.task._id!!
+        val taskId = taskListItem.task._id
         return when (item.itemId) {
             ContextMenuConstants.CONTEXT_MENU_EDIT -> {
                 val action =
@@ -174,7 +174,7 @@ class TaskListFragment : Fragment() {
         mutex.withLock {
             val taskListItems: MutableList<TaskListItem> = ArrayList()
             for (task in taskList) {
-                val daysSinceLastDone = viewModel.getElapsedDaysSinceLastDoneDate(task._id!!)
+                val daysSinceLastDone = viewModel.getElapsedDaysSinceLastDoneDate(task._id)
                 val comboCount = viewModel.getComboCount(task)
                 val item = TaskListItem(task, daysSinceLastDone, comboCount)
                 taskListItems.add(item)
@@ -189,7 +189,7 @@ class TaskListFragment : Fragment() {
     }
 
     private suspend fun updateTaskListItem(task: Task) {
-        val daysSinceLastDone = viewModel.getElapsedDaysSinceLastDoneDate(task._id!!)
+        val daysSinceLastDone = viewModel.getElapsedDaysSinceLastDoneDate(task._id)
         val comboCount = viewModel.getComboCount(task)
         val newItem = TaskListItem(task, daysSinceLastDone, comboCount)
         adapter.updateTask(newItem)

@@ -2,17 +2,17 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "debe9fa31dee1902e18566c5b58a74f0",
+    "identityHash": "49177865f83cac9d158de65f8c4e792f",
     "entities": [
       {
         "tableName": "table_tasks",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT, `task_name` TEXT NOT NULL, `mon_frequency` TEXT NOT NULL, `tue_frequency` TEXT NOT NULL, `wen_frequency` TEXT NOT NULL, `thr_frequency` TEXT NOT NULL, `fri_frequency` TEXT NOT NULL, `sat_frequency` TEXT NOT NULL, `sun_frequency` TEXT NOT NULL, `task_context` TEXT, `reminder_enabled` TEXT NOT NULL, `reminder_time` INTEGER, `task_list_order` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `task_name` TEXT NOT NULL, `mon_frequency` TEXT NOT NULL, `tue_frequency` TEXT NOT NULL, `wen_frequency` TEXT NOT NULL, `thr_frequency` TEXT NOT NULL, `fri_frequency` TEXT NOT NULL, `sat_frequency` TEXT NOT NULL, `sun_frequency` TEXT NOT NULL, `task_context` TEXT, `reminder_enabled` TEXT NOT NULL, `reminder_time` INTEGER, `task_list_order` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "_id",
             "columnName": "_id",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "name",
@@ -63,7 +63,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "context",
+            "fieldPath": "description",
             "columnName": "task_context",
             "affinity": "TEXT",
             "notNull": false
@@ -98,13 +98,13 @@
       },
       {
         "tableName": "table_completions",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT, `task_id` INTEGER NOT NULL, `completion_date` TEXT NOT NULL, FOREIGN KEY(`task_id`) REFERENCES `table_tasks`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `task_id` INTEGER NOT NULL, `completion_date` TEXT NOT NULL, FOREIGN KEY(`task_id`) REFERENCES `table_tasks`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "_id",
             "columnName": "_id",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "taskId",
@@ -153,7 +153,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'debe9fa31dee1902e18566c5b58a74f0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '49177865f83cac9d158de65f8c4e792f')"
     ]
   }
 }

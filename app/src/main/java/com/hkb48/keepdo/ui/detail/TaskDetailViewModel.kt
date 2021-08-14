@@ -3,10 +3,10 @@ package com.hkb48.keepdo.ui.detail
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
-import com.hkb48.keepdo.DateChangeTimeUtil
 import com.hkb48.keepdo.Recurrence
 import com.hkb48.keepdo.TaskRepository
 import com.hkb48.keepdo.db.entity.Task
+import com.hkb48.keepdo.util.DateChangeTimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.*
 import javax.inject.Inject
@@ -33,7 +33,7 @@ class TaskDetailViewModel @Inject constructor(
 
     suspend fun getComboCount(task: Task): Int {
         var count = 0
-        val mDoneHistory = repository.getDoneHistoryDesc(task._id!!, todayDate)
+        val mDoneHistory = repository.getDoneHistoryDesc(task._id, todayDate)
         if (mDoneHistory.isNotEmpty()) {
             val calToday = getCalendar(DateChangeTimeUtil.date)
             val calIndex = calToday.clone() as Calendar
@@ -65,7 +65,7 @@ class TaskDetailViewModel @Inject constructor(
     suspend fun getMaxComboCount(task: Task): Int {
         var currentCount = 0
         var maxCount = 0
-        val mDoneHistory = repository.getDoneHistoryAsc(task._id!!, todayDate)
+        val mDoneHistory = repository.getDoneHistoryAsc(task._id, todayDate)
         if (mDoneHistory.isNotEmpty()) {
             val calToday = getCalendar(DateChangeTimeUtil.date)
             var calIndex = calToday.clone() as Calendar

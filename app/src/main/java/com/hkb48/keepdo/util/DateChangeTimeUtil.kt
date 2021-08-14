@@ -1,4 +1,4 @@
-package com.hkb48.keepdo
+package com.hkb48.keepdo.util
 
 import com.hkb48.keepdo.ui.settings.Settings
 import java.util.*

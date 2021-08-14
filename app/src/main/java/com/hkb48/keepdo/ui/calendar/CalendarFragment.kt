@@ -22,12 +22,12 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import com.hkb48.keepdo.DateChangeTimeUtil
 import com.hkb48.keepdo.R
 import com.hkb48.keepdo.databinding.FragmentCalendarBinding
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.ui.settings.Settings
 import com.hkb48.keepdo.util.CompatUtil
+import com.hkb48.keepdo.util.DateChangeTimeUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.File

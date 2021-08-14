@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.hkb48.keepdo.db.entity.Task
+import com.hkb48.keepdo.util.DateChangeTimeUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,7 +16,7 @@ import java.util.*
 object ReminderManager {
     fun setAlarmForAll(context: Context) = CoroutineScope(Dispatchers.Main).launch {
         for (task in getTaskList(context)) {
-            setAlarm(context, task._id!!)
+            setAlarm(context, task._id)
         }
     }
 
@@ -70,7 +71,7 @@ object ReminderManager {
 
                 // Check if today's reminder time is already exceeded
                 if (hasReminderAlreadyExceeded(realTime, reminderTime)) {
-                    if (getDoneStatus(context, task._id!!, today).not()) {
+                    if (getDoneStatus(context, task._id, today).not()) {
                         remainingList.add(task)
                     }
                 }

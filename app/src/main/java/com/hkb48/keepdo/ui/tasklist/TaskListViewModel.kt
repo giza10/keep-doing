@@ -1,11 +1,11 @@
 package com.hkb48.keepdo.ui.tasklist
 
 import androidx.lifecycle.*
-import com.hkb48.keepdo.DateChangeTimeUtil
 import com.hkb48.keepdo.Recurrence
 import com.hkb48.keepdo.TaskRepository
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.db.entity.TaskCompletion
+import com.hkb48.keepdo.util.DateChangeTimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.*
 import javax.inject.Inject
@@ -36,7 +36,7 @@ class TaskListViewModel @Inject constructor(
 
     suspend fun setDoneStatus(taskId: Int, doneSwitch: Boolean) {
         if (doneSwitch) {
-            val taskCompletion = TaskCompletion(null, taskId, todayDate)
+            val taskCompletion = TaskCompletion(0, taskId, todayDate)
             repository.setDone(taskCompletion)
         } else {
             repository.unsetDone(taskId, todayDate)
@@ -54,7 +54,7 @@ class TaskListViewModel @Inject constructor(
 
     suspend fun getComboCount(task: Task): Int {
         var count = 0
-        val mDoneHistory = repository.getDoneHistoryDesc(task._id!!, todayDate)
+        val mDoneHistory = repository.getDoneHistoryDesc(task._id, todayDate)
         if (mDoneHistory.isNotEmpty()) {
             val calToday = getCalendar(DateChangeTimeUtil.date)
             val calIndex = calToday.clone() as Calendar

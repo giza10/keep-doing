@@ -6,6 +6,7 @@ import android.content.Intent
 import android.database.sqlite.SQLiteException
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.db.entity.TaskCompletion
+import com.hkb48.keepdo.util.DateChangeTimeUtil
 import com.hkb48.keepdo.widget.TasksWidgetProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -52,7 +53,7 @@ class ActionReceiver : BroadcastReceiver() {
         val applicationContext = context.applicationContext
         if (applicationContext is KeepdoApplication) {
             try {
-                val taskCompletion = TaskCompletion(null, taskId, date)
+                val taskCompletion = TaskCompletion(0, taskId, date)
                 applicationContext.getDatabase().taskCompletionDao().insert(taskCompletion)
             } catch (e: SQLiteException) {
                 e.printStackTrace()

@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "table_tasks")
 data class Task(
-    @PrimaryKey(autoGenerate = true) val _id: Int? = 0,
+    @PrimaryKey(autoGenerate = true) val _id: Int,
     @ColumnInfo(name = TASK_NAME) val name: String,
     @ColumnInfo(name = FREQUENCY_MON) val monFrequency: Boolean,
     @ColumnInfo(name = FREQUENCY_TUE) val tueFrequency: Boolean,
