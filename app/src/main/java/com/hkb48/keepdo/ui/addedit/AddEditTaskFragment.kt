@@ -23,6 +23,7 @@ import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.widget.TasksWidgetProvider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class AddEditTaskFragment : Fragment() {
@@ -30,6 +31,9 @@ class AddEditTaskFragment : Fragment() {
     private var _binding: FragmentAddeditTaskBinding? = null
     private val binding get() = _binding!!
     private val args: AddEditTaskFragmentArgs by navArgs()
+
+    @Inject
+    lateinit var reminderManager: ReminderManager
 
     private var recurrenceFlags = booleanArrayOf(
         true, true, true, true, true, true,
@@ -223,7 +227,7 @@ class AddEditTaskFragment : Fragment() {
             viewModel.editTask(newTask)
             task?._id ?: Task.INVALID_TASKID
         }
-        ReminderManager.setAlarm(requireContext(), taskId)
+        reminderManager.setAlarm(taskId)
         TasksWidgetProvider.notifyDatasetChanged(requireContext())
         findNavController().popBackStack()
     }

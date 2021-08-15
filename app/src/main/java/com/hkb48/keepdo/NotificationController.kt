@@ -12,34 +12,22 @@ import android.media.AudioAttributes
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.ui.TasksActivity
 import com.hkb48.keepdo.ui.settings.Settings
 import com.hkb48.keepdo.util.CompatUtil
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-object NotificationController {
-    const val NOTIFICATION_ID_HANDHELD = -1
-    private const val TAG_KEEPDO = "#LOG_KEEPDO: "
-    private const val GROUP_KEY_REMINDERS = "group_key_reminders"
+class NotificationController @Inject constructor(
+    private val context: Context,
+    private val reminderManager: ReminderManager
+) {
+    suspend fun showReminder(task: Task) {
+        val taskName = task.name
 
-    @get:RequiresApi(Build.VERSION_CODES.O)
-    val notificationChannelId = "Channel_ID"
-    fun showReminder(context: Context, taskId: Int) = CoroutineScope(Dispatchers.Main).launch {
-        var taskName: String? = null
-        val applicationContext = context.applicationContext
-        if (applicationContext is KeepdoApplication) {
-            val task = applicationContext.getDatabase().taskDao().getTask(taskId)
-            taskName = task?.name
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG_KEEPDO, "taskId:$taskId, taskName:$taskName")
-            }
-        }
         val builder = NotificationCompat.Builder(context, notificationChannelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setTicker(taskName)
@@ -61,15 +49,6 @@ object NotificationController {
         val launchPendingIntent = PendingIntent.getActivity(context, 0, launchIntent, 0)
         builder.setContentIntent(launchPendingIntent)
         builder.setAutoCancel(true)
-        val actionIntent = Intent(context, ActionReceiver::class.java).apply {
-            putExtra(ActionReceiver.EXTRA_TASK_ID, taskId)
-        }
-        val actionPendingIntent = PendingIntent.getBroadcast(
-            context,
-            taskId,
-            actionIntent,
-            PendingIntent.FLAG_CANCEL_CURRENT
-        )
 
         // Notification for hand-held device
         val largeIcon = BitmapFactory.decodeResource(
@@ -79,7 +58,7 @@ object NotificationController {
         builder.setLargeIcon(largeIcon)
         builder.setGroup(GROUP_KEY_REMINDERS)
         builder.setGroupSummary(true)
-        val remainingTaskList = ReminderManager.getRemainingUndoneTaskList(context)
+        val remainingTaskList = reminderManager.getRemainingUndoneTaskList()
         val numOfRemainingTasks = remainingTaskList.size
         if (numOfRemainingTasks > 1) {
             val inboxStyle = NotificationCompat.InboxStyle()
@@ -100,6 +79,16 @@ object NotificationController {
             )
             builder.setStyle(inboxStyle)
         } else {
+            val taskId = task._id
+            val actionIntent = Intent(context, ActionReceiver::class.java).apply {
+                putExtra(ActionReceiver.EXTRA_TASK_ID, taskId)
+            }
+            val actionPendingIntent = PendingIntent.getBroadcast(
+                context,
+                taskId,
+                actionIntent,
+                PendingIntent.FLAG_CANCEL_CURRENT
+            )
             builder.setContentTitle(context.getString(R.string.notification_title_one_task))
             builder.setContentText(taskName)
             builder.addAction(
@@ -112,7 +101,7 @@ object NotificationController {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun createNotificationChannel(context: Context) {
+    fun createNotificationChannel() {
         if (CompatUtil.isNotificationChannelSupported.not()) {
             return
         }
@@ -153,11 +142,19 @@ object NotificationController {
         notificationManager?.createNotificationChannel(channel)
     }
 
-    fun cancelReminder(context: Context) {
+    fun cancelReminder() {
         NotificationManagerCompat.from(context).cancelAll()
     }
 
-    fun cancelReminder(context: Context, id: Int) {
+    fun cancelReminder(id: Int) {
         NotificationManagerCompat.from(context).cancel(id)
+    }
+
+    companion object {
+        const val NOTIFICATION_ID_HANDHELD = -1
+        private const val GROUP_KEY_REMINDERS = "group_key_reminders"
+
+        @get:RequiresApi(Build.VERSION_CODES.O)
+        val notificationChannelId = "Channel_ID"
     }
 }

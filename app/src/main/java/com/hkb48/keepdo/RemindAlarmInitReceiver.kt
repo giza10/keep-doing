@@ -5,20 +5,26 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.hkb48.keepdo.db.entity.Task
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class RemindAlarmInitReceiver : BroadcastReceiver() {
+    @Inject
+    lateinit var reminderManager: ReminderManager
+
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             ACTION_UPDATE_REMINDER -> {
-                ReminderManager.setAlarm(
-                    context, intent.getIntExtra(EXTRA_TASK_ID, Task.INVALID_TASKID)
+                reminderManager.setAlarm(
+                    intent.getIntExtra(EXTRA_TASK_ID, Task.INVALID_TASKID)
                 )
             }
             Intent.ACTION_BOOT_COMPLETED,
             Intent.ACTION_TIME_CHANGED,
             Intent.ACTION_TIMEZONE_CHANGED,
             Intent.ACTION_LOCALE_CHANGED
-            -> ReminderManager.setAlarmForAll(context)
+            -> reminderManager.setAlarmForAll()
             else -> {
                 Log.e(
                     TAG_KEEPDO,

@@ -1,8 +1,8 @@
 package com.hkb48.keepdo.di
 
 import android.content.Context
-import com.hkb48.keepdo.CheckSoundPlayer
-import com.hkb48.keepdo.TaskRepository
+import com.hkb48.keepdo.*
+import com.hkb48.keepdo.db.BackupManager
 import com.hkb48.keepdo.db.TaskDatabase
 import com.hkb48.keepdo.db.dao.DoneHistoryDao
 import com.hkb48.keepdo.db.dao.TaskDao
@@ -53,7 +53,45 @@ object KeepdoModule {
 
     @Singleton
     @Provides
-    fun provideCheckSoundPlayer(@ApplicationContext context: Context): CheckSoundPlayer {
+    fun provideReminderManager(
+        @ApplicationContext context: Context,
+        repository: TaskRepository
+    ): ReminderManager {
+        return ReminderManager(context, repository)
+    }
+
+    @Singleton
+    @Provides
+    fun provideDateChangeTimeManager(
+        @ApplicationContext context: Context,
+        reminderManager: ReminderManager
+    ): DateChangeTimeManager {
+        return DateChangeTimeManager(context, reminderManager)
+    }
+
+    @Singleton
+    @Provides
+    fun provideNotificationController(
+        @ApplicationContext context: Context,
+        reminderManager: ReminderManager
+    ): NotificationController {
+        return NotificationController(context, reminderManager)
+    }
+
+    @Singleton
+    @Provides
+    fun provideBackupManager(
+        @ApplicationContext context: Context,
+        database: TaskDatabase
+    ): BackupManager {
+        return BackupManager(context, database)
+    }
+
+    @Singleton
+    @Provides
+    fun provideCheckSoundPlayer(
+        @ApplicationContext context: Context
+    ): CheckSoundPlayer {
         return CheckSoundPlayer(context)
     }
 }

@@ -27,6 +27,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class CalendarGridFragment : Fragment() {
@@ -35,6 +36,9 @@ class CalendarGridFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var taskWithDoneHistory: TaskWithDoneHistory
+
+    @Inject
+    lateinit var reminderManager: ReminderManager
     private var monthOffset = 0
 
     override fun onCreateView(
@@ -116,7 +120,7 @@ class CalendarGridFragment : Fragment() {
         }
         val today = DateChangeTimeUtil.date
         if (consumed && selectedDate.compareTo(today) == 0) {
-            ReminderManager.setAlarm(requireContext(), taskId)
+            reminderManager.setAlarm(taskId)
             TasksWidgetProvider.notifyDatasetChanged(requireContext())
         }
         return consumed || super.onContextItemSelected(item)

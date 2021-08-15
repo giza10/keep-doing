@@ -13,6 +13,6 @@ class TaskDetailViewModel @Inject constructor(
     private val repository: TaskRepository
 ) : ViewModel() {
     fun getTaskWithDoneHistory(id: Int): LiveData<TaskWithDoneHistory> {
-        return repository.getTaskWithDoneHistory(id).asLiveData()
+        return repository.getTaskWithDoneHistoryFlow(id).asLiveData()
     }
 }

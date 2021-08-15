@@ -20,12 +20,16 @@ class TaskRepository @Inject constructor(
         return taskDao.getTaskListByOrderFlow()
     }
 
-    fun getTaskListWithDoneHistory(): Flow<List<TaskWithDoneHistory>> {
-        return taskWithDoneHistoryDao.getTaskListWithDoneHistory()
+    suspend fun getTaskList(): List<Task> {
+        return taskDao.getTaskListByOrder()
     }
 
-    fun getTaskWithDoneHistory(id: Int): Flow<TaskWithDoneHistory> {
-        return taskWithDoneHistoryDao.getTaskWithDoneHistory(id)
+    fun getTaskListWithDoneHistoryFlow(): Flow<List<TaskWithDoneHistory>> {
+        return taskWithDoneHistoryDao.getTaskListWithDoneHistoryFlow()
+    }
+
+    fun getTaskWithDoneHistoryFlow(id: Int): Flow<TaskWithDoneHistory> {
+        return taskWithDoneHistoryDao.getTaskWithDoneHistoryFlow(id)
     }
 
     suspend fun addTask(task: Task): Int {
@@ -57,21 +61,26 @@ class TaskRepository @Inject constructor(
         return taskDao.getTaskFlow(taskId)
     }
 
+    suspend fun getTask(taskId: Int): Task? {
+        return taskDao.getTask(taskId)
+    }
+
     suspend fun getMaxOrder(): Int {
         return taskDao.getMaxOrder() ?: 0
     }
 
-    suspend fun setDone(doneHistory: DoneHistory) {
-        try {
-            doneHistoryDao.insert(doneHistory)
-        } catch (e: SQLiteException) {
-            e.printStackTrace()
-        }
+    suspend fun getDoneStatus(taskId: Int, date: Date): Boolean {
+        return doneHistoryDao.getByDate(taskId, date).count() > 0
     }
 
-    suspend fun unsetDone(taskId: Int, date: Date) {
+    suspend fun setDoneStatus(taskId: Int, date: Date, isDone: Boolean) {
         try {
-            doneHistoryDao.delete(taskId, date)
+            if (isDone) {
+                val doneInfo = DoneHistory(0, taskId, date)
+                doneHistoryDao.insert(doneInfo)
+            } else {
+                doneHistoryDao.delete(taskId, date)
+            }
         } catch (e: SQLiteException) {
             e.printStackTrace()
         }

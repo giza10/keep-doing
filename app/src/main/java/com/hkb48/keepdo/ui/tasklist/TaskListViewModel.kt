@@ -2,7 +2,6 @@ package com.hkb48.keepdo.ui.tasklist
 
 import androidx.lifecycle.*
 import com.hkb48.keepdo.TaskRepository
-import com.hkb48.keepdo.db.entity.DoneHistory
 import com.hkb48.keepdo.db.entity.TaskWithDoneHistory
 import com.hkb48.keepdo.util.DateChangeTimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +13,7 @@ class TaskListViewModel @Inject constructor(
 ) : ViewModel() {
     private val _forceUpdate = MutableLiveData(false)
     private var _taskList = _forceUpdate.switchMap {
-        repository.getTaskListWithDoneHistory().asLiveData()
+        repository.getTaskListWithDoneHistoryFlow().asLiveData()
     }
     private val taskList = _taskList
 
@@ -31,13 +30,8 @@ class TaskListViewModel @Inject constructor(
         repository.deleteTask(taskId)
     }
 
-    suspend fun setDoneStatus(taskId: Int, doneSwitch: Boolean) {
+    suspend fun setDoneStatus(taskId: Int, isDone: Boolean) {
         val today = DateChangeTimeUtil.dateTime
-        if (doneSwitch) {
-            val doneInfo = DoneHistory(0, taskId, today)
-            repository.setDone(doneInfo)
-        } else {
-            repository.unsetDone(taskId, today)
-        }
+        repository.setDoneStatus(taskId, today, isDone)
     }
 }

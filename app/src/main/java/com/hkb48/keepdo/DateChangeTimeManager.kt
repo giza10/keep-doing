@@ -10,28 +10,32 @@ import com.hkb48.keepdo.util.DateChangeTimeUtil
 import com.hkb48.keepdo.widget.TasksWidgetProvider
 import java.text.MessageFormat
 import java.util.*
+import javax.inject.Inject
 
-class DateChangeTimeManager(private val mContext: Context) {
-    private val mChangedListeners: MutableList<OnDateChangedListener> = ArrayList()
-    private val mSettingsChangedListener: Settings.OnChangedListener =
+class DateChangeTimeManager @Inject constructor(
+    private val context: Context,
+    private val reminderManager: ReminderManager
+) {
+    private val changedListeners: MutableList<OnDateChangedListener> = ArrayList()
+    private val settingsChangedListener: Settings.OnChangedListener =
         object : Settings.OnChangedListener {
             override fun onDoneIconSettingChanged() {}
             override fun onDateChangeTimeSettingChanged() {
-                if (mChangedListeners.size > 0) {
+                if (changedListeners.size > 0) {
                     startAlarm()
                 }
-                ReminderManager.setAlarmForAll(mContext)
-                TasksWidgetProvider.notifyDatasetChanged(mContext)
+                reminderManager.setAlarmForAll()
+                TasksWidgetProvider.notifyDatasetChanged(context)
             }
 
             override fun onWeekStartDaySettingChanged() {}
         }
 
     fun registerOnDateChangedListener(listener: OnDateChangedListener?) {
-        if (listener != null && !mChangedListeners.contains(listener)) {
-            mChangedListeners.add(listener)
-            if (mChangedListeners.size == 1) {
-                Settings.registerOnChangedListener(mSettingsChangedListener)
+        if (listener != null && !changedListeners.contains(listener)) {
+            changedListeners.add(listener)
+            if (changedListeners.size == 1) {
+                Settings.registerOnChangedListener(settingsChangedListener)
                 startAlarm()
             }
         }
@@ -39,16 +43,16 @@ class DateChangeTimeManager(private val mContext: Context) {
 
     fun unregisterOnDateChangedListener(listener: OnDateChangedListener?) {
         if (listener != null) {
-            mChangedListeners.remove(listener)
-            if (mChangedListeners.size < 1) {
-                Settings.unregisterOnChangedListener(mSettingsChangedListener)
+            changedListeners.remove(listener)
+            if (changedListeners.size < 1) {
+                Settings.unregisterOnChangedListener(settingsChangedListener)
                 stopAlarm()
             }
         }
     }
 
     fun dateChanged() {
-        for (listener in mChangedListeners) {
+        for (listener in changedListeners) {
             listener.onDateChanged()
         }
     }
@@ -61,19 +65,19 @@ class DateChangeTimeManager(private val mContext: Context) {
         nextAlarmTime[Calendar.MINUTE] = dateChangeTime.minute
         nextAlarmTime[Calendar.SECOND] = 0
         nextAlarmTime[Calendar.MILLISECOND] = 0
-        val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
         alarmManager?.setRepeating(
             AlarmManager.RTC,
             nextAlarmTime.timeInMillis,
             AlarmManager.INTERVAL_DAY,
-            getPendingIntent(mContext)
+            getPendingIntent(context)
         )
         dumpLog(nextAlarmTime.timeInMillis)
     }
 
     private fun stopAlarm() {
-        val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
-        alarmManager?.cancel(getPendingIntent(mContext))
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
+        alarmManager?.cancel(getPendingIntent(context))
     }
 
     private fun getPendingIntent(context: Context): PendingIntent {

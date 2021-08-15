@@ -3,31 +3,37 @@ package com.hkb48.keepdo
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.database.sqlite.SQLiteException
-import com.hkb48.keepdo.db.entity.DoneHistory
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.util.DateChangeTimeUtil
 import com.hkb48.keepdo.widget.TasksWidgetProvider
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ActionReceiver : BroadcastReceiver() {
+    @Inject
+    lateinit var repository: TaskRepository
+
+    @Inject
+    lateinit var notificationController: NotificationController
+
     override fun onReceive(context: Context, intent: Intent) {
         val taskId = intent.getIntExtra(EXTRA_TASK_ID, Task.INVALID_TASKID)
         val today = DateChangeTimeUtil.dateTime
 
         CoroutineScope(Dispatchers.Main).launch {
-            if (getDoneStatus(context, taskId, today).not()) {
-                setDoneStatus(context, taskId, today)
+            if (getDoneStatus(taskId, today).not()) {
+                setDoneStatus(taskId, today)
 
                 // Dismiss notification on wearable
-                NotificationController.cancelReminder(context, taskId)
+                notificationController.cancelReminder(taskId)
 
                 // Dismiss notification on handheld
-                NotificationController.cancelReminder(
-                    context,
+                notificationController.cancelReminder(
                     NotificationController.NOTIFICATION_ID_HANDHELD
                 )
 
@@ -40,25 +46,12 @@ class ActionReceiver : BroadcastReceiver() {
         }
     }
 
-    private suspend fun getDoneStatus(context: Context, taskId: Int, date: Date): Boolean {
-        val applicationContext = context.applicationContext
-        return if (applicationContext is KeepdoApplication) {
-            applicationContext.getDatabase().doneHistoryDao().getByDate(taskId, date).count() > 0
-        } else {
-            true
-        }
+    private suspend fun getDoneStatus(taskId: Int, date: Date): Boolean {
+        return repository.getDoneStatus(taskId, date)
     }
 
-    private suspend fun setDoneStatus(context: Context, taskId: Int, date: Date) {
-        val applicationContext = context.applicationContext
-        if (applicationContext is KeepdoApplication) {
-            try {
-                val doneInfo = DoneHistory(0, taskId, date)
-                applicationContext.getDatabase().doneHistoryDao().insert(doneInfo)
-            } catch (e: SQLiteException) {
-                e.printStackTrace()
-            }
-        }
+    private suspend fun setDoneStatus(taskId: Int, date: Date) {
+        repository.setDoneStatus(taskId, date, true)
     }
 
     companion object {

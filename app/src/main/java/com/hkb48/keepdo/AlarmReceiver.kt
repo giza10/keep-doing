@@ -5,15 +5,33 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.hkb48.keepdo.db.entity.Task
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class AlarmReceiver : BroadcastReceiver() {
+    @Inject
+    lateinit var repository: TaskRepository
+
+    @Inject
+    lateinit var reminderManager: ReminderManager
+
+    @Inject
+    lateinit var dateChangeTimeManager: DateChangeTimeManager
+
+    @Inject
+    lateinit var notificationController: NotificationController
+
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             ACTION_REMINDER -> {
-                dispatchReminderEvent(context, intent)
+                dispatchReminderEvent(intent)
             }
             ACTION_DATE_CHANGED -> {
-                dispatchDateChangedEvent(context)
+                dispatchDateChangedEvent()
             }
             else -> {
                 Log.e(TAG_KEEPDO, "AlarmReceiver#onReceive(): Unknown intent type=" + intent.action)
@@ -21,17 +39,18 @@ class AlarmReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun dispatchReminderEvent(context: Context, intent: Intent) {
+    private fun dispatchReminderEvent(intent: Intent) {
         val taskId = intent.getIntExtra(EXTRA_TASK_ID, Task.INVALID_TASKID)
-        NotificationController.showReminder(context, taskId)
-        ReminderManager.setAlarm(context, taskId)
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.getTask(taskId)?.also { task ->
+                notificationController.showReminder(task)
+            }
+        }
+        reminderManager.setAlarm(taskId)
     }
 
-    private fun dispatchDateChangedEvent(context: Context) {
-        val applicationContext = context.applicationContext
-        if (applicationContext is KeepdoApplication) {
-            applicationContext.getDateChangeTimeManager().dateChanged()
-        }
+    private fun dispatchDateChangedEvent() {
+        dateChangeTimeManager.dateChanged()
     }
 
     companion object {

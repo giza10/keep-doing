@@ -15,8 +15,4 @@ class KeepdoApplication : Application() {
     fun getDatabase(): TaskDatabase {
         return TaskDatabase.getInstance(this)
     }
-
-    fun getDateChangeTimeManager(): DateChangeTimeManager {
-        return DateChangeTimeManager(this)
-    }
 }

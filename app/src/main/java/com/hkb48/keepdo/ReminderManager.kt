@@ -12,21 +12,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.MessageFormat
 import java.util.*
+import javax.inject.Inject
 
-object ReminderManager {
-    fun setAlarmForAll(context: Context) = CoroutineScope(Dispatchers.Main).launch {
-        for (task in getTaskList(context)) {
-            setAlarm(context, task._id)
+class ReminderManager @Inject constructor(
+    private val context: Context,
+    private val repository: TaskRepository
+) {
+    fun setAlarmForAll() = CoroutineScope(Dispatchers.IO).launch {
+        for (task in getTaskList()) {
+            setAlarm(task._id)
         }
     }
 
-    fun setAlarm(context: Context, taskId: Int) = CoroutineScope(Dispatchers.Main).launch {
-        getTask(context, taskId)?.apply {
-            val recurrence = Recurrence.getFromTask(this)
-            val reminder = Reminder(this.reminderEnabled, this.reminderTime ?: 0)
+    fun setAlarm(taskId: Int) = CoroutineScope(Dispatchers.IO).launch {
+        getTask(taskId)?.also { task ->
+            val recurrence = Recurrence.getFromTask(task)
+            val reminder = Reminder(task.reminderEnabled, task.reminderTime ?: 0)
             if (reminder.enabled) {
                 val today = DateChangeTimeUtil.dateTime
-                val isDoneToday = getDoneStatus(context, taskId, today)
+                val isDoneToday = getDoneStatus(taskId, today)
                 val hourOfDay = reminder.hourOfDay
                 val minute = reminder.minute
                 val nextSchedule = getNextSchedule(
@@ -43,13 +47,15 @@ object ReminderManager {
         }
     }
 
-    fun cancelAlarm(context: Context, taskId: Int) = CoroutineScope(Dispatchers.Main).launch {
-        if (getTask(context, taskId)?.reminderEnabled == true) {
-            stopAlarm(context, taskId)
+    fun cancelAlarm(taskId: Int) = CoroutineScope(Dispatchers.IO).launch {
+        getTask(taskId)?.also { task ->
+            if (task.reminderEnabled) {
+                stopAlarm(context, taskId)
+            }
         }
     }
 
-    suspend fun getRemainingUndoneTaskList(context: Context): List<Task> {
+    suspend fun getRemainingUndoneTaskList(): List<Task> {
         val remainingList: MutableList<Task> = ArrayList()
         val realTime = Calendar.getInstance()
         realTime.timeInMillis = System.currentTimeMillis()
@@ -59,7 +65,7 @@ object ReminderManager {
         // Add 1 minute to avoid that the next alarm is set to current time
         // again.
         realTime.add(Calendar.MINUTE, 1)
-        for (task in getTaskList(context)) {
+        for (task in getTaskList()) {
             val reminder = Reminder(task.reminderEnabled, task.reminderTime ?: 0)
             if (reminder.enabled && Recurrence.getFromTask(task).isValidDay(dayOfWeek)) {
                 val hourOfDay = reminder.hourOfDay
@@ -71,7 +77,7 @@ object ReminderManager {
 
                 // Check if today's reminder time is already exceeded
                 if (hasReminderAlreadyExceeded(realTime, reminderTime)) {
-                    if (getDoneStatus(context, task._id, today).not()) {
+                    if (getDoneStatus(task._id, today).not()) {
                         remainingList.add(task)
                     }
                 }
@@ -188,33 +194,16 @@ object ReminderManager {
         )
     }
 
-    private suspend fun getTaskList(context: Context): List<Task> {
-        val applicationContext = context.applicationContext
-        return if (applicationContext is KeepdoApplication) {
-            applicationContext.getDatabase().taskDao().getTaskListByOrder()
-        } else {
-            listOf()
-        }
+    private suspend fun getTaskList(): List<Task> {
+        return repository.getTaskList()
     }
 
-    private suspend fun getTask(context: Context, taskId: Int): Task? {
-        val applicationContext = context.applicationContext
-        return if (applicationContext is KeepdoApplication) {
-            applicationContext.getDatabase().taskDao().getTask(taskId)
-        } else {
-            null
-        }
+    private suspend fun getTask(taskId: Int): Task? {
+        return repository.getTask(taskId)
     }
 
-    private suspend fun getDoneStatus(context: Context, taskId: Int, date: Date): Boolean {
-        val applicationContext = context.applicationContext
-        return if (applicationContext is KeepdoApplication) {
-            val result =
-                applicationContext.getDatabase().doneHistoryDao().getByDate(taskId, date)
-            result.count() > 0
-        } else {
-            false
-        }
+    private suspend fun getDoneStatus(taskId: Int, date: Date): Boolean {
+        return repository.getDoneStatus(taskId, date)
     }
 
     private fun dumpLog(taskId: Int, timeInMillis: Long) {
@@ -228,5 +217,7 @@ object ReminderManager {
         }
     }
 
-    private const val TAG_KEEPDO = "#LOG_KEEPDO: "
+    companion object {
+        private const val TAG_KEEPDO = "#LOG_KEEPDO: "
+    }
 }

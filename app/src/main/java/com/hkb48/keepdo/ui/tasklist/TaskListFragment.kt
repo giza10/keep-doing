@@ -27,6 +27,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
@@ -34,6 +35,15 @@ class TaskListFragment : Fragment() {
     private val viewModel: TaskListViewModel by activityViewModels()
     private var _binding: FragmentTaskListBinding? = null
     private val binding get() = _binding!!
+
+    @Inject
+    lateinit var dateChangeTimeManager: DateChangeTimeManager
+
+    @Inject
+    lateinit var notificationController: NotificationController
+
+    @Inject
+    lateinit var reminderManager: ReminderManager
 
     private val adapter = TaskAdapter(object : TaskAdapter.ClickListener {
         override fun onItemClick(taskWithDoneHistory: TaskWithDoneHistory) {
@@ -58,7 +68,7 @@ class TaskListFragment : Fragment() {
                 }
                 viewModel.setDoneStatus(taskId, doneTodayAfter)
 
-                ReminderManager.setAlarm(requireContext(), taskId)
+                reminderManager.setAlarm(taskId)
                 TasksWidgetProvider.notifyDatasetChanged(requireContext())
             }
         }
@@ -86,8 +96,7 @@ class TaskListFragment : Fragment() {
 
         subscribeToModel()
 
-        (requireActivity().application as KeepdoApplication).getDateChangeTimeManager()
-            .registerOnDateChangedListener(dateChangedListener)
+        dateChangeTimeManager.registerOnDateChangedListener(dateChangedListener)
 
         return binding.root
     }
@@ -112,16 +121,15 @@ class TaskListFragment : Fragment() {
         }
 
         // Cancel notification (if displayed)
-        NotificationController.cancelReminder(requireContext())
+        notificationController.cancelReminder()
 
         if (CompatUtil.isNotificationChannelSupported) {
-            NotificationController.createNotificationChannel(requireContext())
+            notificationController.createNotificationChannel()
         }
     }
 
     override fun onDestroyView() {
-        (requireActivity().application as KeepdoApplication).getDateChangeTimeManager()
-            .unregisterOnDateChangedListener(dateChangedListener)
+        dateChangeTimeManager.unregisterOnDateChangedListener(dateChangedListener)
         super.onDestroyView()
         _binding = null
     }
@@ -147,7 +155,7 @@ class TaskListFragment : Fragment() {
                         R.string.dialog_ok
                     ) { _: DialogInterface?, _: Int ->
                         // Cancel the alarm for Reminder before deleting the task.
-                        ReminderManager.cancelAlarm(requireContext(), taskId)
+                        reminderManager.cancelAlarm(taskId)
                         lifecycleScope.launch {
                             viewModel.deleteTask(taskId)
                             TasksWidgetProvider.notifyDatasetChanged(requireContext())

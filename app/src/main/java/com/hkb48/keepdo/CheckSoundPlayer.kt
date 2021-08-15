@@ -4,19 +4,19 @@ import android.content.Context
 import android.media.SoundPool
 import com.hkb48.keepdo.util.CompatUtil
 
-class CheckSoundPlayer(private val mContext: Context) {
-    private var mSoundPool: SoundPool? = null
-    private var mSoundId = 0
+class CheckSoundPlayer(private val context: Context) {
+    private var soundPool: SoundPool? = null
+    private var soundId = 0
     fun load() {
-        mSoundPool = CompatUtil.soundPool
-        mSoundId = mSoundPool!!.load(mContext, R.raw.done_pressed, 1)
+        soundPool = CompatUtil.soundPool
+        soundId = soundPool!!.load(context, R.raw.done_pressed, 1)
     }
 
     fun unload() {
-        mSoundPool!!.release()
+        soundPool!!.release()
     }
 
     fun play() {
-        mSoundPool!!.play(mSoundId, 1.0f, 1.0f, 0, 0, 1.0f)
+        soundPool!!.play(soundId, 1.0f, 1.0f, 0, 0, 1.0f)
     }
 }

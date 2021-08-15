@@ -36,15 +36,21 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     @Inject
-    lateinit var mCheckSound: CheckSoundPlayer
+    lateinit var checkSound: CheckSoundPlayer
 
-    private val mCreateBackupFileLauncher =
+    @Inject
+    lateinit var reminderManager: ReminderManager
+
+    @Inject
+    lateinit var backupManager: BackupManager
+
+    private val createBackupFileLauncher =
         registerForActivityResult(
             ActivityResultContracts.CreateDocument()
         ) { uri ->
             if (uri != null) {
                 try {
-                    if (BackupManager.backup(applicationContext, uri)) {
+                    if (backupManager.backup(uri)) {
                         Toast.makeText(
                             applicationContext,
                             R.string.backup_done, Toast.LENGTH_LONG
@@ -54,14 +60,14 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 }
             }
         }
-    private val mPickRestoreFileLauncher =
+    private val pickRestoreFileLauncher =
         registerForActivityResult(
             ActivityResultContracts.GetContent()
         ) { uri ->
             if (uri != null) {
                 var success = false
                 try {
-                    success = BackupManager.restore(applicationContext, uri)
+                    success = backupManager.restore(uri)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -69,7 +75,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     // Triggers onChange event of liveData to reflect UI
                     viewModel.refresh()
 
-                    ReminderManager.setAlarmForAll(applicationContext)
+                    reminderManager.setAlarmForAll()
                     TasksWidgetProvider.notifyDatasetChanged(applicationContext)
                     Toast.makeText(
                         applicationContext,
@@ -102,11 +108,11 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
     public override fun onResume() {
         super.onResume()
-        mCheckSound.load()
+        checkSound.load()
     }
 
     override fun onPause() {
-        mCheckSound.unload()
+        checkSound.unload()
         super.onPause()
     }
 
@@ -169,11 +175,11 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     .checkedItemPosition) {
                     0 -> {
                         // execute backup
-                        mCreateBackupFileLauncher.launch(BackupManager.backupFileName)
+                        createBackupFileLauncher.launch(backupManager.backupFileName)
                     }
                     1 -> {
                         // execute restore
-                        mPickRestoreFileLauncher.launch(("*/*"))
+                        pickRestoreFileLauncher.launch(("*/*"))
                     }
                     else -> {
                     }
@@ -185,7 +191,7 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     }
 
     fun playCheckSound() {
-        mCheckSound.play()
+        checkSound.play()
     }
 
     companion object {

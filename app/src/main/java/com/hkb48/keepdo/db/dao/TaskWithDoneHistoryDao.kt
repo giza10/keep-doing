@@ -11,9 +11,9 @@ import kotlinx.coroutines.flow.Flow
 interface TaskWithDoneHistoryDao {
     @Transaction
     @Query("""SELECT * FROM ${Task.TABLE_NAME} ORDER BY ${Task.TASK_LIST_ORDER} asc""")
-    fun getTaskListWithDoneHistory(): Flow<List<TaskWithDoneHistory>>
+    fun getTaskListWithDoneHistoryFlow(): Flow<List<TaskWithDoneHistory>>
 
     @Transaction
     @Query("""SELECT * FROM ${Task.TABLE_NAME} WHERE _id = :id""")
-    fun getTaskWithDoneHistory(id: Int): Flow<TaskWithDoneHistory>
+    fun getTaskWithDoneHistoryFlow(id: Int): Flow<TaskWithDoneHistory>
 }

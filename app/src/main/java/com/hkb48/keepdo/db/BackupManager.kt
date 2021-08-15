@@ -3,25 +3,27 @@ package com.hkb48.keepdo.db
 import android.content.Context
 import android.net.Uri
 import androidx.sqlite.db.SimpleSQLiteQuery
-import com.hkb48.keepdo.KeepdoApplication
 import kotlinx.coroutines.runBlocking
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
-object BackupManager {
-    fun backup(context: Context, outputFile: Uri): Boolean {
-        val db = (context as KeepdoApplication).getDatabase()
+class BackupManager @Inject constructor(
+    private val context: Context,
+    private val database: TaskDatabase
+) {
+    fun backup(outputFile: Uri): Boolean {
         var inputStream: InputStream? = null
         var outputStream: OutputStream? = null
         var success = false
         try {
-            inputStream = FileInputStream(db.databasePath)
+            inputStream = FileInputStream(database.databasePath)
             outputStream = context.contentResolver.openOutputStream(outputFile)!!
             success = runBlocking {
                 // Execute checkpoint query to ensure all of the pending transactions are applied.
-                db.taskDao().checkpoint((SimpleSQLiteQuery("pragma wal_checkpoint(full)")))
-                db.doneHistoryDao()
+                database.taskDao().checkpoint((SimpleSQLiteQuery("pragma wal_checkpoint(full)")))
+                database.doneHistoryDao()
                     .checkpoint((SimpleSQLiteQuery("pragma wal_checkpoint(full)")))
                 copy(inputStream, outputStream)
             }
@@ -38,15 +40,14 @@ object BackupManager {
         return success
     }
 
-    fun restore(context: Context, inputFile: Uri): Boolean {
+    fun restore(inputFile: Uri): Boolean {
         return if (isValidSQLite(context, inputFile)) {
-            val db = (context as KeepdoApplication).getDatabase()
             var inputStream: InputStream? = null
             var outputStream: OutputStream? = null
             var success = false
             try {
                 inputStream = context.contentResolver.openInputStream(inputFile)!!
-                outputStream = FileOutputStream(db.databasePath)
+                outputStream = FileOutputStream(database.databasePath)
                 success = copy(inputStream, outputStream)
             } catch (e: IOException) {
                 e.printStackTrace()
