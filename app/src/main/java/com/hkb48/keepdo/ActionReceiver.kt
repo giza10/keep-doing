@@ -56,7 +56,7 @@ class ActionReceiver : BroadcastReceiver() {
 
     companion object {
         private val PACKAGE_NAME = ActionReceiver::class.java.getPackage()!!.name
-        val EXTRA_TASK_ID = "$PACKAGE_NAME.intent_extra_task_id"
+        val EXTRA_TASK_ID = "${PACKAGE_NAME}.intent_extra_task_id"
     }
 
 }

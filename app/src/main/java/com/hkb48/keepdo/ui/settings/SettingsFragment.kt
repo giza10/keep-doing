@@ -16,40 +16,40 @@ import com.hkb48.keepdo.R
 import com.hkb48.keepdo.util.CompatUtil
 
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener {
-    private lateinit var mDoneIconPref: DoneIconPreference
-    private lateinit var mDateChangeTimePref: ListPreference
-    private lateinit var mWeekStartDayPref: ListPreference
-    private lateinit var mEnableFutureDatePref: SwitchPreferenceCompat
-    private lateinit var mRingtonePref: RingtonePreference
-    private lateinit var mVibrateWhenPref: ListPreference
-    private val mRingtonePickerLauncher: ActivityResultLauncher<Int> =
+    private lateinit var doneIconPref: DoneIconPreference
+    private lateinit var dateChangeTimePref: ListPreference
+    private lateinit var weekStartDayPref: ListPreference
+    private lateinit var enableFutureDatePref: SwitchPreferenceCompat
+    private lateinit var ringtonePref: RingtonePreference
+    private lateinit var vibrateWhenPref: ListPreference
+    private val ringtonePickerLauncher: ActivityResultLauncher<Int> =
         registerForActivityResult(
             PickRingtone()
         ) { uri ->
             uri?.let {
-                mRingtonePref.updatePreference(it.toString())
+                ringtonePref.updatePreference(it.toString())
             }
         }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.general_settings, rootKey)
         val preferenceScreen = preferenceScreen
-        mDoneIconPref = preferenceScreen.findPreference(KEY_GENERAL_DONE_ICON)!!
-        mDateChangeTimePref = preferenceScreen.findPreference(KEY_GENERAL_DATE_CHANGE_TIME)!!
+        doneIconPref = preferenceScreen.findPreference(KEY_GENERAL_DONE_ICON)!!
+        dateChangeTimePref = preferenceScreen.findPreference(KEY_GENERAL_DATE_CHANGE_TIME)!!
         val summary =
-            getString(R.string.preferences_date_change_time_summary, mDateChangeTimePref.value)
-        mDateChangeTimePref.summary = summary
-        mWeekStartDayPref = preferenceScreen.findPreference(KEY_CALENDAR_WEEK_START_DAY)!!
-        mWeekStartDayPref.summary = mWeekStartDayPref.entry
-        mEnableFutureDatePref = preferenceScreen.findPreference(KEY_CALENDAR_ENABLE_FUTURE_DATE)!!
+            getString(R.string.preferences_date_change_time_summary, dateChangeTimePref.value)
+        dateChangeTimePref.summary = summary
+        weekStartDayPref = preferenceScreen.findPreference(KEY_CALENDAR_WEEK_START_DAY)!!
+        weekStartDayPref.summary = weekStartDayPref.entry
+        enableFutureDatePref = preferenceScreen.findPreference(KEY_CALENDAR_ENABLE_FUTURE_DATE)!!
         val alertGroup = preferenceScreen.findPreference<PreferenceCategory>(KEY_ALERTS_CATEGORY)!!
-        mRingtonePref = preferenceScreen.findPreference(KEY_ALERTS_RINGTONE)!!
-        mVibrateWhenPref = preferenceScreen.findPreference(KEY_ALERTS_VIBRATE_WHEN)!!
+        ringtonePref = preferenceScreen.findPreference(KEY_ALERTS_RINGTONE)!!
+        vibrateWhenPref = preferenceScreen.findPreference(KEY_ALERTS_VIBRATE_WHEN)!!
         val notificationPref = preferenceScreen.findPreference<Preference>(
             KEY_ALERTS_NOTIFICATION
         )!!
 
-        if (CompatUtil.isNotificationChannelSupported) {
+        if (CompatUtil.isNotificationChannelSupported()) {
             notificationPref.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
                     startActivity(Intent(android.provider.Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
@@ -64,20 +64,20 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
                     })
                     true
                 }
-            alertGroup.removePreference(mRingtonePref)
-            alertGroup.removePreference(mVibrateWhenPref)
+            alertGroup.removePreference(ringtonePref)
+            alertGroup.removePreference(vibrateWhenPref)
         } else {
             alertGroup.removePreference(notificationPref)
             @Suppress("DEPRECATION")
             val vibrator = requireContext().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
             if (!vibrator?.hasVibrator()!!) {
-                alertGroup.removePreference(mVibrateWhenPref)
+                alertGroup.removePreference(vibrateWhenPref)
             } else {
-                mVibrateWhenPref.summary = mVibrateWhenPref.entry
+                vibrateWhenPref.summary = vibrateWhenPref.entry
             }
-            mRingtonePref.onPreferenceClickListener =
+            ringtonePref.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    mRingtonePickerLauncher.launch(RingtoneManager.TYPE_ALARM)
+                    ringtonePickerLauncher.launch(RingtoneManager.TYPE_ALARM)
                     true
                 }
         }
@@ -102,45 +102,45 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
     }
 
     private fun setListeners(listener: Preference.OnPreferenceChangeListener?) {
-        mDoneIconPref.onPreferenceChangeListener = listener
-        mDateChangeTimePref.onPreferenceChangeListener = listener
-        mWeekStartDayPref.onPreferenceChangeListener = listener
-        mEnableFutureDatePref.onPreferenceChangeListener = listener
-        mVibrateWhenPref.onPreferenceChangeListener = listener
-        mRingtonePref.onPreferenceChangeListener = listener
+        doneIconPref.onPreferenceChangeListener = listener
+        dateChangeTimePref.onPreferenceChangeListener = listener
+        weekStartDayPref.onPreferenceChangeListener = listener
+        enableFutureDatePref.onPreferenceChangeListener = listener
+        vibrateWhenPref.onPreferenceChangeListener = listener
+        ringtonePref.onPreferenceChangeListener = listener
     }
 
     override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
         var ret = false
         when {
-            preference === mDoneIconPref -> {
+            preference === doneIconPref -> {
                 Settings.doneIconType = newValue as String
                 ret = true
             }
-            preference === mDateChangeTimePref -> {
+            preference === dateChangeTimePref -> {
                 Settings.dateChangeTime = newValue as String
-                mDateChangeTimePref.value = newValue
+                dateChangeTimePref.value = newValue
                 val summary = getString(
                     R.string.preferences_date_change_time_summary,
-                    mDateChangeTimePref.value
+                    dateChangeTimePref.value
                 )
-                mDateChangeTimePref.summary = summary
+                dateChangeTimePref.summary = summary
             }
-            preference === mWeekStartDayPref -> {
+            preference === weekStartDayPref -> {
                 Settings.weekStartDay = (newValue as String).toInt()
-                mWeekStartDayPref.value = newValue
-                mWeekStartDayPref.summary = mWeekStartDayPref.entry
+                weekStartDayPref.value = newValue
+                weekStartDayPref.summary = weekStartDayPref.entry
             }
-            preference === mEnableFutureDatePref -> {
+            preference === enableFutureDatePref -> {
                 Settings.enableFutureDate = newValue as Boolean
                 ret = true
             }
-            preference === mVibrateWhenPref -> {
+            preference === vibrateWhenPref -> {
                 Settings.alertsVibrateWhen = newValue as String
-                mVibrateWhenPref.value = newValue
-                mVibrateWhenPref.summary = mVibrateWhenPref.entry
+                vibrateWhenPref.value = newValue
+                vibrateWhenPref.summary = vibrateWhenPref.entry
             }
-            preference === mRingtonePref -> {
+            preference === ringtonePref -> {
                 Settings.alertsRingTone = newValue as String
                 ret = true
             }

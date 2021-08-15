@@ -18,6 +18,7 @@ import com.hkb48.keepdo.BuildConfig
 import com.hkb48.keepdo.R
 import com.hkb48.keepdo.db.entity.Task
 import com.hkb48.keepdo.ui.TasksActivity
+import com.hkb48.keepdo.util.CompatUtil
 import com.hkb48.keepdo.util.DateChangeTimeUtil
 import java.text.MessageFormat
 import java.util.*
@@ -112,7 +113,7 @@ class TasksWidgetProvider : AppWidgetProvider() {
             context,
             appWidgetId,
             onItemClickIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            CompatUtil.appendImmutableFlag(PendingIntent.FLAG_UPDATE_CURRENT)
         )
 
         return RemoteViews(context.packageName, R.layout.tasks_widget).apply {
@@ -161,7 +162,12 @@ class TasksWidgetProvider : AppWidgetProvider() {
         val intent = Intent(context, TasksWidgetProvider::class.java).apply {
             action = ACTION_APPWIDGET_UPDATE
         }
-        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getBroadcast(
+            context,
+            0,
+            intent,
+            CompatUtil.appendImmutableFlag(PendingIntent.FLAG_UPDATE_CURRENT)
+        )
     }
 
     private fun getNextDateChangeTime(): Long {

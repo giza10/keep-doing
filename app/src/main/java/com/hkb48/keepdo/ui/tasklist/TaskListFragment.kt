@@ -130,7 +130,7 @@ class TaskListFragment : Fragment() {
         // Cancel notification (if displayed)
         notificationController.cancelReminder()
 
-        if (CompatUtil.isNotificationChannelSupported) {
+        if (CompatUtil.isNotificationChannelSupported()) {
             notificationController.createNotificationChannel()
         }
     }

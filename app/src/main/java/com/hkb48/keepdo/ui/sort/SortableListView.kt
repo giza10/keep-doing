@@ -1,15 +1,14 @@
 package com.hkb48.keepdo.ui.sort
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.graphics.Rect
-import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.util.AttributeSet
-import android.view.*
+import android.view.Gravity
+import android.view.MotionEvent
+import android.view.ViewConfiguration
+import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.ListView
 import com.hkb48.keepdo.R
@@ -84,46 +83,6 @@ class SortableListView @JvmOverloads constructor(
             mDragView = null
         }
         return super.onInterceptTouchEvent(ev)
-    }
-
-    private fun getBitmapFromView(view: View, activity: Activity, callback: (Bitmap) -> Unit) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            activity.window?.let { window ->
-                val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-                val locationOfViewInWindow = IntArray(2)
-                view.getLocationInWindow(locationOfViewInWindow)
-                try {
-                    PixelCopy.request(
-                        window,
-                        Rect(
-                            locationOfViewInWindow[0],
-                            locationOfViewInWindow[1],
-                            locationOfViewInWindow[0] + view.width,
-                            locationOfViewInWindow[1] + view.height
-                        ),
-                        bitmap,
-                        { copyResult ->
-                            if (copyResult == PixelCopy.SUCCESS) {
-                                callback(bitmap)
-                            }
-                            // possible to handle other result codes ...
-                        },
-                        Handler(Looper.getMainLooper())
-                    )
-                } catch (e: IllegalArgumentException) {
-                    // PixelCopy may throw IllegalArgumentException, make sure to handle it
-                    e.printStackTrace()
-                }
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            view.isDrawingCacheEnabled = true
-            @Suppress("DEPRECATION")
-            val bitmap = Bitmap.createBitmap(view.drawingCache)
-            @Suppress("DEPRECATION")
-            view.isDrawingCacheEnabled = false
-            callback(bitmap)
-        }
     }
 
     private fun adjustScrollBounds(y: Int) {

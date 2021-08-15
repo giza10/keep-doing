@@ -46,7 +46,10 @@ class NotificationController @Inject constructor(
             builder.setDefaults(Notification.DEFAULT_VIBRATE)
         }
         val launchIntent = Intent(context, TasksActivity::class.java)
-        val launchPendingIntent = PendingIntent.getActivity(context, 0, launchIntent, 0)
+        val launchPendingIntent = PendingIntent.getActivity(
+            context, 0, launchIntent,
+            CompatUtil.appendImmutableFlag(0)
+        )
         builder.setContentIntent(launchPendingIntent)
         builder.setAutoCancel(true)
 
@@ -87,7 +90,7 @@ class NotificationController @Inject constructor(
                 context,
                 taskId,
                 actionIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT
+                CompatUtil.appendImmutableFlag(PendingIntent.FLAG_CANCEL_CURRENT)
             )
             builder.setContentTitle(context.getString(R.string.notification_title_one_task))
             builder.setContentText(taskName)
@@ -102,7 +105,7 @@ class NotificationController @Inject constructor(
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun createNotificationChannel() {
-        if (CompatUtil.isNotificationChannelSupported.not()) {
+        if (CompatUtil.isNotificationChannelSupported().not()) {
             return
         }
 

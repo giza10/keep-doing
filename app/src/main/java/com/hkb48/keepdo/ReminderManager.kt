@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.hkb48.keepdo.db.entity.Task
+import com.hkb48.keepdo.util.CompatUtil
 import com.hkb48.keepdo.util.DateChangeTimeUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -190,7 +191,7 @@ class ReminderManager @Inject constructor(
         }
         return PendingIntent.getBroadcast(
             context, taskId, intent,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            CompatUtil.appendImmutableFlag(PendingIntent.FLAG_UPDATE_CURRENT)
         )
     }
 
