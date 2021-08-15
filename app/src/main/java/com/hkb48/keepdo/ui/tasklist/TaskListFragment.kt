@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.hkb48.keepdo.*
 import com.hkb48.keepdo.databinding.FragmentTaskListBinding
 import com.hkb48.keepdo.db.entity.Task
@@ -105,11 +106,17 @@ class TaskListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val recyclerView = binding.recycler
+
+        // Add dividers.
         val dividerItemDecoration = DividerItemDecoration(
             requireContext(),
             LinearLayoutManager(requireContext()).orientation
         )
         recyclerView.addItemDecoration(dividerItemDecoration)
+
+        // Disable animation when the list item is updated.
+        (recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+
         binding.recycler.adapter = adapter
 
         binding.fab.setOnClickListener {
