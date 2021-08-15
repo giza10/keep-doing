@@ -1,5 +1,6 @@
 package com.hkb48.keepdo.ui.tasklist
 
+import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
@@ -77,13 +78,15 @@ class TaskListFragment : Fragment() {
 
     private val dateChangedListener: DateChangeTimeManager.OnDateChangedListener =
         object : DateChangeTimeManager.OnDateChangedListener {
+            @SuppressLint("NotifyDataSetChanged")
             override fun onDateChanged() {
                 AlertDialog.Builder(requireContext())
                     .setMessage(R.string.date_changed)
                     .setPositiveButton(
                         R.string.dialog_ok
                     ) { _: DialogInterface?, _: Int ->
-                        viewModel.refresh()
+                        // Forcibly update the whole of List UI
+                        adapter.notifyDataSetChanged()
                     }.setCancelable(false)
                     .create().show()
             }
