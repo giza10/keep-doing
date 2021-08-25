@@ -36,6 +36,20 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_taskListFragment_to_confirmDialogFragment"
+            app:destination="@id/confirmDialogFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_taskListFragment_to_dateChangeNoticeDialogFragment"
+            app:destination="@id/dateChangeNoticeDialogFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
     <fragment
         android:id="@+id/addEditTaskFragment"
@@ -48,6 +62,13 @@
         <argument
             android:name="title"
             app:argType="string" />
+        <action
+            android:id="@+id/action_addEditTaskFragment_to_recurrenceDialogFragment"
+            app:destination="@id/recurrenceDialogFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
     <fragment
         android:id="@+id/taskSortFragment"
@@ -94,5 +115,37 @@
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.hkb48.keepdo.ui.settings.SettingsFragment"
-        android:label="@string/settings" />
+        android:label="@string/settings">
+        <action
+            android:id="@+id/action_settingsFragment_to_doneIconDialogFragment"
+            app:destination="@id/doneIconDialogFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <dialog
+        android:id="@+id/confirmDialogFragment"
+        android:name="com.hkb48.keepdo.ui.tasklist.ConfirmDialogFragment"
+        android:label="ConfirmDialogFragment">
+        <argument
+            android:name="selectedItemId"
+            app:argType="integer" />
+    </dialog>
+    <dialog
+        android:id="@+id/doneIconDialogFragment"
+        android:name="com.hkb48.keepdo.ui.settings.DoneIconDialogFragment"
+        android:label="DoneIconDialogFragment" />
+    <dialog
+        android:id="@+id/recurrenceDialogFragment"
+        android:name="com.hkb48.keepdo.ui.addedit.RecurrenceDialogFragment"
+        android:label="RecurrenceDialogFragment" />
+    <dialog
+        android:id="@+id/dateChangeNoticeDialogFragment"
+        android:name="com.hkb48.keepdo.ui.tasklist.DateChangeNoticeDialogFragment"
+        android:label="DateChangeNoticeDialogFragment" />
+    <dialog
+        android:id="@+id/backupRestoreFragment"
+        android:name="com.hkb48.keepdo.ui.BackupRestoreFragment"
+        android:label="BackupRestoreFragment" />
 </navigation>

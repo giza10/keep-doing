@@ -32,8 +32,6 @@
     <string name="task_name">タイトル</string>
     <string name="recurrence">実行頻度</string>
     <string name="recurrence_separator" />
-    <string name="dialog_ok">OK</string>
-    <string name="dialog_cancel">キャンセル</string>
     <string name="dialog_start">開始</string>
     <string name="reminder">通知機能</string>
     <string name="no_reminder">通知なし</string>
@@ -74,7 +72,6 @@
         <item>土</item>
     </string-array>
     <string name="backup_restore">バックアップと復元</string>
-    <string name="title_activity_task">TaskActivity</string>
     <string name="sort_task">並び替え</string>
 
     <!-- The week start day on the calendar -->

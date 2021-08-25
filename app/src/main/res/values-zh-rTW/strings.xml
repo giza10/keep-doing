@@ -32,8 +32,6 @@
     <string name="task_name">標題</string>
     <string name="recurrence">實行頻率</string>
     <string name="recurrence_separator">，</string>
-    <string name="dialog_ok">成功</string>
-    <string name="dialog_cancel">取消</string>
     <string name="dialog_start">開始</string>
     <string name="reminder">通知功能</string>
     <string name="no_reminder">不通知</string>
@@ -74,7 +72,6 @@
         <item>週六</item>
     </string-array>
     <string name="backup_restore">備份與恢復</string>
-    <string name="title_activity_task">作業項目</string>
     <string name="sort_task">排序</string>
 
     <!-- The week start day on the calendar -->

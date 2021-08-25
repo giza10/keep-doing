@@ -1,6 +1,5 @@
 package com.hkb48.keepdo.ui
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -8,7 +7,6 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -30,7 +28,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
+    BackupRestoreFragment.DialogFragmentResultListener {
     private val viewModel: TaskListViewModel by viewModels()
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -145,48 +144,11 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 findNavController(R.id.nav_host_fragment).navigate(R.id.taskSortFragment)
             }
             R.id.drawer_item_2 -> {
-                // Todo: Tentative implementation
-                showBackupRestoreDeviceDialog()
+                findNavController(R.id.nav_host_fragment).navigate(R.id.backupRestoreFragment)
             }
             R.id.drawer_item_3 -> {
                 findNavController(R.id.nav_host_fragment).navigate(R.id.settingsFragment)
             }
-        }
-    }
-
-    /**
-     * Backup & Restore
-     */
-    private fun showBackupRestoreDeviceDialog() {
-        AlertDialog.Builder(this).apply {
-            setTitle(getString(R.string.backup_restore))
-            setSingleChoiceItems(
-                R.array.dialog_choice_backup_restore, -1
-            ) { dialog: DialogInterface, _: Int ->
-                (dialog as AlertDialog).getButton(
-                    AlertDialog.BUTTON_POSITIVE
-                ).isEnabled = true
-            }
-            setNegativeButton(R.string.dialog_cancel, null)
-            setPositiveButton(
-                R.string.dialog_start
-            ) { dialog: DialogInterface, _: Int ->
-                when ((dialog as AlertDialog).listView
-                    .checkedItemPosition) {
-                    0 -> {
-                        // execute backup
-                        createBackupFileLauncher.launch(backupManager.backupFileName)
-                    }
-                    1 -> {
-                        // execute restore
-                        pickRestoreFileLauncher.launch(("*/*"))
-                    }
-                    else -> {
-                    }
-                }
-            }
-            val alertDialog = show()
-            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
         }
     }
 
@@ -197,5 +159,20 @@ class TasksActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     companion object {
         // Delay to launch nav drawer item, to allow close animation to play
         private const val NAVDRAWER_LAUNCH_DELAY: Long = 250
+    }
+
+    override fun onDialogFragmentResult(selectedIndex: Int) {
+        when (selectedIndex) {
+            0 -> {
+                // execute backup
+                createBackupFileLauncher.launch(backupManager.backupFileName)
+            }
+            1 -> {
+                // execute restore
+                pickRestoreFileLauncher.launch(("*/*"))
+            }
+            else -> {
+            }
+        }
     }
 }

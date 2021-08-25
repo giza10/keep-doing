@@ -12,7 +12,6 @@ import com.hkb48.keepdo.Recurrence
 import com.hkb48.keepdo.Reminder
 import com.hkb48.keepdo.databinding.FragmentTaskDetailBinding
 import com.hkb48.keepdo.db.entity.TaskWithDoneHistory
-import com.hkb48.keepdo.ui.addedit.AddEditTaskFragmentArgs
 import com.hkb48.keepdo.util.DoneHistoryUtil
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
@@ -23,7 +22,7 @@ class TaskDetailFragment : Fragment() {
     private val viewModel: TaskDetailViewModel by viewModels()
     private var _binding: FragmentTaskDetailBinding? = null
     private val binding get() = _binding!!
-    private val args: AddEditTaskFragmentArgs by navArgs()
+    private val args: TaskDetailFragmentArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.hkb48.keepdo.ui.settings.Settings
+import com.hkb48.keepdo.util.CompatUtil
 import com.hkb48.keepdo.util.DateChangeTimeUtil
 import com.hkb48.keepdo.widget.TasksWidgetProvider
 import java.text.MessageFormat
@@ -84,7 +85,12 @@ class DateChangeTimeManager @Inject constructor(
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             action = AlarmReceiver.ACTION_DATE_CHANGED
         }
-        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getBroadcast(
+            context,
+            0,
+            intent,
+            CompatUtil.appendImmutableFlag(PendingIntent.FLAG_UPDATE_CURRENT)
+        )
     }
 
     private fun dumpLog(timeInMillis: Long) {

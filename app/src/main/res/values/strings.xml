@@ -33,8 +33,6 @@
     <string name="preferences_notification_title">Notification setting</string>
     <string name="recurrence">Recurrence</string>
     <string name="recurrence_separator">, </string>
-    <string name="dialog_ok">OK</string>
-    <string name="dialog_cancel">Cancel</string>
     <string name="dialog_start">Start</string>
     <string name="reminder">Reminder</string>
     <string name="reminder_time" translatable="false">%1$02d:%2$02d</string>
@@ -80,7 +78,6 @@
         <item>SAT</item>
     </string-array>
     <string name="backup_restore">Backup and Restore</string>
-    <string name="title_activity_task">TaskActivity</string>
     <string name="sort_task">Sort</string>
 
     <!-- Time when date changes -->

@@ -2,14 +2,14 @@ package com.hkb48.keepdo.ui.addedit
 
 import android.app.TimePickerDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TimePicker
-import androidx.appcompat.app.AlertDialog
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -53,6 +53,15 @@ class AddEditTaskFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAddeditTaskBinding.inflate(inflater, container, false)
+
+        setFragmentResultListener("confirm") { _, data ->
+            val result = data.getBooleanArray("recurrence")
+            if (result != null) {
+                recurrenceFlags = result
+                binding.recurrenceView.update(recurrenceFlags)
+            }
+        }
+
         return binding.root
     }
 
@@ -140,32 +149,15 @@ class AddEditTaskFragment : Fragment() {
     }
 
     private fun addRecurrence(recurrence: Recurrence) {
-        val weekNames = resources.getStringArray(
-            R.array.week_names
-        )
-        val recurrenceView = binding.recurrenceView
-        recurrenceView.update(recurrence)
-        recurrenceView.setOnClickListener {
-            val tmpRecurrenceFlags = recurrenceFlags.copyOf(recurrenceFlags.size)
-            AlertDialog.Builder(requireContext())
-                .setTitle(getString(R.string.recurrence))
-                .setMultiChoiceItems(
-                    weekNames,
-                    recurrenceFlags
-                ) { _: DialogInterface?, which: Int, isChecked: Boolean ->
-                    recurrenceFlags[which] = isChecked
-                }
-                .setPositiveButton(
-                    getString(R.string.dialog_ok)
-                ) { _: DialogInterface?, _: Int ->
-                    recurrenceView.update(recurrenceFlags)
-                }
-                .setNegativeButton(
-                    getString(R.string.dialog_cancel)
-                ) { _: DialogInterface?, _: Int ->
-                    recurrenceFlags = tmpRecurrenceFlags
-                }
-                .show()
+        binding.recurrenceView.apply {
+            update(recurrence)
+            setOnClickListener {
+                // TODO
+                // Use bundle as argument for now because Navigation component doesn't support
+                // booleanArray.
+                val bundle = bundleOf("recurrence" to recurrenceFlags.copyOf(recurrenceFlags.size))
+                findNavController().navigate(R.id.recurrenceDialogFragment, bundle)
+            }
         }
     }
 

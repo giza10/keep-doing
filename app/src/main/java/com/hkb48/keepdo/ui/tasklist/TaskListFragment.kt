@@ -1,7 +1,6 @@
 package com.hkb48.keepdo.ui.tasklist
 
 import android.annotation.SuppressLint
-import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,9 +8,9 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -80,15 +79,8 @@ class TaskListFragment : Fragment() {
         object : DateChangeTimeManager.OnDateChangedListener {
             @SuppressLint("NotifyDataSetChanged")
             override fun onDateChanged() {
-                AlertDialog.Builder(requireContext())
-                    .setMessage(R.string.date_changed)
-                    .setPositiveButton(
-                        R.string.dialog_ok
-                    ) { _: DialogInterface?, _: Int ->
-                        // Forcibly update the whole of List UI
-                        adapter.notifyDataSetChanged()
-                    }.setCancelable(false)
-                    .create().show()
+                findNavController().navigate(R.id.dateChangeNoticeDialogFragment)
+                adapter.notifyDataSetChanged()
             }
         }
 
@@ -99,6 +91,18 @@ class TaskListFragment : Fragment() {
         _binding = FragmentTaskListBinding.inflate(inflater, container, false)
 
         subscribeToModel()
+
+        setFragmentResultListener("confirm") { _, data ->
+            val taskId = data.getInt("id", Task.INVALID_TASKID)
+            if (taskId != Task.INVALID_TASKID) {
+                // Cancel the alarm for Reminder before deleting the task.
+                reminderManager.cancelAlarm(taskId)
+                lifecycleScope.launch {
+                    viewModel.deleteTask(taskId)
+                    TasksWidgetProvider.notifyDatasetChanged(requireContext())
+                }
+            }
+        }
 
         dateChangeTimeManager.registerOnDateChangedListener(dateChangedListener)
 
@@ -111,6 +115,7 @@ class TaskListFragment : Fragment() {
         val recyclerView = binding.recycler
 
         // Add dividers.
+
         val dividerItemDecoration = DividerItemDecoration(
             requireContext(),
             LinearLayoutManager(requireContext()).orientation
@@ -159,22 +164,9 @@ class TaskListFragment : Fragment() {
                 true
             }
             ContextMenuConstants.CONTEXT_MENU_DELETE -> {
-                AlertDialog.Builder(requireContext())
-                    .setMessage(R.string.delete_confirmation)
-                    .setPositiveButton(
-                        R.string.dialog_ok
-                    ) { _: DialogInterface?, _: Int ->
-                        // Cancel the alarm for Reminder before deleting the task.
-                        reminderManager.cancelAlarm(taskId)
-                        lifecycleScope.launch {
-                            viewModel.deleteTask(taskId)
-                            TasksWidgetProvider.notifyDatasetChanged(requireContext())
-                        }
-                    }
-                    .setNegativeButton(
-                        R.string.dialog_cancel
-                    ) { _: DialogInterface?, _: Int -> }.setCancelable(true).create()
-                    .show()
+                val action =
+                    TaskListFragmentDirections.actionTaskListFragmentToConfirmDialogFragment(taskId)
+                findNavController().navigate(action)
                 true
             }
             else -> {
@@ -201,10 +193,10 @@ class TaskListFragment : Fragment() {
     private fun updateTaskList(taskList: List<TaskWithDoneHistory>) = lifecycleScope.launch {
         mutex.withLock {
             adapter.addHeaderAndSubmitList(requireContext(), taskList)
-            if (taskList.isEmpty()) {
-                binding.empty.visibility = View.VISIBLE
+            binding.empty.visibility = if (taskList.isEmpty()) {
+                View.VISIBLE
             } else {
-                binding.empty.visibility = View.INVISIBLE
+                View.INVISIBLE
             }
         }
     }
