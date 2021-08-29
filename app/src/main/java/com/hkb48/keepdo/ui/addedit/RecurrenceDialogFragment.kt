@@ -29,6 +29,6 @@ class RecurrenceDialogFragment : DialogFragment() {
 
     private val listener = DialogInterface.OnClickListener { _, _ ->
         val data = bundleOf("recurrence" to recurrenceFlags)
-        parentFragmentManager.setFragmentResult("confirm", data)
+        parentFragmentManager.setFragmentResult("key-recurrence", data)
     }
 }

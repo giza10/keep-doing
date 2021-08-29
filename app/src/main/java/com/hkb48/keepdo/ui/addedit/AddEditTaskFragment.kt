@@ -1,12 +1,10 @@
 package com.hkb48.keepdo.ui.addedit
 
-import android.app.TimePickerDialog
 import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import android.widget.TimePicker
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -54,12 +52,20 @@ class AddEditTaskFragment : Fragment() {
     ): View {
         _binding = FragmentAddeditTaskBinding.inflate(inflater, container, false)
 
-        setFragmentResultListener("confirm") { _, data ->
-            val result = data.getBooleanArray("recurrence")
-            if (result != null) {
-                recurrenceFlags = result
+        setFragmentResultListener("key-recurrence") { _, data ->
+            data.getBooleanArray("recurrence")?.apply {
+                recurrenceFlags = this
                 binding.recurrenceView.update(recurrenceFlags)
             }
+        }
+        setFragmentResultListener("key-reminder") { _, data ->
+            val hour = data.getInt("hour")
+            val minute = data.getInt("minute")
+            binding.buttonReminderTime.text = getString(R.string.reminder_time, hour, minute)
+            binding.reminderRemove.visibility = View.VISIBLE
+            reminder.enabled = true
+            reminder.hourOfDay = hour
+            reminder.minute = minute
         }
 
         return binding.root
@@ -74,16 +80,7 @@ class AddEditTaskFragment : Fragment() {
         val taskId = args.taskId
         if (taskId == Task.INVALID_TASKID) {
             mode = MODE_NEW_TASK
-            val recurrence = Recurrence(
-                monday = true,
-                tuesday = true,
-                wednesday = true,
-                thursday = true,
-                friday = true,
-                saturday = true,
-                sunday = true
-            )
-            addRecurrence(recurrence)
+            addRecurrence(Recurrence())
             addReminder()
         } else {
             viewModel.getTask(taskId).observe(viewLifecycleOwner, { task ->
@@ -167,10 +164,9 @@ class AddEditTaskFragment : Fragment() {
         }
         val reminderTime = binding.buttonReminderTime
         val cancelButton = binding.reminderRemove
-        val hourOfDay = reminder.hourOfDay
-        val minute = reminder.minute
         if (reminder.enabled) {
-            reminderTime.text = getString(R.string.reminder_time, hourOfDay, minute)
+            reminderTime.text =
+                getString(R.string.reminder_time, reminder.hourOfDay, reminder.minute)
             cancelButton.visibility = View.VISIBLE
         } else {
             reminderTime.setText(R.string.no_reminder)
@@ -179,19 +175,16 @@ class AddEditTaskFragment : Fragment() {
         cancelButton.setOnClickListener {
             it.visibility = View.INVISIBLE
             reminderTime.setText(R.string.no_reminder)
-            reminder.enabled = false
+            reminder = Reminder()
         }
-        val timePickerDialog = TimePickerDialog(
-            requireContext(),
-            { _: TimePicker?, hourOfDay1: Int, minute1: Int ->
-                reminderTime.text = getString(R.string.reminder_time, hourOfDay1, minute1)
-                cancelButton.visibility = View.VISIBLE
-                reminder.enabled = true
-                reminder.hourOfDay = hourOfDay1
-                reminder.minute = minute1
-            }, hourOfDay, minute, true
-        )
-        reminderTime.setOnClickListener { timePickerDialog.show() }
+        reminderTime.setOnClickListener {
+            val action =
+                AddEditTaskFragmentDirections.actionAddEditTaskFragmentToReminderTimePickerDialogFragment(
+                    reminder.hourOfDay,
+                    reminder.minute
+                )
+            findNavController().navigate(action)
+        }
     }
 
     private fun save() = lifecycleScope.launch {

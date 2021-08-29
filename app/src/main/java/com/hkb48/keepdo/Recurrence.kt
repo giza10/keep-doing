@@ -5,13 +5,13 @@ import java.io.Serializable
 import java.util.*
 
 class Recurrence internal constructor(
-    val monday: Boolean,
-    val tuesday: Boolean,
-    val wednesday: Boolean,
-    val thursday: Boolean,
-    val friday: Boolean,
-    val saturday: Boolean,
-    val sunday: Boolean
+    val monday: Boolean = true,
+    val tuesday: Boolean = true,
+    val wednesday: Boolean = true,
+    val thursday: Boolean = true,
+    val friday: Boolean = true,
+    val saturday: Boolean = true,
+    val sunday: Boolean = true
 ) : Serializable {
     fun isValidDay(week: Int): Boolean {
         return when (week) {
