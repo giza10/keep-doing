@@ -10,7 +10,7 @@ import androidx.core.content.ContextCompat
 
 object CompatUtil {
     fun getColor(context: Context, id: Int): Int {
-        return if (Build.VERSION.SDK_INT >= 23) {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             ContextCompat.getColor(context, id)
         } else {
             @Suppress("DEPRECATION")
@@ -19,7 +19,7 @@ object CompatUtil {
     }
 
     val soundPool: SoundPool
-        get() = if (Build.VERSION.SDK_INT < 21) {
+        get() = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             @Suppress("DEPRECATION")
             SoundPool(1, AudioManager.STREAM_SYSTEM, 0)
         } else {
@@ -34,8 +34,16 @@ object CompatUtil {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
     }
 
+    fun appendMutableFlag(baseFlag: Int): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            baseFlag or PendingIntent.FLAG_MUTABLE
+        } else {
+            baseFlag
+        }
+    }
+
     fun appendImmutableFlag(baseFlag: Int): Int {
-        return if (Build.VERSION.SDK_INT >= 23) {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             baseFlag or PendingIntent.FLAG_IMMUTABLE
         } else {
             baseFlag

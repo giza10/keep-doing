@@ -113,7 +113,7 @@ class TasksWidgetProvider : AppWidgetProvider() {
             context,
             appWidgetId,
             onItemClickIntent,
-            CompatUtil.appendImmutableFlag(PendingIntent.FLAG_UPDATE_CURRENT)
+            CompatUtil.appendMutableFlag(PendingIntent.FLAG_UPDATE_CURRENT)
         )
 
         return RemoteViews(context.packageName, R.layout.tasks_widget).apply {
