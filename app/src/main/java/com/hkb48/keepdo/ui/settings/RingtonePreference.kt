@@ -5,7 +5,7 @@ import android.content.res.TypedArray
 import android.util.AttributeSet
 import androidx.preference.Preference
 
-internal class RingtonePreference(context: Context?, attrs: AttributeSet?) :
+internal class RingtonePreference(context: Context, attrs: AttributeSet?) :
     Preference(context, attrs) {
     override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
         return a.getString(index)!!

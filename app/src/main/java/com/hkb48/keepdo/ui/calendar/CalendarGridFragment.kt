@@ -95,7 +95,7 @@ class CalendarGridFragment : Fragment() {
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
         var consumed = false
-        val view = item.actionView
+        val view = item.actionView as View
         val imageView = CalendarDateBinding.bind(view).imageViewDone
         val selectedDate = view.tag as Date
         val taskId = taskWithDoneHistory.task._id

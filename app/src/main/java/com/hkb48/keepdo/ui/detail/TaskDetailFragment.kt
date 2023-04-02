@@ -53,8 +53,8 @@ class TaskDetailFragment : Fragment() {
             R.id.menu_edit -> {
                 val action =
                     TaskDetailFragmentDirections.actionTaskDetailFragmentToAddEditTaskFragment(
-                        args.taskId,
-                        getString(R.string.edit_task)
+                            getString(R.string.edit_task),
+                            args.taskId
                     )
                 findNavController().navigate(action)
                 true

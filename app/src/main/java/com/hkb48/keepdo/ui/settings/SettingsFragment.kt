@@ -180,14 +180,14 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
         private const val KEY_ALERTS_CATEGORY = "preferences_alerts_category"
         private const val KEY_ALERTS_NOTIFICATION = "preferences_notification"
 
-        fun getSharedPreferences(context: Context?): SharedPreferences {
+        fun getSharedPreferences(context: Context): SharedPreferences {
             return PreferenceManager.getDefaultSharedPreferences(context)
         }
 
         /**
          * Set the default shared preferences in the proper context
          */
-        fun setDefaultValues(context: Context?) {
+        fun setDefaultValues(context: Context) {
             PreferenceManager.setDefaultValues(context, R.xml.general_settings, false)
         }
     }

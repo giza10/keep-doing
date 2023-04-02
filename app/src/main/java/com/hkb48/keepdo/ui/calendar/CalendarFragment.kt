@@ -91,8 +91,8 @@ class CalendarFragment : Fragment() {
             R.id.menu_info -> {
                 val action =
                     CalendarFragmentDirections.actionCalendarFragmentToTaskDetailFragment(
-                        taskId,
-                        args.title
+                            args.title,
+                            taskId
                     )
                 findNavController().navigate(action)
                 true

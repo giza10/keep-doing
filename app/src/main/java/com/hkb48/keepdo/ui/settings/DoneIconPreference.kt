@@ -5,7 +5,7 @@ import android.content.res.TypedArray
 import android.util.AttributeSet
 import androidx.preference.DialogPreference
 
-internal class DoneIconPreference(context: Context?, attrs: AttributeSet?) :
+internal class DoneIconPreference(context: Context, attrs: AttributeSet?) :
     DialogPreference(context, attrs) {
     override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
         return a.getString(index)!!

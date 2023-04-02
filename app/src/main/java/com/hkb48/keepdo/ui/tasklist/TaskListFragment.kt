@@ -51,8 +51,8 @@ class TaskListFragment : Fragment() {
             val task = taskWithDoneHistory.task
             val action =
                 TaskListFragmentDirections.actionTaskListFragmentToCalendarFragment(
-                    task._id,
-                    task.name
+                        task.name,
+                        task._id
                 )
             findNavController().navigate(action)
         }
@@ -129,8 +129,8 @@ class TaskListFragment : Fragment() {
 
         binding.fab.setOnClickListener {
             val action = TaskListFragmentDirections.actionTaskListFragmentToAddEditTaskFragment(
-                Task.INVALID_TASKID,
-                getString(R.string.add_task)
+                    getString(R.string.add_task),
+                    Task.INVALID_TASKID
             )
             findNavController().navigate(action)
         }
@@ -157,8 +157,8 @@ class TaskListFragment : Fragment() {
             ContextMenuConstants.CONTEXT_MENU_EDIT -> {
                 val action =
                     TaskListFragmentDirections.actionTaskListFragmentToAddEditTaskFragment(
-                        taskId,
-                        getString(R.string.edit_task)
+                            getString(R.string.edit_task),
+                            taskId
                     )
                 findNavController().navigate(action)
                 true
